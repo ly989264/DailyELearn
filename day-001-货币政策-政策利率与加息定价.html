@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 1｜央行到底控制哪个利率——从「9月加息概率崩盘」讲起</title>
+<style>
+  :root{
+    --bg:#fbfaf7; --fg:#1c1b19; --muted:#5d5a54; --line:#dcd8ce;
+    --accent:#8a4b2a; --accent2:#22557a; --box:#f3f0e9; --box2:#ecf1f5;
+    --warn:#7a4a12; --warnbg:#fdf4e3; --ok:#1f5c3a; --okbg:#eaf4ee;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15171a; --fg:#e8e6e1; --muted:#a6a29a; --line:#33383e;
+      --accent:#e0955f; --accent2:#7fb6dd; --box:#1e2126; --box2:#1a2229;
+      --warn:#e5b269; --warnbg:#2a2317; --ok:#7fc79c; --okbg:#16241c;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17.5px; line-height:1.95; letter-spacing:.01em;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:48px 22px 120px}
+  header.top{border-bottom:2px solid var(--line); padding-bottom:22px; margin-bottom:34px}
+  .kicker{font-size:13px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase}
+  h1{font-size:30px; line-height:1.4; margin:12px 0 10px; font-weight:700}
+  .sub{color:var(--muted); font-size:15px; line-height:1.7}
+  h2{font-size:23px; margin:64px 0 18px; padding-top:14px; border-top:1px solid var(--line); font-weight:700}
+  h3{font-size:19px; margin:42px 0 12px; color:var(--accent); font-weight:700}
+  h4{font-size:16.5px; margin:28px 0 8px; font-weight:700}
+  p{margin:16px 0}
+  strong{font-weight:700}
+  em{font-style:normal; background:linear-gradient(transparent 62%, rgba(138,75,42,.22) 62%)}
+  .calc{
+    background:var(--box); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+    padding:16px 20px; margin:22px 0; font-size:16.5px; line-height:2.05;
+  }
+  .calc .l{display:block}
+  .note{
+    background:var(--box2); border-left:3px solid var(--accent2); border-radius:0 8px 8px 0;
+    padding:16px 20px; margin:22px 0; font-size:16.5px;
+  }
+  .warn{background:var(--warnbg); border-left:3px solid var(--warn); border-radius:0 8px 8px 0; padding:16px 20px; margin:22px 0; font-size:16.5px}
+  .q{color:var(--accent2); font-weight:700}
+  figure{margin:34px 0; padding:0}
+  figcaption{font-size:14.5px; color:var(--muted); margin-top:10px; line-height:1.7}
+  svg{width:100%; height:auto; display:block; background:transparent}
+  table{border-collapse:collapse; width:100%; font-size:15.5px; margin:24px 0}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; line-height:1.65}
+  th{background:var(--box); font-weight:700}
+  ul,ol{padding-left:22px} li{margin:9px 0}
+  a{color:var(--accent2)}
+  details{border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:14px 0; background:var(--box)}
+  summary{cursor:pointer; font-weight:700}
+  details[open] summary{margin-bottom:10px}
+  .src{font-size:14px; color:var(--muted)}
+  .big{font-size:19px; font-weight:700; color:var(--accent)}
+  hr{border:0; border-top:1px solid var(--line); margin:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 001 · 领域 A 货币政策与利率体系 · 锚点原理 A1</div>
+  <h1>央行到底控制哪个利率？<br>——从「9 月加息概率三周内从 70% 掉到 30%」讲起</h1>
+  <div class="sub">
+    新加坡时间 2026 年 8 月 18 日｜第 1 天 / 共 368 天<br>
+    今日锚点原理：<strong>A1 政策利率是什么：央行到底控制哪个利率</strong><br>
+    今日事件：美国 7 月零售销售环比 −0.6%，一年多来最大跌幅，市场对美联储 9 月加息的押注崩塌
+  </div>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p>今天从一件小事出发：上周五美国公布了一个消费数据，比大家预想的差。三天之内，全球交易员对「美联储 9 月会不会加息」的押注，从「大概率会」变成了「大概率不会」。</p>
+
+<p>我们要讲明白的道理是：<strong>当人们说「央行加息」的时候，被加的到底是哪一个利率？</strong>你会发现，答案和你以为的完全不一样——央行既没有规定你的房贷利率，也没有规定美国国债的利率，它只盯着一个借期只有一个晚上的利率，而且连这个都不是直接「规定」的，是用三道围栏「围」出来的。</p>
+
+<p>读完这一课，你应该能回答：为什么美联储的目标是「3.50% 到 3.75%」这样一个区间，而实际成交是 3.63%？为什么这个 3.63% 的隔夜利率，能一路影响到你在新加坡持有的美股和你手里的新币？以及最关键的：<strong>这条链条在哪一环会断掉</strong>——今天美国 30 年期国债利率是 5.21%，是 2007 年以来最高，而美联储对它几乎无能为力。</p>
+
+<h2>1｜今天的事件</h2>
+
+<p>先把事实摆出来，一个一个说清楚每个数字是什么意思。所有来源链接在文末。</p>
+
+<h4>事件本身：8 月 14 日（周五）公布的 7 月零售销售</h4>
+
+<p>美国人口普查局（Census Bureau）公布：2026 年 7 月，美国零售与餐饮行业的总销售额是 <strong>7636 亿美元</strong>，比 6 月<strong>少了 0.6%</strong>（统计误差 ±0.4%）。所谓「零售与餐饮销售额」，就是美国人在商店、网店、加油站、餐厅一共花了多少钱，是衡量「老百姓愿不愿意花钱」最直接的月度数据。</p>
+
+<p>「环比 −0.6%」的意思是：拿 7 月这个月和上个月 6 月比，少了 0.6%。这是<strong>一年多以来最大的单月跌幅</strong>。同时，7 月的销售额比去年 7 月还是高 5.0%（这叫「同比」，拿今年和去年同一个月比）。所以准确的说法不是「美国人不消费了」，而是「消费突然踩了一脚刹车」。</p>
+
+<h4>这脚刹车之前，已经有两个数据在铺垫</h4>
+
+<p><strong>8 月 7 日，7 月就业报告。</strong>美国劳工统计局（BLS）公布：7 月美国非农就业人数<strong>减少了 2.3 万人</strong>。「非农就业人数」就是全国有工作的人（不含农业）总共有多少，每月统计一次；这个数字通常是正的（每月新增十几万人），出现负数意味着企业净裁员。更糟的是，5 月和 6 月的旧数据被<strong>向下修正了合计 10.3 万人</strong>——也就是说，过去两个月的就业其实比原先报的差很多。失业率维持在 <strong>4.1%</strong>，平均时薪同比涨 <strong>3.2%</strong>。</p>
+
+<p><strong>8 月 12 日，7 月通胀报告。</strong>衡量物价的消费者价格指数（CPI），7 月比 6 月只涨了 <strong>0.1%</strong>，比一年前高 <strong>3.4%</strong>。但如果把食品和能源剔除掉（这两项波动特别大），剩下的部分比一年前只高 <strong>2.5%</strong>。差别从哪来？<strong>能源价格比一年前高了 14.7%</strong>。这个 14.7% 有具体来由：伊朗冲突导致霍尔木兹海峡（全球约五分之一石油的必经水道）航运受阻，油价长期偏高，今天布伦特原油约 <strong>88.65 美元/桶</strong>。</p>
+
+<h4>背景：美联储 7 月 29 日刚刚「按兵不动」，而且吵得很凶</h4>
+
+<p>7 月 29 日的美联储议息会议（正式名称是「联邦公开市场委员会」，英文缩写 <strong>FOMC</strong>，就是美联储决定利率的那个会，一年开八次）决定：<strong>把联邦基金利率的目标区间维持在 3.50%–3.75% 不变</strong>。但有三位委员（Hammack、Kashkari、Logan）投了反对票，他们主张<strong>加息 0.25 个百分点</strong>。声明里写着：「通胀相对于委员会 2% 的目标仍然偏高，部分反映了推高特定部门（包括能源）价格的供给冲击。」</p>
+
+<p>会后债券市场的反应很不客气：<strong>30 年期美国国债利率当天冲到 5.21%，是 2007 年以来最高</strong>。媒体把这解读为债市在质疑新任美联储主席 Kevin Warsh 治理通胀的决心。</p>
+
+<h4>结果：三周之内，市场押注彻底翻转</h4>
+
+<p>把这几件事连起来看，市场对「9 月那次 FOMC 会议会不会加息 0.25 个百分点」的定价是这样走的：</p>
+
+<table>
+<tr><th>时间</th><th>市场隐含的 9 月加息概率</th><th>触发因素</th></tr>
+<tr><td>8 月初</td><td>约 <strong>70%</strong></td><td>7 月按兵不动 + 能源供给冲击 + 债市质疑央行信誉</td></tr>
+<tr><td>8 月 3 日前后</td><td>约 <strong>65%</strong>（摩根大通预期加一次）</td><td>霍尔木兹海峡供应链正常化慢于预期</td></tr>
+<tr><td>8 月 10 日前后</td><td>约 <strong>50%</strong></td><td>7 月就业报告 −2.3 万人</td></tr>
+<tr><td>8 月 17 日（今天）</td><td><strong>不到 30%</strong></td><td>7 月零售销售 −0.6%</td></tr>
+</table>
+
+<p>与此同时的市场读数（8 月 13–17 日）：</p>
+
+<table>
+<tr><th>指标</th><th>数值</th><th>这是什么</th></tr>
+<tr><td>联邦基金有效利率 EFFR</td><td>3.63%</td><td>银行之间隔夜互相借钱的实际平均利率</td></tr>
+<tr><td>SOFR</td><td>3.62%</td><td>用国债做抵押的隔夜借钱利率</td></tr>
+<tr><td>2 年期国债利率</td><td>4.15%（当日跌 0.02 个百分点）</td><td>借给美国政府 2 年，年化回报</td></tr>
+<tr><td>10 年期国债利率</td><td>4.63%</td><td>借给美国政府 10 年，年化回报</td></tr>
+<tr><td>30 年期国债利率</td><td>5.21%</td><td>借给美国政府 30 年，年化回报（19 年新高）</td></tr>
+<tr><td>美元指数 DXY</td><td>连跌三天，接近 5 月以来最弱</td><td>美元对一篮子主要货币的强弱</td></tr>
+<tr><td>USD/SGD</td><td>1.2779（新元一个月内升值 1.01%）</td><td>1 美元换多少新币</td></tr>
+<tr><td>布伦特原油</td><td>约 88.65 美元/桶</td><td>国际油价基准</td></tr>
+<tr><td>黄金</td><td>约 4,395 美元/盎司</td><td></td></tr>
+</table>
+
+<p class="note"><strong>先记住一个反差，今天全部内容都围绕它展开：</strong>美联储控制的那个利率现在是 <strong>3.63%</strong>。2 年期国债是 <strong>4.15%</strong>，比它高。30 年期是 <strong>5.21%</strong>，比它高得多。如果央行真的「控制利率」，怎么会出现这种局面？</p>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 760 900" role="img" aria-label="从零售销售数据到全球资产价格的传导链">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arx" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="var(--warn)"/>
+    </marker>
+  </defs>
+  <style>
+    .bx{fill:var(--box); stroke:var(--line); stroke-width:1.5; rx:9}
+    .bxa{fill:var(--box2); stroke:var(--accent2); stroke-width:2.2; rx:9}
+    .bxw{fill:var(--warnbg); stroke:var(--warn); stroke-width:2; rx:9}
+    .t{font:600 15px -apple-system,"Noto Sans SC",sans-serif; fill:var(--fg)}
+    .s{font:13px -apple-system,"Noto Sans SC",sans-serif; fill:var(--muted)}
+    .n{font:700 12px -apple-system,sans-serif; fill:var(--accent)}
+    .ln{stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#ar)}
+    .lnw{stroke:var(--warn); stroke-width:1.8; fill:none; stroke-dasharray:6 4; marker-end:url(#arx)}
+  </style>
+
+  <rect class="bx" x="80" y="14" width="600" height="62"/>
+  <text class="n" x="96" y="36">① 事实</text>
+  <text class="t" x="96" y="58">7 月零售销售 −0.6%、7 月就业 −2.3 万人</text>
+  <text class="s" x="530" y="58">（消费与就业在降温）</text>
+  <path class="ln" d="M380,76 L380,104"/>
+
+  <rect class="bx" x="80" y="106" width="600" height="62"/>
+  <text class="n" x="96" y="128">② 预期</text>
+  <text class="t" x="96" y="150">交易员改写「央行未来会把隔夜利率放在哪」的赌注</text>
+  <path class="ln" d="M380,168 L380,196"/>
+
+  <rect class="bx" x="80" y="198" width="600" height="62"/>
+  <text class="n" x="96" y="220">③ 定价</text>
+  <text class="t" x="96" y="242">9 月加息概率：70% → 50% → 不到 30%</text>
+  <path class="ln" d="M380,260 L380,288"/>
+
+  <rect class="bxa" x="60" y="290" width="640" height="86"/>
+  <text class="n" x="80" y="314">④ 今天的主菜：这个「利率」到底是什么</text>
+  <text class="t" x="80" y="338">央行只控制一个隔夜利率的目标区间 3.50%–3.75%，</text>
+  <text class="t" x="80" y="360">靠三道围栏把实际成交价 EFFR 围在 3.63%</text>
+  <path class="ln" d="M380,376 L380,404"/>
+
+  <rect class="bx" x="80" y="406" width="600" height="62"/>
+  <text class="n" x="96" y="428">⑤ 拼接</text>
+  <text class="t" x="96" y="450">2 年期利率 = 未来 730 天隔夜利率的平均 + 期限溢价 = 4.15%</text>
+  <path class="ln" d="M380,468 L380,496"/>
+  <path class="ln" d="M200,468 L200,486 L200,496"/>
+  <path class="ln" d="M560,468 L560,486 L560,496"/>
+
+  <rect class="bx" x="24" y="498" width="226" height="86"/>
+  <text class="n" x="40" y="522">⑥ 汇率</text>
+  <text class="t" x="40" y="544">美元利差收窄</text>
+  <text class="t" x="40" y="566">→ 美元走弱</text>
+
+  <rect class="bx" x="266" y="498" width="228" height="86"/>
+  <text class="n" x="282" y="522">⑦ 估值</text>
+  <text class="t" x="282" y="544">折现率下降</text>
+  <text class="t" x="282" y="566">→ 股票、黄金受益</text>
+
+  <rect class="bx" x="510" y="498" width="226" height="86"/>
+  <text class="n" x="526" y="522">⑧ 你</text>
+  <text class="t" x="526" y="544">USD/SGD 1.2779</text>
+  <text class="t" x="526" y="566">新元一个月升 1.01%</text>
+
+  <path class="ln" d="M380,584 L380,616"/>
+
+  <rect class="bxw" x="60" y="618" width="640" height="110"/>
+  <text class="n" x="80" y="642" style="fill:var(--warn)">⑨ 断点：这条链在这里失灵</text>
+  <text class="t" x="80" y="666">30 年期国债利率 5.21%，2007 年以来最高。</text>
+  <text class="t" x="80" y="690">央行把隔夜利率按住了，却按不住 30 年——因为长端里</text>
+  <text class="t" x="80" y="712">还装着「通胀信誉」和「期限溢价」，那不归央行直接管。</text>
+
+  <path class="lnw" d="M700,673 C740,673 745,340 706,334"/>
+  <text class="s" x="300" y="762">虚线：长端利率反过来影响短端预期——债市越不信任央行，</text>
+  <text class="s" x="300" y="782">央行越被迫用加息来证明自己。链条是有回路的，不是单向的。</text>
+
+  <rect class="bx" x="60" y="800" width="640" height="80"/>
+  <text class="n" x="80" y="824">读图口诀</text>
+  <text class="t" x="80" y="848">数据 → 预期 → 隔夜利率路径 → 各期限利率 → 汇率/估值 → 你的组合</text>
+  <text class="s" x="80" y="870">整条链上，央行真正握在手里的只有第 ④ 环那一小段。</text>
+</svg>
+<figcaption>图 1｜今天这条链一共九环。中间蓝框（第 ④ 环）是今天要讲透的锚点原理：央行控制的到底是什么。底部橙框是链条的断裂点：同一个央行，按得住一晚上的利率，按不住三十年的利率。</figcaption>
+</figure>
+
+<h4>把这张图用大白话读一遍</h4>
+
+<p>假设我们坐在咖啡馆，我口头给你讲一遍，会是这样：</p>
+
+<p>「上周五美国出了个数据，说美国人 7 月花的钱比 6 月少了 0.6%。前一周还出了个数据，说 7 月企业净裁了 2.3 万人。这两件事合起来说明：美国经济在降温。</p>
+
+<p>那这跟利率有什么关系？因为美联储的活儿就是在『通胀太高』和『经济太冷』之间踩油门刹车。之前通胀高（3.4%），大家赌它 9 月要加息，赌到 70% 的概率。现在经济冷了，加息这脚就踩不下去了——赌的人从 70% 掉到不到 30%。</p>
+
+<p>接下来是今天真正要搞懂的部分：<strong>大家在赌的这个『加息』，加的到底是哪个利率？</strong>答案会让你意外——美联储不规定房贷利率，不规定国债利率，甚至连它自己那个利率都不是直接规定的。它规定的是一个区间：3.50% 到 3.75%，然后用三个工具当围栏，把银行之间借一个晚上的钱的实际价格，赶到这个区间里去。今天赶到的位置是 3.63%。</p>
+
+<p>然后，一晚上的利率怎么会影响到 2 年、10 年？因为借 2 年，可以理解成『连着借 730 个晚上』。所以 2 年期利率大致等于未来 730 天隔夜利率的平均值，再加一点补偿。市场把未来的隔夜利率往下调了，2 年期利率就跟着往下走——今天跌了 2 个基点，到 4.15%。</p>
+
+<p>再往外一圈：美元的利率变低了，拿美元存款的吸引力下降，美元就走弱了——已经连跌三天。新元相对就变强，USD/SGD 到 1.2779，一个月内新元升了 1.01%。同时，利率下降会让股票和黄金变得更值钱（第 ⑦ 环，等下详细讲为什么）。</p>
+
+<p>最后是最有意思的部分：<strong>这条链是断的。</strong>美联储把隔夜利率按在 3.63%，可 30 年期国债利率是 5.21%，2007 年以来最高。债市在说：我不确定你能把通胀压回 2%。这一段，央行的手够不着。」</p>
+
+<p>好，现在我们一环一环拆。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>热身：三个最基础的词，先定义清楚</h3>
+
+<p>后面每一句话都要用到它们，所以先花两分钟把它们钉死。</p>
+
+<p><strong>第一个：利率。</strong>你把 100 块借给别人一年，他还你 105 块，多出来的 5 块就是「租金」。这个租金占本金的比例 5 ÷ 100 = 5%，就是利率。<em>利率就是「钱的租金率」</em>。借一天有一天的租金，借三十年有三十年的租金——所以世界上不存在「一个」利率，存在的是一整排不同期限的利率。这句话是今天全部内容的地基。</p>
+
+<p><strong>第二个：年化。</strong>如果你借的不是一年而是一个晚上呢？租金会小到没法比较。所以金融业统一把所有利率都换算成「假如按这个速度借满一年，会是多少」，这叫年化（annualized）。举个真实的例子：今天银行之间隔夜互借的利率是 3.63%，这不是说借一晚要付 3.63% 的利息，而是说——</p>
+
+<div class="calc">
+借 1 亿美元，借一个晚上，付的利息 =<br>
+<span class="l">1 亿 × 3.63% × (1 天 ÷ 360 天) = <strong>10,083 美元</strong></span>
+<span class="l" style="color:var(--muted); font-size:15px">（货币市场惯例用 360 天算一年，不是 365 天，这是几百年前留下的习惯）</span>
+</div>
+
+<p>1 亿美元借一晚上，成本一万美元出头。听起来不多，但银行每天要滚动几百亿，一年 250 个交易日，量就大了。</p>
+
+<p><strong>第三个：基点。</strong>利率的变动经常很小，说「0.25 个百分点」太啰嗦，于是行业把 1 个百分点切成 100 份，每一份叫 <strong>1 个基点</strong>（basis point，读作「bip」，写作 bp）。</p>
+
+<div class="calc">
+<span class="l">1 个基点 = 0.01 个百分点 = 0.0001</span>
+<span class="l">25 个基点 = 0.25 个百分点 ← 美联储最常见的一次动作</span>
+<span class="l">今天 2 年期利率「跌了 2 个基点」= 从 4.17% 跌到 4.15%</span>
+</div>
+
+<p class="warn"><strong>为什么要发明这个词？</strong>因为「利率从 4% 涨到 5%」有两种说法：涨了 1 个百分点，或者涨了 25%（因为 5 ÷ 4 = 1.25）。这两个说法差得离谱，历史上真的因此出过交易纠纷。用「涨了 100 个基点」就完全没有歧义。以后你看到「50bp」「hiked 25bps」，脑子里直接换算成百分点即可。</p>
+
+<h3>环 ①→②：为什么「美国人少花了钱」会改变「利率的预期」</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>要回答这个，得先知道美联储在干什么。美国国会给美联储定的任务只有两条：<strong>让物价稳定，让就业尽量充分</strong>（这叫「双重使命」，dual mandate，以后 A9 会专门讲）。「物价稳定」被具体量化成一个数字：让通胀率长期维持在 <strong>2%</strong> 附近。</p>
+
+<p>现在把这两条任务和现实数据对上：</p>
+
+<table>
+<tr><th>任务</th><th>目标</th><th>2026 年 7 月实际</th><th>差距</th></tr>
+<tr><td>物价稳定</td><td>通胀 2%</td><td>3.4%（剔除食品能源后 2.5%）</td><td>偏高 1.4 个百分点</td></tr>
+<tr><td>充分就业</td><td>就业稳步增长</td><td>7 月 −2.3 万人，前两月下修 10.3 万</td><td>已经转负</td></tr>
+</table>
+
+<p>这就是一个典型的两难：<strong>一边要求踩刹车（通胀太高），一边要求踩油门（就业在恶化）。</strong></p>
+
+<p>接下来是关键的推理链，我一步都不省：</p>
+
+<ol>
+<li><strong>为什么加息能压通胀？</strong>加息 = 借钱变贵。借钱变贵，企业就少借钱扩产、少招人；家庭就少借钱买房买车。整个社会的花钱总量下降。花钱的人少了，卖东西的人就不敢涨价了。于是物价涨得慢下来。</li>
+<li><strong>但同一个动作也会伤到就业。</strong>企业少扩产，就少招人，甚至裁人。所以加息压通胀，是通过「让经济变冷」实现的——它没有别的路可走。</li>
+<li><strong>所以美联储永远在做一道取舍题：</strong>经济现在有多冷？如果还很热，加息的代价小、收益大，值得加。如果已经在降温，那通胀说不定自己会掉下来，硬加息就是在往下坡路上再踹一脚。</li>
+<li><strong>7 月零售 −0.6% 和就业 −2.3 万，正是在告诉市场：经济已经在自己降温了。</strong>那么「硬加息」这个选项的成本就大幅上升，收益大幅下降。</li>
+<li><strong>因此交易员下调了「9 月会加息」的概率。</strong>不是因为通胀问题解决了（3.4% 还是高），而是因为加息的代价变得难以承受。</li>
+</ol>
+
+<p class="note"><span class="q">你可能会想：</span>就业变差不是应该更快降息吗？为什么讨论的还是「加不加息」？<br><br>因为这一轮通胀的来源是<strong>供给</strong>不是需求。先解释这两个词：「需求」涨价是<em>买的人太多、抢着买</em>，比如大家都有钱、都想买车；「供给」涨价是<em>东西本身变少了</em>，比如运油的航道被堵住。经济学把后者叫<strong>供给冲击</strong>（supply shock）。7 月核心通胀（剔除食品能源）只有 2.5%，已经很接近 2% 的目标了；把总数顶到 3.4% 的是能源，能源比一年前贵了 14.7%，源头是霍尔木兹海峡的航运受阻。<strong>降息不会让海峡通航，加息也不会。</strong>央行对供给冲击本来就没有好办法——这是 B8「供给冲击与需求冲击的区分方法」的核心，我们以后会专门拆。今天你只要记住：正因为央行工具对供给无效，它才会陷入「加也不是、不加也不是」的僵局，于是每一个新数据都能大幅改变市场的赌注。</p>
+
+<h4>这个影响有多大</h4>
+
+<p>用今天的实际数字量化：<strong>三周内，两个数据点（就业 + 零售），把 9 月加息概率从 70% 打到不足 30%，净变化 40 个百分点以上。</strong>其中就业报告贡献约 20 个百分点（70% → 50%），零售销售贡献约 20 个百分点（50% → 不到 30%）。</p>
+
+<p>这个敏感度非常高，原因就是上面说的僵局：当央行本身在 50:50 的边缘摇摆时，任何一根羽毛都能让天平倒向一边。反过来，如果经济数据一边倒地强、通胀一边倒地高，那单个数据的影响会小得多——因为结论早就定了。</p>
+
+<h4>什么情况下这一环会断</h4>
+
+<ul>
+<li><strong>数据本身不可靠时。</strong>注意零售销售的误差范围是 ±0.4%，而跌幅是 0.6%。也就是说真实跌幅可能在 −0.2% 到 −1.0% 之间。如果下个月修正成 −0.1%，这一环的推理就白搭。就业数据刚刚把两个月合计下修了 10.3 万人，正是这个风险的现实版本。</li>
+<li><strong>央行明确表示「我不看这个」时。</strong>如果美联储主席讲话说「我们本轮的唯一标准是通胀预期，不看需求数据」，那需求数据再差，也不会改变加息概率——传导需要一个「央行会据此反应」的前提。</li>
+<li><strong>当通胀高到无法容忍时。</strong>1979–1982 年美国通胀一度超过 13%，Volcker 把政策利率推到 19%，明知会造成衰退也照做。当通胀足够极端，就业数据的否决权会被剥夺。</li>
+</ul>
+
+<h3>环 ②→③：「9 月加息概率 30%」这个数字，是从哪算出来的？</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>这里有个反直觉的事实：<strong>没有任何机构做民调问「你觉得美联储会加息吗」。这个百分比是从一个价格里倒推出来的。</strong></p>
+
+<p>先讲一个生活场景。假设明年世界杯，你和朋友打赌某队夺冠。朋友说：「你现在给我 30 块，如果他们夺冠我给你 100 块。」你接受了这个价格，意味着什么？意味着你们双方都认为夺冠概率大约是 30%——因为 <strong>30 = 100 × 30%</strong>。<em>价格里藏着概率。</em></p>
+
+<p>金融市场有一种合约就是干这个的，叫<strong>联邦基金期货</strong>（Fed funds futures）。它的规则是：合约到期时，按当月银行间隔夜利率的实际平均值结算。你今天可以买卖它，等于在赌「下个月那个利率会是多少」。</p>
+
+<p>我们用今天的真实数字把这个概率算出来。9 月的情形只有两种（先简化成两种）：</p>
+
+<div class="calc">
+<strong>情形 A：不加息。</strong>目标区间维持 3.50%–3.75%，实际成交利率 ≈ <strong>3.63%</strong>（今天的水平）<br>
+<strong>情形 B：加息 25 个基点。</strong>目标区间变成 3.75%–4.00%，实际成交利率 ≈ <strong>3.88%</strong><br><br>
+假设市场认为加息概率是 <em>p</em>，那么市场预期的 9 月平均利率就是：<br>
+<span class="l">3.63% × (1−<em>p</em>) + 3.88% × <em>p</em></span><br>
+代入 <em>p</em> = 30%：<br>
+<span class="l">3.63% × 0.70 + 3.88% × 0.30 = 2.541% + 1.164% = <strong>3.705%</strong></span><br>
+代入 <em>p</em> = 70%（三周前）：<br>
+<span class="l">3.63% × 0.30 + 3.88% × 0.70 = 1.089% + 2.716% = <strong>3.805%</strong></span>
+</div>
+
+<p>看这两个结果的差：3.805% − 3.705% = <strong>0.10%，也就是 10 个基点</strong>。</p>
+
+<p>反过来读这件事，你就懂了整套机制：<strong>交易员并不是先在心里定一个概率再去交易。是期货价格先动，然后所有人把价格反解成概率。</strong>过去三周，9 月的联邦基金期货隐含利率下降了大约 10 个基点，媒体就把它翻译成「加息概率从 70% 掉到 30%」。</p>
+
+<p>倒推的算法就是把上面的式子反过来。假设今天的期货隐含利率是 3.705%：</p>
+
+<div class="calc">
+<span class="l">概率 <em>p</em> = (隐含利率 − 不加息利率) ÷ (加息利率 − 不加息利率)</span>
+<span class="l" style="color:var(--muted); font-size:15px">逐项翻译：分子 = 「市场定价 比 不加息的情形 高出多少」；分母 = 「一次加息一共值多少」（这里是 25 个基点）。两者相除 = 「市场定价走完了这次加息的百分之几」。</span><br>
+<span class="l">代入：(3.705% − 3.63%) ÷ (3.88% − 3.63%) = 0.075% ÷ 0.25% = <strong>0.30 = 30%</strong></span>
+</div>
+
+<p class="note"><span class="q">你可能会想：</span>这个「概率」是真的概率吗？<br><br><strong>不完全是。</strong>它其实是「概率 × 大家愿意为规避风险付的钱」的混合物。一个害怕加息的基金经理，可能愿意用高于公平价的价格买保护，这会把隐含概率推高，哪怕他心里觉得只有 20% 会加。这个额外的部分叫<strong>风险溢价</strong>（risk premium）——即「为了不承受这个风险，我愿意多付的钱」。所以严格说，市场隐含概率 = 真实概率 + 风险溢价的影响。这是它最常被误用的地方：把它当成对未来的客观预报。它不是预报，它是<strong>一群人押注后的加权结果</strong>。</p>
+
+<h4>这个影响有多大 / 什么情况下这一环会断</h4>
+
+<p>规模感：全球围绕美国短期利率的各类合约（期货、掉期这类「价格跟着别的东西走」的合约，统称<strong>衍生品</strong>）名义规模在数十万亿美元量级，所以这个价格的信息含量很高，被操纵的可能性很低。但它会在两种情况下失真：</p>
+<ul>
+<li><strong>流动性枯竭时。</strong>市场恐慌时买卖价差拉大，价格里的噪音远大于信息。2020 年 3 月就出现过隐含概率跳来跳去的情况。</li>
+<li><strong>不止两种结果时。</strong>上面的算法假设只有「不动」和「加 25bp」两种可能。如果市场同时在赌「加 50bp」甚至「降息」，就要用更复杂的分布来拆，简化算法会给出误导性的数字。</li>
+</ul>
+
+<h3>环 ④【今日锚点原理 A1】央行到底控制哪个利率</h3>
+
+<p>这是今天的主菜。前面所有的「加息概率」「政策利率」，都建立在一个我们还没有拆开的黑箱上。现在把它拆开。</p>
+
+<h4>先破除一个几乎所有人都有的误解</h4>
+
+<p>大部分人脑子里的画面是：美联储开个会，宣布「利率现在是 3.75%」，然后全国的银行照办。</p>
+
+<p><strong>这个画面在三个层面上都是错的：</strong></p>
+
+<ol>
+<li>美联储宣布的<strong>不是一个数，是一个区间</strong>（今天是 3.50%–3.75%）。</li>
+<li>它宣布的不是「命令」，是<strong>一个愿望</strong>——它希望某个市场价格落在这个区间里。真实成交价可能落在区间中间任何位置，今天是 3.63%。</li>
+<li>这个利率<strong>不是你的利率</strong>。它是银行之间借<strong>一个晚上</strong>的钱的利率。你的房贷、你的存款、美国国债，全都不是它，只是被它间接影响。</li>
+</ol>
+
+<p>所以正确的说法是：<strong>美联储控制的是「银行之间隔夜互借的价格」，而且是用间接手段把它赶进一个区间。</strong>接下来我们把这句话里的每个部分讲透。</p>
+
+<h4>第一步：银行为什么要在半夜互相借钱？</h4>
+
+<p>先讲一个生活场景。你有个储值卡，规定每天营业结束时余额不能是负数。今天你刷卡刷多了，余额 −500。隔壁老王今天没怎么花，余额 +800。你跟老王说：借我 500 撑一晚上，明天一早还你，给你几块钱茶水费。老王同意了。</p>
+
+<p>银行体系每天在做的就是这件事，只是数字大了很多倍。机制是这样的：</p>
+
+<p>每家美国的银行在美联储都有一个账户，里面的余额叫<strong>准备金</strong>（reserves）。你可以把它想成「银行在央行开的活期存款账户」。银行之间的所有转账，最终都是通过这个账户结算的——你从花旗转 100 万给汇丰的客户，实际发生的是花旗在美联储的账户少 100 万，汇丰的账户多 100 万。</p>
+
+<p>问题来了：每天收工时，有的银行账上多，有的银行账上少。少的那家不能透支。于是形成了一个市场——<strong>账上多的银行把钱借给账上少的银行，借一个晚上，第二天早上归还。</strong>这个市场叫<strong>联邦基金市场</strong>（federal funds market），交易的是「在美联储账户里的余额」，期限是隔夜，而且<strong>没有抵押品</strong>（纯靠信用）。</p>
+
+<h4>第二步：EFFR 是什么——一个事后统计出来的价格</h4>
+
+<p>每天这个市场上有几百笔交易，每笔的利率都不一样。纽约联储把当天所有交易按金额加权，取中位数，第二天早上公布。这个数字叫<strong>联邦基金有效利率</strong>（Effective Federal Funds Rate，简称 <strong>EFFR</strong>）。</p>
+
+<p><strong>「有效」这个词在这里的意思是「实际发生的」</strong>，相对于「目标的」。今天（8 月 13 日数据）EFFR = <strong>3.63%</strong>。</p>
+
+<p class="warn"><strong>请务必记住：EFFR 是一个统计结果，不是一个决定。</strong>没有人能「设定」EFFR，就像没有人能设定今天上海的房子成交均价。美联储能做的，是改变买卖双方面对的选项，让成交价自然落到它想要的地方。这就是「间接控制」的含义，也是整个 A1 原理的核心。</p>
+
+<h4>第三步：三道围栏——美联储怎么把 EFFR 赶进区间</h4>
+
+<p>现在我们来看 7 月 29 日那份「实施说明」（Implementation Note）里的全部数字。这份文件比新闻稿重要得多，但几乎没人读：</p>
+
+<table>
+<tr><th>工具</th><th>今天的利率</th><th>它是什么</th></tr>
+<tr><td>目标区间</td><td>3.50%–3.75%</td><td>希望 EFFR 落在这里</td></tr>
+<tr><td>准备金余额利息（IORB）</td><td><strong>3.65%</strong></td><td>银行把钱放在美联储账户里，美联储付给它的利息</td></tr>
+<tr><td>隔夜逆回购（ON RRP）</td><td><strong>3.50%</strong>，每家每天上限 1600 亿美元</td><td>非银机构（货币基金等）也能把钱存进美联储拿到的利率</td></tr>
+<tr><td>常备回购便利（SRF）</td><td><strong>3.75%</strong></td><td>拿国债作抵押，随时能向美联储借到钱的利率</td></tr>
+<tr><td>贴现窗口（一级信贷）</td><td><strong>3.75%</strong></td><td>银行直接向美联储借钱的利率</td></tr>
+</table>
+
+<p>看出结构了吗？<strong>3.50% 在最下面，3.75% 在最上面，3.65% 在中间偏上。</strong>这不是巧合，这是设计。我们一道一道看它们怎么起作用。</p>
+
+<figure>
+<svg viewBox="0 0 760 430" role="img" aria-label="美联储利率走廊结构图">
+  <style>
+    .ax{stroke:var(--line); stroke-width:1.5}
+    .lab{font:600 14px -apple-system,"Noto Sans SC",sans-serif; fill:var(--fg)}
+    .lab2{font:13px -apple-system,"Noto Sans SC",sans-serif; fill:var(--muted)}
+    .num{font:700 16px -apple-system,sans-serif; fill:var(--fg)}
+    .ceil{stroke:var(--warn); stroke-width:3}
+    .flr{stroke:var(--accent2); stroke-width:3}
+    .ior{stroke:var(--accent2); stroke-width:3; stroke-dasharray:8 5}
+    .eff{fill:var(--accent)}
+  </style>
+  <rect x="120" y="60" width="500" height="230" fill="var(--box)" opacity=".55" rx="6"/>
+  <text class="lab2" x="132" y="82">目标区间 3.50% – 3.75%（美联储希望 EFFR 待的地方）</text>
+
+  <line class="ax" x1="120" y1="30" x2="120" y2="330"/>
+  <text class="lab2" x="20" y="34">利率（%）</text>
+
+  <line class="ceil" x1="120" y1="60" x2="620" y2="60"/>
+  <text class="num" x="632" y="58">3.75%</text>
+  <text class="lab" x="132" y="52">天花板：常备回购便利 SRF ＝ 贴现窗口</text>
+
+  <line class="ior" x1="120" y1="118" x2="620" y2="118"/>
+  <text class="num" x="632" y="116">3.65%</text>
+  <text class="lab" x="132" y="112">准备金余额利息 IORB（银行的「保底收益」）</text>
+
+  <circle class="eff" cx="370" cy="150" r="8"/>
+  <text class="num" x="386" y="147" style="fill:var(--accent)">EFFR ＝ 3.63%</text>
+  <text class="lab2" x="386" y="167">← 实际成交价，略低于 IORB</text>
+  <circle cx="300" cy="146" r="4" fill="var(--accent)" opacity=".5"/>
+  <circle cx="430" cy="155" r="4" fill="var(--accent)" opacity=".5"/>
+  <circle cx="250" cy="152" r="4" fill="var(--accent)" opacity=".5"/>
+  <circle cx="490" cy="148" r="4" fill="var(--accent)" opacity=".5"/>
+  <text class="lab2" x="180" y="185">（小点＝当天的一笔笔真实成交）</text>
+
+  <line class="flr" x1="120" y1="290" x2="620" y2="290"/>
+  <text class="num" x="632" y="288">3.50%</text>
+  <text class="lab" x="132" y="308">地板：隔夜逆回购 ON RRP（非银机构的保底收益）</text>
+
+  <path d="M660,70 L660,280" stroke="var(--muted)" stroke-width="1.2" marker-start="url(#ar)" marker-end="url(#ar)" fill="none" opacity=".5"/>
+  <text class="lab2" x="668" y="180" transform="rotate(90 668 180)">25bp 宽</text>
+
+  <text class="lab2" x="130" y="360">上面这条线的逻辑：没人会用低于 3.65% 太多的利率把钱借给别的银行，因为把钱放美联储就能拿 3.65%。</text>
+  <text class="lab2" x="130" y="382">下面这条线的逻辑：货币基金不会用低于 3.50% 的利率借给任何人，因为美联储的 ON RRP 就给 3.50%。</text>
+  <text class="lab2" x="130" y="404">最上面那条线的逻辑：没人会付高于 3.75% 去借钱，因为拿国债去 SRF 就能按 3.75% 借到。</text>
+</svg>
+<figcaption>图 2｜美联储的「利率走廊」。三条横线是三个可以随时使用的选项，它们像围栏一样把真实成交价（橙点）夹在中间。注意橙点略低于 IORB 虚线——这个「不该发生」的现象正是下面要解释的重点。</figcaption>
+</figure>
+
+<h4>围栏一：地板 ON RRP 3.50%——「你不可能借到比这更便宜的钱」</h4>
+
+<p>假设你管理一只货币市场基金（把散户的现金集中起来做短期投资的基金），手上有 500 亿美元现金要过夜。有人来找你说：「借我 500 亿，一晚上，我付你 3.20%。」</p>
+
+<p>你会答应吗？<strong>绝对不会。</strong>因为美联储开着一个窗口叫「隔夜逆回购」（Overnight Reverse Repurchase Agreement，ON RRP）：你把钱交给美联储一晚上，美联储给你一张国债作抵押，第二天还你本金加 <strong>3.50%</strong> 的利息。这是全世界信用最好的交易对手，风险几乎为零。</p>
+
+<div class="calc">
+你的两个选项，500 亿美元、一个晚上：<br>
+<span class="l">借给那个人：500 亿 × 3.20% × (1÷360) = <strong>444,444 美元</strong>，还要承担他违约的风险</span>
+<span class="l">交给美联储：500 亿 × 3.50% × (1÷360) = <strong>486,111 美元</strong>，几乎无风险</span>
+<span class="l">→ 差 41,667 美元，而且后者更安全。<strong>没有任何理由选前者。</strong></span>
+</div>
+
+<p><strong>所以 3.50% 成了一条地板。</strong>注意这不是法律禁止，而是「有更好的选项在那儿摆着」。这就是间接控制的第一种形态：<em>央行不禁止你做什么，它只是给你一个足够好的备选，让你自己不愿意做。</em></p>
+
+<h4>围栏二：IORB 3.65%——银行的保底收益</h4>
+
+<p>同样的逻辑，对象换成银行。银行在美联储的账户里放着钱，美联储会付利息，这叫<strong>准备金余额利息</strong>（Interest on Reserve Balances，IORB），今天是 <strong>3.65%</strong>。</p>
+
+<p>那么一家账上有闲钱的银行，愿意用低于 3.65% 的利率把钱借给别的银行吗？按理说不愿意——放在美联储既安全又能拿 3.65%。</p>
+
+<p>但事实是：<strong>EFFR 今天是 3.63%，比 IORB 低了 2 个基点。</strong>这看起来像是套利机会没被利用完。为什么？</p>
+
+<h4>为什么 EFFR（3.63%）会低于 IORB（3.65%）——这题值得单独讲</h4>
+
+<p>这是理解「政策利率」最精妙的一个细节，我把它完整推一遍。</p>
+
+<p><strong>第一，联邦基金市场上放钱的主力不是银行。</strong>今天在这个市场上出借资金的，很大一部分是「联邦住房贷款银行」（Federal Home Loan Banks，FHLB）这类政府支持机构。它们的特殊之处在于：<em>它们在美联储有账户，但按规定拿不到 IORB 的利息。</em>钱放在美联储账上，利息是零。</p>
+
+<p><strong>第二，对它们来说，任何大于 0 的利率都比放着强。</strong>所以它们愿意用 3.55%、3.60% 这种低于 IORB 的价格把钱借出去。</p>
+
+<p><strong>第三，理论上银行应该把这个价差全吃掉。</strong>银行从 FHLB 借入 3.60%，转手存进美联储拿 3.65%，白赚 5 个基点，无风险。</p>
+
+<div class="calc">
+借 100 亿，赚 5 个基点，一晚上：<br>
+<span class="l">100 亿 × 0.05% × (1÷360) = <strong>13,889 美元</strong></span>
+<span class="l">一年 250 个交易日滚动：13,889 × 250 ≈ <strong>347 万美元</strong></span>
+</div>
+
+<p><strong>第四，那银行为什么不把它做到价差归零？</strong>因为这笔交易虽然无风险，但不免费。做一笔，银行的资产负债表就要「胀大」100 亿。而资产负债表变大，会带来几项真实成本：</p>
+<ul>
+<li>美国存款保险公司（FDIC）按银行的总资产规模收保费——资产越大，保费越多。</li>
+<li>监管要求银行的自有资本必须占总资产的一定比例（这叫杠杆率约束）。资产胀大，就要占用宝贵的资本额度。</li>
+</ul>
+
+<p><strong>第五，所以套利会在「价差刚好抵消这些成本」的地方停下来。</strong>今天那个停下来的位置，就是 2 个基点。</p>
+
+<p class="note"><strong>这一段告诉了你什么？</strong>央行的控制力是<strong>有摩擦的</strong>。它靠套利者传导意图，而套利者会因为监管成本、资产负债表容量、交易对手限额等原因，只把价差压缩到某个程度就停手。所以 EFFR 不会精确等于 IORB，只会「贴着」它。<em>「央行控制利率」这句话，准确的版本是「央行给出一组价格，让套利者把市场价格拖到附近」。</em>这个「附近」有多近，取决于摩擦有多大——而摩擦会变。这是后面 A14、A19 会深挖的地方。</p>
+
+<h4>围栏三：天花板 SRF / 贴现窗口 3.75%</h4>
+
+<p>反方向也要有围栏。假设某天有家银行急需现金，市场上没人借给它，它愿意出 4.50% 的高价。这会把 EFFR 顶出目标区间。</p>
+
+<p>美联储的应对是<strong>常备回购便利</strong>（Standing Repo Facility，SRF）：任何符合资格的机构，拿美国国债作抵押，可以随时向美联储按 <strong>3.75%</strong> 借到现金，额度充足。</p>
+
+<p>那家银行会付 4.50% 吗？不会——它手上有国债，去 SRF 按 3.75% 就能借到。<strong>于是 3.75% 成了天花板。</strong>另外还有一个更老的工具叫贴现窗口（discount window），今天同样是 3.75%。</p>
+
+<p class="warn"><strong>但这道天花板历史上漏过。</strong>2019 年 9 月 17 日，美国<strong>回购市场</strong>（repo market：拿国债作抵押借现金的市场，和联邦基金市场并列的另一个隔夜资金市场）的隔夜利率一度飙到 <strong>10%</strong> 附近，EFFR 也冲出了目标区间上沿。原因是当时没有 SRF 这个常备工具，而且银行不敢用贴现窗口——市场会把「你去借贴现窗口了」解读成「你快不行了」，这叫<strong>污名效应</strong>（stigma）。<br><br>SRF 就是 2021 年为了堵这个洞而设立的。今天你能在实施说明里看到它，本身就是一次危机的遗产。</p>
+
+<h4>「走廊」和「地板」：两套完全不同的世界观</h4>
+
+<p>现在讲一个更深的层次，它决定了整套系统能不能工作。</p>
+
+<p><strong>2008 年以前的世界（稀缺准备金）。</strong>那时候美联储不给准备金付利息，银行都不愿意在央行账上留钱（留着没收益）。整个银行体系的准备金总量很小，大约 100–200 亿美元级别。在这种环境下，美联储只要在公开市场上买卖几十亿美元的国债，增减一点准备金，就能明显推动隔夜利率。<em>就像一个小水池，倒一桶水进去水位就明显上升。</em></p>
+
+<p><strong>2008 年以后的世界（充裕准备金）。</strong>几轮<strong>量化宽松</strong>（quantitative easing，简称 QE：央行大量买入国债，买的时候把钱付给卖方，这些钱最终变成银行在央行账户里的准备金）之后，银行体系的准备金变成了数万亿美元。这时候再买卖几十亿国债，对利率毫无影响。<em>水池变成了湖，一桶水扔进去看不出来。</em></p>
+
+<p><strong>所以工具必须换。</strong>既然没法靠调节数量来控制价格，那就直接给出价格：付 IORB 给银行，开 ON RRP 给非银，开 SRF 兜底。数量不管了，只管围栏。这套新体系叫<strong>地板系统</strong>（floor system），因为主要靠下面那道地板发挥作用。</p>
+
+<p class="note"><span class="q">你可能会想：</span>那准备金是不是越多越好？<br><br>不是。准备金太多，美联储每年要付出巨额的 IORB 利息（数万亿准备金 × 3.65%，一年上千亿美元），政治上很难看；而且庞大的资产负债表本身有副作用。但减得太少，就会退回到 2019 年 9 月那种「一缺钱利率就爆表」的状态。<strong>所以美联储一直在找那个「刚刚好充裕」的水位。</strong><br><br>这正是今天最新的一个细节：7 月 29 日的实施说明里明确写着，美联储已经在<strong>购买国库券（Treasury bills，即期限一年以内的短期美国国债）来维持准备金充足</strong>，并把到期本金全部再投资。<em>换句话说，缩表阶段结束了，现在是在往回加水。</em>这条信息新闻里几乎没人报，但它是判断货币市场压力的第一手证据。</p>
+
+<h4>这个原理成立的前提是什么</h4>
+
+<p>把上面的推理浓缩成前提清单，这是判断「这个原理今天还灵不灵」的检查表：</p>
+<ol>
+<li><strong>套利者要有意愿和能力。</strong>如果监管让银行的资产负债表没有空间，套利就停摆，EFFR 会偏离得更远。</li>
+<li><strong>央行的对手方名单要足够宽。</strong>如果 ON RRP 只对少数机构开放，地板就只对少数人成立，其他人的成交价会掉下去。</li>
+<li><strong>抵押品要够。</strong>SRF 要求拿国债换现金，如果一家机构手上没有国债，天花板对它无效。</li>
+<li><strong>没有污名。</strong>如果使用工具会被市场解读为「你不行了」，工具就形同虚设——2019 年的教训。</li>
+<li><strong>准备金总量在「充裕」区间。</strong>太少会失控，太多会有其他代价。</li>
+</ol>
+
+<h4>经验证据</h4>
+
+<p>看今天的实际读数，这套系统的效果是很好的：</p>
+<div class="calc">
+<span class="l">目标区间中点 = (3.50% + 3.75%) ÷ 2 = <strong>3.625%</strong></span>
+<span class="l">实际 EFFR = <strong>3.63%</strong> → 偏离中点 <strong>0.5 个基点</strong></span>
+<span class="l">SOFR（有抵押的隔夜利率）= <strong>3.62%</strong> → 与 EFFR 只差 1 个基点</span>
+<span class="l">SOFR 的 30 天平均 = <strong>3.636%</strong> → 说明这不是某一天的巧合，一个月都很稳</span>
+</div>
+<p>在几万亿美元的日均交易量上，把价格钉在目标中点 0.5 个基点以内，这是相当高的精度。<strong>短端的控制力是真实的、可验证的。</strong>请把这个结论记牢，因为环 ⑨ 会给你看它的反面。</p>
+
+<h4>人们最常怎么误用这个原理</h4>
+
+<table>
+<tr><th>常见说法</th><th>错在哪</th></tr>
+<tr><td>「美联储把利率定在 3.75%」</td><td>3.75% 是区间上沿，不是政策利率本身。实际成交是 3.63%。</td></tr>
+<tr><td>「美联储降息了，所以我的房贷会降」</td><td>房贷利率主要跟随长期国债，不是隔夜利率。今天 30 年国债 5.21% 处在 19 年高位，就是活生生的反例。</td></tr>
+<tr><td>「10 年期国债利率涨了，说明美联储在加息」</td><td>完全是两个市场。10 年期由市场供求和长期预期决定，美联储不直接设定。</td></tr>
+<tr><td>「央行印钱所以利率会跌」</td><td>准备金总量与隔夜利率的关系，在充裕准备金体系下已经基本脱钩了——这正是「地板系统」的定义。</td></tr>
+<tr><td>「政策利率 3.63%，所以我能按 3.63% 借到钱」</td><td>这是银行之间、隔夜、无抵押的批发价。任何面向个人或企业的利率都要在此之上加信用利差和期限溢价。</td></tr>
+</table>
+
+<h3>环 ⑤：从「一个晚上」到「两年」——利率是怎么被拼接起来的</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>上一环我们确认了：美联储管的是隔夜利率，今天 3.63%。可市场关心的是 2 年期（4.15%）、10 年期（4.63%）。这中间是怎么连上的？</p>
+
+<p>先用生活场景。你要把 10 万块存两年，银行给你两个选择：</p>
+<ul>
+<li><strong>选择一：</strong>直接存两年定期，年利率 4.15%。</li>
+<li><strong>选择二：</strong>存一天，第二天取出来再存一天，如此重复 730 次。</li>
+</ul>
+
+<p>选择二今天的日息年化是 3.63%，但明天可能变。如果你相信这 730 天的平均年化会是 4.15%，那两个选择对你一样。<strong>如果你相信平均只有 3.80%，你会选择一（锁定 4.15% 更划算）。</strong>大家都这么想的话，会有很多人抢着买两年期，把它的利率压下去，直到两者大致相等为止。</p>
+
+<p>这个「长期利率 ≈ 期间内短期利率的平均」的想法，<strong>经济学给它起了个名字，叫预期假说</strong>（expectations hypothesis）。</p>
+
+<p>我们用今天的真实数字算一遍：</p>
+
+<div class="calc">
+<strong>已知：</strong>2 年期国债利率 = 4.15%，今天的隔夜利率 = 3.63%<br><br>
+<strong>如果预期假说完全成立，市场在预期什么？</strong><br>
+<span class="l">未来两年隔夜利率的平均值 = 4.15%</span>
+<span class="l">今天是 3.63%，平均要到 4.15%，说明市场预期利率会<strong>往上走</strong>。</span><br>
+<strong>粗略推算终点：</strong>如果利率从今天的 3.63% 匀速上升到两年后的 X，平均值就是 (3.63% + X) ÷ 2。<br>
+<span class="l">令 (3.63% + X) ÷ 2 = 4.15%</span>
+<span class="l">→ 3.63% + X = 8.30%</span>
+<span class="l">→ X = <strong>4.67%</strong></span><br>
+换算成加息次数：(4.67% − 3.63%) ÷ 0.25% ≈ <strong>4 次加息</strong>
+</div>
+
+<p class="warn"><strong>停一下，这个结果值得盯着看。</strong>今天的新闻标题是「9 月加息概率跌到 30% 以下」，听起来像是市场认为加息基本没戏了。但 2 年期国债的定价说的是另一回事：<strong>未来两年里，市场平均预期还要加大约 4 次息。</strong><br><br>这两件事不矛盾——「9 月不加」和「未来两年会加」完全可以同时成立。<em>但如果你只看新闻标题，你会得到一个和债券市场定价完全相反的印象。</em>这是「学会自己看价格」比「读新闻」更有价值的第一个具体例子。</p>
+
+<h4>但预期假说不完整：还差一块「期限溢价」</h4>
+
+<p>上面的算法有个漏洞。回到存钱的例子：如果两个选择的预期收益完全一样，你真的会随便选吗？</p>
+
+<p>不会。<strong>锁定两年是有代价的</strong>——万一你半年后急用钱，提前赎回要认亏；万一通胀突然起来，你被锁在 4.15% 上，眼睁睁看着别人拿更高的利率。承担了这些不确定性，你会要求一点额外补偿。</p>
+
+<p>这个「因为期限长、要多给的补偿」，<strong>经济学给它起了个名字，叫期限溢价</strong>（term premium）。</p>
+
+<div class="calc">
+<strong>完整的公式：</strong><br>
+<span class="l">长期利率 ＝ 未来短期利率的平均预期 ＋ 期限溢价</span>
+<span class="l" style="color:var(--muted); font-size:15px">逐项翻译：第一项是「大家觉得央行未来会把利率放在哪」；第二项是「为了忍受这段时间的不确定性，我要多收多少」。</span><br><br>
+<strong>代入今天的 2 年期：</strong><br>
+<span class="l">4.15% ＝ 预期平均 ＋ 期限溢价</span>
+<span class="l">假设期限溢价是 0.20%（2 年这么短，溢价通常不大）：</span>
+<span class="l">→ 预期平均 = 4.15% − 0.20% = <strong>3.95%</strong></span>
+<span class="l">→ 重算终点：(3.63% + X) ÷ 2 = 3.95% → X = <strong>4.27%</strong> → 约 <strong>2.5 次</strong>加息</span>
+</div>
+
+<p><strong>看到问题了吗？</strong>期限溢价假设从 0 变成 0.20%，隐含的加息次数就从 4 次掉到 2.5 次。而<em>期限溢价是观测不到的——它没有市场报价，只能靠模型估计。</em>所以任何「市场预期加息 X 次」的说法，都建立在一个看不见的假设上。这是 A15 会专门拆的题目，今天你只要知道这个不确定性存在。</p>
+
+<figure>
+<svg viewBox="0 0 760 410" role="img" aria-label="2026年8月13日美国国债收益率曲线">
+  <style>
+    .g{stroke:var(--line); stroke-width:1}
+    .axl{stroke:var(--muted); stroke-width:1.5}
+    .cv{stroke:var(--accent); stroke-width:2.8; fill:none}
+    .pt{fill:var(--accent)}
+    .tx{font:13px -apple-system,"Noto Sans SC",sans-serif; fill:var(--muted)}
+    .tv{font:700 13px -apple-system,sans-serif; fill:var(--fg)}
+  </style>
+  <line class="g" x1="90" y1="300" x2="710" y2="300"/>
+  <line class="g" x1="90" y1="231.6" x2="710" y2="231.6"/>
+  <line class="g" x1="90" y1="163.2" x2="710" y2="163.2"/>
+  <line class="g" x1="90" y1="94.7" x2="710" y2="94.7"/>
+  <text class="tx" x="52" y="304">3.5</text>
+  <text class="tx" x="52" y="236">4.0</text>
+  <text class="tx" x="52" y="167">4.5</text>
+  <text class="tx" x="52" y="99">5.0</text>
+  <text class="tx" x="40" y="42">利率 %</text>
+
+  <line class="axl" x1="90" y1="330" x2="710" y2="330"/>
+
+  <path class="cv" d="M90,282 L190,281 L290,271 L390,211 L490,188 L590,145 L690,66"/>
+  <circle class="pt" cx="90" cy="282" r="5"/>
+  <circle class="pt" cx="190" cy="281" r="5"/>
+  <circle class="pt" cx="290" cy="271" r="5"/>
+  <circle class="pt" cx="390" cy="211" r="5"/>
+  <circle class="pt" cx="490" cy="188" r="5"/>
+  <circle class="pt" cx="590" cy="145" r="5"/>
+  <circle class="pt" cx="690" cy="66" r="5"/>
+
+  <text class="tv" x="70" y="272">3.63</text>
+  <text class="tv" x="170" y="271">3.64</text>
+  <text class="tv" x="270" y="261">3.71</text>
+  <text class="tv" x="370" y="201">4.15</text>
+  <text class="tv" x="470" y="178">4.32</text>
+  <text class="tv" x="570" y="135">4.63</text>
+  <text class="tv" x="666" y="56">5.21</text>
+
+  <text class="tx" x="66" y="350">隔夜</text>
+  <text class="tx" x="172" y="350">1 个月</text>
+  <text class="tx" x="272" y="350">3 个月</text>
+  <text class="tx" x="378" y="350">2 年</text>
+  <text class="tx" x="478" y="350">5 年</text>
+  <text class="tx" x="574" y="350">10 年</text>
+  <text class="tx" x="674" y="350">30 年</text>
+
+  <line x1="90" y1="282" x2="710" y2="282" stroke="var(--accent2)" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text class="tx" x="440" y="296" style="fill:var(--accent2)">← 虚线＝美联储控制的那个点的水平（3.63%）</text>
+  <text class="tx" x="90" y="378">整条曲线向右上方倾斜。左端那一个点由美联储决定；越往右，美联储说了越不算。</text>
+  <text class="tx" x="90" y="396">30 年期比隔夜利率高了 158 个基点——这 158 个基点不归美联储管。</text>
+</svg>
+<figcaption>图 3｜2026 年 8 月 13 日的美国国债收益率曲线。把不同借款期限的利率画在一起，就叫「收益率曲线」（yield curve）。今天它是一条陡峭上行的线——市场为「借得更久」要求越来越高的补偿。</figcaption>
+</figure>
+
+<h4>这个影响有多大</h4>
+
+<p>今天 2 年期跌了 2 个基点。听起来微不足道，我们算算它值多少钱。</p>
+
+<p>先要理解一件事：<strong>利率跌，债券价格涨。</strong>为什么？因为你手上那张债券的票息是固定的。如果新发的债券只给 4.13%，而你手上那张给 4.15%，你的那张就更值钱，别人愿意出溢价买。这是一枚硬币的两面。</p>
+
+<p>涨多少？有个粗略但好用的算法：<strong>价格变动百分比 ≈ 剩余年限 × 利率变动</strong>。这个「剩余年限」的正式名字叫<strong>久期</strong>（duration，以后 A32、G23 会详细讲），你现在可以先粗略理解成「还剩几年」。</p>
+
+<div class="calc">
+<span class="l">2 年期国债，久期约 <strong>1.9 年</strong>，利率跌 <strong>2 个基点</strong>（0.02%）</span>
+<span class="l">价格上涨 ≈ 1.9 × 0.02% = <strong>0.038%</strong></span>
+<span class="l">持有 1000 万美元 → 赚 <strong>3,800 美元</strong></span><br>
+<span class="l">同样 2 个基点，换成 30 年期国债（久期约 <strong>16 年</strong>）：</span>
+<span class="l">价格上涨 ≈ 16 × 0.02% = <strong>0.32%</strong></span>
+<span class="l">持有 1000 万美元 → 赚 <strong>32,000 美元</strong>，是前者的 <strong>8.4 倍</strong></span>
+</div>
+
+<p><strong>同样的利率变动，期限越长，价格反应越大。</strong>这一条结论今天先埋下，它是后面理解「为什么加息特别伤成长股」的钥匙。</p>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>期限溢价自己大幅变动时。</strong>如果因为财政赤字担忧，投资者要求的长期补偿突然上升 50 个基点，那么即使央行的预期路径完全没变，长端利率也会跳。这时候「短端 → 长端」的传导就被噪音淹没了。今天的 30 年期就在演这一出。</li>
+<li><strong>供求失衡时。</strong>比如某国央行大量抛售美债，或者美国财政部突然增发某个期限，会直接压出价格变化，与预期无关。</li>
+<li><strong>市场功能失灵时。</strong>2020 年 3 月，美债市场一度出现「买卖双方都在卖」的局面，价格完全脱离基本面，直到美联储入场做市。</li>
+</ul>
+
+<h3>环 ⑥：利率预期 → 美元 → 你手里的新币</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>先讲一个你完全可以自己动手验证的生活场景。你有 10 万新币，两个选择：</p>
+
+<ul>
+<li><strong>存新币：</strong>假设新加坡的短期存款年利率是 2.0%。</li>
+<li><strong>换成美元存：</strong>假设美元短期利率是 3.63%。</li>
+</ul>
+
+<p>看起来美元明显划算，多赚 1.63 个百分点。但中间有个坑：你今天要按 <strong>1 美元 = 1.2779 新币</strong> 换过去，一年后还要换回来。如果那时美元贬值了，汇兑损失可能把利差全吃掉。</p>
+
+<div class="calc">
+<strong>10 万新币，一年，走美元路线：</strong><br>
+<span class="l">换成美元：100,000 ÷ 1.2779 = <strong>78,254 美元</strong></span>
+<span class="l">存一年拿 3.63%：78,254 × 1.0363 = <strong>81,095 美元</strong></span>
+<span class="l">若一年后汇率还是 1.2779：81,095 × 1.2779 = <strong>103,631 新币</strong>（赚 3.63%）</span><br>
+<strong>走新币路线：</strong>100,000 × 1.02 = <strong>102,000 新币</strong>（赚 2.0%）<br><br>
+<strong>那么汇率要贬到多少，两条路才一样？</strong><br>
+<span class="l">令 81,095 × 汇率 = 102,000</span>
+<span class="l">→ 汇率 = 102,000 ÷ 81,095 = <strong>1.2578</strong></span>
+<span class="l">从 1.2779 跌到 1.2578，即美元贬值 <strong>1.57%</strong>，正好等于利差。</span>
+</div>
+
+<p>这个「利差高的货币，市场会预期它按利差幅度贬值，从而让两条路收益相等」的关系，<strong>经济学给它起了个名字，叫利率平价</strong>（interest rate parity，以后 D3 专讲）。</p>
+
+<p>现在把逻辑接回今天的事件，一步一步：</p>
+<ol>
+<li>市场原本预期美联储要加息 → 未来美元利率会更高 → 持有美元的回报预期上升。</li>
+<li>零售销售和就业数据一出，加息预期被砍掉 → 未来美元利率的预期下降。</li>
+<li>持有美元的吸引力下降，资金边际上流出美元资产。</li>
+<li><strong>美元走弱。</strong>今天美元指数（DXY，衡量美元对一篮子主要货币的强弱）连跌三天，接近 5 月以来最弱。</li>
+<li>新元相对走强：USD/SGD 到 <strong>1.2779</strong>，一个月内新元升值 <strong>1.01%</strong>。</li>
+</ol>
+
+<h4>这个影响有多大</h4>
+
+<p>直接对你算一笔账。假设你持有 10 万美元的美股：</p>
+
+<div class="calc">
+<span class="l">一个月前：10 万美元 × 1.2908 ≈ <strong>129,080 新币</strong></span>
+<span class="l" style="color:var(--muted); font-size:15px">（1.2908 由 1.2779 反推：1.2779 ÷ (1 − 1.01%) ≈ 1.2909）</span>
+<span class="l">今天：10 万美元 × 1.2779 = <strong>127,790 新币</strong></span>
+<span class="l">→ 美股一分钱没跌，你的新币购买力少了 <strong>1,290 新币</strong></span>
+</div>
+
+<p><strong>这就是货币错配（currency mismatch）：你的开销以新币计价，你的资产以美元计价。</strong>汇率一动，你的实际财富就变了，哪怕股价纹丝不动。这是 G29 的核心议题，也是新加坡的美股投资者最容易忽略的一层风险。</p>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>避险情绪压倒利差时。</strong>危机中美元往往因为「大家抢美元现金」而升值，即使美国在降息。2008 年和 2020 年 3 月都是如此。</li>
+<li><strong>新加坡这边的特殊性。</strong>新加坡金管局（MAS）不像美联储那样调利率，它<strong>直接管理新元对一篮子货币的汇率</strong>，让它在一个不公开的政策带里运行（D25、D26 会详讲）。所以 USD/SGD 的走势里，除了美元这一边，还有 MAS 的意志这一边。</li>
+<li><strong>利差不是唯一变量。</strong>贸易流、资本流、政治风险都会影响。利率平价在长期数据上的解释力其实并不强，这是外汇领域最著名的难题之一（D42）。</li>
+</ul>
+
+<h3>环 ⑦：利率 → 折现率 → 股票和黄金的价格</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>先建立最基础的直觉：<strong>今天的 100 块和一年后的 100 块，不一样值钱。</strong></p>
+
+<p>为什么？因为今天的 100 块可以拿去存起来，一年后变成 103.63 块（按今天的利率）。所以「一年后的 100 块」在今天只值：</p>
+
+<div class="calc">
+<span class="l">100 ÷ 1.0363 = <strong>96.50 块</strong></span>
+<span class="l">两年后的 100 块：100 ÷ 1.0363² = 100 ÷ 1.0739 = <strong>93.12 块</strong></span>
+<span class="l">十年后的 100 块：100 ÷ 1.0363¹⁰ = 100 ÷ 1.4287 = <strong>69.99 块</strong></span>
+</div>
+
+<p>这个「把未来的钱换算成今天的钱」的动作，<strong>经济学给它起了个名字，叫折现</strong>（discounting）；用来做换算的那个利率，叫<strong>折现率</strong>（discount rate）。</p>
+
+<p>现在关键的一步来了：<strong>一家公司的股票，本质上就是「它未来所有年份赚到的钱」折算到今天的总和。</strong>（这是 F1 的核心，我们以后完整讲。）</p>
+
+<p>所以折现率一变，股价就要重算。我们用一个简化的例子把它算出来：</p>
+
+<div class="calc">
+<strong>假设一家公司未来每年赚 100 块，永远赚下去。</strong><br>
+「永远每年 100 块」在今天值多少？有个简单的算法：100 ÷ 折现率。<br>
+<span class="l" style="color:var(--muted); font-size:15px">（这个算法的直觉：如果你有一笔钱 X，按折现率 r 存着，每年利息刚好是 100，那 X 就等价于这家公司。X × r = 100，所以 X = 100 ÷ r。）</span><br><br>
+<span class="l">折现率 5%：100 ÷ 0.05 = <strong>2,000</strong></span>
+<span class="l">折现率 4.8%（跌 20 个基点）：100 ÷ 0.048 = <strong>2,083</strong></span>
+<span class="l">→ 估值上涨 <strong>4.2%</strong>。利率只动了 0.2 个百分点，估值动了 4.2%，<strong>放大了 21 倍。</strong></span>
+</div>
+
+<p><strong>这就是为什么股市对利率预期这么敏感。</strong>不是股民情绪化，是算出来的：折现率在分母上，分母的小变化会造成结果的大变化。</p>
+
+<p class="note"><span class="q">你可能会想：</span>那为什么说加息特别伤「成长股」？<br><br>因为成长股的利润<strong>主要在很远的未来</strong>。一家现在不怎么赚钱、但十年后可能大赚的公司，它的价值几乎全部来自远期现金流。而<em>折现的威力随年份指数级增长</em>——回头看上面那组数字：一年后的 100 块只打了 3.5% 的折，十年后的 100 块打了 30% 的折。所以折现率上升时，远期现金流的缩水幅度远大于近期现金流。<strong>成长股相当于「久期很长的债券」</strong>——这个视角是 F6 的主题，今天先埋在这里。</p>
+
+<p>黄金的逻辑略有不同但同源：<strong>黄金不产生任何利息。</strong>持有黄金的机会成本，就是你放弃的那份利息。利率预期下降 → 机会成本下降 → 黄金相对更有吸引力。今天黄金约 <strong>4,395 美元/盎司</strong>，当日涨 0.4%。（C13 会完整拆黄金定价。）</p>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>利率下降是因为衰退时。</strong>折现率降对股票是利好，但如果同时市场预期公司的未来利润也要大幅下降（分子变小），净效果可能是股价下跌。<strong>分母和分子会同时动，方向可能相反。</strong>这是今天最该警惕的一点：零售销售 −0.6% 既降了折现率，也威胁到企业盈利。</li>
+<li><strong>风险溢价跳升时。</strong>折现率 = <strong>无风险利率</strong>（几乎肯定能拿回来的那种回报，通常用国债利率代表）+ 风险溢价。恐慌时无风险利率跌，但风险溢价暴涨，总折现率反而上升。</li>
+</ul>
+
+<h3>环 ⑨：断点——30 年期 5.21%，央行按不住的那一段</h3>
+
+<p>现在回到今天最重要的反差。我们已经确认：美联储把隔夜利率精确地钉在 3.63%，偏离目标中点只有 0.5 个基点。控制力是真实的。</p>
+
+<p><strong>可是 30 年期国债利率是 5.21%，2007 年以来最高。</strong>7 月 29 日议息会议之后，它不但没跌，反而冲高。这是怎么回事？</p>
+
+<h4>为什么会这样</h4>
+
+<p>回到那个公式：<strong>长期利率 ＝ 未来短期利率的平均预期 ＋ 期限溢价。</strong></p>
+
+<p>30 年期意味着要预测未来 30 年的短期利率平均值。这里面装着的东西，远远超出「9 月加不加息」：</p>
+
+<ol>
+<li><strong>长期通胀会稳在多少？</strong>如果市场认为央行最终能把通胀压回 2%，那 30 年的名义利率就低；如果认为会长期停在 3%，就高。</li>
+<li><strong>央行有没有决心？</strong>这就是「信誉」（credibility）。信誉不是嘴上说的，是市场从行为里推断的。</li>
+<li><strong>财政会发多少债？</strong>供给越多，买方要求的补偿越高。</li>
+<li><strong>持有 30 年的不确定性值多少钱？</strong>期限溢价。</li>
+</ol>
+
+<p>7 月 29 日发生的事，市场是这样解读的：通胀 3.4% 还高着，能源冲击还在，可是美联储选择了按兵不动，主席的表态又被认为含糊。<strong>于是市场上调了「长期通胀会停在高位」的概率，30 年期利率跳到 5.21%。</strong></p>
+
+<p class="warn"><strong>这是一个非常反直觉但极其重要的机制：</strong>央行<em>不</em>加息，长期利率反而<em>上升</em>。<br><br>推理链是这样的：不加息 → 市场怀疑你对通胀不够认真 → 市场提高长期通胀预期 → 要求更高的长期名义利率作为补偿 → 30 年期上行。<br><br>反过来也成立：一次果断的加息，可能<strong>压低</strong>长期利率——因为它证明了央行的决心，市场调低长期通胀预期。<em>Volcker 在 1980 年代做的就是这件事，短期利率推到 19% 的痛苦换来了此后二十年的长期利率下行。</em></p>
+
+<h4>这个断点有多大</h4>
+
+<div class="calc">
+<span class="l">美联储控制的：隔夜 <strong>3.63%</strong>，偏离目标中点 <strong>0.5 个基点</strong> → 控制力接近完美</span>
+<span class="l">美联储不控制的：30 年期 <strong>5.21%</strong></span>
+<span class="l">两者之差：5.21% − 3.63% = <strong>158 个基点</strong></span><br>
+<span class="l">而美国 30 年期房贷利率通常跟随 10 年期国债（4.63%）再加约 150–250 个基点的利差</span>
+<span class="l">→ 也就是说，<strong>真正影响美国家庭买房的那个利率，美联储只能间接影响</strong></span>
+</div>
+
+<p><strong>结论：把整条链看完之后，「央行控制利率」这句话应该被替换成——</strong></p>
+
+<p class="big">央行完全控制曲线最左端的一个点；曲线的其余部分，由市场对「央行未来会做什么」和「央行到底可不可信」的判断决定。</p>
+
+<p>这就是为什么 A1 是这套课程的第一课。<strong>如果你把「政策利率」理解成「所有利率」，后面所有的推理都会错。</strong></p>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="warn"><strong>先说清楚：这一节是教学分析和思考框架，不是投资建议。</strong>我不知道你的完整财务状况、税务身份、风险承受能力和时间安排，任何具体的买卖决定都必须由你自己在了解全部情况后做出，必要时咨询有执照的专业人士。下面写的是「这条链怎么落到一个『新币收入 + 美元资产 + 新加坡居住』的人身上」，以及你应该问自己哪些问题。</p>
+
+<h3>4.1 你身上有一个几乎没人跟你说过的错配</h3>
+
+<p>把你的处境写成一张表：</p>
+
+<table>
+<tr><th></th><th>计价货币</th><th>说明</th></tr>
+<tr><td>收入</td><td>新币 SGD</td><td>工资按新币发</td></tr>
+<tr><td>日常开销</td><td>新币 SGD</td><td>房租、吃饭、交通</td></tr>
+<tr><td>未来负债（买房、退休）</td><td>新币 SGD</td><td>你大概率会在新加坡花掉这些钱</td></tr>
+<tr><td>投资资产</td><td>美元 USD</td><td>美股、美元 ETF</td></tr>
+</table>
+
+<p><strong>这个结构的名字叫货币错配</strong>（currency mismatch）：你未来要花的钱和你现在持有的钱，不是同一种货币。</p>
+
+<p>它的后果是可以精确算出来的。今天的数字：新元一个月内对美元升值 <strong>1.01%</strong>。</p>
+
+<div class="calc">
+<span class="l">假设你持有 20 万美元的美股组合</span>
+<span class="l">这一个月里，即使美股价格完全没动，</span>
+<span class="l">你的新币购买力减少 ≈ 20 万 × 1.01% × 1.2779 ≈ <strong>2,581 新币</strong></span>
+<span class="l">如果同期美股涨了 1.0%，你的新币回报 ≈ 1.0% − 1.01% ≈ <strong>0%</strong></span>
+</div>
+
+<p><strong>请注意最后一行的含义：你以为自己赚了 1%，实际上在新加坡的购买力没有变。</strong>如果你只看券商 App 里的美元数字，你根本看不到这件事。</p>
+
+<p class="note"><strong>今天就能做的一个动作：</strong>把你的组合价值同时用美元和新币各记一次。以后每次记账都记两个数。这不是为了做什么决定，是为了让「你其实一直在承担汇率风险」这件事从抽象变成你每月能看见的数字。<em>看不见的风险，才是最贵的风险。</em></p>
+
+<h3>4.2 「久期」这个词，在你的组合里意味着什么</h3>
+
+<p>前面我们算过：同样 2 个基点的利率变动，2 年期债券价格动 0.038%，30 年期动 0.32%，差 8.4 倍。<strong>「久期」就是在量化这件事：一个资产对利率变动有多敏感。</strong></p>
+
+<p>你现在要理解的是：<strong>这个概念不只适用于债券，也适用于股票。</strong>推理链是这样的：</p>
+<ol>
+<li>股票的价值 = 未来所有利润折算到今天的总和（环 ⑦ 讲过）。</li>
+<li>折现的威力随年份指数级增长（一年后打 3.5% 折，十年后打 30% 折）。</li>
+<li>所以，一家公司的利润越是集中在遥远的未来，它的价值对折现率就越敏感。</li>
+<li><strong>「利润在遥远未来」的公司，就是成长股</strong>（尤其是当前盈利很少、靠未来兑现的科技公司）。</li>
+<li>所以成长股 = 长久期资产；价值股（当下就在赚现金的成熟企业）= 短久期资产。</li>
+</ol>
+
+<p><strong>为什么今天这件事对你重要？</strong>因为如果你的美股持仓是<strong>宽基指数基金</strong>（「宽基」＝一口气买下几百家公司的指数；<strong>ETF</strong> 是这种基金在交易所挂牌交易的形式，买卖起来像股票——比如追踪标普 500 或纳斯达克指数的 ETF），那么由于指数集中度问题，你的组合里科技巨头的权重可能远超你的想象。<em>你可能以为自己「买的是分散的市场」，实际上买的是一个对利率高度敏感的长久期资产包。</em>（这是 F33「指数集中度与巨头化问题」的主题。）</p>
+
+<p><strong>可以自己动手核对的问题：</strong>打开你持有的 ETF 的持仓页面，看前十大持仓占比多少。如果超过 30%，你就该知道自己的「分散化」是有水分的。这不是说要卖掉，而是说你至少应该知道自己拿的是什么。</p>
+
+<h3>4.3 「政策利率」和你的实际存款利率，中间隔着什么</h3>
+
+<p>今天美国的政策利率是 3.63%。你在新加坡的银行存款利率大概率远低于这个数。为什么？把中间的每一层拆开：</p>
+
+<table>
+<tr><th>层级</th><th>大致水平</th><th>差在哪</th></tr>
+<tr><td>美联储 IORB</td><td>3.65%</td><td>银行放在美联储的保底收益</td></tr>
+<tr><td>美国银行间隔夜 EFFR</td><td>3.63%</td><td>减去套利摩擦</td></tr>
+<tr><td>美国 3 个月国库券</td><td>3.71%</td><td>加上一点期限溢价</td></tr>
+<tr><td>你的新币存款</td><td>由新加坡的资金供求决定</td><td><strong>完全不同的货币、不同的央行</strong></td></tr>
+</table>
+
+<p><strong>关键点：新加坡金管局（MAS）根本不设定利率。</strong>它的政策工具是<strong>汇率</strong>——它管理新元对一篮子贸易伙伴货币的加权汇率，让它在一个不公开的政策带内缓慢升值或保持。</p>
+
+<p>那新加坡的利率由谁决定？<strong>由国际资本流动决定。</strong>推理链：新加坡资本完全自由流动 + 汇率被 MAS 管着 → 根据「不可能三角」（一国不可能同时拥有固定汇率、自由资本流动、独立货币政策，D8 会专讲），新加坡必须放弃独立的利率政策 → <em>新元利率基本上是美元利率减去市场预期的新元升值幅度。</em></p>
+
+<p>所以对你而言的实际含义是：<strong>你其实生活在一个「利率由美联储间接决定、汇率由 MAS 决定」的经济体里。</strong>这意味着今天这堂关于美联储的课，对你不是「外国新闻」，它直接决定你的存款利息和房贷利率。</p>
+
+<h3>4.4 一个你需要开始想、但今天先不下结论的问题</h3>
+
+<p>既然存在货币错配，要不要做汇率对冲？</p>
+
+<p>先解释什么叫对冲：你可以通过金融合约锁定未来的汇率，让美元贬值不影响你。<strong>但这不是免费的。</strong>对冲的成本大致等于两种货币的利差——今天美元利率高于新元利率，所以把美元换回新币的对冲，你要付出这个利差。</p>
+
+<div class="calc">
+<span class="l">粗略估算：美元短期利率 ≈ 3.63%，新元短期利率假设 ≈ 2.0%</span>
+<span class="l">年化对冲成本 ≈ 3.63% − 2.0% = <strong>约 1.6%</strong></span>
+<span class="l">对一个长期年化预期回报 7% 的股票组合来说，这相当于砍掉 <strong>23%</strong> 的预期回报</span>
+</div>
+
+<p><strong>所以这是一道真正的取舍题，不存在标准答案：</strong>付掉 1.6% 换取汇率确定性，值不值？答案取决于你的时间跨度（越长，汇率波动越可能被抹平）、你的资产规模、你的心理承受力。<em>今天我不给你答案，我要你先看见这道题存在。</em>它是 G30 的完整主题，那一天我们会把两边的数据都摆出来。</p>
+
+<h2>5｜反向倒推</h2>
+
+<p>先说清楚这一节在干什么。</p>
+
+<p><strong>前面 3、4 两节是「顺着推」：</strong>发生了 A（零售销售差），所以会有 B（加息预期下降），所以会有 C（美元走弱）。这是从原因推结果。</p>
+
+<p><strong>这一节要倒过来问：</strong>市场现在的价格，说明大家心里在赌什么？<em>价格是一群人用真金白银投出的票，它比任何评论都诚实。</em>把价格反解成假设，然后逐个检查哪个假设最脆弱——这是专业投资者真正在做的事。</p>
+
+<h3>5.1 市场此刻已经定价进去的四个假设</h3>
+
+<p><strong>假设一：美联储 9 月大概率不会加息。</strong></p>
+<p><em>怎么看出来的：</em><strong>掉期市场</strong>（swap market：交易双方约定「我付你固定利率、你付我浮动利率」的合约市场，本质上也是在赌未来利率）隐含的 9 月加息概率不到 30%。前面我们推过反解公式：9 月的联邦基金期货隐含利率约 3.705%，而不加息对应 3.63%、加息对应 3.88%，(3.705−3.63)÷(3.88−3.63) = 30%。<strong>这个数字之所以能反映「市场在赌什么」，是因为它是真实成交价格倒推出来的，不是问卷调查。</strong></p>
+
+<p><strong>假设二：但未来两年，利率的方向仍然是往上，而不是往下。</strong></p>
+<p><em>怎么看出来的：</em>2 年期国债利率 4.15%，比今天的隔夜利率 3.63% 高 52 个基点。按「长期利率 = 未来短期利率的平均预期 + 期限溢价」，即使给期限溢价留出 20 个基点，剩下的 32 个基点也意味着市场预期未来两年的平均隔夜利率高于今天。<strong>如果市场真的认为经济要衰退、美联储要降息，2 年期应该低于 3.63%，而不是高出 52 个基点。</strong></p>
+
+<p><strong>假设三：市场怀疑通胀能被压回 2%。</strong></p>
+<p><em>怎么看出来的：</em>30 年期国债 5.21%，2007 年以来最高，而且是在美联储按兵不动之后冲上去的。30 年期名义利率里包含着对未来 30 年平均通胀的补偿。<strong>如果市场相信通胀会稳稳回到 2%，它不会要求 5.21% 的 30 年补偿。</strong></p>
+
+<p><strong>假设四：经济会降温，但不会崩。</strong></p>
+<p><em>怎么看出来的：</em>标普 500（S&amp;P 500，把美国最大的 500 家上市公司按市值加权做成的指数，是美股最常用的「大盘」代表）上周还在纪录高位附近，仅小幅回落，并录得连续第三周上涨；黄金 4,395 美元虽高但没有出现恐慌式跳升。<strong>如果市场认为零售销售 −0.6% 是衰退的开始，股票的分子（企业盈利预期）会被大幅下调，股价不可能停在纪录附近。</strong></p>
+
+<h3>5.2 这四个假设里，哪一个最脆弱？</h3>
+
+<p class="big">最脆弱的是假设四：「经济会降温，但不会崩」。</p>
+
+<p><strong>为什么是它？</strong>我把理由拆成三步：</p>
+
+<p><strong>第一，它是唯一一个「必须靠未来数据不断续命」的假设。</strong>假设一（9 月不加息）只需要熬到 9 月的会议就能兑现或证伪，时间很短。假设三（通胀信誉）是慢变量，几个月内不会翻转。<em>只有假设四，需要接下来每一个月的就业、消费数据都恰好落在「温和降温」这个窄区间里。</em></p>
+
+<p><strong>第二，最近的数据轨迹是在偏离这个窄区间，而不是靠近。</strong>把三个数据排在一起看：5 月就业下修 6.6 万 → 6 月下修 3.7 万 → 7 月直接是 −2.3 万。这不是「温和降温」的形状，这是<strong>连续恶化并且旧数据不断被证明比想的更差</strong>的形状。零售销售 −0.6% 是同一个方向上的第四个点。</p>
+
+<p><strong>第三，如果假设四错了，其他三个假设会同时被推翻，而且方向相反。</strong>这是最危险的地方——四个假设不是独立的：</p>
+
+<table>
+<tr><th>如果经济真的开始崩</th><th>那么</th></tr>
+<tr><td>假设一（9 月不加息）</td><td>更加成立，甚至变成「要降息」</td></tr>
+<tr><td>假设二（两年内利率往上）</td><td><strong>被推翻</strong>，2 年期利率会从 4.15% 大幅下跌</td></tr>
+<tr><td>假设三（通胀压不回 2%）</td><td><strong>被推翻</strong>，衰退会把通胀压下去，30 年期利率下行</td></tr>
+<tr><td>假设四（股市纪录高位合理）</td><td><strong>被推翻</strong>，盈利预期下调，股价下跌</td></tr>
+</table>
+
+<h3>5.3 如果假设四错了，价格该怎么走</h3>
+
+<p>逐个推，每一步都带上机制：</p>
+<ul>
+<li><strong>2 年期国债：从 4.15% 大幅下行。</strong>机制：市场把「未来两年加 2–4 次息」的预期改成「降息」。<em>幅度感：如果预期从「加 2 次」翻转到「降 4 次」，那是 150 个基点的路径变化，2 年期可能跌破 3.2%。按久期 1.9 年计算，价格上涨约 1.9 × 0.95% ≈ 1.8%。</em></li>
+<li><strong>30 年期国债：方向不确定。</strong>这是最有意思的一点。衰退会压低通胀预期（利多长债），但衰退也意味着财政赤字扩大、发债更多（利空长债）。<strong>两股力量方向相反，净效果取决于哪一个更强。</strong>这也是为什么今天不能简单说「买长债对冲衰退」。</li>
+<li><strong>股票：下跌。</strong>分母（折现率）下降是利好，但分子（盈利预期）下降通常更快更猛。<em>历史上衰退期间，标普 500 的盈利下修幅度常在 15%–25% 量级，远大于折现率下降带来的估值提升。</em></li>
+<li><strong>美元：方向不确定。</strong>利差收窄利空美元，但危机中的「抢美元现金」利多美元。2008 年和 2020 年 3 月，美元都是在美国自己出问题的时候大幅升值的。<strong>这对你尤其重要：不要假设「美国衰退 = 美元贬值 = 我的新币购买力受损」这条简单链条。</strong></li>
+<li><strong>黄金：上涨。</strong>降息预期 + 避险需求，两股力量同向。</li>
+</ul>
+
+<h3>5.4 未来 1–3 个月的可核查观察清单</h3>
+
+<p>这是这一节最实用的部分。<strong>每一条都写明「看什么数字」和「什么读数意味着假设四被证伪」，你可以自己去核对。</strong></p>
+
+<table>
+<tr><th>时间</th><th>事件</th><th>关键看什么</th><th>证伪门槛</th></tr>
+<tr><td>8 月 19 日前后</td><td>7 月 FOMC 会议纪要</td><td>三位主张加息的委员的论据；对就业转负的讨论</td><td>若纪要显示多数委员已在讨论降息，说明内部比声明鹰派得多的印象是错的</td></tr>
+<tr><td>8 月下旬</td><td>Jackson Hole 全球央行年会，美联储主席讲话</td><td>Warsh 是否给出明确的通胀应对框架</td><td>若再次含糊，30 年期利率可能再上一台阶，说明假设三在恶化</td></tr>
+<tr><td>8 月中下旬</td><td>沃尔玛、Target 财报</td><td>低收入消费者的实际支出与公司对下半年的指引</td><td>若两家同时下调全年指引，零售 −0.6% 就不是噪音</td></tr>
+<tr><td>8 月 26 日</td><td>英伟达财报</td><td>AI <strong>资本开支</strong>（公司花在买设备、建厂房、买芯片上的钱）周期是否还在加速</td><td>若资本开支指引下滑，长久期成长股的估值支柱会松动</td></tr>
+<tr><td>9 月初</td><td>8 月就业报告</td><td>非农是否连续第二个月为负；前值是否继续被下修</td><td><strong>连续两个月为负 + 继续下修 = 假设四基本被证伪</strong></td></tr>
+<tr><td>9 月中</td><td>8 月 CPI</td><td>核心通胀（目前 2.5%）是否继续向 2% 靠拢；能源同比（+14.7%）是否回落</td><td>若核心跌破 2.3%，加息选项基本消失</td></tr>
+<tr><td>9 月中下旬</td><td>9 月 FOMC 决议 + 点阵图</td><td>决议本身，以及委员们对未来利率路径的预测分布</td><td>若点阵图中位数显示 2027 年降息，市场对假设二的定价要重估</td></tr>
+<tr><td>持续</td><td>布伦特原油（今约 88.65）</td><td>霍尔木兹海峡局势</td><td>若突破 100 美元，通胀路径重估，加息重新回到桌面；若跌破 75，能源同比会迅速转负</td></tr>
+<tr><td>持续</td><td>30 年期国债利率（今 5.21%）</td><td>这是「央行信誉」的实时读数</td><td>跌回 4.8% 以下 = 信誉恢复；升破 5.5% = 信誉问题恶化</td></tr>
+</table>
+
+<p class="note"><strong>怎么用这张表：</strong>不要试图预测每一项。<em>把它当成一张检查清单，每次数据出来后，问自己「这条支持还是削弱了假设四？」</em>连续记录三个月，你会得到一个比任何评论文章都可靠的判断基础。这就是 H46「判断力如何积累与校准」的具体练法——判断力不是想出来的，是把预测写下来、然后被现实反复打脸校准出来的。</p>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式：区分「你控制什么」和「你只能影响什么」</h3>
+
+<p>把今天的核心发现压缩成一句话：<strong>美联储对隔夜利率的控制力接近完美（偏离目标中点 0.5 个基点），对 30 年期利率的控制力接近于零（5.21%，19 年新高，而且是在它按兵不动之后冲上去的）。</strong></p>
+
+<p>这不是美联储无能。这是<strong>一个系统里必然存在的结构：任何主体都只能直接控制少数几个变量，其余的变量靠传导，而传导会衰减、会被别的因素污染、会在某些条件下彻底断掉。</strong></p>
+
+<p><strong>所以看任何系统时，第一个该问的问题是：这里谁真正握着方向盘？握着的是哪个变量？其余的变量是通过什么机制被带动的？那个机制的前提是什么？</strong></p>
+
+<p>这个思维方式在别的场合怎么用？给两个跨领域的例子：</p>
+
+<p><strong>例子一：公司管理。</strong>一位 CEO 说「我要把公司文化改成鼓励创新」。文化是不是他能控制的变量？不是。他能直接控制的是：招谁、辞谁、给谁升职、钱怎么分、开什么会。<em>文化是这些直接变量的传导结果。</em>所以判断一个「文化变革」是否真实，不要听宣言，去看升职名单和奖金分配变没变——就像判断央行的决心，不要听讲话，去看 30 年期利率。<strong>两件事的结构是一模一样的：直接变量可控，间接变量只能靠传导，而市场/员工会自己推断你的真实意图。</strong></p>
+
+<p><strong>例子二：个人健康。</strong>你控制不了体重（体重是结果），你控制的是每天吃什么、动多少、睡多久。<em>而且传导有时滞、有个体差异、有平台期。</em>把「体重」当成可控变量去每天称重焦虑，和把「30 年期利率」当成美联储可以直接设定的东西，是同一种认知错误。</p>
+
+<p><strong>这个思维还有一个更锋利的用法：找断点。</strong>今天我们在每一环都问了「什么情况下这一环会断」。<em>因为大部分人的推理错误，不是错在链条本身，而是错在忘了链条有前提。</em>「加息 → 美元走强」是对的，但 2008 年美国降息时美元大涨；「利率降 → 股票涨」是对的，但衰退中利率降股票也跌。<strong>会背链条的人很多，知道链条什么时候断的人很少，后者才值钱。</strong></p>
+
+<h3>6.2 顶层视角：这条链在整个经济—金融系统里的位置</h3>
+
+<p>今天讲的是<strong>整个系统的起点</strong>。理由是：短期无风险利率是所有其他价格的定价基准。任何资产的定价，说到底都是在回答「和无风险地拿着现金比，这东西值多少」。所以这个基准一动，全部东西都要重算。</p>
+
+<p>它和四大板块的咬合关系：</p>
+
+<table>
+<tr><th>板块</th><th>今天这条链怎么咬进去</th><th>今天的证据</th></tr>
+<tr><td><strong>利率</strong></td><td>本课主体。政策利率 → 收益率曲线 → 所有资产的折现率</td><td>3.63% → 4.15% → 4.63% → 5.21%</td></tr>
+<tr><td><strong>信用</strong></td><td>银行的商业模式是「短借长贷」：按接近政策利率的成本拿钱，按长期利率放贷。所以曲线的陡峭程度直接决定银行赚不赚钱</td><td>今天曲线很陡（30 年比隔夜高 158bp），这对银行的<strong>净息差</strong>（放贷收到的利息 减去 揽存付出的利息）是好事——E4 会专讲</td></tr>
+<tr><td><strong>汇率</strong></td><td>两国政策利率之差是汇率的主要驱动之一。而新加坡因为「不可能三角」，事实上放弃了独立利率</td><td>美元连跌三天；USD/SGD 1.2779；MAS 用汇率而非利率做政策</td></tr>
+<tr><td><strong>增长</strong></td><td>利率是刹车踏板。但今天的通胀来自供给（能源 +14.7%）而非需求，踩刹车治不了病，只会伤到就业</td><td>核心通胀 2.5% 已接近目标，整体 3.4% 全靠能源顶着</td></tr>
+</table>
+
+<p><strong>把这四条连起来，就是今天这个局面的完整图景：</strong>一个供给冲击（霍尔木兹海峡）把通胀顶高 → 央行的需求管理工具对它无效 → 央行陷入「加息伤就业、不加息伤信誉」的两难 → 债市用 30 年期 5.21% 表达对信誉的怀疑 → 央行被这个怀疑反过来推向加息 → 但就业和消费数据又在把它推离加息 → <em>于是每一个新数据都能让整条曲线剧烈重定价，而这条曲线是全球所有资产的定价基准。</em></p>
+
+<p class="note"><strong>这就是为什么值得花一年时间学这套东西。</strong>不是为了预测下个月的股价。是因为<em>你所有的钱，都被定价在这条曲线上</em>——你的存款、你的房贷、你的股票、你的新币购买力。看不懂它，你就只能靠别人的结论过日子。</p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<table>
+<tr><th>术语（中/英）</th><th>一句话大白话</th><th>今天出现在哪一环</th></tr>
+<tr><td>利率 / interest rate</td><td>钱的租金率：借 100 还 105，利率就是 5%</td><td>热身</td></tr>
+<tr><td>年化 / annualized</td><td>把任何期限的收益换算成「借满一年会是多少」，好比较</td><td>热身</td></tr>
+<tr><td>基点 / basis point (bp)</td><td>1 个百分点的百分之一。25bp = 0.25 个百分点</td><td>热身</td></tr>
+<tr><td>双重使命 / dual mandate</td><td>美国国会给美联储的两条任务：物价稳定 + 充分就业</td><td>环 ①→②</td></tr>
+<tr><td>联邦基金期货 / Fed funds futures</td><td>赌「下个月银行间隔夜利率是多少」的合约，价格能反解成加息概率</td><td>环 ②→③</td></tr>
+<tr><td>风险溢价 / risk premium</td><td>为了不承受某个风险，人们愿意多付的钱</td><td>环 ②→③</td></tr>
+<tr><td>准备金 / reserves</td><td>银行在央行开的活期账户余额，银行间转账最终都在这里结算</td><td>环 ④</td></tr>
+<tr><td>联邦基金市场 / federal funds market</td><td>银行之间借一个晚上、没有抵押品的资金市场</td><td>环 ④</td></tr>
+<tr><td>EFFR / 联邦基金有效利率</td><td>上述市场当天所有成交的加权中位数，事后统计出来的，不是规定的</td><td>环 ④（今天 3.63%）</td></tr>
+<tr><td>目标区间 / target range</td><td>美联储希望 EFFR 落进去的那个区间，不是一个数</td><td>环 ④（3.50%–3.75%）</td></tr>
+<tr><td>IORB / 准备金余额利息</td><td>银行把钱放在央行账户能拿到的利息，是银行的保底收益</td><td>环 ④（3.65%）</td></tr>
+<tr><td>ON RRP / 隔夜逆回购</td><td>非银机构（货币基金等）也能把钱存进央行拿到的利率，是走廊的地板</td><td>环 ④（3.50%）</td></tr>
+<tr><td>SRF / 常备回购便利</td><td>拿国债抵押随时向央行借钱的利率，是走廊的天花板</td><td>环 ④（3.75%）</td></tr>
+<tr><td>贴现窗口 / discount window</td><td>银行直接向央行借钱的老工具，因为「污名效应」大家不爱用</td><td>环 ④（3.75%）</td></tr>
+<tr><td>污名效应 / stigma</td><td>使用救助工具会被市场解读成「你快不行了」，导致工具没人敢用</td><td>环 ④</td></tr>
+<tr><td>地板系统 / floor system</td><td>准备金极多的环境下，央行靠给出价格（而非调节数量）来控制利率</td><td>环 ④</td></tr>
+<tr><td>SOFR</td><td>用国债做抵押的隔夜借钱利率，今天 3.62%，是市场真正的无风险基准</td><td>环 ④</td></tr>
+<tr><td>预期假说 / expectations hypothesis</td><td>长期利率 ≈ 这段期间内短期利率的平均值</td><td>环 ⑤</td></tr>
+<tr><td>期限溢价 / term premium</td><td>因为借得久、不确定性多，出借人要求的额外补偿。看不见，只能估</td><td>环 ⑤</td></tr>
+<tr><td>收益率曲线 / yield curve</td><td>把各个期限的利率画在一张图上连成的线</td><td>环 ⑤（图 3）</td></tr>
+<tr><td>久期 / duration</td><td>一个资产对利率变动有多敏感。粗略等于「还剩几年」</td><td>环 ⑤、4.2</td></tr>
+<tr><td>利率平价 / interest rate parity</td><td>利率高的货币，市场会预期它按利差幅度贬值，让两条路收益相等</td><td>环 ⑥</td></tr>
+<tr><td>货币错配 / currency mismatch</td><td>你未来要花的钱和你现在持有的钱不是同一种货币</td><td>环 ⑥、4.1</td></tr>
+<tr><td>折现 / discounting</td><td>把未来的钱换算成今天的钱：一年后的 100 块今天只值 96.5 块</td><td>环 ⑦</td></tr>
+<tr><td>折现率 / discount rate</td><td>做上述换算时用的那个利率。它在分母上，所以小变动会造成大影响</td><td>环 ⑦</td></tr>
+<tr><td>信誉 / credibility</td><td>市场相不相信央行真会把通胀压回目标。它的实时读数是长期国债利率</td><td>环 ⑨</td></tr>
+<tr><td>FOMC / 联邦公开市场委员会</td><td>美联储决定利率的那个会议，一年开八次</td><td>第 1 节</td></tr>
+<tr><td>供给冲击 / supply shock</td><td>东西本身变少了导致的涨价（对比：需求冲击是买的人太多）</td><td>环 ①→②</td></tr>
+<tr><td>衍生品 / derivatives</td><td>价格跟着别的东西走的合约，如期货、掉期</td><td>环 ②→③</td></tr>
+<tr><td>量化宽松 / QE</td><td>央行大量买国债，付出去的钱最终变成银行的准备金</td><td>环 ④</td></tr>
+<tr><td>回购市场 / repo market</td><td>拿国债作抵押借现金的市场，另一个隔夜资金市场</td><td>环 ④</td></tr>
+<tr><td>国库券 / Treasury bills</td><td>期限一年以内的短期美国国债</td><td>环 ④</td></tr>
+<tr><td>名义利率 / nominal rate</td><td>票面上写的、没扣掉通胀的那个利率</td><td>环 ⑨</td></tr>
+<tr><td>无风险利率 / risk-free rate</td><td>几乎肯定能拿回来的回报，通常用国债利率代表</td><td>环 ⑦</td></tr>
+<tr><td>ETF / 交易所交易基金</td><td>在交易所像股票一样买卖的基金；「宽基」＝一口气买几百家公司</td><td>4.2</td></tr>
+<tr><td>净息差 / net interest margin</td><td>银行放贷收的利息 减去 揽存付的利息</td><td>6.2</td></tr>
+<tr><td>掉期 / swap</td><td>「我付你固定利率、你付我浮动利率」的合约，也是在赌未来利率</td><td>5.1</td></tr>
+<tr><td>不可能三角 / impossible trinity</td><td>固定汇率、自由资本流动、独立货币政策，三者只能选两个</td><td>4.3</td></tr>
+</table>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>第 1 题：今天美联储的目标区间是 3.50%–3.75%，实际成交的隔夜利率是 3.63%。为什么美联储不干脆规定「就是 3.63%」，非要给一个区间？</summary>
+<p><strong>完整推导：</strong></p>
+<p><strong>第一步，先确认美联储的手段是什么。</strong>它没有法律权力命令银行按某个价格互相借钱。它能做的只有三件事：给银行的存款付利息（IORB 3.65%）、给非银机构一个存钱的地方（ON RRP 3.50%）、给缺钱的机构一个借钱的地方（SRF 3.75%）。<strong>这三件事都是「提供一个选项」，不是「下达一个命令」。</strong></p>
+<p><strong>第二步，理解选项如何变成价格。</strong>因为有 ON RRP 3.50% 这个选项，没人会用更低的价格出借；因为有 SRF 3.75% 这个选项，没人会用更高的价格借入。于是成交价被夹在中间。<strong>但夹在中间的哪个位置，取决于当天有多少人要借、多少人要贷、套利者有多少资产负债表空间——这些美联储都控制不了。</strong></p>
+<p><strong>第三步，回答问题。</strong>如果美联储宣布「就是 3.63%」，那么任何一天成交价变成 3.62% 或 3.64%，都会被解读成「美联储失控了」。而这种一两个基点的波动是<strong>必然会发生的</strong>——我们在正文里算过，套利者不会把价差压到零，因为套利要占用资产负债表、要交 FDIC 保费、要消耗资本额度，价差只会被压缩到「刚好抵消这些成本」的地方。<strong>所以宣布一个区间，是对自身工具局限的诚实承认：我保证把它围在 25 个基点的范围内，不保证精确到某一点。</strong></p>
+<p><strong>补充一层：</strong>历史上（2008 年前）美联储确实宣布单一目标值，因为那时准备金稀缺，靠公开市场操作调节数量就能相当精确地打中目标。2008 年后准备金变成数万亿，数量工具失效，改用价格围栏，于是目标也从「一个点」改成「一个区间」。<em>目标的形式，是被工具的性质决定的。</em></p>
+</details>
+
+<details>
+<summary>第 2 题：7 月 29 日美联储决定不加息，当天 30 年期国债利率反而冲到 5.21%，创 2007 年以来新高。「不加息」通常被理解成对债券的利好，为什么这里反了？</summary>
+<p><strong>完整推导：</strong></p>
+<p><strong>第一步，回到长期利率的构成。</strong>长期利率 ＝ 未来短期利率的平均预期 ＋ 期限溢价。「不加息是利好」这个直觉，只考虑了第一项里最近的那一小段。<strong>但 30 年期涵盖的是未来 30 年，最近半年的政策利率在这个平均值里权重极小。</strong></p>
+<p><strong>第二步，算一下权重有多小。</strong>假设未来半年的隔夜利率因为「不加息」比原来低 25 个基点。这半年占 30 年的比例是 0.5 ÷ 30 = 1.67%。<strong>对 30 年期平均值的影响 = 25bp × 1.67% ≈ 0.4 个基点。</strong>几乎可以忽略。</p>
+<p><strong>第三步，看真正起作用的是什么。</strong>30 年的<strong>名义利率</strong>（nominal rate，「名义」的意思是<em>没有扣掉通胀</em>、票面上写的那个数）里，必须包含对未来 30 年平均通胀的补偿。如果市场把长期通胀预期从 2.3% 上调到 2.8%，那 30 年期名义利率就要上升约 50 个基点——<strong>这个影响是上面那 0.4 个基点的 125 倍。</strong></p>
+<p><strong>第四步，为什么「不加息」会上调长期通胀预期。</strong>当时的处境是：通胀 3.4%，高于 2% 的目标；三位委员主张加息；主席被认为表态含糊。在这种情况下选择按兵不动，市场的推断是「这家央行对 2% 的承诺没有那么坚决」。<em>央行的信誉不是靠声明建立的，是市场从行为里推断的。</em>推断出信誉下降 → 上调长期通胀预期 → 要求更高的名义利率补偿 → 30 年期上行。</p>
+<p><strong>第五步，反过来也成立，这才是最有价值的推论。</strong>一次果断的加息，可能<strong>压低</strong>长期利率——因为它证明了决心，市场下调长期通胀预期，而下调的幅度可能远超「短期利率高了一点点」的影响。Volcker 在 1979–1982 年做的就是这件事：短期利率一度推到 19%，代价是严重衰退，但换来了此后二十年长期利率的持续下行。</p>
+<p><strong>所以正确的心智模型是：短端由央行的行动决定，长端由市场对央行的信任决定。这两者可以朝相反方向走。</strong></p>
+</details>
+
+<details>
+<summary>第 3 题：你在新加坡，收入是新币，持有 10 万美元的美股。市场现在预期美联储不加息了。请把这件事对你的影响拆成两条路径，说明它们的方向，并解释为什么净效果不确定。</summary>
+<p><strong>完整推导：</strong></p>
+<p><strong>路径一：折现率路径（对你有利）。</strong></p>
+<p>不加息 → 未来的利率预期下降 → 折现率下降 → 股票估值上升。正文算过：折现率从 5% 降到 4.8%，一家「每年赚 100 块」的公司估值从 2,000 涨到 2,083，涨 4.2%。<strong>利率动 0.2 个百分点，估值动 4.2%，放大 21 倍。</strong>如果你持有的是科技股权重高的宽基 ETF，这个效应会更强，因为科技公司的利润集中在遥远的未来，折现率的影响随年份指数级放大。</p>
+<p><strong>路径二：汇率路径（对你不利）。</strong></p>
+<p>不加息 → 美元利率预期下降 → 持有美元的相对回报下降 → 美元走弱（今天美元指数已连跌三天）→ USD/SGD 下降到 1.2779 → <strong>你的美元资产换成新币变少了。</strong>算一遍：新元一个月升值 1.01%，10 万美元的组合，即使股价不动，新币购买力少了约 100,000 × 1.01% × 1.2779 ≈ 1,291 新币。</p>
+<p><strong>为什么净效果不确定：两条路径方向相反，量级相近。</strong></p>
+<p>假设股票因为折现率下降涨了 1.5%，同时美元贬了 1.0%：</p>
+<p>新币计价的回报 ≈ 1.5% − 1.0% = <strong>0.5%</strong>。你在券商 App 上看到的是「涨了 1.5%」，你的实际购买力只增加了 0.5%。<strong>如果股票只涨 0.8% 而美元贬了 1.0%，你实际上是亏的，但 App 显示你在赚钱。</strong></p>
+<p><strong>还有第三条路径，让净效果更不确定：</strong>如果「不加息」的原因是经济要衰退（这正是零售 −0.6% 暗示的），那么企业盈利预期（分子）会下降，可能压过折现率（分母）下降的利好，股票直接跌。这时候两条路径同时对你不利。</p>
+<p><strong>结论：对一个新币收入 + 美元资产的人来说，「美股涨跌」只是回报的一部分，汇率是另一部分，而这两部分经常相互抵消或叠加。任何只盯着美元回报的分析，对你都是不完整的。</strong></p>
+</details>
+
+<h3>今天就能做的一个小动作（10 分钟）</h3>
+
+<p><strong>去把今天课里的两个数字亲手核对一遍，并建一张表。</strong></p>
+<ol>
+<li>打开 <a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15 每日利率发布</a>，找到「Federal funds (effective)」这一行，确认今天是不是 3.63%；再找 2 年、10 年、30 年，确认 4.15% / 4.63% / 5.21%。<em>目的：让你知道这些数字不是我编的，是每天下午 4:15 公开发布的，你随时能查。</em></li>
+<li>打开 <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">7 月 29 日的实施说明</a>，把 IORB、ON RRP、SRF 三个数字找出来。<em>目的：这份文件全文不到一页，但它是「央行到底控制什么」最原始的证据，而 99% 的财经报道不会提它。</em></li>
+<li>新建一个电子表格，四列：日期 / EFFR / 2 年期 / 30 年期，再加两列：你的组合美元价值 / 新币价值。<strong>每周记一次。</strong><em>目的：三个月后你会拥有一份自己的数据，那时候你对「利率在动」这件事的感觉，会和今天完全不同。</em></li>
+</ol>
+
+<h3>延伸阅读</h3>
+
+<table>
+<tr><th>材料</th><th>为什么值得读</th><th>难度</th></tr>
+<tr><td><a href="https://www.newyorkfed.org/markets/domestic-market-operations/monetary-policy-implementation/repo-reverse-repo-agreements">纽约联储：回购与逆回购操作说明</a></td><td>今天讲的 ON RRP 和 SRF，这里是官方的一手说明，包括每天的实际操作规模。<strong>看官方原文而不是二手解读，是这一年最该养成的习惯。</strong></td><td>中等。有术语，但页面短，可以配着今天的术语卡片读</td></tr>
+<tr><td><a href="https://tellerwindow.newyorkfed.org/2025/12/23/standing-repo-operations-in-the-federal-reserves-monetary-policy-implementation-framework/">纽约联储 Teller Window：常备回购操作在政策框架中的角色</a>（2025 年 12 月）</td><td>专门讲今天的「天花板」SRF 为什么存在、怎么运作。它是纽约联储写给非专业读者的科普栏目，语言比学术论文友好得多</td><td>入门偏中等。是今天环 ④ 最自然的延伸</td></tr>
+<tr><td><a href="https://en.wikipedia.org/wiki/September_2019_events_in_the_U.S._repo_market">2019 年 9 月美国回购市场事件</a></td><td>今天正文提到的「天花板漏过一次」的完整故事：隔夜利率一度冲到 10%，美联储被迫紧急入场。<strong>它是理解「准备金充裕度」为什么重要的最好案例</strong>，也是 SRF 诞生的直接原因</td><td>入门。叙事性强，读起来像新闻</td></tr>
+<tr><td><a href="https://www.bls.gov/news.release/cpi.nr0.htm">美国劳工统计局 CPI 新闻稿</a></td><td>今天引用的 3.4% / 2.5% / 14.7% 全部出自这里。<em>建议至少读一遍原始新闻稿，你会发现媒体报道时丢掉了多少细节。</em></td><td>入门。前三段就够了</td></tr>
+</table>
+
+<hr>
+
+<h2>来源</h2>
+<p class="src">本课所有数字均来自以下公开来源，日期以发布日为准：</p>
+<ul class="src">
+<li><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">FOMC 声明，2026 年 7 月 29 日</a>（目标区间 3.50%–3.75%；三位委员主张加息；通胀与能源供给冲击表述）</li>
+<li><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">FOMC 实施说明，2026 年 7 月 29 日</a>（IORB 3.65%；ON RRP 3.50%、每家每日上限 1600 亿美元；SRF 3.75%；一级信贷 3.75%；国库券购买与再投资指令）</li>
+<li><a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15 精选利率，2026 年 8 月 14 日发布（8 月 13 日数据）</a>（EFFR 3.63%；贴现窗口 3.75%；4 周国库券 3.64%；3 个月 3.71%；2 年 4.15%；5 年 4.32%；10 年 4.63%；30 年 5.21%）</li>
+<li><a href="https://www.bls.gov/news.release/cpi.nr0.htm">美国劳工统计局，2026 年 7 月 CPI</a>（环比 +0.1%；同比 +3.4%；核心环比 +0.2%、同比 +2.5%；能源环比 −1.5%、同比 +14.7%；住房环比 +0.1%、同比 +3.2%）</li>
+<li><a href="https://www.bls.gov/news.release/empsit.nr0.htm">美国劳工统计局，2026 年 7 月就业报告</a>（非农 −2.3 万；失业率 4.1%；平均时薪 37.62 美元、同比 +3.2%；5 月下修 6.6 万、6 月下修 3.7 万，合计 10.3 万）</li>
+<li><a href="https://www.census.gov/retail/marts/www/marts_current.pdf">美国人口普查局，2026 年 7 月零售销售预估</a>（7636 亿美元；环比 −0.6%±0.4%；同比 +5.0%±0.5%；6 月修正为 7681 亿美元）</li>
+<li><a href="https://www.tickmill.com/blog/daily-market-outlook-august-17-2026">每日市场展望，2026 年 8 月 17 日</a>（掉期隐含 9 月加息概率不到 30%，一周前约 50%，8 月初约 70%；2 年期 4.15%、跌 2bp；美元指数连跌三天、接近 5 月以来最弱；布伦特 88.65 美元；黄金 4,395 美元）</li>
+<li><a href="https://www.sofrrate.com/">SOFR 每日数据，2026 年 8 月 14 日</a>（SOFR 3.62%；30 天平均 3.63649%；90 天平均 3.63370%）</li>
+<li><a href="https://tradingeconomics.com/singapore/currency">USD/SGD，2026 年 8 月 17 日</a>（1.2779；一个月内新元升值 1.01%）</li>
+<li><a href="https://www.axios.com/2026/07/30/warsh-fed-inflation-bonds">Axios，2026 年 7 月 30 日</a>（30 年期国债 5.21%，2007 年以来最高；市场对美联储信誉的质疑）</li>
+<li><a href="https://www.chase.com/personal/investments/learning-and-insights/article/september-2026-rate-hike-now-expected-amid-energy-shocks">摩根大通策略观点，2026 年 8 月初</a>（霍尔木兹海峡供应链正常化慢于预期；8 月 3 日前后隐含加息概率约 65%）</li>
+<li><a href="https://finance.yahoo.com/markets/live/stock-market-today-friday-august-14-dow-sp-500-nasdaq-102635519.html">股市收盘，2026 年 8 月 14 日</a>（标普 500 自纪录高位小幅回落，录得连续第三周上涨；沃尔玛、Target 与英伟达财报日程）</li>
+</ul>
+
+<p class="src" style="margin-top:34px; padding-top:20px; border-top:1px solid var(--line)">
+<strong>Day 001 / 368 完成。</strong>今日锚点原理：A1 政策利率是什么——央行到底控制哪个利率。<br>
+明天（Day 002）进入领域 B：通胀、增长与宏观数据，锚点原理 B1「CPI 是怎么算出来的：一篮子的政治学」。<br><br>
+本材料仅供教育用途，不构成投资、税务或法律建议。所有涉及具体资产或决策的讨论均为教学分析。
+</p>
+
+</div>
+</body>
+</html>
