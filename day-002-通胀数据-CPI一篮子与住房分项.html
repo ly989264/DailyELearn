@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 002｜通胀与宏观数据｜CPI 的一篮子：为什么同一个月的美国物价，既是 3.4% 又是 2.5%</title>
+<style>
+:root{
+  --bg:#fbfaf7;
+  --card:#ffffff;
+  --ink:#1c1c1a;
+  --ink-soft:#4a4a46;
+  --ink-faint:#77776f;
+  --line:#e2ded4;
+  --line-strong:#c9c3b4;
+  --accent:#9a5b12;
+  --accent-soft:#f4ece0;
+  --blue:#1f5f8b;
+  --blue-soft:#e7f0f6;
+  --green:#2f6b46;
+  --green-soft:#e6f1ea;
+  --red:#993333;
+  --red-soft:#f8eaea;
+  --purple:#5b4a8a;
+  --purple-soft:#eeebf7;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16161a;
+    --card:#1e1e23;
+    --ink:#eceae4;
+    --ink-soft:#c3c0b8;
+    --ink-faint:#93908a;
+    --line:#33333b;
+    --line-strong:#4a4a54;
+    --accent:#e0a860;
+    --accent-soft:#33291c;
+    --blue:#7fb8e0;
+    --blue-soft:#1b2a35;
+    --green:#7fc79b;
+    --green-soft:#1a2a20;
+    --red:#e58e8e;
+    --red-soft:#33201f;
+    --purple:#b3a2e0;
+    --purple-soft:#26213a;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:17.5px;
+  line-height:1.95;
+  letter-spacing:.01em;
+}
+.wrap{max-width:800px;margin:0 auto;padding:44px 22px 120px}
+header.top{border-bottom:2px solid var(--line-strong);padding-bottom:26px;margin-bottom:34px}
+.kicker{font-size:13px;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase;font-family:var(--mono)}
+h1{font-size:31px;line-height:1.4;margin:14px 0 10px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--ink-soft);font-size:15.5px;line-height:1.8;margin:0}
+.meta{margin-top:18px;font-size:13.5px;color:var(--ink-faint);font-family:var(--mono);line-height:2}
+h2{
+  font-size:23px;margin:64px 0 18px;padding-top:22px;
+  border-top:1px solid var(--line);font-weight:700;letter-spacing:-.01em;line-height:1.5;
+}
+h3{font-size:19px;margin:40px 0 12px;font-weight:700;color:var(--ink);line-height:1.6}
+h4{font-size:17px;margin:28px 0 8px;font-weight:700;color:var(--accent)}
+p{margin:0 0 17px}
+strong{font-weight:700}
+em{font-style:normal;background:var(--accent-soft);padding:1px 5px;border-radius:3px}
+ul,ol{margin:0 0 18px;padding-left:1.5em}
+li{margin-bottom:9px}
+a{color:var(--blue);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
+.calc{
+  font-family:var(--mono);font-size:15.5px;line-height:2.15;
+  background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:6px;padding:16px 20px;margin:20px 0;overflow-x:auto;white-space:pre-wrap;
+}
+.calc b{color:var(--accent);font-weight:700}
+.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin:24px 0}
+.box>:last-child{margin-bottom:0}
+.box.blue{border-left:4px solid var(--blue);background:var(--blue-soft)}
+.box.green{border-left:4px solid var(--green);background:var(--green-soft)}
+.box.red{border-left:4px solid var(--red);background:var(--red-soft)}
+.box.purple{border-left:4px solid var(--purple);background:var(--purple-soft)}
+.box .lbl{font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;font-family:var(--mono);color:var(--ink-faint);margin-bottom:8px;display:block}
+.q{font-weight:700;color:var(--accent);margin-top:26px}
+table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px;line-height:1.7}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700;font-size:14px}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+tr.hl td{background:var(--accent-soft);font-weight:700}
+figure{margin:32px 0}
+figure svg{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px}
+figcaption{font-size:14px;color:var(--ink-faint);line-height:1.8;margin-top:10px;padding-left:4px}
+details{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 18px;margin:14px 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:16px}
+details > *:not(summary){margin-top:12px}
+.src{font-size:13.5px;color:var(--ink-faint);line-height:1.9}
+.src a{color:var(--ink-faint)}
+hr.soft{border:0;border-top:1px dashed var(--line-strong);margin:34px 0}
+.tag{display:inline-block;font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);margin-right:6px}
+.footnote{font-size:14.5px;color:var(--ink-soft);line-height:1.85;border-top:1px solid var(--line);padding-top:20px;margin-top:50px}
+svg text{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 002 · 领域 B · 通胀、增长与宏观数据</div>
+  <h1>同一个月的美国物价，怎么会既是「3.4%」又是「2.5%」？</h1>
+  <p class="sub">今天的锚点原理：<strong>B1 — CPI 是怎么算出来的：一篮子的政治学</strong>。我们从 8 月 18 日美国公布的一组住房数据出发，倒回去把「通胀率」这个数字是怎么被造出来的，一步一步拆开。</p>
+  <div class="meta">
+    日期：2026-08-19（新加坡时间）｜第 2 天 / 共 368 天<br>
+    领域轮值：B 通胀、增长与宏观数据｜本领域第 1 条原理<br>
+    正文约 1.8 万字｜所有数字均可追至公开来源，链接见文中
+  </div>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p>今天从一件小事出发：8 月 18 日，美国政府公布 7 月新开工的房子数量，比上个月少了 12.4%，是个不小的下滑。同一周，另一份报告说美国物价比一年前涨了 3.4%——可这份报告里还有另一个数字，说物价只涨了 2.5%。</p>
+
+<p>两个数字，同一个月，同一个国家。今天要讲明白的道理就是：<strong>「物价涨了多少」这个数字，不是量出来的，是算出来的</strong>。算法里有一堆人为的选择，而每一个选择，都会影响你退休金的数额、你手里美股的价格，以及美联储下个月加不加息。</p>
+
+<p>读完之后，你应该能自己回答这两个问题：为什么机票涨了 25.5%，对通胀数字的影响却只有汽油涨 24.6% 的三分之一？为什么美国四分之一的「通胀」，来自一笔从来没有人真正支付过的钱？</p>
+
+<h2>1｜今天的事件</h2>
+
+<p>先只说事实，不做任何解释。今天出现的每个数字，我都会先说清楚它到底在量什么。</p>
+
+<h3>1.1　8 月 18 日公布的住房数据</h3>
+
+<p>美国人口普查局（U.S. Census Bureau，负责统计美国建了多少房子的政府机构）在 <strong>2026 年 8 月 18 日</strong>发布了 7 月的新屋建设报告：</p>
+
+<ul>
+<li><strong>新屋开工（Housing Starts）＝ 123.9 万套</strong>。「开工」的意思是：工人把第一铲土挖下去了，房子开始盖了。这个 123.9 万不是 7 月实际开工的套数，而是一个「换算成全年的速度」——如果接下来 12 个月都按 7 月这个节奏盖，一年会开工 123.9 万套。7 月实际开工大约 10 万套出头。这个数字比 6 月<strong>低了 12.4%</strong>，比去年 7 月<strong>低了 13.5%</strong>。</li>
+<li><strong>建筑许可（Building Permits）＝ 144.3 万套</strong>，比 6 月<strong>高了 5.0%</strong>。「许可」是开工的前一步：开发商去政府拿批文，说我打算盖这么多房子。拿了批文不一定马上盖。</li>
+<li><strong>竣工（Completions）＝ 121.2 万套</strong>，比 6 月低 9.1%，比去年低 16.8%。</li>
+</ul>
+
+<p>同一天，普查局还公布 7 月的<strong>进口物价指数</strong>——衡量美国从国外买进来的东西的价格——比一年前高 5.9%，低于市场原本预期的 7.2%，也低于 6 月的 7.1%。同日公布的<strong>成屋签约销售</strong>（买卖双方签了合同、但还没过户的二手房数量）比 6 月低 2.3%。</p>
+
+<h3>1.2　一周前公布、今天仍在主导市场的通胀数据</h3>
+
+<p>8 月 12 日，美国劳工统计局（Bureau of Labor Statistics，简称 BLS，负责统计物价和就业的政府机构）公布了 7 月的<strong>消费者物价指数（CPI）</strong>。核心事实是：</p>
+
+<ul>
+<li><strong>整体 CPI 比一年前高 3.4%</strong>。也就是说，按 BLS 的算法，2026 年 7 月买一整套东西，要比 2025 年 7 月多花 3.4%。</li>
+<li><strong>剔除食品和能源之后，只高 2.5%</strong>。这个剔除后的数字有个名字，后面会讲。</li>
+<li>差别来自能源：<strong>能源整体比一年前高 14.7%，其中汽油高 24.6%</strong>。</li>
+<li>住房相关的价格比一年前高 3.2%；机票比一年前高 25.5%；车险比一年前<strong>低</strong> 4.5%；二手车比一年前<strong>低</strong> 1.9%。</li>
+</ul>
+
+<h3>1.3　同一时刻的市场读数（8 月 17–18 日）</h3>
+
+<table>
+<tr><th>读数</th><th>数值</th><th>这个数字在量什么</th></tr>
+<tr><td>联邦基金有效利率</td><td class="num">3.63%</td><td>美国银行之间互相借一晚上钱的实际利率，美联储直接控制</td></tr>
+<tr><td>2 年期美国国债收益率</td><td class="num">4.19%</td><td>借钱给美国政府 2 年，每年能拿到的回报率</td></tr>
+<tr><td>10 年期美国国债收益率</td><td class="num">4.72%</td><td>同上，期限 10 年</td></tr>
+<tr><td>30 年期美国国债收益率</td><td class="num">5.31%</td><td>同上，期限 30 年——这是<strong>约 19 年来的最高点</strong></td></tr>
+<tr><td>9 月美联储加息概率</td><td class="num">约 65%</td><td>由利率期货价格反推出来的市场赌注</td></tr>
+<tr><td>纳斯达克指数（8/18 盘中）</td><td class="num">−1.02%</td><td>美国科技股为主的股票指数</td></tr>
+<tr><td>标普 500（8/18 盘中）</td><td class="num">−0.58%</td><td>美国 500 家大公司的股票指数</td></tr>
+<tr><td>VIX 恐慌指数</td><td class="num">15.88（+4.5%）</td><td>市场预期未来一个月股市波动的幅度</td></tr>
+<tr><td>布伦特原油</td><td class="num">约 90.7 美元/桶</td><td>国际油价基准</td></tr>
+<tr><td>黄金</td><td class="num">4,452.70 美元/盎司</td><td></td></tr>
+<tr><td>美元兑新元</td><td class="num">约 1.277</td><td>1 美元能换 1.277 新元</td></tr>
+</table>
+
+<p>背景事实一条：美国联邦基金利率目标区间目前是 <strong>3.50%–3.75%</strong>。7 月的美联储议息会议以 <strong>9 票对 3 票</strong>决定按兵不动，三位反对者主张<strong>加息</strong> 0.25 个百分点。同时，美国与伊朗的紧张关系在 8 月中旬升级，是推高油价和长期国债收益率的直接原因。</p>
+
+<p class="src">来源：<a href="https://www.census.gov/construction/nrc/pdf/newresconst.pdf">Census Bureau, New Residential Construction, July 2026</a>｜<a href="https://www.bls.gov/news.release/pdf/cpi.pdf">BLS, Consumer Price Index — July 2026</a>｜<a href="https://www.federalreserve.gov/releases/h15/">Federal Reserve H.15, Aug 18 2026</a>｜<a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-aug-18-2026">TheStreet, Aug 18 2026</a>｜<a href="https://www.chase.com/personal/investments/learning-and-insights/article/september-2026-rate-hike-now-expected-amid-energy-shocks">Chase, September 2026 rate hike expectations</a></p>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 900 1010" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="从家庭消费习惯到 Dylan 投资组合的完整传导链">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--ink-faint)"/>
+    </marker>
+    <marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+  <style>
+    .bx{fill:var(--card);stroke:var(--line-strong);stroke-width:1.4}
+    .bxA{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.8}
+    .bxB{fill:var(--blue-soft);stroke:var(--blue);stroke-width:1.4}
+    .bxG{fill:var(--green-soft);stroke:var(--green);stroke-width:1.4}
+    .bxR{fill:var(--red-soft);stroke:var(--red);stroke-width:1.4}
+    .t{fill:var(--ink);font-size:13.5px}
+    .tb{fill:var(--ink);font-size:14px;font-weight:700}
+    .ts{fill:var(--ink-faint);font-size:11.5px}
+    .ln{stroke:var(--ink-faint);stroke-width:1.4;fill:none;marker-end:url(#ar)}
+    .lnA{stroke:var(--accent);stroke-width:2;fill:none;marker-end:url(#arA)}
+    .sec{fill:var(--ink-faint);font-size:11px;letter-spacing:.14em}
+  </style>
+
+  <text class="sec" x="20" y="26">第一段 · 数字是怎么被造出来的</text>
+
+  <rect class="bx" x="20" y="40" width="180" height="56" rx="8"/>
+  <text class="tb" x="34" y="64">① 你家每月花的钱</text>
+  <text class="ts" x="34" y="83">房租、汽油、外卖、机票…</text>
+
+  <rect class="bx" x="230" y="40" width="200" height="56" rx="8"/>
+  <text class="tb" x="244" y="64">② 消费者支出调查</text>
+  <text class="ts" x="244" y="83">几千户家庭记一整年的账</text>
+
+  <rect class="bxA" x="460" y="40" width="200" height="56" rx="8"/>
+  <text class="tb" x="474" y="64">③ 一篮子的「权重」</text>
+  <text class="ts" x="474" y="83">住房 35.3%、能源 7.4%…</text>
+
+  <rect class="bx" x="690" y="40" width="190" height="56" rx="8"/>
+  <text class="tb" x="704" y="64">④ 每月实地采价</text>
+  <text class="ts" x="704" y="83">75 城 · 2.2 万家商店</text>
+
+  <path class="ln" d="M200,68 L228,68"/>
+  <path class="lnA" d="M430,68 L458,68"/>
+  <path class="ln" d="M660,68 L688,68"/>
+
+  <path class="lnA" d="M560,96 L560,120 L450,120 L450,146"/>
+
+  <rect class="bxA" x="250" y="146" width="400" height="62" rx="8"/>
+  <text class="tb" x="264" y="172">⑤ 权重 × 各分项涨幅，加权求和</text>
+  <text class="ts" x="264" y="192">这一步是今天的主菜：一个数字，是几百个数字的加权平均</text>
+
+  <path class="ln" d="M350,208 L350,236"/>
+  <path class="ln" d="M550,208 L550,236"/>
+
+  <rect class="bxR" x="150" y="236" width="230" height="62" rx="8"/>
+  <text class="tb" x="164" y="262">⑥a 整体 CPI ＋3.4%</text>
+  <text class="ts" x="164" y="282">全部 100% 的篮子</text>
+
+  <rect class="bxG" x="440" y="236" width="290" height="62" rx="8"/>
+  <text class="tb" x="454" y="262">⑥b 核心 CPI ＋2.5%</text>
+  <text class="ts" x="454" y="282">拿掉食品 13.5% ＋ 能源 7.4%，剩 79.0%</text>
+
+  <text class="sec" x="20" y="336">第二段 · 两个数字打架，钱开始移动</text>
+
+  <path class="ln" d="M265,298 L265,326 L430,326 L430,352"/>
+  <path class="ln" d="M585,298 L585,326 L470,326 L470,352"/>
+
+  <rect class="bxA" x="230" y="352" width="440" height="62" rx="8"/>
+  <text class="tb" x="244" y="378">⑦ 美联储该盯哪一个？</text>
+  <text class="ts" x="244" y="398">7 月会议 9:3 按兵不动，三位委员主张加息</text>
+
+  <path class="ln" d="M450,414 L450,442"/>
+
+  <rect class="bx" x="230" y="442" width="440" height="56" rx="8"/>
+  <text class="tb" x="244" y="466">⑧ 9 月加息概率被推到约 65%</text>
+  <text class="ts" x="244" y="485">由利率期货价格反推</text>
+
+  <path class="ln" d="M340,498 L340,522 L180,522 L180,548"/>
+  <path class="ln" d="M560,498 L560,522 L700,522 L700,548"/>
+
+  <rect class="bxB" x="60" y="548" width="250" height="62" rx="8"/>
+  <text class="tb" x="74" y="574">⑨a 短端利率：2 年期 4.19%</text>
+  <text class="ts" x="74" y="594">比当前隔夜利率高 0.56 个百分点</text>
+
+  <rect class="bxB" x="580" y="548" width="260" height="62" rx="8"/>
+  <text class="tb" x="594" y="574">⑨b 长端：30 年期 5.31%</text>
+  <text class="ts" x="594" y="594">19 年新高</text>
+
+  <path class="ln" d="M185,610 L185,638 L400,638 L400,664"/>
+  <path class="ln" d="M710,610 L710,638 L500,638 L500,664"/>
+
+  <rect class="bxA" x="240" y="664" width="420" height="56" rx="8"/>
+  <text class="tb" x="254" y="688">⑩ 折现率上升＝未来的钱今天更不值钱</text>
+  <text class="ts" x="254" y="707">越远期的现金流，跌得越狠</text>
+
+  <path class="ln" d="M330,720 L330,744 L170,744 L170,770"/>
+  <path class="ln" d="M450,720 L450,770"/>
+  <path class="ln" d="M570,720 L570,744 L730,744 L730,770"/>
+
+  <rect class="bx" x="50" y="770" width="230" height="54" rx="8"/>
+  <text class="tb" x="64" y="793">⑪a 纳指 −1.02%</text>
+  <text class="ts" x="64" y="812">成长股受压最重</text>
+
+  <rect class="bx" x="340" y="770" width="220" height="54" rx="8"/>
+  <text class="tb" x="354" y="793">⑪b 黄金 $4,453</text>
+  <text class="ts" x="354" y="812">实际利率的对手盘</text>
+
+  <rect class="bx" x="620" y="770" width="230" height="54" rx="8"/>
+  <text class="tb" x="634" y="793">⑪c 美元/新元 1.277</text>
+  <text class="ts" x="634" y="812">影响你换回 SGD 的金额</text>
+
+  <path class="ln" d="M165,824 L165,850 L420,850 L420,876"/>
+  <path class="ln" d="M450,824 L450,876"/>
+  <path class="ln" d="M735,824 L735,850 L480,850 L480,876"/>
+
+  <rect class="bxA" x="270" y="876" width="360" height="54" rx="8"/>
+  <text class="tb" x="284" y="899">⑫ 你的美股组合与它的新元价值</text>
+  <text class="ts" x="284" y="918">SGD 收入 · USD 资产 · 新加坡税务环境</text>
+
+  <text class="sec" x="20" y="962">回路 · 今天的住房数据，喂回篮子里最大的一格</text>
+  <rect class="bxG" x="20" y="970" width="270" height="32" rx="6"/>
+  <text class="t" x="32" y="991">8/18 新屋开工 −12.4%</text>
+  <path class="ln" d="M290,986 L318,986"/>
+  <rect class="bxG" x="320" y="970" width="250" height="32" rx="6"/>
+  <text class="t" x="332" y="991">→ 12–18 个月后租金走弱</text>
+  <path class="ln" d="M570,986 L598,986"/>
+  <rect class="bxG" x="600" y="970" width="280" height="32" rx="6"/>
+  <text class="t" x="612" y="991">→ 压住权重 35.3% 的住房分项</text>
+</svg>
+<figcaption><strong>图 1｜今天这条链的全貌。</strong>左上角是你家的账本，右下角是 Dylan 的投资组合。中间那一格橙色的「权重」和「加权求和」，就是今天要讲透的东西——它决定了同一批价格能变成 3.4% 还是 2.5%，而这两个数字会指向完全相反的货币政策。最底下那一行是一条回路：今天公布的住房数据，会在一年多以后回到篮子里最大的那一格。</figcaption>
+</figure>
+
+<h3>把这张图用人话读一遍</h3>
+
+<p>假设我现在坐在你对面，口头讲一遍。</p>
+
+<p>要算「物价涨了多少」，第一件事不是去看价格，而是去搞清楚<strong>人们的钱都花在哪儿</strong>。所以美国政府养了一支队伍，找几千户家庭，让他们记一整年的账：这个月房租多少、加油多少、外卖多少、买了几件衣服。把这些账本汇总起来，就知道了「平均每花 100 块，有多少块花在住房上、多少块花在汽油上」。这套比例，就是<strong>篮子的权重</strong>。</p>
+
+<p>有了权重，再派人每个月去 75 个城市、两万多家商店，一样一样地记价格。然后把「每一样东西涨了多少」乘上「这一样东西占多少比例」，全部加起来，就得到一个总数：7 月是 <strong>3.4%</strong>。</p>
+
+<p>但同一批数据，如果你先把「食品」和「能源」这两格从篮子里拿掉，再把剩下的重新加起来，得到的是 <strong>2.5%</strong>。差了 0.9 个百分点。<strong>差别不来自价格，来自你决定往篮子里放什么。</strong></p>
+
+<p>接下来问题就大了。美联储要根据通胀决定利率。3.4% 明显偏高，该加息；2.5% 已经接近目标，该按兵不动。7 月的会议上，十二个人里有三个投了加息票——这三票就是这 0.9 个百分点的分歧具体化的样子。到了 8 月，油价因为美伊局势又往上走，市场把 9 月加息的概率推到了约 65%。</p>
+
+<p>市场一旦相信要加息，钱就会立刻移动：2 年期国债收益率涨到 4.19%，比现在的隔夜利率还高出 0.56 个百分点；30 年期涨到 5.31%，19 年新高。而利率上升会让所有「未来才收得到的钱」在今天变得更不值钱——股票就是一串未来的钱，所以纳斯达克当天跌了 1%，跌得最多的是那些利润还在很远的将来的公司。美元、黄金、你手里美股的新元价值，全都跟着动。</p>
+
+<p>最后那条回路是最有意思的：今天公布的新屋开工暴跌 12.4%。房子盖得少，一年后可租的房子就少，租金就有支撑；但同时买房的人也在减少，需求端也在冷。不管方向如何，它最终会流进 CPI 篮子里权重最大的那一格——住房，占整个篮子的 <strong>35.3%</strong>。今天的一铲土，是一年半后那个通胀数字的原料。</p>
+<h2>3｜逐环拆解</h2>
+
+<p>下面一环一环走。每一环我都会回答三件事：<strong>为什么 A 会导致 B</strong>（机制）、<strong>这个影响有多大</strong>（用数字算）、<strong>什么情况下这一环会断</strong>（失效条件）。</p>
+
+<p>前四环是今天的锚点原理所在，会写得最厚。请慢慢读，中间的算术都可以拿计算器跟着按一遍。</p>
+
+<h3>环 1｜从「你家的账本」到「篮子的权重」</h3>
+
+<h4>为什么需要一个篮子</h4>
+
+<p>先想一件很朴素的事。我问你：「这个月物价涨了多少？」你会怎么回答？</p>
+
+<p>你可能会说：鸡蛋贵了、油贵了、但手机便宜了、二手车也便宜了。<strong>不同的东西朝不同的方向走。</strong>那要怎么把这一堆互相矛盾的变化，压缩成一个数字？</p>
+
+<p>唯一的办法是：<strong>先决定每样东西有多重要，再算加权平均。</strong></p>
+
+<p>「加权平均」这个词你可能听过，但我还是从头讲一遍，因为它是今天所有内容的地基。</p>
+
+<p>假设你一个月只买两样东西：房租 3000 块，鸡蛋 100 块。今年房租涨到 3100（涨 3.3%），鸡蛋涨到 150（涨 50%）。</p>
+
+<p>如果你把两个涨幅直接平均：(3.3% + 50%) ÷ 2 = <strong>26.7%</strong>。这个数字荒唐吗？非常荒唐。因为你实际的支出，从 3100 变成了 3250，只多花了 4.8%。鸡蛋涨了一半，但鸡蛋只占你支出的一小部分，它<strong>没有资格</strong>在总数里占一半的分量。</p>
+
+<div class="calc">
+正确的算法（加权平均）：
+　房租权重 = 3000 ÷ 3100 = 96.8%
+　鸡蛋权重 = 100 ÷ 3100 = 3.2%
+
+　总涨幅 = 96.8% × 3.3%　＋　3.2% × 50%
+　　　　 = 3.19%　＋　1.61%
+　　　　 = <b>4.80%</b>
+
+对照一下你实际多花的钱：3250 ÷ 3100 − 1 = 4.84%。✓ 对上了。
+</div>
+
+<p>看到了吗？<strong>权重的作用，就是让每样东西按它在你钱包里的真实分量说话。</strong>没有权重，一个你几乎不买的东西，可以把整个数字带偏。</p>
+
+<div class="box blue">
+<span class="lbl">经济学给它起了个名字</span>
+<p>上面这套「先定权重、再算加权平均」的做法，做出来的东西叫<strong>价格指数（price index）</strong>。而衡量普通城市居民日常消费的那一个，叫<strong>消费者物价指数（Consumer Price Index，缩写 CPI）</strong>。</p>
+<p>还有一个更精确的名字：因为它固定住了「篮子里放什么、各放多少」，然后只让价格变，这种做法叫<strong>拉氏指数（Laspeyres index）</strong>——以 19 世纪德国统计学家 Étienne Laspeyres 命名。你现在不需要记这个名字，只要记住它的做法：<em>篮子固定，只看价格变</em>。这个「固定」后面会惹出很多麻烦。</p>
+</div>
+
+<h4>权重从哪里来：一份真实存在的记账调查</h4>
+
+<p>那么，美国的 BLS 是怎么知道「美国人平均每花 100 块，有多少块花在住房上」的？</p>
+
+<p>答案朴素得让人意外：<strong>他们真的去找人记账。</strong></p>
+
+<p>这个调查叫<strong>消费者支出调查（Consumer Expenditure Survey，简称 CE Survey）</strong>。它分两部分：一部分是入户访谈，问你过去三个月的大额支出（房租、车、保险、学费）；另一部分是发一本日记本，让家庭连续两周把每一笔小额消费记下来——买了一杯咖啡、一包纸巾、加了多少油。全美每年有几千户家庭参与。</p>
+
+<p>把这几千本账汇总、按人口结构加权放大到全国，就得到了那套比例。这套比例，就是 CPI 篮子的权重。</p>
+
+<p><span class="q">你可能会想：几千户家庭，凭什么代表三亿人？</span></p>
+
+<p>这是个好问题，而且答案不是「没关系」。答案是：<strong>它确实带来误差，而且这个误差近年在变大。</strong>参与调查的家庭越来越少（记两周流水账很烦，愿意做的人在减少），BLS 自己在 2026 年 4 月发过一份公告，专门说明消费支出数据缺失对 CPI 的影响。同时，2025 年 6 月和 7 月，BLS 两次发布公告，承认因为预算和人手不足，<strong>减少了实地采价的样本量</strong>——有些城市的价格干脆不再实地采集，改用其他城市的数据推算。</p>
+
+<p>换句话说：那个精确到小数点后一位的「3.4%」，底下站着的是一群越来越少的、自愿记账的普通人，和一支越来越小的采价队伍。</p>
+
+<h4>这个影响有多大：真实的权重表</h4>
+
+<p>下面是 7 月 CPI 报告里的真实权重（BLS 称之为「相对重要性 relative importance」），我把它和当月各分项比一年前的涨幅放在一起。<strong>这张表是今天最重要的一张表</strong>，后面所有算术都从它出发。</p>
+
+<table>
+<tr><th>篮子里的一格</th><th>权重（%）</th><th>比一年前涨了</th><th>对总数的贡献</th></tr>
+<tr class="hl"><td>住房（Shelter）</td><td class="num">35.304</td><td class="num">+3.2%</td><td class="num">+1.13 个百分点</td></tr>
+<tr><td>　其中：自有住房的等价租金</td><td class="num">25.849</td><td class="num">+3.2%</td><td class="num">+0.83</td></tr>
+<tr><td>　其中：实际支付的房租</td><td class="num">7.716</td><td class="num">+2.9%</td><td class="num">+0.22</td></tr>
+<tr class="hl"><td>食品</td><td class="num">13.522</td><td class="num">+3.0%</td><td class="num">+0.41</td></tr>
+<tr><td>　在家吃</td><td class="num">8.231</td><td class="num">+2.7%</td><td class="num">+0.22</td></tr>
+<tr><td>　在外吃</td><td class="num">5.290</td><td class="num">+3.4%</td><td class="num">+0.18</td></tr>
+<tr class="hl"><td>能源</td><td class="num">7.432</td><td class="num">+14.7%</td><td class="num">+1.09</td></tr>
+<tr><td>　汽油</td><td class="num">3.852</td><td class="num">+24.6%</td><td class="num">+0.95</td></tr>
+<tr><td>　电</td><td class="num">2.552</td><td class="num">+4.2%</td><td class="num">+0.11</td></tr>
+<tr><td>　天然气</td><td class="num">0.748</td><td class="num">+4.3%</td><td class="num">+0.03</td></tr>
+<tr><td>医疗</td><td class="num">6.840</td><td class="num">+2.7%</td><td class="num">+0.18</td></tr>
+<tr><td>交通服务</td><td class="num">6.352</td><td class="num">+2.9%</td><td class="num">+0.18</td></tr>
+<tr><td>新车</td><td class="num">3.751</td><td class="num">+0.5%</td><td class="num">+0.02</td></tr>
+<tr><td>二手车</td><td class="num">2.679</td><td class="num">−1.9%</td><td class="num">−0.05</td></tr>
+<tr><td>车险</td><td class="num">2.570</td><td class="num">−4.5%</td><td class="num">−0.12</td></tr>
+<tr><td>服装</td><td class="num">2.437</td><td class="num">+3.9%</td><td class="num">+0.10</td></tr>
+<tr><td>机票</td><td class="num">1.091</td><td class="num">+25.5%</td><td class="num">+0.28</td></tr>
+<tr class="hl"><td>（剔除食品与能源后的合计）</td><td class="num">79.047</td><td class="num">+2.5%</td><td class="num">+1.98</td></tr>
+</table>
+
+<p class="src">权重与涨幅均取自 <a href="https://www.bls.gov/news.release/pdf/cpi.pdf">BLS CPI 新闻稿，2026 年 7 月</a>。「贡献」一列是我用「权重 ÷ 100 × 涨幅」算出来的，下面会逐步演示。</p>
+
+<div class="box red">
+<span class="lbl">现在做一件事，它会让你彻底记住「权重」</span>
+<p>看表里这两行：</p>
+<p><strong>机票涨了 25.5%，汽油涨了 24.6%。</strong>涨幅几乎一模一样——机票甚至还高一点。</p>
+<p>但它们对总通胀的贡献差了三倍多。为什么？算一遍：</p>
+<div class="calc">
+汽油：权重 3.852%　→　0.03852 × 24.6% = <b>0.95 个百分点</b>
+机票：权重 1.091%　→　0.01091 × 25.5% = <b>0.28 个百分点</b>
+
+0.95 ÷ 0.28 = <b>3.4 倍</b>
+（权重之比：3.852 ÷ 1.091 = 3.53 倍，基本吻合）
+</div>
+<p>所以，当你在新闻里看到「机票暴涨 25%」的标题时，你现在应该能立刻反应：<strong>那又怎样？它只占篮子的 1.09%。</strong>它对整体通胀的影响，还不到汽油的三分之一。</p>
+<p>反过来，当你看到「住房价格只涨了 3.2%，很温和」时，你也应该立刻反应：<strong>它占 35.3%，是篮子里最大的一块。</strong>3.2% × 35.3% = 1.13 个百分点，比涨了 14.7% 的整个能源板块贡献还多。</p>
+<p><strong>这就是「权重」这个概念的全部力量：新闻报道涨幅，市场交易贡献。学会永远同时问这两个问题——涨了多少？占多大比例？</strong></p>
+</div>
+
+<h4>什么情况下这一环会断</h4>
+
+<p>权重这一环失效，主要有三种情况：</p>
+
+<ol>
+<li><strong>消费结构突变时。</strong>权重来自去年的账本。如果今年大家的花钱方式突然变了（比如疫情期间机票支出归零、居家用品暴涨），去年的权重就会严重失真。2020–2021 年 CPI 被广泛质疑，主要原因就是这个。</li>
+<li><strong>你不是「平均人」时。</strong>CPI-U 衡量的是「城市消费者的平均篮子」。但世界上不存在一个家庭真的按这个比例花钱。一个没有车的新加坡人，汽油权重是 0，不是 3.852%；一个已经全款买房的人，住房权重远低于 35.3%。<strong>官方通胀率永远不是你的通胀率。</strong></li>
+<li><strong>调查样本质量下滑时。</strong>如前所述，参与记账的家庭减少、采价样本被削减，会让权重和价格都带上更大的噪声。这不是理论风险，是 BLS 已经公开承认的现状。</li>
+</ol>
+
+<h3>环 2｜从「权重」到「3.4%」：把整个数字自己算一遍</h3>
+
+<h4>为什么权重乘涨幅再加总，就等于总涨幅</h4>
+
+<p>这一步很多人是硬背下来的。我们把它推一遍，你就不用背了。</p>
+
+<p>回到那个只有房租和鸡蛋的例子。总支出 = 房租支出 + 鸡蛋支出。今年的总支出 = 3000×(1+3.3%) + 100×(1+50%)。</p>
+
+<p>把它除以去年的总支出 3100，得到「今年是去年的多少倍」：</p>
+
+<div class="calc">
+今年 ÷ 去年
+= [3000×(1+3.3%) + 100×(1+50%)] ÷ 3100
+= (3000÷3100)×(1+3.3%)　+　(100÷3100)×(1+50%)
+=　权重1 ×(1+涨幅1)　　+　权重2 ×(1+涨幅2)
+
+因为 权重1 + 权重2 = 1，把 1 拆出来：
+= 1 + 权重1×涨幅1 + 权重2×涨幅2
+
+所以：<b>总涨幅 = 各项权重 × 各项涨幅，然后加总。</b>
+</div>
+
+<p>这不是一个需要记忆的公式，它就是「把总支出拆开再合起来」的必然结果。<strong>任何一个总量的变化率，都等于它各部分变化率的加权和。</strong>这句话今天会反复用到，而且在别的场合（看公司营收、看你自己的组合收益）也一样成立——第 6 节会展开。</p>
+
+<h4>现在用真实数字算 7 月的美国通胀</h4>
+
+<p>整个 CPI 篮子可以干净地切成三块，权重加起来正好 100：</p>
+
+<div class="calc">
+食品　　　　13.522%
+能源　　　　 7.432%
+其余全部　　79.047%
+　　　　　 ────────
+合计　　　 100.001%　（四舍五入误差）
+
+各自的涨幅（比一年前）：
+食品 +3.0%　｜　能源 +14.7%　｜　其余 +2.5%
+
+加权求和：
+　食品：0.13522 × 3.0%　 = <b>0.406</b> 个百分点
+　能源：0.07432 × 14.7% = <b>1.092</b> 个百分点
+　其余：0.79047 × 2.5%　= <b>1.976</b> 个百分点
+　　　　　　　　　　　　　────────────
+　合计　　　　　　　　　 <b>3.474</b> 个百分点
+
+BLS 公布的整体 CPI：<b>+3.4%</b>　✓
+</div>
+
+<p>你刚刚亲手把美国的通胀率算了出来。差的那一点点（3.474 vs 3.4）来自两个技术原因：BLS 公布的分项涨幅本身是四舍五入过的；以及权重表用的是当期相对重要性，而实际计算用的是期初权重。这个量级的差异（0.07 个百分点）不影响任何结论。</p>
+
+<div class="box">
+<span class="lbl">插一句：两个必须分清的说法</span>
+<p><strong>「百分点」和「百分比」不是一回事。</strong>通胀从 3.0% 变成 3.4%，是<em>上升了 0.4 个百分点</em>，不是「上升了 0.4%」。如果说上升 0.4%，那意思是 3.0% × 1.004 = 3.012%，完全不同。金融圈为了避免这个混淆，还发明了更小的单位：</p>
+<p><strong>基点（basis point，简写 bp）＝ 0.01 个百分点。</strong>所以 0.4 个百分点 = 40 个基点。美联储一次加息 0.25 个百分点，就是「加 25 个基点」。今天 2 年期国债 4.19% 比隔夜利率 3.63% 高出 0.56 个百分点，就是「高 56 个基点」。</p>
+<p>这个词后面每天都会出现，今天先把它钉死。</p>
+</div>
+
+<h4>另外两个必须分清的说法：同比与环比</h4>
+
+<p>7 月 CPI 报告里有两组完全不同的数字：<strong>「比一年前高 3.4%」</strong>和<strong>「比上个月高 0.1%」</strong>。</p>
+
+<ul>
+<li><strong>同比（year-over-year）</strong>：拿 2026 年 7 月和 2025 年 7 月比。它平滑、稳定，但反应慢——因为它包含了过去 12 个月的全部变化，其中 11 个月是旧消息。</li>
+<li><strong>环比（month-over-month）</strong>：拿 2026 年 7 月和 2026 年 6 月比。它灵敏，但噪声大。</li>
+</ul>
+
+<p>这里藏着一个新手最容易掉进去的坑，叫<strong>基数效应（base effect）</strong>：<strong>同比数字的变化，有时候完全不是因为今天发生了什么，而是因为一年前发生了什么。</strong></p>
+
+<div class="calc">
+举个具体例子。汽油同比 +24.6% 意味着：
+　假设 2025 年 7 月每加仑 2.60 美元
+　那么 2026 年 7 月 = 2.60 × 1.246 = <b>3.24 美元</b>
+
+现在设想：接下来一年油价<b>一动不动</b>，就停在 3.24。
+到了 2027 年 7 月，汽油同比 = 3.24 ÷ 3.24 − 1 = <b>0%</b>
+
+于是新闻标题会写「汽油通胀从 24.6% 暴跌到 0%」。
+但油价<b>一分钱都没降</b>，你加油还是花 3.24。
+</div>
+
+<p>这就是基数效应：<strong>同比数字下降，可能只是意味着「涨价这件事停止了」，而不是「东西变便宜了」。</strong>这个区别在 2026 年下半年会非常重要——如果油价停在现在的水平不再上涨，光靠基数效应，明年的整体 CPI 就会自己往下掉一大截，哪怕美联储什么都不做。</p>
+
+<h4>还有一个：季节调整</h4>
+
+<p>你可能注意到一个矛盾：7 月能源比一年前高 14.7%，但报告说 7 月能源比 6 月<strong>跌了 1.5%</strong>。这不是笔误。</p>
+
+<p>而且那个 −1.5% 是<strong>季节调整后</strong>的数字。什么意思？</p>
+
+<p>先讲现象：有些价格每年都按固定节奏波动。夏天美国人开车出游，汽油需求年年上升，油价年年在 6–8 月偏高；开学季服装年年降价促销。这些是<strong>日历本身造成的</strong>，不是经济发生了变化。</p>
+
+<p>统计学家的处理办法是：用过去很多年的数据算出「7 月的汽油价格平均比 6 月高多少」，然后从今年的数字里把这个常规涨幅扣掉。剩下的，才是「今年 7 月的真实异动」。这个处理叫<strong>季节调整（seasonal adjustment）</strong>。</p>
+
+<p>所以「季调后能源环比 −1.5%」的准确读法是：<strong>能源价格并没有真的比 6 月便宜 1.5%，而是它没有涨到 7 月「本该涨到」的水平，差了 1.5%。</strong></p>
+
+<p>这一环什么时候会断？当季节规律本身改变时。极端天气、疫情、战争都会打乱历年的季节模式，让季调因子失效。BLS 每年 2 月会更新一次季调因子（2026 年是 2 月 13 日更新的），这意味着<strong>历史数据会被回头改写</strong>——你去年看到的那个数字，今年可能已经不是那个数字了。</p>
+
+<h3>环 3｜从「3.4%」到「2.5%」：为什么要把两格拿掉</h3>
+
+<h4>先讲这个操作本身</h4>
+
+<p>把食品（13.522%）和能源（7.432%）两格从篮子里拿掉，剩下 79.047%，重新算加权平均，得到 <strong>+2.5%</strong>。</p>
+
+<p>这个剔除后的数字，<strong>经济学给它起了个名字，叫核心通胀（core inflation）</strong>。前面那个包含全部 100% 的，叫<strong>整体通胀（headline inflation，字面意思是「上头条的通胀」）</strong>。</p>
+
+<p><span class="q">你的第一反应大概是：食品和能源明明是最日常的开销，凭什么把它们拿掉？这不是自欺欺人吗？</span></p>
+
+<p>这个质疑非常合理，而且它是每次 CPI 发布后社交媒体上最常见的抱怨。但剔除的理由并不是「假装它们不存在」，理由是这样的：</p>
+
+<p><strong>央行想知道的，不是「物价现在是多少」，而是「物价接下来会往哪走」。</strong>这两件事不一样。</p>
+
+<p>为什么不一样？因为央行的工具（利率）作用非常慢——一次加息要 12 到 18 个月才能完全传导到经济里。所以央行今天做的决定，针对的其实是一年半以后的通胀。它需要的是一个<strong>能预测未来的信号</strong>，而不是一个准确描述当下的数字。</p>
+
+<p>而食品和能源价格有一个共同特点：<strong>它们大起大落，而且经常掉头。</strong>油价可能一个月涨 15%，下个月跌 12%。如果央行跟着这种数字调利率，它会一直在追逐噪声——加完息发现油价自己跌回去了，只好又降息。前面讲过，货币政策有 12–18 个月的时滞，等你调完，情况早就变了。</p>
+
+<p>所以「剔除食品和能源」的真正含义是：<strong>剔除那些波动大、且大概率会自己回头的部分，看看剩下的、更黏的那部分价格在做什么。</strong></p>
+
+<h4>这个影响有多大：0.9 个百分点值多少钱</h4>
+
+<p>整体 3.4%，核心 2.5%，差 0.9 个百分点。这个差距在美国是罕见的大。我们算一下它从哪来：</p>
+
+<div class="calc">
+整体 = 3.474（前面算过）
+核心 = 2.5
+
+差额 = 0.974 个百分点
+
+来源拆解：
+　能源贡献　0.07432 × 14.7% = 1.092
+　食品贡献　0.13522 × 3.0%　= 0.406
+　合计　　　　　　　　　　　 1.498 个百分点
+
+但这两格在整体里只占 20.954% 的权重，
+如果它们也只涨 2.5%（跟核心一样），会贡献：
+　0.20954 × 2.5% = 0.524 个百分点
+
+多出来的部分 = 1.498 − 0.524 = <b>0.974 个百分点</b>　✓
+</div>
+
+<p>也就是说：<strong>整个 0.97 个百分点的差距，全部来自食品和能源比其余部分多涨的那些。而其中能源一家就贡献了绝大部分</strong>（能源多涨的部分：0.07432 × (14.7% − 2.5%) = 0.91 个百分点；食品只有 0.07）。</p>
+
+<p>说白了：<strong>2026 年 8 月的美国通胀故事，就是一个油价故事。</strong>把油拿掉，美国的通胀已经基本回到正常。</p>
+
+<h4>什么情况下这一环会断（这是今天最关键的一句话）</h4>
+
+<p>「剔除能源」这个做法，建立在一个假设上：<strong>能源涨价不会传染给其他东西。</strong></p>
+
+<p>如果这个假设成立，那么核心 2.5% 就是对未来的正确读数，油价的 14.7% 只是过路的噪声。</p>
+
+<p>但如果这个假设不成立呢？<strong>油价会通过至少三条路渗进核心：</strong></p>
+
+<ol>
+<li><strong>成本传导。</strong>运输、化工、塑料、化肥、航空都烧油。油价高了，运费涨，超市里所有东西的到货成本都涨。这些商品属于核心的一部分。今天表里的<strong>机票 +25.5%</strong>，就是这条路径已经在发生的直接证据——机票被算进核心（它属于交通服务），但它的成本主要是航油。</li>
+<li><strong>工资传导。</strong>加油和吃饭是每个人每周都感受得到的开销。如果整体通胀（不是核心）持续 3%+，工人在谈工资时会要求补偿，企业给了工资，就得涨价，涨价再推高通胀。这个循环有个名字，叫<strong>工资—价格螺旋（wage-price spiral）</strong>，以后会专门讲一天。</li>
+<li><strong>预期传导。</strong>普通人不看核心 CPI，他们看加油站的价格牌。如果他们开始相信「以后东西会一直越来越贵」，这个信念本身会改变行为——今天就买、要求涨薪、企业敢涨价。经济学称之为<strong>通胀预期脱锚（de-anchoring of inflation expectations）</strong>，这是所有央行最怕的事。</li>
+</ol>
+
+<p><strong>7 月美联储会议上那三张反对票，赌的就是这一环会断。</strong>他们的论点是：油价已经高了太久（同比 +24.6%，而且是地缘冲突驱动、看不到尽头），继续用「核心 2.5% 很温和」来安慰自己是危险的，因为预期正在被侵蚀。九张多数票赌的是这一环不会断：核心还在 2.5%，油是外生冲击，加息治不了伊朗。</p>
+
+<p>这个分歧目前的市场定价是：<strong>9 月加息概率约 65%</strong>。也就是说，市场认为「这一环会断」的一方，正在赢。</p>
+
+<h3>环 4｜篮子的政治学：四个人为的选择，和它们值多少钱</h3>
+
+<p>这一节是今天锚点原理的核心。上面讲的是「篮子怎么用」，这一节讲的是「篮子怎么被做出来的，以及每一个技术选择背后站着谁的利益」。</p>
+
+<h4>选择一：那笔从来没有人支付过的钱（占篮子的 25.8%）</h4>
+
+<p>看回权重表最上面那一行：<strong>「自有住房的等价租金」，权重 25.849%。</strong>整个 CPI 有超过四分之一，来自这一项。</p>
+
+<p>它是什么？我一步一步说。</p>
+
+<p>问题的起点是：<strong>房子应该怎么进入 CPI？</strong></p>
+
+<p>你的第一反应大概是「用房价啊」。但这里有个真实的困难：<strong>买房不是消费，是投资。</strong>你花 100 万买一套房，这 100 万没有被消耗掉，它变成了你名下的一项资产，明年可能值 110 万。而 CPI 衡量的是「消费掉的东西的价格」——你吃掉的饭、烧掉的油。把一笔投资放进消费物价指数，逻辑上是错的。</p>
+
+<p><span class="q">你可能会想：那不管它行不行？房子不算进去？</span></p>
+
+<p>也不行。因为你住在房子里，确实每个月在<strong>消费「住」这项服务</strong>。租房的人付房租，这笔钱明显是消费。自己有房的人虽然不付房租，但他一样在消费同样的服务——只不过是向自己购买。如果把这部分完全排除，那么占美国人口约三分之二的自有住房家庭的最大一笔生活成本，就在通胀统计里凭空消失了。</p>
+
+<p>所以统计学家的解法是：<strong>把房子拆成两半——资产的那一半排除掉，服务的那一半留下来。</strong>具体做法是问一个假想问题：</p>
+
+<blockquote style="border-left:3px solid var(--line-strong);margin:20px 0;padding:6px 0 6px 18px;color:var(--ink-soft)">「如果你把你现在住的这套房子租出去，每个月能收多少租金？」</blockquote>
+
+<p>这笔并不存在的、想象中的租金，就是<strong>自有住房的等价租金（Owners' Equivalent Rent，缩写 OER）</strong>。它占了美国 CPI 的 25.849%。</p>
+
+<div class="box purple">
+<span class="lbl">停下来，把这件事的分量掂清楚</span>
+<p>美国的通胀率里，<strong>超过四分之一</strong>来自一笔<strong>没有任何人真正支付过</strong>的款项。它不是从收银台的小票上抄下来的，它是<strong>估算出来的</strong>——用附近实际出租房屋的租金变化，去推算自有住房「本该」值多少租金。</p>
+<p>这不是丑闻，这是全世界统计机构经过几十年争论后的主流做法，有它扎实的理由（上面已经讲了）。但你必须知道这件事，因为它有三个直接后果：</p>
+<ul>
+<li><strong>美国的 CPI 对房价不敏感，对租金敏感。</strong>房价暴涨可以完全不进 CPI，只要租金没跟上。</li>
+<li><strong>它慢得离谱。</strong>下一节讲。</li>
+<li><strong>换个国家，答案完全不同。</strong>欧元区的 HICP 指数干脆<em>不包含</em>自有住房，所以欧洲的通胀和美国的通胀，从定义上就不是同一件东西。新加坡的 CPI 有自己的处理方式。<strong>跨国比较通胀率，比大多数人以为的要危险得多。</strong></li>
+</ul>
+</div>
+
+<h4>OER 为什么慢：这决定了未来一年的核心通胀</h4>
+
+<p>租金这件事，有一个物理上的迟钝。</p>
+
+<p>假设新加坡明天开始租金暴跌 20%。你会立刻感受到吗？<strong>不会。</strong>因为你签的是一年或两年的租约，租约到期之前，你付的租金一分不变。整栋楼里，每个月大约只有十二分之一的租户在续约或换租。</p>
+
+<p>BLS 统计租金时也一样：他们跟踪的是<strong>实际在付的租金</strong>，不是新签租约的价格。而实际在付的租金，是过去 12–24 个月里陆续签下的一堆合同的平均值。</p>
+
+<div class="calc">
+用数字感受一下这个滞后：
+
+假设市场上新签租约的价格，今天突然从「同比 +5%」掉到「同比 0%」。
+每个月有 1/12 的租户续约，换成新价格。
+
+3 个月后：只有 3/12 = 25% 的租户切换了
+　　　　　→ CPI 里的租金同比 ≈ 5% × 75% + 0% × 25% = <b>3.75%</b>
+6 个月后：6/12 = 50% 切换
+　　　　　→ ≈ <b>2.5%</b>
+12 个月后：全部切换完
+　　　　　→ ≈ <b>0%</b>
+
+新签租约<b>一年前</b>就归零了，CPI 里的租金<b>今天才</b>归零。
+</div>
+
+<p>经验研究通常把这个滞后估计为 <strong>12 到 18 个月</strong>。这就是为什么：<strong>今天公布的住房数据，是在告诉你 2027 年的核心通胀会长什么样。</strong>这条线我们在环 8 会走完。</p>
+
+<h4>选择二：篮子固定不动，会高估通胀（替代偏差）</h4>
+
+<p>回到「拉氏指数」的做法：<em>篮子固定，只看价格变</em>。这个「固定」有一个明显的问题。</p>
+
+<p>生活里：牛肉从 20 涨到 30，鸡肉还是 10。你会怎么做？<strong>你会少买牛肉、多买鸡肉。</strong>这是人之常情。</p>
+
+<div class="calc">
+假设你原本每月买 1kg 牛肉 + 1kg 鸡肉：
+　去年花费 = 20 + 10 = <b>30 元</b>
+
+【固定篮子的算法】还是买 1kg + 1kg：
+　今年花费 = 30 + 10 = 40 元
+　→ 通胀 = 40 ÷ 30 − 1 = <b>+33.3%</b>
+
+【你实际的行为】改成 0.5kg 牛肉 + 1.5kg 鸡肉：
+　今年花费 = 15 + 15 = <b>30 元</b>
+　→ 你实际多花的钱 = <b>0%</b>
+</div>
+
+<p>差距是 33 个百分点。当然真实世界不会这么极端（你多少还是想吃牛肉，换成鸡肉本身就是一种福利损失），但方向是确定的：<strong>固定篮子会系统性地高估生活成本的上升。</strong></p>
+
+<p>这个偏差有名字：<strong>替代偏差（substitution bias）</strong>。BLS 用两个办法部分修正它：在细分类别<em>内部</em>（比如各个品牌的牛肉之间）改用几何平均，允许消费者在相似商品间替换；同时另外发布一个完全允许跨类别替换的指数，叫<strong>链式 CPI（Chained CPI，C-CPI-U）</strong>。</p>
+
+<p><strong>链式 CPI 的读数，长期看比标准 CPI 每年低大约 0.2 到 0.3 个百分点。</strong></p>
+
+<h4>这 0.3 个百分点，是「政治学」三个字的来源</h4>
+
+<p>为什么这么一个技术细节会变成政治问题？因为美国有大量的钱，是<strong>直接挂在 CPI 上</strong>的：</p>
+
+<ul>
+<li><strong>社会保障金（Social Security）</strong>每年按 CPI 上调，涉及数千万退休人员。</li>
+<li><strong>通胀保值国债（TIPS）</strong>的本金按 CPI 调整。</li>
+<li><strong>个税税级</strong>按通胀指数化调整。</li>
+<li>大量<strong>工会合同、商业租约</strong>写明按 CPI 调价。</li>
+</ul>
+
+<p>所以，把官方指数从标准 CPI 换成链式 CPI，等于<strong>每年少发 0.3% 的退休金</strong>。听起来很小。算一下三十年：</p>
+
+<div class="calc">
+每年少涨 0.3 个百分点，复利 30 年：
+　1.003 的 30 次方 = <b>1.094</b>
+
+也就是说，30 年后的退休金比原方案<b>低约 9.4%</b>。
+
+对一个每月领 2,000 美元的人：
+　2,000 × 9.4% = 每月少 <b>188 美元</b>
+　一年少 2,256 美元
+</div>
+
+<p>美国国会在 2013 年前后曾认真讨论过这项切换，作为削减赤字的手段，最终因为政治阻力放弃。<strong>一个统计方法的选择，价值以千亿美元计。</strong>这就是为什么「一篮子的政治学」不是一个比喻——它是字面意义上的政治。</p>
+
+<h4>选择三：质量变好了算不算降价（享乐调整）</h4>
+
+<p>再看一个更微妙的选择。</p>
+
+<p>去年一台笔记本电脑 1000 美元。今年还是 1000 美元，但内存翻倍、处理器快 40%。<strong>价格涨了吗？</strong></p>
+
+<p>统计学家的答案是：<strong>降了。</strong>因为你花同样的钱，买到了更多的「电脑性能」。</p>
+
+<p>他们的做法是：用统计模型估算「内存翻倍值多少钱、处理器快 40% 值多少钱」，假设算出来值 200 美元。那么这台电脑就被记为<strong>从 1200 降到 1000，跌了 16.7%</strong>——尽管标价一分没变，尽管你掏的还是 1000 块。</p>
+
+<p>这个方法叫<strong>享乐调整（hedonic adjustment）</strong>。它被系统性地用在电脑、手机、汽车、家电上。</p>
+
+<p><span class="q">你可能会想：这不是把通胀人为压低了吗？</span></p>
+
+<p>批评者正是这么说的。支持者的反驳是：如果不做调整，那么「今年的手机比十年前贵了三倍」这个统计，会完全忽略今天的手机能做的事是十年前的一百倍——那才是真正的失真。</p>
+
+<p>我的看法是：<strong>两边都对，因为这个问题本身没有客观答案。</strong>「同样的生活水平今年要花多少钱」这个问题，一旦商品本身在变，就不再有唯一解。你必须做一个判断，而判断就是选择，选择就有分配后果。<strong>记住这一点比记住任何一个数字都重要：宏观数据不是被测量出来的，是被建构出来的。</strong></p>
+
+<h4>选择四：样本、噪声，和统计机构的处境</h4>
+
+<p>最后一个选择是资源的选择。BLS 的采价规模是：<strong>75 个城市、约 22,000 家零售商、约 6,000 套住房单元。</strong>这个规模听起来大，但要覆盖美国全部消费品的价格，它是紧的。</p>
+
+<p>2025 年 6 月和 7 月，BLS 连续发布公告，承认因人手不足<strong>削减了采价范围</strong>——部分地区停止实地采集，改用其他地区的数据推算填补。这种填补叫<strong>插补（imputation）</strong>。插补比例上升，意味着有更大比例的「价格」不是采集到的，是推算出来的。</p>
+
+<p>同一个问题在别的数据上更明显。看今天的新屋开工：</p>
+
+<div class="calc">
+公布值：环比 <b>−12.4%</b>
+普查局同时公布的 90% 置信区间：<b>±9.5 个百分点</b>
+
+意思是：真实的变化有 90% 的把握落在
+　　−12.4 − 9.5 = <b>−21.9%</b>
+　　　　　到
+　　−12.4 + 9.5 = <b>−2.9%</b>
+之间。
+
+这个区间<b>不包含 0</b>，所以「确实下降了」这个方向是可信的。
+但「下降 12.4%」这个具体数字，精度远没有它看起来那么高。
+</div>
+
+<p><strong>这是新手最该学会的一个习惯：看到一个宏观数字，先问它的误差有多大。</strong>新屋开工这类数据的月度波动，很大一部分是噪声。一个月的大跌不构成趋势，三个月的移动平均才勉强算证据。</p>
+
+<h3>环 5｜从两个数字到美联储的决策</h3>
+
+<h4>为什么通胀数字会决定利率</h4>
+
+<p>美联储被国会赋予了两个法定任务：<strong>物价稳定</strong>和<strong>充分就业</strong>。物价稳定被具体化为一个数字目标：<strong>通胀 2%</strong>。</p>
+
+<p>当通胀高于 2%，标准动作是<strong>加息</strong>。为什么加息能压通胀？简单说一遍机制（以后会专门用几天讲透）：利率上升 → 贷款变贵 → 企业少投资、家庭少买房少买车 → 总需求下降 → 商家不敢涨价。</p>
+
+<p>但现在美联储面对的是两个互相矛盾的读数：<strong>3.4% 说「严重超标，必须加息」，2.5% 说「已经接近目标，别乱动」。</strong></p>
+
+<h4>这个分歧有多大：用真实投票量化</h4>
+
+<p>7 月的美联储会议结果是<strong>9 票赞成按兵不动，3 票反对、主张加息 25 个基点</strong>。利率维持在 3.50%–3.75% 区间。</p>
+
+<p>三票反对在美联储是很不寻常的。多数时候委员会是全票或一票异议通过的。<strong>三票，意味着这不是个别人的偏执，而是一个成型的、有分量的少数派。</strong>市场读到的信号是：只要下个月的数据再往上偏一点，这三票就可能变成七票。</p>
+
+<p>再加上 8 月中旬美伊局势升级、油价重新走高（布伦特约 90.7 美元），市场把 <strong>9 月加息的概率推到了约 65%</strong>。</p>
+
+<h4>什么情况下这一环会断</h4>
+
+<p>央行不一定跟着通胀数字走。三种情况会切断这一环：</p>
+
+<ol>
+<li><strong>就业急剧恶化。</strong>双重使命的另一半会压过通胀。如果失业率跳升，即使通胀 3.4%，美联储也可能按兵不动甚至降息。</li>
+<li><strong>金融稳定出问题。</strong>2023 年 3 月硅谷银行倒闭时，美联储在通胀远高于目标的情况下放缓了紧缩。这条以后会专门讲。</li>
+<li><strong>央行判断这是纯粹的供给冲击。</strong>加息压不住伊朗的石油。如果美联储认定油价上涨完全是外生的、且不会传染，理论上正确的做法是<em>看穿它（look through）</em>——什么都不做。2021 年他们就是这么做的，事后被证明是重大失误。这个历史阴影，正是今天那三张反对票的心理来源。</li>
+</ol>
+<h3>环 6｜从「预期加息」到国债收益率</h3>
+
+<h4>先把「国债收益率」讲清楚</h4>
+
+<p>你借钱给美国政府，政府给你一张借条，写明什么时候还、还多少。这张借条叫<strong>国债（Treasury）</strong>。「2 年期国债收益率 4.19%」的意思是：<strong>现在按市场价买这张借条并持有到 2 年后，年化回报是 4.19%。</strong></p>
+
+<p>关键的一点：这个收益率不是政府定的，是<strong>市场上买卖出来的</strong>。借条的面值和利息是固定的，但价格每天在变。价格涨 → 你花更多钱买同样的回报 → 收益率降；价格跌 → 收益率升。<strong>价格和收益率永远反向。</strong></p>
+
+<h4>为什么「预期加息」会推高 2 年期收益率</h4>
+
+<p>这一步是今天最需要慢下来的推理。</p>
+
+<p>美联储直接控制的，只有隔夜利率（现在的有效值是 3.63%）。它管的是「今天晚上借一夜的钱值多少」。它<strong>不能</strong>直接决定 2 年期国债的收益率。</p>
+
+<p>那 2 年期收益率是怎么形成的？靠一个套利逻辑：</p>
+
+<p>假设你有一笔钱要放 2 年。你有两个选择：</p>
+
+<ul>
+<li><strong>方案 A：</strong>买一张 2 年期国债，锁定 4.19%。</li>
+<li><strong>方案 B：</strong>每天做隔夜拆借，滚动 730 次，赚到的是这 2 年里隔夜利率的平均值。</li>
+</ul>
+
+<p>如果你确信未来两年隔夜利率会一直是 3.63%，那方案 B 的回报就是 3.63%。这时候 4.19% 的方案 A 明显更划算，所有人都会去买 2 年期国债，把它的价格买高、收益率压低，一直压到接近 3.63% 为止。</p>
+
+<p><strong>反过来说：2 年期收益率能稳定在 4.19%，说明市场并不认为隔夜利率会停在 3.63%。</strong>市场认为它会往上走。</p>
+
+<div class="calc">
+把这个推理量化：
+
+　2 年期收益率　　4.19%
+　当前隔夜利率　　3.63%
+　　　　　　　　 ────────
+　差额　　　　　　<b>0.56 个百分点 = 56 个基点</b>
+
+市场在说：未来两年，隔夜利率的<b>平均值</b>会比今天高 56 个基点。
+
+用一个简化情形去理解这个「平均高 56 个基点」意味着什么：
+假设美联储在 6 个月后加息一次（+25bp），再过 6 个月又加一次（+25bp），
+之后一直不动到第 2 年结束。那么这 2 年的隔夜利率路径是：
+
+　第 1 个半年：3.63%（占 25% 时间）
+　第 2 个半年：3.88%（占 25%）
+　第 3、4 个半年：4.13%（占 50%）
+
+　平均 = 3.63×0.25 + 3.88×0.25 + 4.13×0.50
+　　　 = 0.9075 + 0.9700 + 2.0650
+　　　 = <b>3.94%</b>
+
+这只比今天高 31 个基点，还不到 56 个基点。
+说明市场定价的，比「两次加息然后停住」<b>还要更鹰一些</b>——
+要么加得更早、要么加得更多、要么两年内不会降回来。
+</div>
+
+<p>（严格地说，2 年期收益率还包含一小块补偿，叫<strong>期限溢价</strong>——因为你把钱锁死两年、承担了利率变动的风险，理应要求一点额外回报。所以上面的推算是个近似。期限溢价是 A15 那一天的主菜，今天先埋一个伏笔。）</p>
+
+<h4>长端的故事不一样：30 年期 5.31%，19 年新高</h4>
+
+<p>把三个期限放在一起看：</p>
+
+<div class="calc">
+隔夜　　3.63%
+2 年　　4.19%　（比隔夜高 56bp）
+10 年　 4.72%　（比 2 年高 53bp）
+30 年　 5.31%　（比 10 年高 <b>59bp</b>）
+</div>
+
+<p>把不同期限的收益率连成一条线，就是<strong>收益率曲线（yield curve）</strong>——这是 A4 那一天的主菜，今天只用它的一个性质。</p>
+
+<p>30 年期跑到 5.31%、19 年新高，<strong>不能</strong>用「9 月加息」来解释。因为一次 25 个基点的加息，摊到 30 年里，影响微乎其微。30 年期反映的是完全不同的三件事：</p>
+
+<ol>
+<li><strong>长期通胀预期。</strong>市场是否相信美联储能把通胀长期按在 2%。如果不信，就要求更高的补偿。</li>
+<li><strong>期限溢价。</strong>持有 30 年的不确定性有多大，值多少钱。</li>
+<li><strong>供给。</strong>美国政府发了多少债、市场得吃下多少。财政赤字扩大 → 债券供给增加 → 价格被压低 → 收益率上升。当天的市场报道还提到一个新因素：<strong>AI 相关的企业大规模举债</strong>，也在抢占同一批可投资的资金。</li>
+</ol>
+
+<p>把环 5 和环 6 合起来看，市场其实在讲一个很具体的故事：<strong>短端说「美联储会加息」，长端说「就算加了息，长期通胀和财政问题也不会消失」。</strong></p>
+
+<h3>环 7｜从利率到资产价格：折现率</h3>
+
+<h4>先建立直觉</h4>
+
+<p>问你一个问题：<strong>今天给你 100 块，和一年后给你 100 块，一样吗？</strong></p>
+
+<p>不一样，而且不只是因为通胀。就算完全没有通胀，今天的 100 块也更值钱——因为你可以把它存起来，一年后变成 104 块（假设利率 4%）。</p>
+
+<p>反过来推：<strong>一年后的 100 块，在今天值多少？</strong>值那个「今天存进去、一年后正好变成 100」的金额：</p>
+
+<div class="calc">
+　100 ÷ 1.04 = <b>96.15 元</b>
+
+验算：96.15 × 1.04 = 100 ✓
+</div>
+
+<p>这个「把未来的钱换算成今天的价值」的操作，<strong>经济学给它起了个名字，叫折现（discounting）</strong>；用来做这个换算的那个利率，叫<strong>折现率（discount rate）</strong>。</p>
+
+<h4>关键的一步：越远的钱，对折现率越敏感</h4>
+
+<p>现在把利率从 4% 提到 5%，看两笔钱各自会怎样。</p>
+
+<div class="calc">
+【1 年后收到 100 块】
+　折现率 4%：100 ÷ 1.04 = 96.15
+　折现率 5%：100 ÷ 1.05 = 95.24
+　变化：(95.24 − 96.15) ÷ 96.15 = <b>−0.95%</b>
+
+【10 年后收到 100 块】
+　折现率 4%：100 ÷ 1.04^10 = 100 ÷ 1.4802 = 67.56
+　折现率 5%：100 ÷ 1.05^10 = 100 ÷ 1.6289 = 61.39
+　变化：(61.39 − 67.56) ÷ 67.56 = <b>−9.13%</b>
+</div>
+
+<p><strong>同样是利率涨 1 个百分点，1 年后的钱只掉了 0.95%，10 年后的钱掉了 9.13%——差了将近 10 倍。</strong></p>
+
+<p>为什么？因为折现是<strong>连乘</strong>的。1 年只除一次 1.05，10 年要除十次。每一次的差异都在复利放大。</p>
+
+<p>这个「现金流越远、对利率越敏感」的性质，<strong>经济学给它起了个名字，叫久期（duration）</strong>。久期大 = 你的钱主要在很远的将来 = 利率一动，价格大动。今天先记这个直觉版定义，精确定义是 A32 和 F6 那两天的事。</p>
+
+<h4>为什么这会砸到纳斯达克</h4>
+
+<p>现在把这个道理接到股票上。</p>
+
+<p><strong>一只股票，本质上是这家公司未来所有年份利润的现值之和。</strong>（这是 F1 的主菜，今天只用结论。）</p>
+
+<p>那么，一家公司的「久期」有多长，取决于它的利润集中在什么时候：</p>
+
+<ul>
+<li>一家成熟的公用事业公司：今年赚钱，明年也赚差不多，利润分布很均匀，久期短。</li>
+<li>一家还没盈利的 AI 公司：今年不赚钱，市场买的是它 2035 年可能赚的大钱。<strong>它的价值几乎全部压在很远的未来，久期极长。</strong></li>
+</ul>
+
+<p>所以当 30 年期收益率冲到 19 年新高、整条收益率曲线上移时，冲击是<strong>不均匀</strong>的：</p>
+
+<div class="calc">
+8 月 18 日盘中：
+　道琼斯（老经济为主）　　　<b>−0.21%</b>
+　标普 500（混合）　　　　　<b>−0.58%</b>
+　纳斯达克（科技成长为主）　<b>−1.02%</b>
+
+跌幅顺序，正好是这三个指数「久期」的顺序。
+</div>
+
+<p>这不是巧合，这是折现的算术在指数层面的直接体现。<strong>同一条新闻，对不同久期的资产，伤害完全不同。</strong></p>
+
+<h4>什么情况下这一环会断</h4>
+
+<p>利率涨，股票不一定跌。折现公式的分子是<strong>未来的利润</strong>，分母才是折现率。如果利率上升的原因是经济强劲、企业利润预期同步上调，分子涨得比分母快，股价照样涨。2021 年上半年就是这样。</p>
+
+<p>这一环真正生效，是在<strong>利率因为通胀而上升、但利润预期没有同步上调</strong>的时候——也就是现在这种情况。</p>
+
+<h3>环 8｜回路：今天的一铲土，通向 2027 年的核心通胀</h3>
+
+<p>现在回到今天真正的新闻，把整条链闭合。</p>
+
+<p>7 月新屋开工 123.9 万套，环比 −12.4%，同比 −13.5%。竣工同比 −16.8%。同时成屋签约销售环比 −2.3%。</p>
+
+<p>这些数字会通过两条相反的路径，流进 CPI 里权重 35.3% 的住房分项：</p>
+
+<div class="box green">
+<span class="lbl">路径一（推高未来租金）</span>
+<p>今天不开工 → 12–24 个月后没有新房子交付 → 可租的房子变少 → 供给收缩 → <strong>新签租约的租金上涨</strong> → 再滞后 12–18 个月渗进 OER → <strong>2028 年前后的核心通胀被推高</strong>。</p>
+</div>
+
+<div class="box green">
+<span class="lbl">路径二（压低未来租金）</span>
+<p>为什么开发商不开工？因为 30 年期收益率 5.31%、房贷利率跟着走高，买房的人负担不起（成屋签约销售 −2.3% 就是证据），开发商卖不掉。但同样的高利率，也让<strong>想买房的人被迫继续租房</strong>——租房需求上升，租金上涨。</p>
+<p>可是再往下一层：高利率还会压制就业和收入。付不起租金的人会合租、搬回父母家、搬去更便宜的城市。<strong>租房需求也会塌。</strong></p>
+</div>
+
+<p><span class="q">你可能会想：两条路方向相反，那到底哪条赢？</span></p>
+
+<p>坦白说，<strong>没有人能提前确定</strong>。这正是宏观判断困难的地方：机制清楚，净效应不清楚。你能做的是：<strong>把两条路都写下来，然后去找能区分它们的证据。</strong></p>
+
+<p>而这个证据是有的，而且是实时的：<strong>新签租约的价格</strong>。Zillow 和 Apartment List 每月发布新签租约租金指数，它领先 CPI 住房分项大约 12 个月。同时注意一个已经出现的分歧信号：<strong>建筑许可 +5.0%，但开工 −12.4%</strong>。开发商在拿批文，却不动土——这通常意味着他们在等利率下来，而不是永久退出。如果 9 月真的加息，这批许可可能继续躺着。</p>
+
+<p>这就是这条链的闭合处：<strong>美联储因为油价而考虑加息 → 加息推高长端利率 → 高利率冻结住房建设 → 住房建设决定 12–24 个月后的租金 → 租金决定 CPI 里权重最大的那一格 → 那一格决定 2028 年美联储该怎么做。</strong></p>
+
+<p>宏观经济不是一条直线，是一堆互相咬着尾巴的圈。今天你看到的每个数字，同时是别人的结果和别人的原因。</p>
+
+<h2>4｜对你意味着什么</h2>
+
+<div class="box">
+<p><strong>先说清楚：以下是教学性的分析与决策框架，不是投资建议。</strong>我不知道你的完整财务状况、时间跨度和风险承受力，也不会推荐任何具体标的或操作。这一节的目的，是让你能自己判断这条链和你有什么关系。</p>
+</div>
+
+<h3>4.1　第一件事：美国的 CPI 不是你的通胀</h3>
+
+<p>你住新加坡。今天讲的整套篮子——汽油权重 3.852%、自有住房等价租金 25.849%——描述的是美国城市家庭的平均消费结构。</p>
+
+<p>你的篮子和它差别巨大。新加坡的私家车因为拥车证制度极贵，但很多人干脆不买车；组屋和私宅市场的结构与美国完全不同；医疗和教育的公共成分也不一样。<strong>所以美国 CPI 的 3.4%，不是在描述你的生活成本。</strong></p>
+
+<p>还有一层更重要的差别：<strong>新加坡的货币政策不靠利率，靠汇率。</strong>MAS（新加坡金融管理局）不设定一个政策利率，它管理的是新元对一篮子货币的汇率区间。这套机制是 D25、D26 两天的主菜，今天你只需要记住结论：<strong>美联储加息不会直接决定你的新加坡房贷利率，但会通过美元利率影响 SORA（新加坡的基准利率），间接影响它。</strong></p>
+
+<h3>4.2　那这条链到底怎么碰到你</h3>
+
+<p>你的画像是：<strong>收入以新元计价，资产以美元计价。</strong>这个错配本身就是一个暴露。今天这条链通过三个口子接触到你：</p>
+
+<h4>口子一：折现率上升 → 你的美股组合</h4>
+
+<p>环 7 已经把机制讲完了。这里只补一个关于你的具体推论：</p>
+
+<p>如果你的美股持仓是通过一只宽基 ETF（比如追踪标普 500 或纳斯达克 100 的基金）实现的，那么<strong>你的组合久期，取决于指数里成长股的占比。</strong>这几年美国指数高度集中在少数几家科技巨头，意味着你的组合久期，可能比你以为的要长得多。</p>
+
+<div class="calc">
+一个粗略的量级感（教学示例，不是预测）：
+
+假设一只 ETF 的隐含久期约为 20 年，
+折现率上升 50 个基点（0.5 个百分点）：
+
+　价格影响 ≈ −20 × 0.5% = <b>约 −10%</b>
+
+这个「久期 × 利率变化」的近似算法，
+在债券上很准，在股票上只是一个数量级的直觉，
+因为股票的分子（未来利润）也会同时变。
+</div>
+
+<h4>口子二：美元兑新元 → 你换回本币时的金额</h4>
+
+<p>这一步经常被忽略，但它是新加坡投资者最真实的暴露。</p>
+
+<p>你的美股用美元计价。但你花钱是花新元。所以你的真实回报有两部分：<strong>资产本身涨了多少</strong>，加上<strong>美元相对新元涨了多少</strong>。</p>
+
+<div class="calc">
+过去一个月，美元兑新元从约 1.2929 跌到约 1.2773。
+
+假设你持有 10 万美元的美股，价格完全没变：
+
+　一个月前换回新元：100,000 × 1.2929 = <b>129,290 新元</b>
+　现在换回新元：　　100,000 × 1.2773 = <b>127,730 新元</b>
+　　　　　　　　　　　　　　　　　　　 ──────────
+　差额　　　　　　　　　　　　　　　　 <b>−1,560 新元（−1.21%）</b>
+
+你的美股一分钱没跌，但用新元衡量，你亏了 1.2%。
+</div>
+
+<p>这就是<strong>货币错配（currency mismatch）</strong>。它是 D29、G29 两天的主菜。今天要建立的意识只有一条：<strong>当你看你的美股账户回报时，那个数字是用美元报的。它不是你的回报。</strong>你的回报要再乘上汇率的变化。</p>
+
+<p>今天这条链在汇率上是拉扯的：美联储可能加息 → 美元有支撑；但长期通胀担忧和财政问题 → 美元有压力。<strong>这两股力量哪个赢，是 D 领域的题目，今天不做判断。</strong></p>
+
+<h4>口子三：黄金、以及「实际利率」这个还没讲的概念</h4>
+
+<p>黄金在 4,452 美元这个高位。黄金不产生任何利息或股息，所以持有它的代价，就是<strong>你放弃的那份无风险利息</strong>。名义利率越高，持有黄金的代价越大。但如果通胀也在涨，那么「扣掉通胀后的真实利息」可能并没有变高——这个「扣掉通胀后的利率」叫<strong>实际利率（real interest rate）</strong>，是 A6 那一天的主菜。今天只留一个提示：<strong>黄金真正对抗的不是名义利率，是实际利率。</strong>这解释了为什么在利率涨的同时黄金还能待在高位。</p>
+
+<h3>4.3　今天这一课给你的三个判断工具</h3>
+
+<ol>
+<li><strong>看到任何一个「涨了 X%」的新闻，立刻问：它的权重是多少？</strong>机票 +25.5% 和汽油 +24.6% 的例子应该永远留在你脑子里。这个习惯能让你过滤掉八成的财经噪声。</li>
+<li><strong>看到任何一个宏观数据，立刻问：它的误差有多大？</strong>新屋开工 −12.4%，误差 ±9.5 个百分点。一个月的数据几乎从不构成趋势。</li>
+<li><strong>看到任何一个「官方指标」，立刻问：它是怎么被造出来的？</strong>OER 占了美国 CPI 的四分之一，而它是估算出来的。所有指标都是建构，所有建构都有取舍，所有取舍都有受益者和受损者。</li>
+</ol>
+
+<h2>5｜反向倒推</h2>
+
+<p>先说清楚这一节在干什么。</p>
+
+<p>前面四节都是<strong>顺着推</strong>：发生了 A，所以会有 B，然后有 C。这是从原因走向结果。</p>
+
+<p>这一节要<strong>倒过来</strong>：市场此刻的价格已经摆在那里了。价格是无数人真金白银下注的结果。所以我们可以反过来问——<strong>要让今天这个价格成立，市场心里必须相信什么？</strong>然后再问：那些信念里，哪一个最脆弱？</p>
+
+<p>这个思路的价值在于：<strong>你赚不到「市场已经知道的事」的钱。</strong>如果所有人都预期 9 月加息，那 9 月真的加息，价格不会动——因为它早就在价格里了。有价值的判断，永远是关于「市场现在相信的东西里，哪一条可能是错的」。</p>
+
+<h3>5.1　市场现在已经定价了什么</h3>
+
+<table>
+<tr><th>市场读数</th><th>它反映的假设</th><th>为什么这个数字能反映这个假设</th></tr>
+<tr>
+<td>2 年期 4.19%<br>vs 隔夜 3.63%</td>
+<td>未来两年隔夜利率平均会高 56bp，加息比降息更可能</td>
+<td>环 6 推过：如果市场认为利率会停在 3.63%，套利会把 2 年期压到 3.63% 附近。它没被压下来，说明预期是往上的。</td>
+</tr>
+<tr>
+<td>9 月加息概率约 65%</td>
+<td>市场认为「油价会传染到核心」的一方更可能赢</td>
+<td>这个概率由联邦基金期货价格反推。期货是真金白银的下注，不是分析师意见。</td>
+</tr>
+<tr>
+<td>30 年期 5.31%，19 年新高<br>比 10 年期高 59bp</td>
+<td>长期通胀不会轻易回到 2%；财政赤字与企业举债会持续挤压资金</td>
+<td>一次加息对 30 年平均利率的影响极小，所以长端的异动只能来自长期通胀预期、期限溢价或供给。</td>
+</tr>
+<tr>
+<td>VIX 只有 15.88</td>
+<td>市场认为股市不会剧烈波动</td>
+<td>VIX 由期权价格算出，衡量未来一个月的预期波动幅度。15.88 属于偏低区间——在一场地缘冲突和加息辩论的背景下，这是个值得注意的组合。</td>
+</tr>
+<tr>
+<td>核心 CPI 稳在 2.5%</td>
+<td>油价冲击尚未传染</td>
+<td>核心里权重最大的住房（35.3%）只涨 3.2%，且滞后机制决定它还会继续往下走。</td>
+</tr>
+</table>
+
+<h3>5.2　这些假设里，哪一个最脆弱</h3>
+
+<p>我的判断是：<strong>最脆弱的是「油价冲击不会传染到核心，而核心又能靠住房分项继续往下走」这个组合假设。</strong></p>
+
+<p>它之所以脆弱，是因为它同时要求两件事都成立，而这两件事各自都有裂缝：</p>
+
+<h4>裂缝一：传染的证据已经出现在表里了</h4>
+
+<p>看回权重表：<strong>机票 +25.5%。</strong>机票属于「交通服务」，被算进核心。而机票成本的大头是航空燃油。<strong>这是能源已经渗进核心的直接、可见的证据。</strong>它现在只贡献 0.28 个百分点，因为权重小。但同样的传导也在发生在货运、外卖配送、化工原料上——只是还没那么显眼。</p>
+
+<p>如果油价在 90 美元以上再待三个月，核心里的服务和商品成本会一层层往上顶。<strong>核心 2.5% 不会一夜之间跳到 3.5%，它会用两三个月，每月多 0.05 到 0.1 个百分点地爬上去。</strong>而这种慢速上移，恰恰是最难被及时识别、也最容易让央行反应过晚的形态。</p>
+
+<h4>裂缝二：住房分项的下行动能，可能已经用完了</h4>
+
+<p>核心能守在 2.5%，很大程度上靠住房分项从高位回落。但住房现在是 +3.2%，已经不算高了。<strong>它还能再降多少？</strong>如果新签租约租金已经在 2–3% 附近企稳，那么住房分项最多再降到 3% 左右就到底了。到那时，核心通胀就失去了它最大的下行推手。</p>
+
+<p>而今天的新屋开工 −12.4%，恰好指向未来的住房供给收缩——这对租金是<strong>向上</strong>的力量。</p>
+
+<h3>5.3　如果这个假设错了，价格会怎么走</h3>
+
+<div class="box red">
+<p><strong>情形 A：假设被证伪（核心开始上移）</strong></p>
+<ul>
+<li>2 年期收益率上冲，可能突破 4.5%——因为市场要重新定价「不止加一次」。</li>
+<li>长端也会跟着上，但幅度可能小于短端（因为加息本身有助于长期通胀），<strong>收益率曲线在 2–10 年段变平甚至倒挂</strong>。</li>
+<li>股票：久期最长的成长股受创最重，纳斯达克跑输标普和道指的格局加剧。</li>
+<li>VIX 从 15.88 的低位跳升——这是当前最不对称的地方：波动率定价得太便宜了。</li>
+<li>美元大概率走强 → 美元兑新元反弹 → 你的美元资产换回新元的价值上升（这一条对你是缓冲）。</li>
+</ul>
+</div>
+
+<div class="box green">
+<p><strong>情形 B：假设被证实（油价回落，核心继续温和）</strong></p>
+<ul>
+<li>基数效应会开始帮忙：如果油价停在现在的水平不再上涨，一年后汽油同比会自动趋近 0，整体 CPI 光靠这一项就能掉 0.9 个百分点左右（见环 2 的算法）。</li>
+<li>9 月加息概率从 65% 快速回落，2 年期收益率下行。</li>
+<li>成长股反弹，纳斯达克领涨。</li>
+<li>30 年期不一定跟着降——因为它的驱动力（财政供给、期限溢价）和加息预期无关。</li>
+</ul>
+</div>
+
+<h3>5.4　未来 1–3 个月的可核查观察清单</h3>
+
+<table>
+<tr><th>时间</th><th>要看什么</th><th>怎么判定</th></tr>
+<tr><td>9 月 11 日</td><td>8 月 CPI（<a href="https://www.bls.gov/news.release/cpi.nr0.htm">BLS 官方发布</a>）</td><td><strong>不要只看整体数字。</strong>直接翻到核心的分项：交通服务、机票、外食。这三项连续两个月加速，就是传染的确证。</td></tr>
+<tr><td>9 月 11 日</td><td>CPI 里的住房分项（Shelter）</td><td>看它的<strong>环比</strong>年化速度。如果从 3.2% 的同比对应的月度节奏（约 0.26%/月）明显反弹到 0.35% 以上，核心的下行推手就没了。</td></tr>
+<tr><td>9 月 FOMC</td><td>是否加息、票数分布</td><td>票数比结果更重要。如果加息但有多张反对票，说明委员会分裂加剧；如果不加息但反对票增加到 4–5 张，等于预告 10 月。</td></tr>
+<tr><td>每月</td><td>Zillow / Apartment List 新签租约租金指数</td><td>它领先 CPI 住房分项约 12 个月。它止跌回升，就是 2027 年核心通胀的早期警报。</td></tr>
+<tr><td>持续</td><td>布伦特原油是否守住 90 美元</td><td>这是整条链的源头。跌回 70 出头，环 5 之后的一切都要重算。</td></tr>
+<tr><td>9 月 17 日前后</td><td>下一期新屋开工（8 月数据）</td><td><strong>同时看 7 月数字有没有被修正。</strong>±9.5 的误差带意味着 −12.4% 很可能被改写。两个月连续下滑才算趋势。</td></tr>
+<tr><td>持续</td><td>建筑许可与开工的缺口</td><td>许可 144.3 万、开工 123.9 万，缺口 20 万套。这个缺口继续扩大 = 开发商在等利率下降；缺口收窄 = 他们开始动工，未来供给会回来。</td></tr>
+</table>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1　今天的思维方式：任何总量，都是分量的加权和</h3>
+
+<p>今天你反复用到的其实只有一个动作：<strong>看到一个总数，先把它拆成「谁 × 多重」。</strong></p>
+
+<p>3.4% 不是一个事实，它是 1.09（能源）+ 1.98（核心）+ 0.41（食品）。一旦你这样拆开，很多原本要靠猜的问题，就变成了算术：这个数字下个月会往哪走？看哪一格的权重大、哪一格的变化快。</p>
+
+<p>这个思维方式，出了通胀这个场合一样管用。给你两个跨领域的例子：</p>
+
+<div class="box blue">
+<span class="lbl">例子一：一家公司的营收增长</span>
+<p>某公司说「营收同比增长 8%」。这个数字本身几乎没有信息量。拆开：</p>
+<div class="calc" style="background:transparent;border-left-color:var(--blue)">
+主营业务　占营收 85%，增长 4%　→ 贡献 0.85 × 4% = <b>3.4</b> 个百分点
+新业务　　占营收 15%，增长 34% → 贡献 0.15 × 34% = <b>5.1</b> 个百分点
+　　　　　　　　　　　　　　　　　合计 <b>8.5%</b>
+</div>
+<p>现在你知道了：这家公司 60% 的增长来自只占 15% 的新业务。<strong>那么真正要判断的问题，不是「营收会不会继续增长 8%」，而是「那个 15% 的业务还能不能保持 34%」。</strong>整个分析的焦点被这一次拆解改变了。</p>
+</div>
+
+<div class="box blue">
+<span class="lbl">例子二：你自己的投资组合</span>
+<p>你的组合今年涨了 12%。拆开：</p>
+<div class="calc" style="background:transparent;border-left-color:var(--blue)">
+标普 ETF　　占 70%，涨 9%　 → 0.70 × 9% = <b>6.3</b> 个百分点
+个股 A　　　占 10%，涨 55% → 0.10 × 55% = <b>5.5</b> 个百分点
+现金　　　　占 20%，涨 1%　 → 0.20 × 1% = <b>0.2</b> 个百分点
+　　　　　　　　　　　　　　　　合计 <b>12.0%</b>
+</div>
+<p>你会发现：<strong>近一半的收益来自只占 10% 仓位的一只股票。</strong>这不是「我的配置很成功」，这是「我的结果被一个小仓位的极端表现主导了」。这两句话导向的决策完全不同。这就是 G25「集中持仓风险」那一天的入口。</p>
+</div>
+
+<h3>6.2　今天的第二个思维方式：测量本身就是一种选择</h3>
+
+<p>今天更深的一层是：<strong>OER 占 25.8%、享乐调整、链式 CPI——这些不是「技术细节」，这些是有分配后果的政治决定。</strong>换个算法，几千万退休人员三十年少拿 9.4%。</p>
+
+<p>这个洞察可以直接迁移：</p>
+
+<ul>
+<li><strong>失业率</strong>怎么定义「在找工作」，决定了几百万人算不算失业（B14）。</li>
+<li><strong>GDP</strong>不计算家务劳动、不扣除环境损耗，这是选择不是事实（B11）。</li>
+<li><strong>公司的「调整后利润」</strong>调整了什么，是管理层的选择（F16）。</li>
+</ul>
+
+<p><strong>看到任何一个权威数字，先问「谁定义的、按什么规则、这个规则对谁有利」。</strong>这是一辈子的习惯，今天开始养。</p>
+
+<h3>6.3　这条链在整个系统里的位置</h3>
+
+<p>今天这条链，正好是四大板块咬合的地方，我把关系说清楚：</p>
+
+<ul>
+<li><strong>与利率（A）：</strong>通胀数据是利率的<em>输入</em>。CPI 决定央行反应，央行决定隔夜利率，隔夜利率通过预期决定整条收益率曲线。今天的链条 环5→环6 走的就是这一段。</li>
+<li><strong>与增长（B 自身）：</strong>今天的新屋开工既是通胀的<em>未来输入</em>（12–18 个月后的租金），也是增长的<em>当期读数</em>（建筑业是就业和 GDP 的大项）。同一个数字在两条链上有两个身份。</li>
+<li><strong>与信用（E）：</strong>利率上升 → 借钱变贵 → 开发商不开工（今天的 −12.4%）。这就是信用条件收紧的实体表现。如果利率再高一点，商业地产贷款的违约会开始出现，那时链条会从「增长放缓」变成「金融事故」——这是 E22 的题目。</li>
+<li><strong>与汇率（D）：</strong>美国利率变化 → 美元与其他货币的利差变化 → 资本流向 → 汇率。对你个人而言，这是把「美国通胀」和「你的新元净值」直接连起来的那根线。</li>
+</ul>
+
+<p>一句话总结今天的位置：<strong>CPI 是整个宏观金融系统的「输入端仪表」。它本身不是经济，它是我们观测经济的那副眼镜。今天这一课，讲的是这副眼镜是怎么磨出来的，以及它有哪些像差。</strong></p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<table>
+<tr><th>术语（中/英）</th><th>一句话大白话</th><th>出现在链条哪一环</th></tr>
+<tr><td>消费者物价指数<br>Consumer Price Index (CPI)</td><td>把一大堆商品的价格按人们花钱的比例加权平均，得到的一个数字</td><td>环 2 · 输出</td></tr>
+<tr><td>加权平均<br>weighted average</td><td>让每样东西按它在你钱包里的真实分量说话，而不是一人一票</td><td>环 1 · 地基</td></tr>
+<tr><td>权重 / 相对重要性<br>relative importance</td><td>平均每花 100 块，有多少块花在这一项上</td><td>环 1 · 核心</td></tr>
+<tr><td>拉氏指数<br>Laspeyres index</td><td>篮子固定不动，只让价格变，这样算出来的指数</td><td>环 1</td></tr>
+<tr><td>消费者支出调查<br>Consumer Expenditure Survey</td><td>找几千户家庭真的记一年的账，用来定权重</td><td>环 1</td></tr>
+<tr><td>整体通胀<br>headline inflation</td><td>包含全部 100% 篮子的通胀率，7 月是 3.4%</td><td>环 3</td></tr>
+<tr><td>核心通胀<br>core inflation</td><td>把食品和能源两格拿掉后重算的通胀率，7 月是 2.5%</td><td>环 3</td></tr>
+<tr><td>自有住房等价租金<br>Owners' Equivalent Rent (OER)</td><td>问房主「你这房子租出去能收多少」，这笔假想租金占美国 CPI 的 25.8%</td><td>环 4 · 政治学</td></tr>
+<tr><td>替代偏差<br>substitution bias</td><td>牛肉贵了你改吃鸡肉，但固定篮子假装你没换，于是高估了通胀</td><td>环 4</td></tr>
+<tr><td>链式 CPI<br>Chained CPI (C-CPI-U)</td><td>允许你换着买的版本，每年读数比标准 CPI 低约 0.2–0.3 个百分点</td><td>环 4</td></tr>
+<tr><td>享乐调整<br>hedonic adjustment</td><td>手机价格没变但性能翻倍，统计上记为降价</td><td>环 4</td></tr>
+<tr><td>插补<br>imputation</td><td>没采集到的价格，用别处的数据推算填上</td><td>环 4</td></tr>
+<tr><td>同比 / 环比<br>year-over-year / month-over-month</td><td>和一年前比 / 和上个月比</td><td>环 2</td></tr>
+<tr><td>基数效应<br>base effect</td><td>同比数字变了，可能不是因为今天发生了什么，而是因为一年前发生了什么</td><td>环 2</td></tr>
+<tr><td>季节调整<br>seasonal adjustment</td><td>把「每年这个月本来就会涨」的那部分扣掉，剩下的才是真异动</td><td>环 2</td></tr>
+<tr><td>百分点 vs 百分比<br>percentage point vs percent</td><td>3.0% 到 3.4% 是涨了 0.4 个百分点，不是涨了 0.4%</td><td>环 2</td></tr>
+<tr><td>基点<br>basis point (bp)</td><td>0.01 个百分点。加息 25 个基点＝加 0.25 个百分点</td><td>环 2 · 环 6</td></tr>
+<tr><td>工资—价格螺旋<br>wage-price spiral</td><td>物价涨→要求加薪→成本涨→物价再涨的循环</td><td>环 3 · 断裂条件</td></tr>
+<tr><td>通胀预期脱锚<br>de-anchoring</td><td>大家不再相信央行能把通胀按回 2%，于是行为改变、通胀自我实现</td><td>环 3 · 断裂条件</td></tr>
+<tr><td>国债收益率<br>Treasury yield</td><td>按现在的市价买国债并持有到期，年化能拿到的回报</td><td>环 6</td></tr>
+<tr><td>收益率曲线<br>yield curve</td><td>把不同期限的国债收益率连成的一条线</td><td>环 6</td></tr>
+<tr><td>期限溢价<br>term premium</td><td>把钱锁得越久风险越大，投资者为此要求的额外补偿</td><td>环 6</td></tr>
+<tr><td>折现 / 折现率<br>discounting / discount rate</td><td>把未来的钱换算成今天值多少；用来换算的那个利率</td><td>环 7</td></tr>
+<tr><td>久期<br>duration</td><td>你的钱主要在多远的将来收到。越远，利率一动价格动得越狠</td><td>环 7</td></tr>
+<tr><td>货币错配<br>currency mismatch</td><td>收入用一种货币，资产用另一种货币，中间的汇率变化是你额外的盈亏</td><td>第 4 节</td></tr>
+<tr><td>实际利率<br>real interest rate</td><td>名义利率扣掉通胀之后，真正剩下的购买力回报</td><td>第 4 节 · 预告</td></tr>
+<tr><td>季调年化率<br>SAAR</td><td>「如果全年都按这个月的速度」换算出来的年度数字</td><td>第 1 节</td></tr>
+</table>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>第 1 题：某个月，汽油价格比上个月跌了 10%，而其他所有东西价格完全没动。整体 CPI 的环比会变化多少？</summary>
+<p><strong>推导过程：</strong></p>
+<p>第一步，找汽油的权重。查表：汽油权重 <strong>3.852%</strong>。</p>
+<p>第二步，用「总变化 = 各项权重 × 各项变化，加总」这个规则。除了汽油，其他所有项的变化都是 0，所以它们的贡献全部是 0。</p>
+<div class="calc">
+汽油贡献 = 0.03852 × (−10%) = <b>−0.385 个百分点</b>
+其他所有项贡献 = 0.96148 × 0% = 0
+
+整体 CPI 环比 = <b>−0.385%</b>，约等于 −0.4%
+</div>
+<p><strong>这道题真正想让你体会的是：</strong>汽油价格是所有价格里最显眼、变化最剧烈的一个——你每周都会开车经过加油站看到那块牌子。但它跌 10%，只能把整体 CPI 拉低 0.4 个百分点。<strong>你的感受强度和它的统计权重，严重不成比例。</strong>这正是为什么很多人觉得「官方通胀数据不符合我的感受」——你对高频接触、价格显眼的东西记忆更深，而它们在篮子里未必占多大分量。这个现象心理学上叫可得性偏差，以后会讲。</p>
+</details>
+
+<details>
+<summary>第 2 题：为什么美联储降息，可能反而让 30 年期国债收益率上升？</summary>
+<p><strong>推导过程：</strong></p>
+<p>第一步，回忆环 6 讲过的：30 年期收益率的三个成分是——未来 30 年的<strong>预期平均短期利率</strong>、<strong>长期通胀预期</strong>、以及<strong>期限溢价</strong>（含供给因素）。</p>
+<p>第二步，看降息影响哪一块。一次降息只影响「未来 30 年短期利率平均值」里非常小的一段——因为 30 年很长，眼下这一两年的利率在平均值里占的比重极小。</p>
+<div class="calc">
+粗略感受一下：
+假设降息 25bp，且这个较低的利率维持 2 年，之后回到原路径。
+
+对 30 年平均短期利率的影响 = 0.25% × (2 ÷ 30) = <b>约 1.7 个基点</b>
+
+而 30 年期收益率日常一天就能动 5–10 个基点。
+</div>
+<p>第三步，看降息影响的另一块。如果市场认为这次降息是<strong>央行在通胀还没解决时就投降了</strong>，那么<strong>长期通胀预期会上升</strong>——大家开始相信未来 30 年的平均通胀不是 2%，而是 2.5% 或 3%。</p>
+<p>第四步，把两个效应对比：预期短期利率下降贡献约 −1.7 个基点，长期通胀预期上升可能贡献 +30 甚至 +50 个基点。<strong>后者完全压过前者。</strong></p>
+<p><strong>结论：</strong>降息压低的是短端，长端是否跟随，取决于市场对央行控制通胀能力的<em>信任</em>。这个现象在市场上被称为「债券市场治安官（bond vigilantes）」：如果央行不做该做的事，长期债券的持有者会自己动手抬高长端利率。这也是理解今天 30 年期 5.31% 的关键框架之一。</p>
+</details>
+
+<details>
+<summary>第 3 题：假设一年后油价从 90 美元跌回 70 美元（跌 22%），汽油价格同步下跌，而所有其他东西的价格保持现在的涨速不变。粗略估算一年后的整体 CPI 会是多少？</summary>
+<p><strong>推导过程：</strong></p>
+<p>第一步，处理汽油。现在汽油同比 +24.6%。如果油价从 90 跌到 70，汽油零售价大致同步（实际上零售价的波动比原油小，因为里面还有税和炼油、零售的固定成本，所以这是一个偏保守的上限估计）。</p>
+<div class="calc">
+一年后汽油同比 ≈ <b>−22%</b>（假设完全同步）
+汽油权重 3.852%
+　→ 贡献 = 0.03852 × (−22%) = <b>−0.85 个百分点</b>
+
+对比今天汽油的贡献：+0.95 个百分点
+　→ 变化 = −0.85 − 0.95 = <b>−1.80 个百分点</b>
+</div>
+<p>第二步，处理能源的其他部分（电、天然气，权重合计约 3.3%）。它们和油价的联动弱得多，假设保持 4% 左右不变，贡献约 +0.14 个百分点，与今天差不多。</p>
+<p>第三步，核心和食品假设不变（这是题目给的条件），分别贡献 1.98 和 0.41 个百分点。</p>
+<div class="calc">
+一年后整体 CPI ≈
+　汽油　　　　−0.85
+　其他能源　　+0.14
+　食品　　　　+0.41
+　核心　　　　+1.98
+　　　　　　 ──────
+　合计　　　　<b>+1.68%</b>
+</div>
+<p><strong>结论与它的含义：</strong>整体通胀会从 3.4% 掉到 1.7% 左右，<strong>低于美联储 2% 的目标</strong>。而这个过程中，核心通胀<em>一点都没变</em>。</p>
+<p>这道题想让你看到的是：<strong>如果美联储今天为了 3.4% 而加息，一年后可能会发现自己在一个通胀低于目标、而利率还很高的处境里。</strong>这正是 7 月那九张多数票的核心论点，也是「货币政策时滞」（A23）这个问题的具体形态。</p>
+<p>同时也请注意这道题的脆弱假设：它假定核心完全不受油价影响。如果环 3 讲的三条传染路径生效，核心会从 2.5% 爬到 3%，那么合计就是 +2.2%，故事完全不同。<strong>整道题的答案，取决于那一个假设。这就是为什么第 5 节要专门去找「最脆弱的假设」。</strong></p>
+</details>
+
+<h3>今天就能做的一个小动作（15 分钟）</h3>
+
+<div class="box purple">
+<p><strong>做一份你自己的 CPI 权重表。</strong></p>
+<p>打开你上个月的银行和信用卡账单，把支出粗略分成 6–8 类：住房（房租或房贷）、食品（在家 + 外食）、交通、水电煤、医疗保险、通讯、其他。算出每一类占总支出的百分比。</p>
+<p>然后把你这张表和今天的美国权重表并排放：</p>
+<ul>
+<li>你的住房权重是多少？美国是 35.3%。</li>
+<li>你的汽油权重是多少？美国是 3.852%。你可能是 0。</li>
+<li>你的哪一格最大？</li>
+</ul>
+<p><strong>这张表的用处：</strong>下次你看到任何一条价格新闻，你可以用<em>自己的</em>权重算一遍，得到「这件事让我的生活成本变了多少」。这比任何官方数字都更贴近你。而且做完这件事，你对「权重」这个概念的理解会从纸面变成肌肉记忆。</p>
+</div>
+
+<h3>三个延伸阅读</h3>
+
+<ol>
+<li>
+<p><strong><a href="https://www.bls.gov/cpi/questions-and-answers.htm">BLS: CPI Questions and Answers</a></strong>（英文，难度：低）<br>
+BLS 官方的问答页，直接回答「CPI 涵盖谁」「为什么我的感受和它不一样」「它是生活成本指数吗」这类问题。<strong>值得读的原因：</strong>今天讲的很多争议，官方自己的回答比批评者的转述更诚实、也更精确。读原始来源永远是最好的习惯。大约 20 分钟。</p>
+</li>
+<li>
+<p><strong><a href="https://www.bls.gov/news.release/pdf/cpi.pdf">BLS CPI 新闻稿全文（PDF）</a></strong>（英文，难度：中）<br>
+今天所有数字的原始出处。<strong>值得读的原因：</strong>不要只读前两页的摘要，直接翻到后面的 Table 1 和 Table 2。Table 1 有每个分项的权重和涨幅，就是今天那张表的原件。<strong>建议做法：</strong>随便挑三个分项，自己算一遍它们对整体的贡献，验证一下总数能不能对上。这个练习做一次，「加权求和」这件事你就永远不会忘了。</p>
+</li>
+<li>
+<p><strong><a href="https://www.bls.gov/cpi/notices/">BLS CPI Notices 公告页</a></strong>（英文，难度：中）<br>
+BLS 发布的所有方法变更、采价削减、数据缺失公告的列表。<strong>值得读的原因：</strong>这是「篮子的政治学」最不加修饰的现场。你可以看到 2025 年 6 月的采价削减公告、2026 年 4 月关于消费支出数据缺失的公告、2026 年 5 月的重新基期公告。<strong>这些公告几乎从不上新闻，但它们决定了你在新闻里看到的每一个数字。</strong>建议只花 10 分钟浏览标题，感受一下这套系统在被怎样地修修补补。</p>
+</li>
+</ol>
+
+<div class="footnote">
+<p><strong>今日总结（用一句话）：</strong>7 月美国通胀是 3.4% 还是 2.5%，取决于你往篮子里放什么；而篮子里放什么，是一系列有分配后果的人为选择——其中最大的一格（25.8%）是一笔没有人真正支付过的假想租金。</p>
+<p><strong>明日预告：</strong>第 3 天轮到领域 C（地缘政治、能源与大宗商品），锚点原理是 <strong>C1 — 油价的供需结构：谁在定价</strong>。今天我们把油价当成一个外生的输入；明天我们打开这个黑箱，看这个数字本身是怎么被决定的。</p>
+<p class="src" style="margin-top:20px">
+<strong>全部来源：</strong><br>
+<a href="https://www.bls.gov/news.release/pdf/cpi.pdf">U.S. Bureau of Labor Statistics, Consumer Price Index — July 2026</a>（权重、各分项同比、采价规模）<br>
+<a href="https://www.bls.gov/news.release/cpi.nr0.htm">BLS, CPI Summary — 2026 M07</a>（发布日期、下次发布日期）<br>
+<a href="https://www.bls.gov/cpi/notices/">BLS, CPI Notices</a>（采价削减、消费支出数据缺失、季调因子更新、重新基期）<br>
+<a href="https://www.census.gov/construction/nrc/pdf/newresconst.pdf">U.S. Census Bureau, New Residential Construction — July 2026</a>（新屋开工、许可、竣工及其置信区间）<br>
+<a href="https://www.federalreserve.gov/releases/h15/">Federal Reserve, H.15 Selected Interest Rates, Aug 18 2026</a>（各期限国债收益率、联邦基金有效利率）<br>
+<a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-aug-18-2026">TheStreet, Stock Market Today — Aug 18 2026</a>（股指、油价、黄金、30 年期新高）<br>
+<a href="https://finance.yahoo.com/markets/live/stock-market-today-tuesday-august-18-dow-sp-500-nasdaq-080822735.html">Yahoo Finance, Aug 18 2026</a>（VIX、收益率、油价）<br>
+<a href="https://www.chase.com/personal/investments/learning-and-insights/article/september-2026-rate-hike-now-expected-amid-energy-shocks">J.P. Morgan / Chase, September 2026 Rate Hike Expectations</a>（联邦基金目标区间、7 月 FOMC 票数、9 月加息概率）<br>
+<a href="https://forex.tradingcharts.com/economic_calendar/2026-08-18.html?code=USD">Economic calendar, Aug 18 2026</a>（进口物价、工业生产、成屋签约销售）<br>
+<a href="https://www.advisorperspectives.com/dshort/updates/2026/08/12/inside-the-consumer-price-index-july-2026">Advisor Perspectives, Inside the CPI — July 2026</a>（整体/核心的精确读数 3.36% / 2.48%）
+</p>
+<p class="src"><strong>免责声明：</strong>本文为教学材料，所有涉及具体资产、价格或政策路径的讨论均为分析框架的示范，不构成任何投资建议、财务建议或税务建议。文中所有数据均取自上列公开来源，读者应自行核实。</p>
+</div>
+
+</div>
+</body>
+</html>
