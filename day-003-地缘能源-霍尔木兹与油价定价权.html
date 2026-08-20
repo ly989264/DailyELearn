@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 003｜谁在给石油定价——霍尔木兹、备用产能与你的钱包</title>
+<style>
+  :root{
+    --bg:#fbfaf7; --fg:#1e1c19; --muted:#5f5a52; --line:#e2ddd4;
+    --card:#ffffff; --accent:#9a4a1e; --accent2:#1f5c4a; --accent3:#3b4a8c;
+    --mark:#fff4d6; --code:#f2efe9; --shadow:rgba(30,28,25,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#16181a; --fg:#e8e6e1; --muted:#a5a099; --line:#2e3236;
+      --card:#1d2023; --accent:#e8926a; --accent2:#6fc4a8; --accent3:#93a6e8;
+      --mark:#3a3222; --code:#23272b; --shadow:rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:"Noto Serif SC","Songti SC","Source Han Serif SC",Georgia,"Times New Roman",serif;
+    font-size:18px; line-height:1.95;
+    letter-spacing:.01em;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:48px 22px 120px}
+  header.top{border-bottom:2px solid var(--fg); padding-bottom:26px; margin-bottom:40px}
+  .kicker{font-family:ui-sans-serif,system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px; letter-spacing:.16em; color:var(--accent); text-transform:uppercase; margin:0 0 12px}
+  h1{font-size:31px; line-height:1.4; margin:0 0 14px; font-weight:700}
+  .sub{color:var(--muted); font-size:15.5px; line-height:1.75; margin:0}
+  h2{font-size:24px; margin:64px 0 8px; padding-top:26px; border-top:1px solid var(--line); line-height:1.45}
+  h2 .num{font-family:ui-sans-serif,system-ui,sans-serif; color:var(--accent); font-size:15px; display:block; letter-spacing:.1em; margin-bottom:6px; font-weight:600}
+  h3{font-size:20px; margin:44px 0 6px; line-height:1.5; color:var(--fg)}
+  h4{font-size:17.5px; margin:32px 0 4px; line-height:1.55; color:var(--accent2)}
+  p{margin:16px 0}
+  strong{font-weight:700}
+  em{font-style:normal; background:var(--mark); padding:.08em .28em; border-radius:3px}
+  .calc{
+    background:var(--code); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+    padding:16px 20px; margin:22px 0; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    font-size:15.5px; line-height:2.0; white-space:pre-wrap; overflow-x:auto;
+  }
+  .calc b{color:var(--accent); font-weight:700}
+  .note{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:18px 22px; margin:26px 0; box-shadow:0 1px 3px var(--shadow);
+  }
+  .note .lab{font-family:ui-sans-serif,system-ui,sans-serif; font-size:12.5px; letter-spacing:.12em;
+    color:var(--accent2); font-weight:700; text-transform:uppercase; display:block; margin-bottom:6px}
+  .note p:first-of-type{margin-top:4px}
+  .note p:last-child{margin-bottom:4px}
+  .qbox{border-left:3px solid var(--accent3); padding:2px 0 2px 18px; margin:26px 0; color:var(--muted)}
+  .qbox strong{color:var(--fg)}
+  figure{margin:36px 0; padding:0}
+  figure svg{width:100%; height:auto; display:block; background:var(--card);
+    border:1px solid var(--line); border-radius:10px}
+  figcaption{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif; font-size:14px;
+    color:var(--muted); line-height:1.75; margin-top:10px}
+  table{width:100%; border-collapse:collapse; margin:26px 0; font-size:15px;
+    font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif}
+  th,td{border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top; line-height:1.7}
+  th{background:var(--code); font-weight:700}
+  a{color:var(--accent3); text-decoration:underline; text-underline-offset:2px}
+  details{background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 20px; margin:16px 0}
+  details summary{cursor:pointer; font-weight:700; font-size:16.5px}
+  details[open] summary{margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--line)}
+  ul,ol{padding-left:24px; margin:16px 0}
+  li{margin:9px 0}
+  .src{font-size:13.5px; color:var(--muted); font-family:ui-sans-serif,system-ui,sans-serif; line-height:1.8}
+  .big{font-size:20px; font-weight:700; color:var(--accent); text-align:center; margin:26px 0; line-height:1.7}
+  hr.soft{border:0; border-top:1px dashed var(--line); margin:34px 0}
+  .disc{font-size:14.5px; color:var(--muted); background:var(--code); border-radius:8px; padding:14px 18px; margin:26px 0; line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Day 003 · 领域 C 地缘能源与大宗商品 · 锚点原理 C1</p>
+  <h1>谁在给石油定价？<br>从阿联酋断绝对伊朗贸易，讲到你手里的美股</h1>
+  <p class="sub">锚点原理：<strong>C1 油价的供需结构：谁在定价</strong>　｜　事件日期：2026 年 8 月 19 日（新加坡时间 8 月 20 日）<br>今天这一课会花很长篇幅在一件事上：<em>「油价是谁定的」这个问题，答案会随着时间尺度而改变</em>。理解了这一点，今年发生的几乎所有大事都能串起来。</p>
+</header>
+
+<h2><span class="num">SECTION 0</span>今天你会学到什么</h2>
+
+<p>今天从一条新闻出发：阿联酋宣布切断和伊朗的全部贸易与金融往来，油价当天连涨第四天。</p>
+
+<p>我们要讲明白一件事：<strong>油价这个数字，到底是谁定出来的。</strong>你可能以为是欧佩克开会定的，或者是几个大石油公司定的，或者是「投机客炒上去的」。这三个答案都不对，但每一个都对了一点点。真正的答案是：在不同的时间尺度上，掌握定价权的是不同的人。今天我们会一层一层把这四层定价权拆开。</p>
+
+<p>读完这一课，你应该能回答三个问题：第一，为什么全世界石油只少了百分之几，价格却能涨几十个百分点？第二，什么叫「备用产能」，为什么它现在只剩下 7 万桶／天这个几乎等于零的数字，而这个数字为什么比任何新闻标题都重要？第三，一桶原油从波斯湾涨价，是通过哪几步，最后变成你在新加坡的钱包变薄的？</p>
+
+<h2><span class="num">SECTION 1</span>今天的事件：事实部分</h2>
+
+<p>先只讲发生了什么，不做任何解释。所有数字后面我都会说清楚它是什么意思。</p>
+
+<h4>事件本身</h4>
+
+<p><strong>2026 年 8 月 19 日（周三）</strong>，阿联酋外交部宣布：与伊朗之间「所有贸易、商业往来和金融交易一律中止，直至另行通知」。理由是地区局势升级威胁到本国安全。</p>
+
+<p>触发点是前一天（周二）伊朗被指向阿联酋方向发射了<strong>两枚弹道导弹</strong>。两枚都落进海里，没有造成报告中的损失。阿联酋国防部表示会「坚决反击任何破坏国家安全的企图」。（来源：<a href="https://time.com/article/2026/08/19/uae-suspends-trade-with-iran-after-reported-missile-strikes/">TIME，2026-08-19</a>）</p>
+
+<p>这件事的经济分量在于两国的贸易关系：截至 2026 年 4 月，阿联酋占伊朗出口的 <strong>12.5%</strong>、占伊朗进口的 <strong>30.43%</strong>。「占伊朗进口的 30.43%」的意思是——伊朗每买进 100 块钱的外国货，有 30 块多是从阿联酋买的。所以这不是一个象征性动作。</p>
+
+<h4>背景：这件事发生在什么局面里</h4>
+
+<p>要理解今天，必须先知道今年 2 月底开始的那场冲突。<strong>2026 年 2 月下旬</strong>，美国—以色列对伊朗的军事行动开始。此后伊朗封锁了<strong>霍尔木兹海峡</strong>（Strait of Hormuz）——这是波斯湾通往公海的唯一出口，一条最窄处只有几十公里的水道。</p>
+
+<p>它有多重要，用两个数字说清楚：</p>
+
+<ul>
+<li>正常年份，每天约有 <strong>2000 万桶</strong>原油和成品油从这里通过，约占全球海运石油贸易的 <strong>25%</strong>（国际能源署数据，2025 年：原油近 1500 万桶/天，成品油约 500 万桶/天）。「桶」是石油的计量单位，一桶约 159 公升。全球每天大约消费 1 亿桶，所以这一条水道占了全球总消费量的五分之一。</li>
+<li>全球 LNG（液化天然气）贸易的近 <strong>20%</strong> 也走这里，主要是卡塔尔和阿联酋，2025 年合计超过 1120 亿立方米。（来源：<a href="https://www.iea.org/about/oil-security-and-emergency-response/strait-of-hormuz">IEA，Strait of Hormuz</a>）</li>
+</ul>
+
+<p>今年冲突开始以后，这条水道的通行量崩了。<strong>冲突前每天约 130 艘船</strong>通过；到 8 月上旬，某个周一只有 <strong>10 艘</strong>。美国能源部长称七日平均运量恢复到约 <strong>900 万桶/天</strong>，而独立分析师估计上周的峰值只有约 <strong>700 万桶/天</strong>——不管信哪个，都远低于正常的 2000 万桶。国际海事组织统计，冲突以来该地区涉及商船的暴力事件至少 <strong>64 起</strong>，造成 <strong>17 人死亡</strong>。（来源：<a href="https://www.aljazeera.com/economy/2026/8/12/oil-prices-rise-as-attacks-dent-hopes-for-strait-of-hormuz-reopening">Al Jazeera，2026-08-12</a>）</p>
+
+<h4>价格：今天的读数</h4>
+
+<table>
+<tr><th>指标</th><th>读数（2026-08-19）</th><th>这个数字是什么意思</th></tr>
+<tr><td>布伦特原油（Brent）</td><td><strong>约 91.5–93.6 美元/桶</strong>，当日 +0.5%～+1.3%，为连续第四天上涨</td><td>布伦特是北海产的原油，是全世界最主要的原油定价基准。「一桶 92 美元」就是现在市场上买卖一桶原油的价格。</td></tr>
+<tr><td>布伦特同比</td><td><strong>+36.9%</strong>（另一来源：比去年同日高 27.41 美元）</td><td>比一年前贵了三分之一还多。</td></tr>
+<tr><td>今年波动区间</td><td>2 月低点 → 3 月 <strong>98 美元以上</strong> → 6 月 24 日 <strong>73.74</strong> → 7 月底 <strong>96.80</strong> → 现在 <strong>约 92</strong></td><td>七月一个月之内布伦特就涨了 25.67 美元，全月振幅接近 40 美元。这不是正常市场该有的样子。</td></tr>
+</table>
+
+<p>触发今天这一波上涨的具体因素，除了阿联酋断绝贸易之外，还包括：<strong>三艘中国相关的超大型油轮在通过海峡途中折返</strong>；<strong>一艘船被抛射物击中</strong>；以及特朗普表态称「目前没有旨在结束冲突的谈判在进行」。同时美国炼厂开工率升至 <strong>2019 年 9 月以来最高</strong>（炼厂开工率高＝对原油的需求强）。美国原油库存当周增加 <strong>440 万桶</strong>，但柴油类库存下降 <strong>150 万桶</strong>至月内低点。（来源：<a href="https://tradingeconomics.com/commodity/brent-crude-oil">Trading Economics，Brent</a>）</p>
+
+<h4>其他市场的同日读数（后面每一个都会用到）</h4>
+
+<table>
+<tr><th>市场</th><th>读数</th><th>大白话</th></tr>
+<tr><td>美国 2 年期国债收益率</td><td><strong>4.19%</strong>（8/18）</td><td>把钱借给美国政府 2 年，年化回报 4.19%。</td></tr>
+<tr><td>美国 10 年期国债收益率</td><td><strong>4.72%</strong>（8/17）</td><td>借 10 年，年化 4.72%。比 2 年期高 53 个基点（1 个基点 = 0.01%）。</td></tr>
+<tr><td>10 年期盈亏平衡通胀率</td><td><strong>2.30%</strong>（8/18）</td><td>债券市场认为未来 10 年通胀平均会是 2.30%。这个数字后面是今天最重要的伏笔。</td></tr>
+<tr><td>联邦基金利率目标</td><td><strong>3.50%–3.75%</strong></td><td>美联储直接控制的那个利率。7 月会议维持不变，投票 9 比 3，三票主张加息。</td></tr>
+<tr><td>9 月 FOMC 市场定价</td><td>约 <strong>64%</strong> 概率维持不变（即约 36% 概率加息）</td><td>市场在赌美联储下个月的动作。</td></tr>
+<tr><td>美元指数 DXY</td><td><strong>98.78</strong>，当日 −0.88%，一个月 −2.15%</td><td>美元对一篮子主要货币的强弱。数字变小＝美元变弱。</td></tr>
+<tr><td>美元／新元</td><td><strong>1.2761</strong>，一个月 −1.17%，一年 −0.71%</td><td>1 美元换 1.2761 新币。数字变小＝新币变强＝你的美元资产换回新币时变少了。</td></tr>
+<tr><td>标普 500</td><td><strong>7,719.67</strong>，当日 +0.21%，一年 +20.70%</td><td>美股大盘。今年涨得很好。</td></tr>
+<tr><td>黄金</td><td><strong>约 4,480–4,518 美元/盎司</strong>，一年 +35%</td><td>一月曾创 5,608 的历史高点。</td></tr>
+<tr><td>美国 7 月 CPI</td><td>整体同比 <strong>3.4%</strong>；核心 <strong>2.5%</strong>；能源分项同比 <strong>+14.7%</strong>；汽油同比 <strong>+24.6%</strong></td><td>衡量物价的指数，比一年前高了这么多。</td></tr>
+</table>
+
+<p class="src">来源：<a href="https://fred.stlouisfed.org/series/DGS2">FRED DGS2</a>、<a href="https://fred.stlouisfed.org/series/DGS10">FRED DGS10</a>、<a href="https://fred.stlouisfed.org/series/T10YIE">FRED T10YIE</a>、<a href="https://www.kiplinger.com/investing/economy/cpi-report-july-2026-what-to-expect">Kiplinger</a>、<a href="https://tradingeconomics.com/united-states/currency">TE 美元指数</a>、<a href="https://tradingeconomics.com/singapore/currency">TE 新元</a>、<a href="https://tradingeconomics.com/united-states/stock-market">TE 标普</a>、<a href="https://tradingeconomics.com/commodity/gold">TE 黄金</a>、<a href="https://www.usinflationcalculator.com/inflation/cpi-july-2026/100073311/">US Inflation Calculator（7 月 CPI）</a></p>
+
+<h4>还有一个数字，它是今天全课的核心</h4>
+
+<p>国际能源署（IEA）2026 年 8 月月报里有这么几行：</p>
+
+<ul>
+<li>全球有效备用产能（effective spare capacity）：OPEC+ 整体 <strong>1.09 百万桶/天</strong>；其中「OPEC-8」（不含伊朗和俄罗斯停产部分的八国）只有 <strong>0.07 百万桶/天</strong>，也就是<strong>七万桶</strong>。</li>
+<li>7 月全球石油供给回升到 1.015 亿桶/天，但仍比一年前<strong>低 630 万桶/天</strong>。</li>
+<li>全球可观测原油库存 7 月<strong>骤降 6900 万桶</strong>，跌破 79 亿桶。2 月底至 7 月累计去库 <strong>4.1 亿桶</strong>。</li>
+<li>霍尔木兹在 7 月初「再度实质性关闭」，地区出口下降 210 万桶/天。IEA 原话：「重开海峡的紧迫性已经上升。」</li>
+</ul>
+
+<p class="src">来源：<a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA Oil Market Report, August 2026</a></p>
+
+<p><strong>「OPEC-8 的有效备用产能只有 7 万桶/天」</strong>——这句话现在对你可能还没有任何意义。今天这一课就是要让你读到这句话时，能立刻在脑子里推出一整条后果链。</p>
+
+<h2><span class="num">SECTION 2</span>传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 760 1180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="传导链全图">
+<style>
+ .bx{fill:#ffffff;stroke:#c9c2b6;stroke-width:1.4;rx:8}
+ .t{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:13.5px;fill:#1e1c19}
+ .tb{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:14px;fill:#1e1c19;font-weight:700}
+ .ts{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:11.5px;fill:#6a645c}
+ .n{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;fill:#9a4a1e;font-weight:700}
+ .ar{stroke:#9a4a1e;stroke-width:1.8;fill:none;marker-end:url(#ah)}
+ .hl{fill:#fff4d6;stroke:#9a4a1e;stroke-width:2.2}
+ @media (prefers-color-scheme: dark){
+  .bx{fill:#22262a;stroke:#414750}
+  .t,.tb{fill:#e8e6e1}
+  .ts{fill:#a5a099}
+  .n{fill:#e8926a}
+  .ar{stroke:#e8926a}
+  .hl{fill:#3a3222;stroke:#e8926a}
+ }
+</style>
+<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+<path d="M0,0 L7,3.2 L0,6.4 z" fill="#9a4a1e"/></marker></defs>
+
+<rect class="bx" x="30" y="14" width="700" height="62"/>
+<text class="n" x="46" y="34">环 0 · 触发</text>
+<text class="tb" x="46" y="54">8/19 伊朗导弹落向阿联酋 → 阿联酋切断全部对伊贸易与金融往来</text>
+<text class="ts" x="46" y="70">同日：3 艘超大型油轮折返、1 艘商船被击中、特朗普称「没有谈判在进行」</text>
+<path class="ar" d="M380,76 L380,100"/>
+
+<rect class="bx" x="30" y="102" width="700" height="58"/>
+<text class="n" x="46" y="122">环 1 · 概率被重估</text>
+<text class="tb" x="46" y="142">交易员下调「霍尔木兹近期重开」的概率</text>
+<text class="ts" x="46" y="157">通行船数 10 艘/日 vs 冲突前 130 艘/日；过境油量约 700–900 万桶 vs 正常 2000 万桶</text>
+<path class="ar" d="M380,160 L380,186"/>
+
+<rect class="hl" x="30" y="188" width="700" height="96" rx="8"/>
+<text class="n" x="46" y="208">环 2 · 今日锚点原理 C1：谁在定价</text>
+<text class="tb" x="46" y="230">全球备用产能 ≈ 0（OPEC-8 仅 7 万桶/天）→ 短期供给曲线变成一堵垂直的墙</text>
+<text class="t" x="46" y="252">没有人能「多产一点」来平衡市场，于是定价权从产油国手里，</text>
+<text class="t" x="46" y="271">转移给了「库存持有者」和「愿意被高价逼退的买家」</text>
+<path class="ar" d="M380,284 L380,310"/>
+
+<rect class="bx" x="30" y="312" width="700" height="58"/>
+<text class="n" x="46" y="332">环 3 · 出清机制</text>
+<text class="tb" x="46" y="352">价格必须涨到「逼退一部分需求 + 抽空一部分库存」为止</text>
+<text class="ts" x="46" y="367">2 月底以来累计去库 4.1 亿桶；7 月单月去库 6900 万桶；库存是唯一的减震器</text>
+<path class="ar" d="M380,370 L380,396"/>
+
+<rect class="bx" x="30" y="398" width="700" height="58"/>
+<text class="n" x="46" y="418">环 4 · 油价</text>
+<text class="tb" x="46" y="438">布伦特 ≈ 92 美元／桶，同比 +37%；7 月单月振幅近 40 美元</text>
+<text class="ts" x="46" y="453">价格中含有一块「风险溢价」＝ 中断概率 × 中断幅度</text>
+<path class="ar" d="M380,456 L380,482"/>
+
+<rect class="bx" x="30" y="484" width="700" height="58"/>
+<text class="n" x="46" y="504">环 5 · 进入物价</text>
+<text class="tb" x="46" y="524">美国 7 月 CPI 能源分项 +14.7%，汽油 +24.6%</text>
+<text class="ts" x="46" y="539">整体 CPI 3.4% vs 核心 CPI 2.5%，差额 0.9 个百分点几乎全部来自能源</text>
+<path class="ar" d="M380,542 L380,568"/>
+
+<rect class="bx" x="30" y="570" width="700" height="58"/>
+<text class="n" x="46" y="590">环 6 · 通胀预期</text>
+<text class="tb" x="46" y="610">10 年期盈亏平衡通胀率 2.30%（8/12 的 2.24% → 8/18 的 2.30%）</text>
+<text class="ts" x="46" y="625">债券市场仍然认为「这是暂时的」——这是全链条最脆弱的一环</text>
+<path class="ar" d="M380,628 L380,654"/>
+
+<rect class="bx" x="30" y="656" width="700" height="58"/>
+<text class="n" x="46" y="676">环 7 · 央行反应</text>
+<text class="tb" x="46" y="696">联邦基金利率 3.50–3.75%；7 月 9:3 投票维持；9 月加息概率约 36%</text>
+<text class="ts" x="46" y="711">摩根大通：「霍尔木兹供应链正常化慢于预期＋7 月会议后市场质疑抗通胀信誉，降低了加息门槛」</text>
+<path class="ar" d="M380,714 L380,740"/>
+
+<rect class="bx" x="30" y="742" width="336" height="76"/>
+<text class="n" x="46" y="762">环 8a · 利率与股票</text>
+<text class="t" x="46" y="782">2Y 4.19% ＞ 政策利率中值 3.625%</text>
+<text class="t" x="46" y="801">10Y 4.72%；折现率上升 → 长久期资产承压</text>
+
+<rect class="bx" x="394" y="742" width="336" height="76"/>
+<text class="n" x="410" y="762">环 8b · 汇率</text>
+<text class="t" x="410" y="782">DXY 98.78（月内 −2.15%）</text>
+<text class="t" x="410" y="801">美元走弱，同时黄金 +35% 同比</text>
+<path class="ar" d="M198,818 L198,846"/>
+<path class="ar" d="M562,818 L562,846"/>
+
+<rect class="bx" x="30" y="848" width="700" height="76"/>
+<text class="n" x="46" y="868">环 9 · 新加坡这一端</text>
+<text class="tb" x="46" y="890">MAS 连续第二个季度上调新元升值斜率（2026 年 7 月 27 日）</text>
+<text class="ts" x="46" y="908">理由之一：「电力与燃气通胀将因能源价格上涨而回升」→ 新元被主动推强</text>
+<path class="ar" d="M380,924 L380,952"/>
+
+<rect class="hl" x="30" y="954" width="700" height="82" rx="8"/>
+<text class="n" x="46" y="974">环 10 · 落到 Dylan 身上</text>
+<text class="tb" x="46" y="996">USDSGD 1.2761（一个月 −1.17%）＝ 同样的美元资产，换回新币时缩水</text>
+<text class="t" x="46" y="1018">SGD 收入 + USD 资产 = 货币错配；而油价正是推动这个错配扩大的源头之一</text>
+
+<rect class="bx" x="30" y="1058" width="700" height="104"/>
+<text class="n" x="46" y="1078">这条链会在哪里断</text>
+<text class="t" x="46" y="1099">① 霍尔木兹重开 → 环 2 的「墙」消失，全链回落</text>
+<text class="t" x="46" y="1119">② 需求先垮（衰退）→ 环 3 的出清不靠涨价而靠萎缩</text>
+<text class="t" x="46" y="1139">③ 通胀预期脱锚 → 环 6 断裂，环 7 被迫更激进，股债同跌</text>
+<text class="t" x="46" y="1157">④ MAS 转向 → 环 9 反转，新元回落，Dylan 的汇率损失变汇率收益</text>
+</svg>
+<figcaption><strong>图 1：从一枚落海的导弹到你的投资账户，中间有十一个环节。</strong>灰色框是普通环节，高亮框是今天要重点讲的两处：环 2（备用产能耗尽如何把定价权转移）和环 10（这一切最后如何落到一个新加坡投资者身上）。图最下方列出四种「链条断裂」的情形——理解一条链，不只要知道它怎么传导，还要知道它什么时候失灵。</figcaption>
+</figure>
+
+<h3>用人话把这条链从头读一遍</h3>
+
+<p>好，现在把上面那张图当成一个故事讲给朋友听：</p>
+
+<p>伊朗朝阿联酋的方向打了两枚导弹，都落海了，没伤到人。但阿联酋决定断绝和伊朗的一切生意往来。市场看到这一幕，心里想的不是「导弹落海了没事」，而是「原来事情还在往坏的方向走，那条被堵住的海峡，短期内怕是开不了了」。</p>
+
+<p>为什么海峡开不开这么要紧？因为全世界五分之一的石油要从那儿运出来。现在那里每天只过 10 条船，正常是 130 条。</p>
+
+<p>正常情况下，世界上少了一批油，别的产油国可以多产一点补上——沙特有闲置的油井，随时能开。这个「随时能多产的量」有个名字，叫备用产能。<strong>但今年这个数字被消耗光了。</strong>国际能源署说，扣掉伊朗和俄罗斯，其余八个欧佩克国家的有效备用产能只剩下 7 万桶/天。全球每天消耗 1 亿桶。7 万桶是 0.07%。等于没有。</p>
+
+<p>没有人能补上缺口，那市场怎么平衡？只剩两条路：一是从仓库里往外掏（去库存），二是把价格涨到让一部分买家买不起、主动退出。今年这两条路都在走：2 月底到 7 月，全球库存被掏走了 4.1 亿桶；而价格从年初一路涨到现在，同比 +37%。</p>
+
+<p>油贵了，美国人加油贵了 24.6%，这个数字直接进了 CPI 这个衡量物价的指数——所以整体通胀 3.4%，而剔掉能源和食品之后的「核心」只有 2.5%。中间差的那 0.9 个百分点，基本就是油。</p>
+
+<p>物价高了，美联储就坐不住。它 7 月已经有三个人投票要加息了。市场现在赌 9 月有大约三分之一的概率真的加。于是 2 年期国债利率被推到 4.19%，已经明显高过当前 3.50–3.75% 的政策利率了——债券市场在用真金白银押注「还会加」。</p>
+
+<p>利率高了，股票的估值就受压（为什么，第三节会一步一步讲）。同时美元这个月反而在跌，黄金在涨——这两件事和油价上涨凑在一起，说明市场担心的不只是「东西变贵」，还有「钱本身变毛」。</p>
+
+<p>最后一步落到新加坡。新加坡的央行 MAS 不像美联储那样调利率，它调的是汇率。7 月 27 日，MAS 连续第二个季度上调了新元的升值速度，理由里明确提到「电力和燃气通胀将因能源价格上涨而回升」。也就是说，<strong>油价上涨这件事，直接导致了新加坡主动把新元推强。</strong></p>
+
+<p>而 Dylan 你，赚的是新币，投的是美元资产。新元变强，你的美股换回新币的时候就变少了。这个月 USDSGD 跌了 1.17%——意思是你的美元资产哪怕一分钱没跌，用新币衡量也已经缩水了 1.17%。</p>
+
+<p>一枚落海的导弹，十一步之后，变成了你账户上的一个数字。这就是今天要拆的东西。</p>
+
+<h2><span class="num">SECTION 3</span>逐环拆解</h2>
+
+<p>下面一环一环走。每一环我都回答三个问题：<strong>为什么 A 会导致 B</strong>（机制）、<strong>这个影响有多大</strong>（数字）、<strong>什么情况下这一环会失灵</strong>（断裂条件）。</p>
+
+<p>环 2 是今天的锚点原理，会写得最厚——大概占全文三分之一。请慢慢读那一节，它是今天真正的主菜。</p>
+
+<h3>环 1｜从「导弹落海」到「重开概率下调」</h3>
+
+<h4>机制：为什么一件没造成损失的事，会影响价格</h4>
+
+<p>先问一个看起来很傻的问题：两枚导弹落进海里，没炸到任何东西，没烧掉一滴油，全球石油的实际供给量一桶都没变。<strong>那价格凭什么涨？</strong></p>
+
+<p>这个问题的答案，是理解整个大宗商品市场的钥匙。</p>
+
+<p>先想一件生活里的事。你打算下个月去日本旅行，机票现在 800 新币。今天新闻说日本某个火山可能要喷发，航班可能停飞。火山还没喷，飞机还在飞，但你会怎么做？你可能会想「那我赶紧先把票买了，万一真喷了后面就更贵/买不到了」。如果一万个人都这么想，机票<strong>今天</strong>就涨价了——尽管火山什么都还没做。</p>
+
+<p><strong>价格反映的不是「已经发生的事」，而是「大家现在相信将来会发生什么」。</strong>这句话是全课的地基。</p>
+
+<p>为什么会这样？因为一部分买家和卖家<strong>有能力提前行动</strong>。炼油厂可以今天就多买一船油囤起来；航空公司可以今天就锁定未来六个月的燃油价格；对冲基金可以今天就买入未来交割的合约。这些人做决定时，看的不是今天的库存，而是「三个月后我拿得到油吗」。</p>
+
+<p>所以当阿联酋宣布断绝对伊贸易时，市场读到的信息不是「今天少了油」，而是：<em>局势在升级，不是在缓和；那个我一直指望的「海峡很快重开」的剧本，概率变小了。</em></p>
+
+<h4>影响有多大：把「概率」变成「价格」的算术</h4>
+
+<p>现在我们把上面那句话变成数字。这是今天第一个要跟着算的例子。</p>
+
+<p>假设你是一个交易员。你心里有两个剧本：</p>
+
+<div class="calc">剧本 A：海峡三个月内重开，油恢复正常流动
+　　　　→ 你判断布伦特会回到 <b>70</b> 美元
+
+剧本 B：海峡继续关着，甚至更糟
+　　　　→ 你判断布伦特会到 <b>120</b> 美元
+</div>
+
+<p>如果你认为剧本 A 的概率是 70%、剧本 B 是 30%，那你心里「合理的价格」是多少？就是两个价格按概率加权平均：</p>
+
+<div class="calc">70% × 70 美元 = 49.0 美元
+30% × 120 美元 = 36.0 美元
+                ─────────
+合计　　　　　　 <b>85.0 美元</b>
+</div>
+
+<p>现在，阿联酋断绝贸易的消息出来了。你把剧本 A 的概率从 70% 下调到 60%，剧本 B 从 30% 上调到 40%。重新算：</p>
+
+<div class="calc">60% × 70 美元 = 42.0 美元
+40% × 120 美元 = 48.0 美元
+                ─────────
+合计　　　　　　 <b>90.0 美元</b>
+</div>
+
+<p><strong>价格从 85 涨到 90，涨了 5.9%。而现实世界里，一滴油都没有少。</strong></p>
+
+<p>这就是「风险溢价」（risk premium）这个词的含义。经济学给「因为担心坏事发生而多付的那部分价格」起了个名字，叫风险溢价。在这个例子里：如果没有任何风险，价格该是 70（剧本 A 的价格）；现在是 90；那 <strong>90 − 70 = 20 美元</strong> 就是风险溢价，占价格的 22%。</p>
+
+<div class="note">
+<span class="lab">一个你可能会问的问题</span>
+<p><strong>「那这不就是投机吗？为什么不禁止？」</strong></p>
+<p>不是。回到那个囤油的炼油厂：它今天多买一船油，是因为它三个月后真的要炼油，不能停工。它愿意为「确保拿得到货」多付一点钱，这叫<strong>保险</strong>，不叫赌博。市场价格里的风险溢价，本质是全社会为「不确定性」支付的保费。</p>
+<p>反过来说，如果禁止这种行为、把价格强行按住会怎样？价格不涨，就没人愿意囤货，等到海峡真断了，市场上一滴备用的油都没有，那时候价格会更疯狂。<strong>提前涨价其实是在提前储蓄。</strong>这是价格机制在做的最重要的一件事之一。</p>
+</div>
+
+<h4>这一环什么时候会断</h4>
+
+<p>当市场判定「概率已经不会再变了」的时候。这种情况有两种表现：</p>
+
+<ul>
+<li><strong>坏消息麻木。</strong>如果重开概率已经被压到接近 0，那再来一条坏消息也没什么可下调的了，价格就不动了。7 月布伦特单月振幅接近 40 美元，说明市场此刻远未麻木——每一条新闻都在实实在在地改变概率。</li>
+<li><strong>「利空出尽」。</strong>如果价格里已经算进了「彻底断供」，那真断供那天价格反而可能跌。这就是「买传闻、卖事实」的机制来源，不是玄学，是上面那个加权平均算式的必然结果。</li>
+</ul>
+
+<hr class="soft">
+
+<h3 id="anchor">环 2｜今日锚点原理 C1：油价到底是谁在定？</h3>
+
+<p>这是今天的主菜。我会分成五步走，每一步都很慢。</p>
+
+<h4>第一步：先搞清楚「定价」这个词到底什么意思</h4>
+
+<p>先破除一个常见的误解。很多人以为油价是欧佩克「定」出来的，像政府定电价那样开个会宣布一个数。不是这样。</p>
+
+<p>真实情况是：布伦特原油的价格，是每一秒钟在交易所里，<strong>最后一笔成交</strong>的价格。买家和卖家各自报价，撮合成交，成交价就是市场价。没有任何一个机构在「宣布」价格。</p>
+
+<p>那「谁在定价」到底问的是什么？问的是：<strong>是谁的行为，决定了最后那一笔成交发生在什么价位上。</strong></p>
+
+<p>用一个生活例子。假设你在一个小镇上卖房子，全镇有 10 个买家想买房，你和另外 4 个人在卖房，一共 5 套房。谁「定」了房价？</p>
+
+<p>是第 5 个买家。因为前 4 个买家不管出多高的价，他们买到房就退出市场了；房价最终会停在<strong>第 5 个买家愿意出的最高价</strong>附近——再高一点，第 5 个买家就退出了，就会有一套房卖不掉。这个「最后一个必须被满足、又刚好差点被挤掉」的人，经济学给他起了个名字，叫<strong>边际买家</strong>（marginal buyer）。「边际」这个词在经济学里出现频率极高，它的意思永远是「最后那一个」「再多一单位」。</p>
+
+<p>同样的道理，卖方这边也有一个<strong>边际卖家</strong>：那个成本最高、刚好能勉强赚钱的生产者。他的成本，就是价格的地板。</p>
+
+<div class="big">价格 = 由「最后那一桶」的买家和卖家共同决定，<br>而不是由平均的买家、平均的卖家决定。</div>
+
+<p>这就是为什么油价可以对很小的量变做出很大的反应——因为决定价格的从来不是那 1 亿桶的平均情况，而是最边缘那几百万桶的争夺。</p>
+
+<h4>第二步：把卖方排成一队——供给曲线到底长什么样</h4>
+
+<p>现在我们把全世界的产油者按<strong>生产成本从低到高</strong>排成一队。这个队列的图，经济学里叫做<strong>供给曲线</strong>（supply curve），在石油行业里更常叫<strong>成本曲线</strong>（cost curve）。</p>
+
+<p>为什么要按成本排？因为如果价格是 60 美元，那所有成本低于 60 美元的人都愿意生产（能赚钱），成本高于 60 的人不愿意生产（生产就亏）。所以给定一个价格，你从队伍最左边数过去，数到成本刚好等于这个价格的地方，那就是这个价格下全世界会生产多少油。</p>
+
+<figure>
+<svg viewBox="0 0 760 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="石油成本曲线与备用产能">
+<style>
+ .ax{stroke:#8b857c;stroke-width:1.5}
+ .gl{stroke:#ddd8ce;stroke-width:1;stroke-dasharray:3 4}
+ .lb{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:12px;fill:#5f5a52}
+ .lbb{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:13px;fill:#1e1c19;font-weight:700}
+ .lbs{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:11px;fill:#6a645c}
+ .wall{stroke:#9a4a1e;stroke-width:3.5;fill:none}
+ .step{fill:#cfd9e8;stroke:#7d8fae;stroke-width:1}
+ .step2{fill:#e0d3c2;stroke:#a89078;stroke-width:1}
+ .dem{stroke:#1f5c4a;stroke-width:2.6;fill:none}
+ .dem2{stroke:#1f5c4a;stroke-width:2.6;fill:none;stroke-dasharray:7 5}
+ @media (prefers-color-scheme: dark){
+  .ax{stroke:#8d8880}.gl{stroke:#343a40}
+  .lb{fill:#a5a099}.lbb{fill:#e8e6e1}.lbs{fill:#a5a099}
+  .wall{stroke:#e8926a}
+  .step{fill:#2e3a4c;stroke:#5f7593}
+  .step2{fill:#40372c;stroke:#8a7358}
+  .dem,.dem2{stroke:#6fc4a8}
+ }
+</style>
+<line class="ax" x1="70" y1="400" x2="720" y2="400"/>
+<line class="ax" x1="70" y1="400" x2="70" y2="40"/>
+<text class="lbb" x="330" y="440">全球日产量（百万桶／天）→</text>
+<text class="lbb" x="14" y="30">成本／价格</text>
+<text class="lbb" x="14" y="48">（美元／桶）</text>
+
+<line class="gl" x1="70" y1="340" x2="720" y2="340"/><text class="lb" x="34" y="344">20</text>
+<line class="gl" x1="70" y1="280" x2="720" y2="280"/><text class="lb" x="34" y="284">40</text>
+<line class="gl" x1="70" y1="220" x2="720" y2="220"/><text class="lb" x="34" y="224">60</text>
+<line class="gl" x1="70" y1="160" x2="720" y2="160"/><text class="lb" x="34" y="164">80</text>
+<line class="gl" x1="70" y1="100" x2="720" y2="100"/><text class="lb" x="34" y="104">100</text>
+
+<rect class="step" x="70" y="358" width="110" height="42"/>
+<text class="lbs" x="78" y="378">中东陆上</text><text class="lbs" x="78" y="392">$5–15</text>
+
+<rect class="step" x="180" y="336" width="90" height="64"/>
+<text class="lbs" x="188" y="358">俄罗斯</text><text class="lbs" x="188" y="372">$15–25</text>
+
+<rect class="step" x="270" y="310" width="90" height="90"/>
+<text class="lbs" x="278" y="332">北美常规</text><text class="lbs" x="278" y="346">$25–35</text>
+
+<rect class="step" x="360" y="278" width="80" height="122"/>
+<text class="lbs" x="366" y="300">海上</text><text class="lbs" x="366" y="314">$35–45</text>
+
+<rect class="step2" x="440" y="244" width="80" height="156"/>
+<text class="lbs" x="446" y="266">美国页岩</text><text class="lbs" x="446" y="280">$45–60</text>
+
+<rect class="step2" x="520" y="212" width="60" height="188"/>
+<text class="lbs" x="524" y="234">深海/油砂</text><text class="lbs" x="524" y="248">$60–70</text>
+
+<path class="wall" d="M580,212 L580,40"/>
+<text class="lbb" x="590" y="70">← 产能上限</text>
+<text class="lb" x="590" y="90">再往右，任何价格都</text>
+<text class="lb" x="590" y="108">变不出更多的油</text>
+<text class="lb" x="590" y="132">（备用产能 ≈ 0）</text>
+
+<path class="dem" d="M528,40 L560,400"/>
+<text class="lbb" x="470" y="52" fill="#1f5c4a">需求</text>
+<text class="lbs" x="418" y="70">（几乎垂直＝缺乏弹性）</text>
+
+<path class="dem2" d="M568,40 L600,400"/>
+<text class="lbs" x="606" y="180">需求略增</text>
+<text class="lbs" x="606" y="196">或供给略减时</text>
+
+<circle cx="545" cy="196" r="5" fill="#9a4a1e"/>
+<text class="lbb" x="440" y="186" fill="#9a4a1e">成交点</text>
+
+<circle cx="580" cy="150" r="5" fill="#9a4a1e"/>
+<text class="lbb" x="600" y="152" fill="#9a4a1e">新成交点</text>
+<path d="M552,192 L574,156" stroke="#9a4a1e" stroke-width="1.6" fill="none" marker-end="url(#ah2)"/>
+<defs><marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+<path d="M0,0 L7,3.2 L0,6.4 z" fill="#9a4a1e"/></marker></defs>
+</svg>
+<figcaption><strong>图 2：石油的成本阶梯，以及那堵墙。</strong>左边是把全球产油者按成本从低到高排成的队伍：中东陆上油田成本最低（每桶个位数到十几美元），往右依次是俄罗斯、北美常规油田、海上平台、美国页岩、深海和油砂。价格落在哪一级，那一级以左的所有人就都在生产。<strong>关键在最右边那条竖线：产能上限。</strong>在它右边，不管价格涨到多少，短期内都变不出更多的油——因为新油井要几个月甚至几年才能投产。当需求线（绿色）和这堵墙相交时，价格由「买家愿意出多少」单方面决定，卖方的成本已经完全不构成参考。图中演示：需求只右移一点点（实线→虚线），成交价就从约 68 美元跳到约 83 美元。<em>示意图，成本分级为行业常见的量级估计，非精确数据。</em></figcaption>
+</figure>
+
+<p>请特别注意图 2 右边那堵竖着的墙。<strong>这堵墙是今天整节课的核心。</strong>我们下面就来讲这堵墙是怎么形成的。</p>
+
+<h4>第三步：备用产能——那堵墙离成交点有多远</h4>
+
+<p>先用生活场景建立直觉。</p>
+
+<p>想象你开一家餐厅，有 20 张桌子。平时每天坐满 15 桌，还有 5 张空着。这 5 张空桌就是你的「缓冲」：今天突然来了一个 4 人团，你能接；来 5 个团，你也能接。你的定价不会因为多来一桌客人就跳涨，因为你有余量。</p>
+
+<p>但如果某天 20 桌全坐满了，第 21 组客人来了怎么办？你没有第 21 张桌子。<strong>这时候你说什么价都不算过分</strong>——因为你不是在「卖一张桌子」，你是在决定「让谁滚蛋」。你可以对第 21 组说「等两小时」，也可以对某个还在慢慢喝咖啡的客人说「加钱可以续坐」。价格从「覆盖成本 + 合理利润」变成了「谁出价高谁留下」。</p>
+
+<p>石油市场那 5 张空桌，就叫<strong>备用产能</strong>（spare capacity）。</p>
+
+<div class="note">
+<span class="lab">术语：备用产能 spare capacity</span>
+<p><strong>大白话：</strong>产油国现在没在用、但很快就能用起来的产能。就是那 5 张空桌子。</p>
+<p><strong>行业标准定义：</strong>IEA 和 EIA 通常定义为「能在 <strong>30 天内</strong>投产、并且能<strong>持续至少 90 天</strong>的产量」。这两个限定很重要——「三年后能建成的新油田」不算备用产能，「开三天就得停」的也不算。</p>
+<p><strong>英文：</strong>spare capacity；扣除了因制裁、战争、设备故障等原因实际用不上的部分之后，叫 <strong>effective spare capacity（有效备用产能）</strong>。</p>
+</div>
+
+<p>历史上，全球备用产能几乎全部握在<strong>沙特阿拉伯</strong>手里，其次是阿联酋、科威特。这就是「欧佩克能影响油价」这个说法的真正来源——不是它能宣布价格，而是它手里握着那几张空桌子。沙特可以在市场紧张时开闸放油把价格压下来，也可以减产把价格抬上去。<strong>握有备用产能的人，就是市场的边际卖家，也就是真正的定价者。</strong></p>
+
+<p>现在看今年的数字。IEA 2026 年 8 月月报：</p>
+
+<div class="calc">全球每日石油消费量　　　　　　　约 <b>100</b> 百万桶／天
+OPEC+ 整体有效备用产能　　　　　　 <b>1.09</b> 百万桶／天
+其中 OPEC-8（不含伊朗、俄罗斯）　　<b>0.07</b> 百万桶／天
+
+备用产能占全球日消费的比例：
+　1.09 ÷ 100 = <b>1.09%</b>
+　0.07 ÷ 100 = <b>0.07%</b>
+</div>
+
+<p>拿这个和历史比：正常年份，全球备用产能大约是全球需求的 <strong>3%–5%</strong>；IEA 自己也提到 2025 年四季度全球备用产能「超过 400 万桶/天」（约 4%）。<strong>不到一年，从 4% 掉到 1%——而真正可动用的那部分（OPEC-8）只剩 0.07%。</strong></p>
+
+<p>换成餐厅的比喻：一年前 20 张桌子有 4 张空着；现在只剩下 0.07 张桌子。<strong>那堵墙就贴在成交点上了。</strong></p>
+
+<h4>第四步：墙贴上来之后会发生什么——完整推导</h4>
+
+<p>现在做今天最重要的一次推导。我会把每一步都写出来。</p>
+
+<p><strong>先讲需求那边的性质。</strong></p>
+
+<p>汽油从 2 块涨到 2 块 6（涨 30%），你这个月会少开 30% 的路吗？大概率不会。你还是要上班、送小孩、去超市。你可能少开 2%、3%。</p>
+
+<p>经济学给这件事起了个名字：<strong>需求缺乏弹性</strong>（inelastic demand）。「弹性」在这里就是一个比值，别被名字吓到：</p>
+
+<div class="calc">价格涨 30%，买的量只减少 3%
+弹性 = 3% ÷ 30% = <b>0.1</b>
+</div>
+
+<p>这个数越小，意思就是「价格怎么变，我买的量都差不多」。原油的短期需求弹性，学术估计大致在 <strong>0.05 到 0.1</strong> 之间。我们下面用 0.1 这个偏保守（也就是对价格上涨最"友好"）的数字来算。</p>
+
+<div class="note">
+<span class="lab">为什么石油的需求这么僵硬？</span>
+<p>三个原因，都是生活常识：</p>
+<p><strong>一，没有替代品。</strong>油价涨了，你不会明天就把汽油车换成电车——换车要花几万块，还要等提车。<strong>替代需要时间和资本支出。</strong></p>
+<p><strong>二，占支出比例小但用途不可省。</strong>汽油占一个家庭支出可能只有 3%–5%。就算涨 30%，也只是多花 1% 的收入。为这 1% 而不去上班，不值得。</p>
+<p><strong>三，很多用途根本没得选。</strong>飞机只能烧航空煤油，货轮只能烧船用燃油，塑料、化肥、沥青都从石油来。这些需求在短期内是「要么用，要么整个活动停掉」。</p>
+<p>注意这三条都带着「短期」两个字。<strong>时间拉长，弹性会变大</strong>——这是后面会用到的重要伏笔。</p>
+</div>
+
+<p><strong>现在把买卖两边放在一起，看会发生什么。</strong></p>
+
+<p>假设某天供给突然少了 2%。市场必须找到一批人，让他们自愿少买这 2%——因为货就是不够了，总得有人买不到。</p>
+
+<p>问题是买方「缺乏弹性」，不肯少买。那要让他们少买 2%，价格得涨多少？把刚才那个比值倒过来算：</p>
+
+<div class="calc">需要减少的需求 2% ÷ 弹性 0.1 = 价格要涨 <b>20%</b>
+</div>
+
+<p><strong>这就是关键的一步</strong>：供给只少了 2%，价格却要涨 20% 才能重新配平。少 2%，涨 20%，十倍的放大。这不是市场「情绪化」，这是算出来的：当买方死活不肯少买时，唯一能逼他们少买的办法，就是把价格抬到很高。</p>
+
+<p><strong>但是——注意，这里才是今天真正的新东西。</strong>上面这段推导，默认了「供给少了 2% 之后就固定在那儿了」。现实中通常不会这样，因为<strong>备用产能会出来救场</strong>。</p>
+
+<p>我们把有备用产能和没备用产能的两种世界，用同一个冲击算一遍。</p>
+
+<div class="calc">━━━ 世界 A：备用产能充足（正常年份）━━━
+
+冲击：某地断供 <b>2</b> 百万桶／天（占全球 100 的 2%）
+
+第 1 步：沙特等国动用备用产能补上
+　　可用备用产能 = 4 百万桶／天
+　　实际补上 = 2 百万桶／天（够用，还剩 2）
+
+第 2 步：净缺口 = 2 − 2 = <b>0</b>
+第 3 步：需要逼退的需求 = 0%
+第 4 步：价格需要涨 0% ÷ 0.1 = <b>0%</b>
+
+结果：价格几乎不动。可能因为「缓冲变薄了」
+　　　小涨 5%–10% 的风险溢价，仅此而已。
+
+
+━━━ 世界 B：备用产能耗尽（2026 年 8 月）━━━
+
+冲击：同样断供 <b>2</b> 百万桶／天
+
+第 1 步：可用备用产能 = 0.07 百万桶／天
+　　实际能补上 = 0.07
+
+第 2 步：净缺口 = 2 − 0.07 = <b>1.93</b> 百万桶／天
+　　　　　占全球需求 1.93 ÷ 100 = <b>1.93%</b>
+
+第 3 步：必须逼退 1.93% 的需求
+
+第 4 步：价格需要涨 1.93% ÷ 0.1 = <b>19.3%</b>
+
+结果：同样一个冲击，价格要涨近 20%。
+</div>
+
+<p><strong>请停下来体会一下这两栏的差别。</strong>冲击的规模一模一样，都是断供 200 万桶/天。世界 A 里价格几乎不动，世界 B 里价格涨 20%。</p>
+
+<p>差别<strong>完全不在冲击本身</strong>，而在于「有没有人能补上」。</p>
+
+<div class="big">同一个地缘事件，在备用产能充足的年份是新闻，<br>在备用产能耗尽的年份是危机。</div>
+
+<p>这就是今天锚点原理 C1 的核心答案：</p>
+
+<div class="note">
+<span class="lab">C1 谁在给石油定价：四层答案</span>
+<p><strong>第一层（几天到几周）：库存持有者。</strong>手里有油罐的人。他们决定今天多放一点还是少放一点，直接决定当日的松紧。</p>
+<p><strong>第二层（几周到几个月）：备用产能持有者。</strong>正常年份主要是沙特。他们是真正的边际卖家，价格实质上由他们的意愿决定。<strong>当备用产能归零时，这一层就消失了。</strong></p>
+<p><strong>第三层（几个月到几年）：页岩生产商。</strong>美国页岩油从决定钻井到出油约 6–9 个月，比传统油田快得多。所以在一年左右的尺度上，页岩的边际成本（约 45–60 美元/桶）构成价格的天花板与地板。</p>
+<p><strong>第四层（几年以上）：需求本身。</strong>价格高到一定程度，人们真的会换车、改工艺、上电动化。这时候定价权回到消费者手里。</p>
+<p><strong>2026 年 8 月的处境是：第二层塌了，第三层还没接上，于是第一层被迫独自承担全部压力。</strong>这就是为什么现在油价波动这么剧烈——今天布伦特一天涨 1.3%、七月一个月振幅 40 美元，不是因为交易员变疯了，而是因为唯一还在起作用的减震器（库存）本身容量有限。</p>
+</div>
+
+<h4>第五步：为什么第三层（页岩）这次没有接上</h4>
+
+<p>你可能会问一个很自然的问题：<strong>「油价都 92 美元了，页岩油成本才 50 多，为什么美国人不疯狂增产赚这个钱？」</strong></p>
+
+<p>这是个好问题，答案有三层。</p>
+
+<p><strong>第一，物理时间。</strong>从做出投资决定，到租地、拿许可、调钻机、钻井、压裂、接管线、出油，快的也要 6–9 个月。今年 2 月底冲突开始，到现在不到 6 个月。<strong>时间上根本还没到。</strong></p>
+
+<p><strong>第二，价格波动本身就是障碍。</strong>你是页岩公司老板，现在油价 92。你要不要投 5 亿美元钻新井？但你记得 6 月 24 日布伦特还只有 73.74 美元——两个月前的事。你的新井要 8 个月后才出油，出油之后要卖 3 年才回本。<strong>你要赌的不是今天的 92，而是未来三年的平均价。</strong>而今年七月一个月布伦特的振幅就接近 40 美元。在这种波动下投长期资本，是很难做决定的。</p>
+
+<p>这一点值得记住，因为它有普遍性：<strong>不确定性本身就是一种成本，它会抑制投资，而投资被抑制又会让供给更僵硬，让不确定性更大。</strong>这是一个自我强化的回路。</p>
+
+<p><strong>第三，看总量数字。</strong>IEA 说全球供给 7 月是 1.015 亿桶/天，但仍比一年前<strong>低 630 万桶/天</strong>。而 IEA 预计全年供给<strong>下降 430 万桶/天</strong>，明年才反弹 830 万桶/天回到 1.103 亿。<strong>「明年」——这就是第三层接上的时间表。</strong></p>
+
+<h4>第六步：那市场现在靠什么撑着？库存</h4>
+
+<p>既然产能补不上、页岩来不了，那这半年全世界的油从哪来的？</p>
+
+<p>答案是<strong>库存</strong>——储油罐、管道里的存油、海上漂着的油轮、各国的战略储备。</p>
+
+<p>这里要引入一个概念。你可以把库存理解为<strong>「第四种供给」</strong>：它不是从地下产出来的，是从仓库里搬出来的。但对买家来说，一桶从油罐里出来的油，和一桶刚从井里产出来的油，是一模一样的。</p>
+
+<p>算一下这半年的账：</p>
+
+<div class="calc">2 月底至 7 月，全球可观测库存累计去库 <b>4.1</b> 亿桶
+这段时间大约 5 个月 ≈ 152 天
+
+平均每天从库存里补出来的量：
+　410,000,000 桶 ÷ 152 天 = <b>约 270 万桶／天</b>
+</div>
+
+<p>也就是说，<strong>过去五个月，全世界每天有约 270 万桶的消费，是靠吃老本维持的。</strong>这就是为什么价格「只」涨了 37% 而不是翻倍——库存这个减震器一直在工作。</p>
+
+<p>但减震器有寿命。7 月单月去库 6900 万桶，折合每天 <strong>223 万桶</strong>，去库还在继续。全球可观测库存已经跌破 <strong>79 亿桶</strong>。</p>
+
+<p>79 亿桶听起来很多，够全球烧 79 天。但这个数字有严重误导性，原因是<strong>大部分库存是「不可动用」的</strong>：</p>
+
+<ul>
+<li><strong>管道存油（pipeline fill）：</strong>管道里必须一直是满的才能输油，这部分永远拿不出来。</li>
+<li><strong>油罐底油（tank bottoms）：</strong>罐底那一层有沉积物，抽不干净也不能抽。</li>
+<li><strong>运输在途（oil on water）：</strong>正在海上漂的油，是「已经卖掉、正在送货」的，不构成可动用缓冲。</li>
+<li><strong>战略储备（SPR）：</strong>能动，但动用需要政治决策，而且各国都很珍惜自己的储备。</li>
+</ul>
+
+<p>行业里的粗略共识是，<strong>真正可以自由调用的商业库存缓冲，大约只有总量的 20%–30%</strong>。按这个比例：</p>
+
+<div class="calc">可动用缓冲 ≈ 79 亿桶 × 25% ≈ <b>19.75 亿桶</b>
+
+按当前去库速度 223 万桶／天：
+　1,975,000,000 ÷ 2,230,000 = <b>约 885 天</b>
+
+但这是理论上限。实际上库存越薄，
+持有者越不肯卖（怕自己断供），
+所以有效缓冲远小于这个数。
+</div>
+
+<p>我把这个算式写出来，是为了让你看到一个重要的方法论：<strong>一个大数字（79 亿桶）在没有搞清楚「其中多少是可用的」之前，是没有意义的。</strong>后面第 6 节会再提这个思维方式。</p>
+
+<h4>第七步：怎么知道市场现在到底紧不紧？看期货曲线</h4>
+
+<p>最后教你一个可以自己去查、极其有用的指标。</p>
+
+<p>先讲个生活场景。你去超市买米，货架上写着两个价：「今天买：10 块」「预订三个月后取货：9 块 5」。你会怎么想？你会想：<strong>超市大概觉得现在米有点紧，三个月后会宽松。</strong></p>
+
+<p>石油市场上，「今天交货」和「未来某个月交货」是两个不同的合约，各有各的价格。把不同月份的价格连成一条线，就叫<strong>期货曲线</strong>（futures curve）。</p>
+
+<p>它有两种形态：</p>
+
+<div class="note">
+<span class="lab">术语：现货溢价 vs 期货溢价</span>
+<p><strong>形态一：近月贵、远月便宜。</strong>大白话就是「现在拿到货比以后拿到货值钱」。这说明<strong>眼下缺货</strong>——大家愿意为立刻拿到手多付钱。经济学/交易界给这个形态起了个名字，叫<strong>现货溢价</strong>，英文 <strong>backwardation</strong>（这个词很怪，记不住没关系，记住「近月贵 = 现在紧张」就够了）。</p>
+<p><strong>形态二：近月便宜、远月贵。</strong>说明<strong>眼下货多</strong>，多到你得付钱租油罐存着，所以未来的油反而更值钱（因为省了存储费）。这叫<strong>期货溢价</strong>，英文 <strong>contango</strong>。</p>
+<p><strong>为什么这个指标特别可信？</strong>因为它不需要你相信任何人的说法。IEA 的库存估计可能有误差，各国的产量数据可能造假，但期货曲线是真金白银交易出来的。<strong>当近月比远月贵的时候，有人正在为「立刻拿到油」付出真实的溢价。</strong>这是市场紧张最诚实的证据。</p>
+</div>
+
+<p>今天的证据里已经藏着一条：8 月 10 日和 8 月 12 日的新闻报的都是<strong>「10 月合约」</strong>的价格（84.11、89.53），而 8 月 19 日 Trading Economics 报的现货口径是 91.5，Fortune 报的是 93.60。不同来源用不同合约，价格能差好几美元——这本身就是曲线陡峭（近月明显贵于远月）的间接证据。</p>
+
+<p class="disc">提醒：不同数据源在同一天给出的布伦特价格会有差异，因为它们可能引用不同的合约月份、不同的结算时点、或者现货评估 vs 期货结算。本课引用时都标注了来源；对量级的判断（「约 92 美元、同比 +37%」）是稳健的，对小数点后的精确值不必较真。</p>
+
+<h4>这一环什么时候会断（备用产能逻辑失效的三种情形）</h4>
+
+<p><strong>情形一：备用产能重新出现。</strong>最直接的方式是霍尔木兹重开——伊朗产量和地区出口回到市场，全球供给一下多出几百万桶/天，那堵墙立刻往右移。这也是为什么所有人都盯着那条海峡。</p>
+
+<p><strong>情形二：需求先塌。</strong>如果全球经济衰退，需求自己掉了 3%，那市场不需要靠高价来逼退需求，出清自动完成。这就是为什么「油价高 → 衰退 → 油价跌」是一个经典的自我修正回路。历史上 1974、1980、2008 都是这个剧本。<strong>注意这个回路对投资者的含义：高油价本身孕育着自己的终结。</strong></p>
+
+<p><strong>情形三：绕道成功。</strong>霍尔木兹不是唯一的路。IEA 指出，沙特的东西输油管有 <strong>300–500 万桶/天</strong>的闲置能力，可以把油从波斯湾运到红海边的延布港；阿联酋的富查伊拉管线还能多输 <strong>70 万桶/天</strong>。合计 370–570 万桶/天。这不足以替代 2000 万桶，但可以把「灾难」降级为「危机」。如果这些管线的利用率上去了，价格的风险溢价会明显收窄。<strong>这是一个具体的、可以追踪的观察点。</strong></p>
+
+<hr class="soft">
+
+<h3>环 3｜从油价到美国物价：一桶油怎么变成 CPI 上的一个数</h3>
+
+<h4>机制：CPI 是什么，以及油是怎么进去的</h4>
+
+<p>先说 CPI 是什么。CPI 全称是消费者价格指数（Consumer Price Index）。它的做法很朴素：统计局假想一个「典型家庭」，把这家人一个月买的所有东西列一张清单——房租、鸡蛋、汽油、理发、机票、看病……然后每个月去市场上问一遍这些东西的价格，加总起来看比上个月/去年同月贵了多少。</p>
+
+<p>关键在于「加总」怎么加。不是简单平均，是<strong>按花钱的比例加权</strong>。如果一个家庭在房租上花的钱占总支出的 35%，在汽油上花 4%，那房租涨 1% 对 CPI 的影响，是汽油涨 1% 的将近 9 倍。这个比例叫<strong>权重</strong>（weight）。</p>
+
+<p>在美国 CPI 里，能源（汽油 + 电 + 天然气 + 取暖油）的权重大约是 <strong>6%–7%</strong>（BLS 每年根据消费调查更新，这里用 6.5% 做近似）。现在算一下：</p>
+
+<div class="calc">7 月能源分项同比 <b>+14.7%</b>
+能源权重约 <b>6.5%</b>
+
+能源对整体 CPI 的直接贡献：
+　14.7% × 6.5% = <b>0.96 个百分点</b>
+</div>
+
+<p>再拿实际数据对一下：</p>
+
+<div class="calc">整体 CPI 同比　　　<b>3.4%</b>
+核心 CPI 同比　　　<b>2.5%</b>　（核心 = 剔除食品和能源）
+　　　　　　　　　─────
+差额　　　　　　　<b>0.9 个百分点</b>
+</div>
+
+<p><strong>0.96 和 0.9 几乎完全对上了。</strong>（严格说差额里还含食品，能源单项的估算也有误差，两边互相抵消了一点。但量级完全吻合。）</p>
+
+<p>这个对账告诉你一件很具体的事：<strong>美国现在整体通胀 3.4% 里，有将近 1 个百分点是霍尔木兹海峡贡献的。</strong>如果没有这场冲突，美国的通胀读数会在 2.5% 左右——离美联储 2% 的目标只差半步。</p>
+
+<div class="note">
+<span class="lab">为什么要看「核心」而不是「整体」？——以及为什么这次不能只看核心</span>
+<p><strong>核心 CPI</strong>（core CPI）就是把食品和能源剔掉之后的 CPI。为什么要剔？因为这两样东西的价格波动主要由天气和地缘决定，而不是由「经济过热还是过冷」决定。央行加息能压住需求，但压不住台风和战争。所以要看清「经济本身的温度」，就得把这些噪音去掉。</p>
+<p><strong>但这次有个陷阱。</strong>核心通胀之所以有用，是建立在一个前提上的：能源价格的波动是<strong>来回摆动</strong>的，涨上去还会跌回来，平均下来对长期通胀没影响。</p>
+<p>如果霍尔木兹关闭是一个<strong>持续数年的结构性变化</strong>，那这个前提就不成立了——油价不是在噪音里摆动，而是换了一个新的中枢。这时候「剔掉能源」就等于把最重要的信息扔掉了。<strong>这正是美联储现在面临的判断难题</strong>：7 月会议 9 比 3 的投票分歧，本质上就是在这一点上意见不同。</p>
+</div>
+
+<h4>影响有多大：一次效应 vs 二次效应</h4>
+
+<p>上面算的那 0.96 个百分点，只是<strong>第一轮</strong>。经济学里管它叫<strong>一次效应</strong>（first-round effect）——油贵了，所以「油」这一项在 CPI 里的数字变大了。</p>
+
+<p>但事情不会停在这里。想想现实中会发生什么：</p>
+
+<ul>
+<li>快递公司的柴油成本涨了，运费要涨 → 你网购的所有东西都贵一点</li>
+<li>农民的化肥（用天然气做的）涨了，粮价要涨 → 超市食品贵一点</li>
+<li>航空公司燃油成本涨了，机票要涨</li>
+<li>塑料、涂料、沥青都从石油来 → 家电、装修、修路都贵一点</li>
+<li>工人发现生活成本涨了，要求加薪 → 所有服务业的人工成本上升 → 理发、餐饮、看病都贵一点</li>
+</ul>
+
+<p>这一整串叫<strong>二次效应</strong>（second-round effect）。注意最后一条——<strong>工资</strong>——它是二次效应里最要命的一条，因为工资一旦涨上去就很难降回来（没有人接受减薪），而工资是服务业价格的主要成本。</p>
+
+<p><strong>二次效应有多大？</strong>历史经验的粗略量级是：油价上涨对核心通胀的间接传导，大约是直接效应的 <strong>三分之一到二分之一</strong>，时滞 <strong>6 到 12 个月</strong>。也就是说：</p>
+
+<div class="calc">一次效应（已经发生）　　　　　约 <b>0.96</b> 个百分点（在整体 CPI 里）
+二次效应（未来 6–12 个月）　　约 <b>0.3–0.5</b> 个百分点（在核心 CPI 里）
+</div>
+
+<p><strong>这就是为什么美联储睡不着觉。</strong>核心 CPI 现在 2.5%，如果二次效应真的兑现 0.3–0.5，那核心会回到 2.8%–3.0%——离 2% 的目标越走越远，而且这次是「核心」在走，不能用「只是能源噪音」来搪塞了。</p>
+
+<h4>这一环什么时候会断</h4>
+
+<p><strong>断裂条件一：需求太弱，涨价传不下去。</strong>快递公司柴油成本涨了想涨运费，但如果客户直接说「那我不寄了」，涨价就传不下去，成本只能自己扛（利润率下降）。<strong>这就是为什么同样的油价冲击，在经济过热时会引发通胀，在经济疲软时只会压垮企业利润。</strong>今年美国经济不弱（标普年内 +20.7%、炼厂开工率创 2019 年以来最高），所以传导条件是具备的。</p>
+
+<p><strong>断裂条件二：工资谈判力弱。</strong>如果劳动力市场松弛（失业率高、职位少），工人要求加薪的底气不足，二次效应最关键的那一环就断了。这也是央行加息真正在做的事——它压不住油价，但它能压住劳动力市场，从而掐断二次效应。<strong>「用衰退来换通胀」这句难听的话，说的就是这个机制。</strong></p>
+
+<hr class="soft">
+
+<h3>环 4｜从物价到通胀预期：市场心里那个数字</h3>
+
+<h4>机制：什么是通胀预期，怎么测量它</h4>
+
+<p>先讲为什么这个东西重要。</p>
+
+<p>假设你是一家公司的老板，正在给明年的产品定价。你怎么定？你会想：「明年我的原料和人工大概会涨 X%，所以我得涨价 X% 才能保住利润。」——注意，你不是根据「已经发生的通胀」定价，你是根据<strong>你猜测的未来通胀</strong>定价。</p>
+
+<p>同样，工会谈判明年工资涨幅时，看的也是未来的生活成本。</p>
+
+<p>所以：<strong>如果所有人都相信明年通胀是 5%，那所有人都会按 5% 定价和加薪，通胀就真的变成 5%。</strong>这叫<strong>自我实现</strong>（self-fulfilling）。反过来，如果所有人都相信通胀会回到 2%，那大家就按 2% 定价，通胀就真的回到 2%。</p>
+
+<div class="big">通胀预期不是通胀的结果，<br>它本身就是通胀的原因之一。</div>
+
+<p>这就是为什么央行官员讲话时对「通胀预期」这四个字如此小心。<strong>央行真正在守护的，不是今年的通胀数字，而是大家心里那个数字。</strong></p>
+
+<h4>怎么测量：盈亏平衡通胀率</h4>
+
+<p>但「大家心里的数字」怎么测？总不能挨家挨户去问（虽然真的有这种调查）。金融市场提供了一个更快、更诚实的办法。</p>
+
+<p>美国政府发两种国债：</p>
+
+<ul>
+<li><strong>普通国债：</strong>买 10 年期，每年固定给你 4.72%。通胀多少跟你无关。</li>
+<li><strong>抗通胀国债（TIPS）：</strong>买 10 年期，每年给你一个较低的固定利率，<strong>但本金会跟着 CPI 一起长</strong>。通胀越高，你拿回来的本金越多。</li>
+</ul>
+
+<p>现在问：一个投资者要在这两者之间选，他怎么选？</p>
+
+<div class="calc">假设：普通 10 年期国债利率 = <b>4.72%</b>
+　　　10 年期 TIPS 的实际利率 = <b>2.42%</b>
+
+买普通债：10 年后每年拿 4.72%，不管通胀
+买 TIPS ：10 年后每年拿 2.42% + 实际通胀率
+
+什么情况下两者一样赚？
+　4.72% = 2.42% + 通胀率
+　通胀率 = 4.72% − 2.42% = <b>2.30%</b>
+</div>
+
+<p><strong>这个让两者恰好打平的通胀率，就叫盈亏平衡通胀率</strong>（breakeven inflation rate）。「盈亏平衡」的意思就是「买哪个都一样」的那个点。</p>
+
+<p>如果市场普遍认为未来通胀会高于 2.30%，那大家就会去抢 TIPS（因为 TIPS 更划算），TIPS 价格被推高、实际利率被压低，盈亏平衡率就上升。反之亦然。<strong>所以这个数字是几万亿美元真金白银投票出来的通胀预期。</strong></p>
+
+<p>今天的数字：</p>
+
+<div class="calc">10 年期盈亏平衡通胀率（FRED: T10YIE）
+
+8/12　2.26%
+8/13　2.24%
+8/14　2.27%
+8/17　2.28%
+8/18　<b>2.30%</b>
+</div>
+
+<h4>影响有多大：这个 2.30% 说明了什么——今天最重要的一段</h4>
+
+<p>请把这几个数字并排放在一起看：</p>
+
+<table>
+<tr><th></th><th>数字</th></tr>
+<tr><td>当前美国整体 CPI 同比</td><td>3.4%</td></tr>
+<tr><td>当前美国核心 CPI 同比</td><td>2.5%</td></tr>
+<tr><td>布伦特原油同比</td><td>+36.9%</td></tr>
+<tr><td>汽油同比</td><td>+24.6%</td></tr>
+<tr><td>OPEC-8 有效备用产能</td><td>7 万桶/天（≈0）</td></tr>
+<tr><td><strong>10 年期盈亏平衡通胀率</strong></td><td><strong>2.30%</strong></td></tr>
+</table>
+
+<p>看出违和感了吗？</p>
+
+<p>现实中的通胀是 3.4%，油价同比涨了 37%，全球备用产能归零，而债券市场对未来十年的通胀判断是 <strong>2.30%</strong>——甚至<strong>低于</strong>美联储 2% 目标对应的历史正常水平（考虑到 CPI 通常比美联储盯的 PCE 高 0.3 个百分点左右，2.30% 的 CPI 预期大致等于 2.0% 的 PCE 预期，正好在目标上）。</p>
+
+<p><strong>债券市场在说什么？它在说三句话：</strong></p>
+
+<ol>
+<li><strong>「这次油价冲击是暂时的。」</strong>不管现在多贵，十年平均下来它会回到正常。</li>
+<li><strong>「就算它不暂时，美联储也会把它按住。」</strong>央行的可信度还在。</li>
+<li><strong>「所以我不需要为通胀风险要求太多补偿。」</strong></li>
+</ol>
+
+<p>这就是所谓<strong>「通胀预期仍然锚定」</strong>（anchored inflation expectations）。「锚定」这个比喻很形象：船在浪里颠簸（短期通胀数据上下跳），但锚咬住了海底（长期预期不动）。</p>
+
+<p><strong>这是今天全条链上最脆弱、也最重要的一个数字。</strong>第 5 节我们会专门倒推它。</p>
+
+<h4>这一环什么时候会断</h4>
+
+<p>当盈亏平衡率开始明显上行时。历史上的参考阈值：如果 10 年期盈亏平衡率突破 <strong>2.6%–2.7%</strong>，就通常被视为预期开始松动；突破 3% 则被视为脱锚警报。</p>
+
+<p>要留意，从 8 月 13 日的 2.24% 到 8 月 18 日的 2.30%，五个交易日上行了 6 个基点。<strong>方向是对的，幅度还很小。</strong>这个数字值得每周看一次。</p>
+
+<hr class="soft">
+
+<h3>环 5｜从通胀预期到美联储：为什么央行现在很难受</h3>
+
+<h4>机制：央行面对供给冲击时的两难</h4>
+
+<p>先讲一件很基础但极其重要的事：<strong>央行的工具，只能作用于需求，不能作用于供给。</strong></p>
+
+<p>美联储加息，做的事情是让借钱变贵：房贷贵了，你晚点买房；车贷贵了，你晚点换车；企业贷款贵了，工厂晚点扩建。<strong>这一整套，压的都是「大家想买多少东西」。</strong></p>
+
+<p>但今天的问题是什么？是霍尔木兹海峡堵了。<strong>美联储加息 100 个基点，能让海峡通航吗？不能。能让沙特多产 200 万桶油吗？不能。</strong></p>
+
+<p>所以央行面对能源冲击时，处境是这样的：</p>
+
+<div class="note">
+<span class="lab">供给冲击下的两难</span>
+<p><strong>选择一：不管它。</strong>理由是「加息治不了海峡，油价迟早会跌回来，硬加息只会白白伤害经济」。风险是：如果油价持续高企，二次效应会让通胀预期脱锚。一旦脱锚，把它拉回来的代价<strong>远远大于</strong>提前防范的代价（这是 1970 年代美国的惨痛教训）。</p>
+<p><strong>选择二：加息。</strong>理由是「我治不了油价，但我可以治住二次效应——把劳动力市场压松一点，工资就涨不动，油价就传不进核心通胀」。风险是：这本质上是主动制造一次经济放缓，而放缓的原因（海峡）可能明天就自己消失了，那这个代价就白付了。</p>
+<p><strong>7 月 FOMC 9 比 3 的投票，就是这两派的直接对撞。</strong></p>
+</div>
+
+<h4>影响有多大：市场怎么给这件事定价</h4>
+
+<p>现在把今天的三个数字放在一起，你会看到市场对这场辩论的判断：</p>
+
+<div class="calc">当前联邦基金利率目标　　　<b>3.50% – 3.75%</b>
+　　中值　　　　　　　　　 3.625%
+
+2 年期国债收益率　　　　　<b>4.19%</b>
+
+差额　4.19% − 3.625% = <b>+0.565%</b>（约 56 个基点）
+</div>
+
+<p><strong>这个 56 个基点是什么意思？我一步步说清楚。</strong></p>
+
+<p>2 年期国债的收益率，本质上是「未来两年里，短期利率的平均水平」的市场预期（外加一小块期限补偿，我们先忽略）。为什么？因为如果你不买 2 年期债券，你完全可以每 3 个月滚动买一次短期国库券，滚 8 次。这两种做法必须差不多划算，否则就有人套利。</p>
+
+<p>所以：</p>
+
+<div class="calc">2 年期收益率 4.19%
+≈ 未来两年短期利率的平均值
+
+当前短期利率 3.625%
+
+要让平均值达到 4.19%，短期利率必须上升。
+粗略估算（假设利率一次到位后维持）：
+　如果半年后加到 X，之后 1.5 年都是 X
+　0.5/2 × 3.625% + 1.5/2 × X = 4.19%
+　0.906% + 0.75X = 4.19%
+　X = <b>4.38%</b>
+
+也就是市场大致在定价：政策利率
+从 3.625% 升到约 4.4%，约 <b>3 次 25 个基点的加息</b>。
+</div>
+
+<p class="disc">说明：这是一个简化算法。真实的 2 年期收益率还包含期限溢价（term premium），且路径可以有各种形状。这里的目的不是精确复现市场定价，而是让你理解「为什么 2 年期利率高于政策利率就意味着市场在赌加息」这个逻辑。精确的路径应该看 OIS 曲线或联邦基金期货，那是 A5、A36 的内容。</p>
+
+<p>这和另一个数据源对得上：CME FedWatch 显示 9 月会议维持不变的概率约 <strong>64%</strong>（即加息概率约 36%），而摩根大通首席投资策略师的说法是：<strong>「霍尔木兹供应链正常化慢于预期，加上 7 月 FOMC 之后市场对抗通胀信誉的质疑，共同降低了 9 月加息的门槛。」</strong></p>
+
+<p>请注意最后那半句——<strong>「市场对抗通胀信誉的质疑」</strong>。这句话把环 4 和环 5 连起来了：美联储 7 月按兵不动，一部分市场参与者读成了「它不那么在乎通胀了」，于是通胀预期有上行压力；而通胀预期一旦上行，美联储反而<strong>更必须</strong>加息来证明自己。<strong>这是一个反馈回路：越是显得软弱，越是不得不强硬。</strong></p>
+
+<h4>这一环什么时候会断</h4>
+
+<p><strong>断裂条件一：油价自己跌回去。</strong>海峡重开，油价回到 70，能源对 CPI 的贡献从 +0.96 变成负数，整体通胀掉到 2.5% 以下，加息辩论直接消失。</p>
+
+<p><strong>断裂条件二：就业先垮。</strong>如果劳动力市场明显走弱，美联储的双重使命（充分就业 + 物价稳定）就会指向相反方向，而历史经验是：当就业快速恶化时，央行几乎总是优先救就业。</p>
+
+<p><strong>断裂条件三：金融稳定事件。</strong>如果高利率捅出了某个信用事故（这是 E 领域的内容），央行会立刻转向。</p>
+
+<hr class="soft">
+
+<h3>环 6｜从利率到股票：折现率这件事，我们从头讲</h3>
+
+<p>这一环需要建立两个全新的概念：<strong>折现</strong>和<strong>久期</strong>。我从最基础的地方开始。</p>
+
+<h4>第一步：今天的 100 块和一年后的 100 块，哪个值钱</h4>
+
+<p>问你一个问题：我现在给你 100 新币，和我保证一年后给你 100 新币，你选哪个？</p>
+
+<p>你会选现在。为什么？至少三个原因：一年后我可能反悔（风险）；一年后 100 块能买的东西变少了（通胀）；现在拿到手你可以存起来生利息（机会成本）。</p>
+
+<p>那问题变成：<strong>一年后的 100 块，相当于今天的多少钱？</strong></p>
+
+<p>假设银行存款年利率 5%。那么今天存 X 块，一年后会变成 X × 1.05。要让它等于 100：</p>
+
+<div class="calc">X × 1.05 = 100
+X = 100 ÷ 1.05 = <b>95.24</b>
+</div>
+
+<p>所以「一年后的 100 块」在今天值 95.24 块。这个把未来的钱换算成今天的钱的操作，经济学/金融学给它起了个名字，叫<strong>折现</strong>（discounting）；算出来的 95.24 叫<strong>现值</strong>（present value）；用来做换算的那个 5%，叫<strong>折现率</strong>（discount rate）。</p>
+
+<p>再算两年后的 100 块：</p>
+
+<div class="calc">X × 1.05 × 1.05 = 100
+X = 100 ÷ 1.1025 = <b>90.70</b>
+</div>
+
+<p>十年后的 100 块：</p>
+
+<div class="calc">X = 100 ÷ (1.05)¹⁰ = 100 ÷ 1.6289 = <b>61.39</b>
+</div>
+
+<p>三十年后的 100 块：</p>
+
+<div class="calc">X = 100 ÷ (1.05)³⁰ = 100 ÷ 4.3219 = <b>23.14</b>
+</div>
+
+<p><strong>注意这个规律：越远的钱，折现之后越不值钱，而且是加速变不值钱的。</strong>一年后打 95 折，十年后打 6 折，三十年后只剩 23%。</p>
+
+<h4>第二步：折现率变一点点，会怎么样</h4>
+
+<p>现在做今天第二个关键推导。把折现率从 5% 提高到 6%（涨了 1 个百分点，即 100 个基点），看看不同期限的钱各损失多少：</p>
+
+<table>
+<tr><th>什么时候的 100 块</th><th>折现率 5% 时的现值</th><th>折现率 6% 时的现值</th><th>跌了多少</th></tr>
+<tr><td>1 年后</td><td>95.24</td><td>94.34</td><td>−0.94%</td></tr>
+<tr><td>5 年后</td><td>78.35</td><td>74.73</td><td>−4.62%</td></tr>
+<tr><td>10 年后</td><td>61.39</td><td>55.84</td><td>−9.04%</td></tr>
+<tr><td>20 年后</td><td>37.69</td><td>31.18</td><td>−17.27%</td></tr>
+<tr><td>30 年后</td><td>23.14</td><td>17.41</td><td>−24.76%</td></tr>
+</table>
+
+<p><strong>同样是折现率涨 1 个百分点，1 年后的钱只跌 0.94%，30 年后的钱跌了将近 25%。差了 26 倍。</strong></p>
+
+<p>这个「资产价格对折现率变化的敏感程度」，金融学给它起了个名字，叫<strong>久期</strong>（duration）。</p>
+
+<div class="note">
+<span class="lab">术语：久期 duration</span>
+<p><strong>大白话：</strong>一项资产的钱主要在多久以后才到手。钱到手越晚，久期越长。</p>
+<p><strong>为什么它重要：</strong>久期直接告诉你「利率变 1% 的时候，这个东西大概跌多少」。粗略规则是：<strong>价格变化 ≈ −久期 × 利率变化</strong>。</p>
+<p><strong>代入真实数字：</strong>10 年期美国国债的久期大约是 8。如果 10 年期收益率从 4.72% 涨到 5.22%（涨 0.5 个百分点），那么：<br>价格变化 ≈ −8 × 0.5% = <strong>−4%</strong>。你买的「安全的国债」会跌 4%。</p>
+<p><strong>英文：</strong>duration。注意它虽然翻译成「久期」，单位也确实近似是「年」，但它测的不是「还有几年到期」，而是「对利率的敏感度」。</p>
+</div>
+
+<h4>第三步：股票也有久期</h4>
+
+<p>这一步是很多人的盲点。</p>
+
+<p>一只股票是什么？<strong>它是一张凭证，代表你对这家公司未来所有利润的一份索取权。</strong>公司明年赚的钱有你一份，后年的有你一份，二十年后的也有你一份。</p>
+
+<p>所以股票的价值 = 把这家公司未来每一年的现金流，全部折现到今天，加起来。</p>
+
+<p>现在关键问题来了：<strong>不同类型的股票，钱到手的时间分布完全不一样。</strong></p>
+
+<table>
+<tr><th></th><th>比如</th><th>现金流分布</th><th>久期</th><th>加息时</th></tr>
+<tr><td><strong>成长股</strong></td><td>还在烧钱的科技公司、AI 基建、生物科技</td><td>现在几乎不赚钱，指望 5–20 年后大赚</td><td><strong>很长</strong></td><td><strong>跌得多</strong></td></tr>
+<tr><td><strong>价值股</strong></td><td>银行、公用事业、烟草、成熟制造</td><td>现在就在赚钱、发股息</td><td><strong>较短</strong></td><td>跌得少</td></tr>
+<tr><td><strong>能源股</strong></td><td>石油公司</td><td>现在就在赚钱，且油价上涨时利润直接暴增</td><td>短</td><td>可能反而涨</td></tr>
+</table>
+
+<p><strong>现在回到今天的市场数据，你会发现它完全对得上：</strong></p>
+
+<blockquote style="border-left:3px solid var(--line);padding-left:18px;color:var(--muted);margin:22px 0">「美股收盘涨跌互现，AI 基建股和银行股的下跌抵消了其他板块的涨幅」，标普 500 涨 0.2%，纳斯达克跌 0.2%。AMD 跌 3.7%，英特尔跌 4%。<br><span class="src">—— <a href="https://tradingeconomics.com/united-states/stock-market">Trading Economics, 2026-08-19</a></span></blockquote>
+
+<p><strong>AI 基建股是典型的超长久期资产</strong>——它们今天在花巨资建数据中心，回报要在很多年后才兑现。当市场开始给 9 月加息定价（2 年期 4.19%）时，这类股票首当其冲。而标普 500 因为里面有大量短久期的成熟公司和能源公司，整体还是小涨。</p>
+
+<p><strong>这就是所谓「风格轮动」的机制内核。</strong>它不是玄学，就是上面那张折现率表格。</p>
+
+<h4>影响有多大：给个具体的数量感</h4>
+
+<div class="calc">假设一只成长股，估值久期约 <b>25</b>（典型的长久期成长股）
+一只价值股，估值久期约 <b>8</b>
+
+如果长期利率上升 <b>0.5</b> 个百分点：
+
+成长股：−25 × 0.5% = <b>−12.5%</b>
+价值股：−8 × 0.5% = <b>−4.0%</b>
+
+同一个利率变动，一个跌 12.5%，一个跌 4%。
+</div>
+
+<p class="disc">这是纯粹的机制演示，用于建立数量直觉，不是对任何具体股票的预测。真实股价还受盈利预期、风险溢价、流动性等多重因素影响，且股票久期本身难以精确测量。</p>
+
+<h4>这一环什么时候会断</h4>
+
+<p><strong>断裂条件：盈利变化盖过折现率变化。</strong>股票价值 = 未来现金流 ÷ 折现率。前面只讲了分母（折现率）。如果分子（盈利）同时在涨，而且涨得比分母快，股价照样上涨。</p>
+
+<p>今年就是这样：标普 500 一年涨了 20.7%，尽管利率一直不低。因为 AI 相关的盈利增长把折现率的压力盖过去了。<strong>所以「加息一定跌」是错的，正确的说法是「加息给估值施加了一个逆风，这个逆风能不能被盈利抵消，要看具体情况」。</strong></p>
+
+<hr class="soft">
+
+<h3>环 7｜美元与黄金：一个反直觉的现象</h3>
+
+<h4>先说反直觉在哪</h4>
+
+<p>按照最朴素的逻辑：美联储可能加息 → 美元利率变高 → 全世界的钱都想来美国赚这个利息 → 美元应该<strong>升值</strong>。</p>
+
+<p>但今天的实际数据：</p>
+
+<div class="calc">美元指数 DXY　　<b>98.78</b>
+　当日　−0.88%
+　一个月　−2.15%
+
+黄金　　　　　　约 <b>4,480–4,518</b> 美元／盎司
+　一年　+35%
+</div>
+
+<p><strong>美元在跌，黄金在涨，同时市场在给加息定价。这三件事看起来互相矛盾。</strong></p>
+
+<h4>机制：至少有三条线索</h4>
+
+<p><strong>线索一：技术性的。</strong>Trading Economics 提到，美元走弱的直接触发是<strong>美国财政部宣布将长期国债回购计划规模翻倍</strong>。「回购」（buyback）在这里的意思是财政部拿钱把自己以前发的旧国债买回来。这么做会推高债券价格、压低长端利率。<strong>而美元利率被压低，美元就少了一点吸引力。</strong>此外还提到了日美联手干预汇市，把 DXY 推到 5 月底以来首次跌破 99。</p>
+
+<p><strong>线索二：黄金那条线索更有意思。</strong>为什么黄金会涨？</p>
+
+<p>先讲黄金的定价逻辑。黄金有一个致命弱点：<strong>它不产生任何现金流。</strong>你持有一块金砖十年，它还是一块金砖，不会生崽，不发利息，还要付保管费。所以持有黄金的<strong>机会成本</strong>，就是「如果我把这笔钱买了国债，本来能拿到的利息」。</p>
+
+<p>但要注意，这里的「利息」必须是<strong>实际利率</strong>（real rate）——名义利率减去通胀。因为如果国债给你 4.72%，但通胀是 4.72%，你的购买力其实一点没增加，那持有黄金也就没损失什么。</p>
+
+<div class="calc">名义 10 年期利率　　　　<b>4.72%</b>
+减：10 年期通胀预期　　 <b>2.30%</b>
+　　　　　　　　　　　─────
+10 年期实际利率　　　　<b>2.42%</b>
+
+（这就是前面 TIPS 那一节用到的那个数字，
+　它们是同一件事的两种说法。）
+</div>
+
+<p><strong>持有黄金的机会成本 = 2.42%。</strong>这个数字越低，黄金越有吸引力。</p>
+
+<p>那为什么黄金还在涨？因为除了机会成本，黄金还有另外两个买家：<strong>各国央行</strong>（在储备多元化，减少对美元的依赖）和<strong>避险资金</strong>（战争风险）。今年这两条都很强。</p>
+
+<p><strong>线索三：最重要的一条解读。</strong>把「美元跌 + 黄金涨 + 油涨 + 通胀预期只有 2.30%」放在一起，能读出一个微妙的信息：</p>
+
+<p>市场似乎在说——<strong>我不太担心「消费物价失控」（所以盈亏平衡率还在 2.30%），但我对「美元这个资产本身」的信心在打折（所以美元在跌、黄金在涨）。</strong>这两件事不完全是一回事。一个是对物价的判断，一个是对制度和储备资产的判断。这个区别以后在 D34（美元储备货币地位）会展开。</p>
+
+<h4>这一环什么时候会断</h4>
+
+<p>如果美联储真的在 9 月加息，且态度强硬，短期内美元很可能反弹。<strong>汇率对「利率差」的反应，通常比对「地缘」的反应更快也更可靠。</strong>这是 D3（利率平价）的内容，以后会专门讲。</p>
+
+<hr class="soft">
+
+<h3>环 8｜新加坡这一端：一个用汇率而不是利率的央行</h3>
+
+<p>这一环对你格外重要，因为它决定你钱包的另一半。</p>
+
+<h4>机制：MAS 为什么不调利率</h4>
+
+<p>几乎全世界的央行都调利率：美联储调联邦基金利率，欧央行调存款利率。<strong>新加坡金融管理局（MAS）不调利率，它调汇率。</strong></p>
+
+<p>为什么？答案是三个字：<strong>太开放</strong>。</p>
+
+<p>先看数据感受一下：新加坡的贸易总额远超过它的 GDP，绝大部分消费品——食品、能源、日用品——都是进口的。这意味着什么？</p>
+
+<p>意味着<strong>新加坡的物价，主要不是由新加坡国内的供需决定的，而是由「进口商品的外币价格 × 汇率」决定的。</strong></p>
+
+<p>举个具体例子：</p>
+
+<div class="calc">假设新加坡从马来西亚进口一批鸡，价格 100 马币
+
+情形 1：汇率 1 新币 = 3.3 马币
+　新币成本 = 100 ÷ 3.3 = <b>30.3 新币</b>
+
+情形 2：新币升值到 1 新币 = 3.5 马币
+　新币成本 = 100 ÷ 3.5 = <b>28.6 新币</b>
+
+新币升值 6%，进口鸡的新币价格直接便宜 <b>5.7%</b>
+</div>
+
+<p><strong>所以对新加坡来说，让新币升值，就等于直接给国内物价降温。</strong>这个效果比「加息 → 抑制贷款 → 抑制需求 → 抑制物价」那条长链条直接得多，也快得多。</p>
+
+<p>反过来，如果 MAS 试图调利率会怎样？新加坡资本完全自由流动，如果 MAS 把利率定得比美国高，全世界的热钱会涌进来买新币资产，把新币推到天上去；定得比美国低，钱就跑光。<strong>在资本自由流动的前提下，一个小型开放经济体没法同时控制利率和汇率。</strong>（这是 D8「不可能三角」的内容，以后专讲。）新加坡的选择是：<strong>放弃利率，控制汇率。</strong>新加坡的利率基本是跟着美国走的。</p>
+
+<h4>MAS 具体怎么操作：S$NEER 政策带</h4>
+
+<p>MAS 管理的不是「美元兑新币」这一个价格，而是新币对一篮子贸易伙伴货币的加权平均汇率，叫做 <strong>S$NEER</strong>（Singapore Dollar Nominal Effective Exchange Rate，新元名义有效汇率）。</p>
+
+<p>「有效汇率」的意思是：把新加坡的主要贸易伙伴（美国、中国、马来西亚、欧元区、日本等）的货币按贸易权重加权，算出一个综合的新币强弱指数。<strong>为什么用一篮子而不是单看美元？因为新加坡不只跟美国做生意。</strong></p>
+
+<p>MAS 让这个指数在一个<strong>斜向上的通道</strong>里运行，有三个可以调的参数：</p>
+
+<ul>
+<li><strong>斜率（slope）：</strong>通道往上倾斜的角度，也就是「让新币每年升值多快」。这是最常用的工具。<strong>斜率调陡 = 收紧</strong>（新币升更快 = 进口更便宜 = 通胀更低）。</li>
+<li><strong>宽度（width）：</strong>通道的上下边界有多宽，决定容忍多大的日常波动。</li>
+<li><strong>中枢（centre/level）：</strong>整个通道的位置，一次性上移或下移。这个动作很罕见，是重大信号。</li>
+</ul>
+
+<h4>今年发生了什么</h4>
+
+<p><strong>2026 年 7 月 27 日</strong>，MAS 连续第二个季度<strong>上调新元升值斜率</strong>（4 月已经调过一次，7 月幅度小于 4 月）。</p>
+
+<p>它给的理由里，有这么几句（这是关键证据）：</p>
+
+<blockquote style="border-left:3px solid var(--line);padding-left:18px;color:var(--muted);margin:22px 0">「<strong>电力与燃气通胀将因能源价格上涨而回升</strong>」；「食品、零售及其他商品通胀将随着进口成本的传导而上升」；「较高的燃料和电子元件投入成本将推高建材和食品商品的价格」。<br><span class="src">—— MAS 2026 年 7 月货币政策声明，转述自 <a href="https://mothership.sg/2026/07/mas-singapore-dollar-appreciate-july-2026/">Mothership</a>；原文见 <a href="https://www.mas.gov.sg/news/monetary-policy-statements/2026/mas-monetary-policy-statement-27jul26">MAS 官网</a></span></blockquote>
+
+<p>其他数字：2026 年核心通胀和整体通胀预测均维持在 <strong>1.5%–2.5%</strong>；二季度核心通胀同比 <strong>1.5%</strong>（较早前的 1.2% 回升）。</p>
+
+<p><strong>请把这条因果链完整读一遍：</strong></p>
+
+<div class="big">霍尔木兹被堵 → 全球油价 +37% → 新加坡进口能源成本上升<br>→ 电价和燃气涨 → MAS 预判通胀回升<br>→ MAS 上调新元升值斜率 → 新币主动走强</div>
+
+<p>这就是为什么 USDSGD 从一个月前跌了 1.17% 到 <strong>1.2761</strong>。<strong>不是「美元弱」这么简单，是新加坡在主动把新币推上去，而推的理由之一，正是油价。</strong></p>
+
+<h4>这一环什么时候会断</h4>
+
+<p><strong>断裂条件一：油价回落，通胀压力消失。</strong>MAS 会在下一次政策评估（通常是 1、4、7、10 月）把斜率调回去，新币升值停止甚至反转。</p>
+
+<p><strong>断裂条件二：增长比通胀更让人担心。</strong>MAS 的目标是「以价格稳定为导向支持可持续增长」。如果全球衰退冲击新加坡出口，MAS 会毫不犹豫转向放松（把斜率调平甚至调负）。注意 7 月声明里提到经济「在 AI 相关全球投资支撑下将保持稳健增长」——<strong>只要这句话还成立，MAS 就还有收紧的空间；一旦 AI 投资周期转向，这一环立刻反转。</strong></p>
+
+<p><strong>断裂条件三：美元自身大幅波动。</strong>MAS 管的是一篮子，不是美元。如果美元对其他货币暴涨，USDSGD 完全可能在 S$NEER 不变的情况下上升。<strong>所以不要把 USDSGD 的变动全部归因于 MAS。</strong></p>
+
+<h2><span class="num">SECTION 4</span>对你意味着什么</h2>
+
+<p class="disc"><strong>先声明：以下全部是教学分析和决策框架，不是投资建议。</strong>我不知道你的具体财务状况、风险承受能力和目标，也不会针对任何具体标的给出买卖意见。这一节的目的是让你看清「这条链上，你处在什么位置」，以及「如果你要自己做判断，需要想清楚哪几件事」。</p>
+
+<h3>第一件事：你身上有一个「货币错配」，今天它在扩大</h3>
+
+<h4>先把这个词讲清楚</h4>
+
+<p>你的收入是新币，你的支出（在新加坡生活）也是新币，但你的投资是美元资产。</p>
+
+<p>这意味着：<strong>你的资产和你的负债/开支，用的是两种不同的货币。</strong>金融学给这种状态起了个名字，叫<strong>货币错配</strong>（currency mismatch）。</p>
+
+<p>为什么这是个「问题」？因为你最终要花的是新币。你在美股上赚了多少美元不重要，重要的是<strong>那些美元换成新币之后，能买多少东西</strong>。</p>
+
+<h4>算给你看</h4>
+
+<p>假设你有 100,000 美元的美股。用最近一个月的真实汇率变动来算：</p>
+
+<div class="calc">一个月前：USDSGD ≈ 1.2912
+　　（1.2761 ÷ (1 − 1.17%) = 1.2912）
+今天　　：USDSGD = <b>1.2761</b>
+
+━━ 情形 A：美股这个月一分钱没涨 ━━
+
+一个月前的新币价值：
+　100,000 × 1.2912 = <b>129,120 新币</b>
+
+今天的新币价值：
+　100,000 × 1.2761 = <b>127,610 新币</b>
+
+变化：127,610 − 129,120 = <b>−1,510 新币</b>
+　　　即 <b>−1.17%</b>
+
+美股账户上的数字纹丝没动，
+你的真实购买力少了 1,510 新币。
+</div>
+
+<p>再看一个更完整的例子，把股票涨跌也算进来：</p>
+
+<div class="calc">━━ 情形 B：标普 500 这个月涨了 3.71% ━━
+（这是 8/19 Trading Economics 报的标普月度涨幅）
+
+美元视角：
+　100,000 × 1.0371 = <b>103,710 美元</b>
+　你会觉得「这个月赚了 3.71%」
+
+新币视角：
+　103,710 × 1.2761 = <b>132,344 新币</b>
+　对比一个月前的 129,120 新币
+　收益 = (132,344 − 129,120) ÷ 129,120 = <b>+2.50%</b>
+
+你以为赚了 3.71%，实际上赚了 2.50%。
+汇率吃掉了 <b>1.21 个百分点</b>，
+相当于你这个月三分之一的收益。
+</div>
+
+<p><strong>这就是「你的真实回报」的完整公式：</strong></p>
+
+<div class="calc">你的新币回报 ≈ 美元资产回报 + 汇率变动
+
+其中「汇率变动」这一项：
+　新币升值 → 这一项为<b>负</b>（伤你）
+　新币贬值 → 这一项为<b>正</b>（帮你）
+
+严格算法（不是加法，是乘法）：
+　(1 + 美元回报) × (今日汇率 ÷ 期初汇率) − 1
+
+小幅变动时两者差别很小，用加法估算够用。
+</div>
+
+<h4>为什么今天这一课和这件事直接相关</h4>
+
+<p>把整条链再看一遍：<strong>霍尔木兹 → 油价 → 新加坡进口通胀 → MAS 上调新元升值斜率 → 新币走强 → 你的美元资产在新币口径下缩水。</strong></p>
+
+<p><strong>所以，只要霍尔木兹的问题还在，MAS 就有继续让新币升值的理由，而这个方向对你是逆风。</strong>这不是预测（MAS 会怎么做我不知道），这是把因果关系摆清楚——让你知道该盯什么。</p>
+
+<div class="note">
+<span class="lab">一个你可能会想到的问题</span>
+<p><strong>「那我是不是应该做汇率对冲？」</strong></p>
+<p>这是个真问题，值得单独讲一课（对应 G30、D24、D30）。这里只给你判断框架里最关键的一条事实：<strong>对冲不是免费的。</strong></p>
+<p>对冲汇率的成本，主要来自两国的<strong>利差</strong>。粗略讲：如果美元利率比新元利率高 X%，那你「锁定未来汇率」时，市场会自动扣掉这个 X%——因为如果不扣，任何人都可以借新币、换美元、赚利差、同时锁汇，无风险套利。市场不会留这种钱在桌上。</p>
+<p>现在美国政策利率 3.50%–3.75%，新加坡的短期利率通常低于美国（因为 MAS 让新币升值，投资者接受更低的新币利率）。假设利差 1.5%，那你对冲一年的成本大约就是 <strong>1.5%</strong>。而你想避开的汇率损失，过去一年是 <strong>0.71%</strong>。</p>
+<p><strong>也就是说：过去一年，对冲的成本比它避免的损失还大。</strong>这不代表对冲永远不值得——它取决于你的时间跨度、你对波动的忍耐度、以及你是否有近期的新币支出需求。但它说明「对冲=更安全」这个直觉是错的，对冲是用一个确定的成本换掉一个不确定的风险。</p>
+</div>
+
+<h3>第二件事：你的组合里，能源暴露可能比你以为的少</h3>
+
+<p>如果你像大多数人一样，持有的是标普 500 或全球指数 ETF，那你的能源板块暴露大概是这样的量级：</p>
+
+<div class="calc">标普 500 中能源板块权重　约 <b>3%–4%</b>
+（这是近年常见量级；具体请查你持有的 ETF 官网的板块分布）
+
+如果油价再涨 30%，能源股涨 20%：
+　对你整体组合的贡献 = 3.5% × 20% = <b>+0.7%</b>
+
+而同一时间，如果长端利率因通胀预期上行 0.5 个百分点，
+科技板块（权重可能 30%+，久期长）跌 8%：
+　对组合的拖累 = 30% × (−8%) = <b>−2.4%</b>
+</div>
+
+<p><strong>净效果是负的。</strong>这是一个反直觉但很重要的观察：<strong>持有宽基指数的投资者，在油价冲击中是净受损方，而不是「有能源股所以对冲掉了」。</strong>因为能源板块的权重（3%–4%）远小于它在实体经济中的重要性。</p>
+
+<p class="disc">上面的数字是量级演示，不是预测。真实的板块权重请以你实际持有产品的最新披露为准；板块涨跌幅是假设值。</p>
+
+<h3>第三件事：新加坡这一端的具体影响</h3>
+
+<h4>你的电费</h4>
+
+<p>新加坡约 95% 的发电靠天然气，而新加坡的天然气大量来自管道进口和 LNG。<strong>MAS 自己在 7 月声明里明说了「电力与燃气通胀将因能源价格上涨而回升」。</strong>SP Group 的受管制电价按季度调整，所以油气价格上涨会以季度为节奏传导到你的账单上。这是这条链上你能<strong>亲眼看到</strong>的一环——下一张电费单就是数据。</p>
+
+<h4>你的 CPF</h4>
+
+<p>CPF 普通户口和特别户口的利率是行政设定的（有法定下限），不随市场利率浮动。这意味着一件很有意思的事：<strong>当外部通胀上升时，CPF 的实际回报（名义利率 − 通胀）会被侵蚀，而你对此没有任何操作空间。</strong></p>
+
+<p>算一下：</p>
+
+<div class="calc">假设 CPF 普通户口利率 2.5%（法定下限）
+新加坡通胀假设 2.0%（MAS 预测区间 1.5%–2.5% 的中值）
+
+实际回报 = 2.5% − 2.0% = <b>+0.5%</b>
+
+如果通胀因能源冲击升到 2.5%：
+实际回报 = 2.5% − 2.5% = <b>0%</b>
+
+如果升到 3.0%：
+实际回报 = <b>−0.5%</b>（购买力在减少）
+</div>
+
+<p><strong>这是一个「隐形」的通胀暴露：</strong>你看不到 CPF 账户的数字变小，它每年都在变大；但它买得起的东西可能在变少。这就是为什么「名义 vs 实际」这个区分（A6 的内容）如此重要。</p>
+
+<h4>你的整体处境，用一句话概括</h4>
+
+<p>在这条链上，你有<strong>三个方向的暴露</strong>，而且今天它们都指向同一边：</p>
+
+<table>
+<tr><th>暴露</th><th>机制</th><th>当前方向</th></tr>
+<tr><td>汇率</td><td>SGD 收入 + USD 资产，MAS 因能源通胀推强新币</td><td>逆风（月内 −1.17%）</td></tr>
+<tr><td>折现率</td><td>能源通胀 → 加息预期 → 长久期资产折现率上升</td><td>逆风（2Y 已 4.19%）</td></tr>
+<tr><td>生活成本</td><td>进口能源 → 电费、食品、交通</td><td>逆风（MAS 预警电力燃气通胀回升）</td></tr>
+</table>
+
+<p><strong>三个暴露同时指向一边，这本身就是重要信息</strong>——它意味着你的组合和你的生活，对同一个变量（油价）有<strong>共同暴露</strong>。分散化（G5 的内容）的意义，正是要避免所有的鸡蛋对同一个冲击敏感。这不是说你要立刻做什么，而是说<strong>你应该知道自己在哪个方向上是「裸露」的。</strong></p>
+
+<h3>今天你可以带走的判断框架</h3>
+
+<p>不给建议，但给你一套遇到类似新闻时可以自己走一遍的问题清单：</p>
+
+<ol>
+<li><strong>缓冲还剩多少？</strong>（备用产能、库存、闲置管线）——这决定了冲击会被吸收还是被放大。</li>
+<li><strong>弹性有多低？</strong>（短期内买方能不能少买、卖方能不能多产）——这决定了放大倍数。</li>
+<li><strong>价格里已经含了多少风险溢价？</strong>——这决定了「坏消息兑现」时价格是涨还是跌。</li>
+<li><strong>传导有多长的时滞？</strong>——这决定了你有多少时间反应。</li>
+<li><strong>我的三个暴露（汇率、折现率、生活成本）各指向哪边？</strong>——这决定了这件事对你是不是真的重要。</li>
+</ol>
+
+<h2><span class="num">SECTION 5</span>反向倒推：市场现在在赌什么</h2>
+
+<p>先说清楚这一节在干什么。</p>
+
+<p>前面四节都是<strong>顺着推</strong>：发生了 A，所以会有 B，所以会有 C。这一节要<strong>倒过来</strong>：既然市场价格是所有人判断的加权结果，那么<strong>从今天的价格出发，我们能反推出「大家心里在赌什么」。</strong></p>
+
+<p>这个技术非常有用，因为它把「预测未来」这个几乎不可能的任务，换成了一个可以做的任务：<strong>找出市场那个假设里最脆弱的一条。</strong>你不需要比市场聪明，你只需要找到那一条它可能想错的。</p>
+
+<h3>第一步：市场现在同时定价了哪几件事</h3>
+
+<p>把今天所有的价格摆出来，每一个价格背后都藏着一个假设：</p>
+
+<table>
+<tr><th>价格</th><th>读数</th><th>它隐含的假设</th></tr>
+<tr><td>布伦特原油</td><td>约 92 美元，同比 +37%</td><td>「供给紧张是真的，而且还在持续」</td></tr>
+<tr><td><strong>10 年期盈亏平衡通胀率</strong></td><td><strong>2.30%</strong></td><td><strong>「但这只是暂时的——十年平均下来通胀还是 2.3%」</strong></td></tr>
+<tr><td>2 年期国债</td><td>4.19%（高于政策利率 56 个基点）</td><td>「美联储会加息，而且会成功把它按住」</td></tr>
+<tr><td>10 年期国债</td><td>4.72%（高于 2 年期 53 个基点）</td><td>「加息是短期的，长期利率不需要跟着大涨」</td></tr>
+<tr><td>标普 500</td><td>7,719，年内 +20.7%</td><td>「不会有衰退，企业盈利没问题」</td></tr>
+<tr><td>黄金</td><td>约 4,500 美元，年内接近历史高位</td><td>「但对美元/制度的信心在打折」</td></tr>
+<tr><td>美元指数</td><td>98.78，月内 −2.15%</td><td>「加息也不足以让美元变强」</td></tr>
+</table>
+
+<h3>第二步：把这些假设放在一起，找矛盾</h3>
+
+<p>请仔细看第 1 行和第 2 行。</p>
+
+<div class="calc">油价说：　　　供给冲击是真的（+37% 同比）
+备用产能说：　没有人能补上（OPEC-8 仅 7 万桶／天）
+库存说：　　　缓冲在快速消耗（5 个月去库 4.1 亿桶）
+盈亏平衡率说：<b>但这不会影响未来十年的通胀（2.30%）</b>
+</div>
+
+<p><strong>这四句话必须同时成立。它们能同时成立吗？</strong></p>
+
+<p>能——但需要一个非常具体的前提：<strong>霍尔木兹在可预见的将来会重开。</strong></p>
+
+<p>你看，如果海峡明年重开，那今年的高油价就真的只是一个「暂时的插曲」，十年平均下来确实不影响什么，2.30% 完全合理。</p>
+
+<p>但如果海峡持续关闭两三年呢？那就完全不同了：</p>
+
+<ul>
+<li>页岩和其他非欧佩克供给需要数年才能补上 630 万桶/天的缺口</li>
+<li>期间油价持续在高位，二次效应（运输、食品、工资）会不断累积</li>
+<li>工资一旦上去就下不来（工资有「向下刚性」）</li>
+<li>企业开始把「高能源成本」写进长期定价模型</li>
+<li>十年通胀均值就不可能是 2.30%</li>
+</ul>
+
+<h3>第三步：所以，最脆弱的假设是哪一条</h3>
+
+<div class="big">最脆弱的假设：<br>「霍尔木兹的关闭是一个有限期限的事件」<br><br>它同时支撑着 2.30% 的通胀预期、<br>7,719 点的标普、和「只加息几次就够了」的利率路径。</div>
+
+<p><strong>为什么说它脆弱？三条理由，都基于今天引用过的事实：</strong></p>
+
+<p><strong>理由一：谈判在倒退，不是在推进。</strong>伊朗的开价是「制裁解除 + 战争赔偿」才重开海峡（8 月 10 日报道）；特朗普 8 月 19 日说「没有旨在结束冲突的谈判在进行」；阿联酋在同一天切断了全部对伊贸易——<strong>而阿联酋是伊朗 30.43% 进口的来源国，这一步等于关掉了一条重要的沟通与利益渠道。</strong></p>
+
+<p><strong>理由二：数据在恶化，不是在改善。</strong>IEA 说海峡在 7 月初「再度实质性关闭」，地区出口下降 210 万桶/天。8 月上旬通行船数从冲突前的 130 艘/日掉到 10 艘/日。8 月 19 日三艘超大型油轮折返、一艘商船被击中。</p>
+
+<p><strong>理由三：缓冲已经用完了。</strong>这一条最关键。哪怕只是「维持现状」，市场也在每天消耗 200 多万桶的库存。<strong>「现状不变」不等于「情况不恶化」——因为现状本身是不可持续的。</strong></p>
+
+<h3>第四步：如果这个假设错了，价格会怎么走</h3>
+
+<p>我列三个情景，给出机制推导，不给概率（因为我不知道）。</p>
+
+<h4>情景 甲：海峡在 3 个月内实质重开（乐观）</h4>
+
+<div class="calc">油价：布伦特回落至 <b>65–75</b>（相当于回到 6 月 24 日的 73.74 那个水平）
+CPI：能源分项从 +14.7% 翻负，整体 CPI 掉向 <b>2.3%–2.6%</b>
+美联储：加息辩论消失，2 年期收益率回落至 <b>3.7%–3.9%</b>
+股票：长久期资产（AI 基建、成长股）大幅反弹；能源股大跌
+MAS：下次评估（10 月）可能把斜率调平 → 新币升值放缓
+对 Dylan：汇率逆风消失，美股折现率压力消失，双重顺风
+</div>
+
+<h4>情景 乙：僵持延续到年底以后（当前市场基准的边缘）</h4>
+
+<div class="calc">油价：在 <b>85–105</b> 区间高波动，随每条新闻大幅摆动
+库存：继续以 200 万桶／天的速度消耗，缓冲越来越薄
+　　　→ 每一条新的坏消息引发的价格反应<b>越来越大</b>
+　　　（因为减震器越薄，冲击传导越直接）
+CPI：二次效应开始进入核心，核心 CPI 从 2.5% 走向 <b>2.8%–3.0%</b>
+盈亏平衡率：从 2.30% 上行至 <b>2.5%–2.7%</b>
+美联储：9 月加息，且可能不止一次
+股票：长久期资产持续承压，风格明显偏向价值与能源
+MAS：继续收紧，新币继续升值
+对 Dylan：三个暴露继续同向逆风
+</div>
+
+<h4>情景 丙：局势升级 / 海峡彻底封闭（尾部）</h4>
+
+<div class="calc">摩根大通提到的情景参考：油价可能升向 <b>120</b>；
+　衰退情景需要油价超过 <b>140</b> 并伴随股市大幅下跌。
+
+用今天学的算术验算一下 120 这个数：
+　假设再断供 <b>3</b> 百万桶／天，备用产能 0.07
+　净缺口 = 2.93 ÷ 100 = 2.93%
+　价格需涨 2.93% ÷ 0.1 = <b>29.3%</b>
+　92 × 1.293 = <b>119 美元</b>　✓ 与 120 吻合
+
+CPI：能源同比可能超 30%，整体 CPI 冲向 <b>4.5%+</b>
+盈亏平衡率：突破 <b>3%</b> → 脱锚警报
+美联储：被迫大幅加息（不管经济后果）
+股票：<b>股债同跌</b>（利率上升伤债券，衰退预期伤股票）
+　　　这是分散化失效的典型场景（G6 的内容）
+黄金：大幅上涨
+对 Dylan：这是三个暴露同时最大化的情形
+</div>
+
+<div class="note">
+<span class="lab">这里有一个值得记住的不对称性</span>
+<p>注意情景甲和情景丙的分布形状：<strong>油价往下有一个明确的地板（页岩成本约 45–60 美元），往上没有明确的天花板。</strong></p>
+<p>为什么往上没有天花板？因为需求缺乏弹性——价格涨到多少，短期内需求都退不了多少。天花板只能由「需求真的垮掉」（衰退）来提供，而那已经是另一场灾难了。</p>
+<p><strong>这种「下方有底、上方无顶」的形状，在金融学里叫做正偏（positive skew）。</strong>它对如何思考风险有直接影响：面对正偏分布，「平均情况」这个概念的参考价值很低，你必须单独考虑尾部。</p>
+</div>
+
+<h3>第五步：可核查的观察清单（未来 1–3 个月）</h3>
+
+<p>下面每一项都是<strong>你自己能查到的、能证实或证伪上面那个「最脆弱假设」的具体数据</strong>。我给出查什么、在哪查、以及怎么解读。</p>
+
+<table>
+<tr><th>指标</th><th>当前值</th><th>频率与来源</th><th>怎么解读</th></tr>
+<tr><td><strong>霍尔木兹日通行船只数</strong></td><td>约 10 艘/日（冲突前 130）</td><td>不定期，Al Jazeera / Bloomberg / Lloyd's List 报道，船舶追踪数据</td><td>这是最直接的证据。回到 50 艘以上 = 情景甲启动</td></tr>
+<tr><td><strong>IEA 月报的有效备用产能</strong></td><td>OPEC+ 1.09 / OPEC-8 0.07 百万桶/天</td><td>每月中旬，<a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA Oil Market Report</a></td><td>只要 OPEC-8 这个数还接近 0，那堵墙就还在。回到 2 以上 = 定价机制回归正常</td></tr>
+<tr><td><strong>全球库存变化</strong></td><td>7 月去库 6900 万桶，累计 4.1 亿桶</td><td>每月，IEA 月报</td><td>从去库转为累库 = 供需重新平衡的最早信号</td></tr>
+<tr><td><strong>10 年期盈亏平衡通胀率</strong></td><td>2.30%</td><td>每日，<a href="https://fred.stlouisfed.org/series/T10YIE">FRED T10YIE</a>（免费）</td><td>突破 2.6% = 预期开始松动；突破 3% = 脱锚警报。<strong>这是清单上最重要的一个</strong></td></tr>
+<tr><td><strong>美国 8 月 CPI 的核心分项</strong></td><td>核心 2.5%</td><td>9 月中旬发布，<a href="https://www.bls.gov/cpi/">BLS</a></td><td>看核心（而非整体）是否在上行——那才是二次效应的证据</td></tr>
+<tr><td><strong>9 月 FOMC 决议</strong></td><td>市场定价约 36% 加息概率</td><td>9 月，<a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">美联储官网</a></td><td>不只看加不加，更要看声明里怎么描述能源和通胀预期</td></tr>
+<tr><td><strong>2 年期与 10 年期收益率</strong></td><td>4.19% / 4.72%</td><td>每日，<a href="https://fred.stlouisfed.org/series/DGS2">FRED DGS2</a> / <a href="https://fred.stlouisfed.org/series/DGS10">DGS10</a></td><td>若 2 年期继续上行而 10 年期不动（曲线变平）= 市场认为加息会招致衰退</td></tr>
+<tr><td><strong>MAS 10 月政策声明</strong></td><td>7 月连续第二次收紧</td><td>10 月，<a href="https://www.mas.gov.sg/news/monetary-policy-statements">MAS 官网</a></td><td>继续收紧 = 新币继续走强 = 你的汇率逆风延续</td></tr>
+<tr><td><strong>USDSGD</strong></td><td>1.2761</td><td>每日，任何行情源</td><td>跌破 1.25 = 汇率逆风加剧；回到 1.30 以上 = 逆风转顺风</td></tr>
+<tr><td><strong>布伦特期货曲线形态</strong></td><td>近月明显贵于远月</td><td>每日，ICE 或行情终端</td><td>近月溢价收窄 = 现货紧张缓解，往往<strong>早于</strong>价格下跌出现</td></tr>
+</table>
+
+<p><strong>怎么用这张表？</strong>不是每天都看，也不是要你去交易。而是：一个月看一次，问自己一个问题——<strong>「那个最脆弱的假设，这个月是变强了还是变弱了？」</strong>如果连续几个月都在变弱，那说明市场正在往情景乙/丙走，而你会比只看新闻标题的人早知道。</p>
+
+<h2><span class="num">SECTION 6</span>底层思维 + 顶层视角</h2>
+
+<h3>底层思维：不要看冲击有多大，要看缓冲还剩多少</h3>
+
+<p>今天这条链，如果只让你带走一句话，是这句：</p>
+
+<div class="big">一个系统对冲击的反应有多剧烈，<br>主要不取决于冲击本身的大小，<br>而取决于系统里还剩多少缓冲。</div>
+
+<p>回顾一下今天的证据链，这句话是被算出来的，不是感慨出来的：</p>
+
+<div class="calc">同样是断供 <b>2</b> 百万桶／天：
+
+备用产能 4 百万桶时 → 价格变化 ≈ <b>0%</b>
+备用产能 0.07 百万桶时 → 价格变化 ≈ <b>+19.3%</b>
+
+冲击一模一样，结果差了 19 个百分点。
+差别 100% 来自缓冲。
+</div>
+
+<p>而且这里还藏着一个更深的性质：<strong>缓冲的消失是渐进的，但后果的出现是突变的。</strong></p>
+
+<p>想想那家餐厅。20 张桌子，客人从 15 桌涨到 16、17、18、19 桌——每一步你都毫无感觉，价格不变，服务不变。到第 20 桌，还是没事。<strong>到第 21 组客人，整个系统的行为方式突然变了。</strong></p>
+
+<p>数学上，这叫<strong>非线性</strong>（non-linearity）：输入平滑变化，输出突然跳变。</p>
+
+<p><strong>这带来一个非常实用的警告：在缓冲被耗尽之前，所有的观测数据都会显示「一切正常」。</strong>你不能靠观察结果来判断风险，你必须直接去测量缓冲。这就是为什么我在观察清单里把「IEA 有效备用产能」放在第二位——它是那个在事情发生之前就能告诉你的指标。</p>
+
+<h3>这种思维方式在别的地方怎么用</h3>
+
+<h4>跨领域例子一：2020 年的医院 ICU 床位</h4>
+
+<p>疫情期间，各国政策的核心指标不是「感染人数」，而是「ICU 床位占用率」。为什么？因为感染人数从 1000 涨到 2000，如果 ICU 还有一半空床，死亡率几乎不变；但从 9000 涨到 10000，如果 ICU 已经满了，死亡率会跳升——因为需要呼吸机的人拿不到呼吸机。</p>
+
+<p><strong>完全同一个数学结构：缓冲（空床）耗尽之前，冲击（感染）被吸收；耗尽之后，冲击被直接转化为后果（死亡）。</strong>「压平曲线」（flatten the curve）这个口号，本质上就是「不要耗尽缓冲」。</p>
+
+<h4>跨领域例子二：电网的备用容量</h4>
+
+<p>电网必须时时刻刻保证发电量等于用电量。所以电网运营商永远保有一批「旋转备用」（spinning reserve）——已经在转、随时可以并网的发电机组。</p>
+
+<p>当备用容量充足时，一台机组故障没人会注意到，电价纹丝不动。当备用容量接近零时（比如极端天气下的用电高峰），一台机组故障可以让批发电价在几分钟内涨十倍甚至百倍。<strong>2021 年德州冬季风暴时，批发电价一度撞上每兆瓦时 9000 美元的价格上限——是平时的约 300 倍。</strong>这是同一个机制在电力市场的版本（对应 C10 的内容）。</p>
+
+<h4>跨领域例子三：你自己的应急金</h4>
+
+<p>这个例子最贴身。</p>
+
+<p>假设你有 6 个月开支的应急金。这时候突然失业，你的反应是什么？你会不慌不忙地找一份好工作，可能还挑一挑。<strong>失业这个冲击，被应急金这个缓冲吸收了。</strong></p>
+
+<p>假设你没有应急金，还背着信用卡债。同样是失业，你的反应是什么？你可能被迫在两周内接受任何一份工作，哪怕薪水低很多、行业不对口——这个决定会伤害你未来十年的收入。或者你被迫在最差的时点卖掉股票。</p>
+
+<div class="calc">同一个冲击（失业），
+有缓冲时：损失 = 几周的收入
+无缓冲时：损失 = 未来十年的职业轨迹 + 被迫低位卖出的资产
+
+冲击一样，后果差了两个数量级。
+</div>
+
+<p><strong>这就是为什么 G34（应急金的规模与放置）在个人财务里是最基础的一课，而不是一个可选项。</strong>应急金的价值不在于它那点利息，而在于它让你在冲击面前<strong>保有选择权</strong>。没有缓冲的人，是被事件推着走的；有缓冲的人，是自己做决定的。</p>
+
+<p>今天这一课里，全球石油市场就是那个「没有应急金的人」——它现在只能被事件推着走。</p>
+
+<h3>顶层视角：这条链在整个经济金融系统里的位置</h3>
+
+<figure>
+<svg viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="四大板块咬合图">
+<style>
+ .blk{stroke-width:2;rx:12}
+ .b1{fill:#f4e3d5;stroke:#9a4a1e}
+ .b2{fill:#dcecdf;stroke:#1f5c4a}
+ .b3{fill:#dee3f4;stroke:#3b4a8c}
+ .b4{fill:#f0e6d0;stroke:#8a6f2a}
+ .b5{fill:#eee1ea;stroke:#7a3a63}
+ .ct{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:15px;font-weight:700;fill:#1e1c19}
+ .cs{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:11.5px;fill:#4a453e}
+ .ln{stroke:#8b857c;stroke-width:1.6;fill:none;marker-end:url(#ah3)}
+ .lt{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif;font-size:11px;fill:#6a645c}
+ @media (prefers-color-scheme: dark){
+  .b1{fill:#3a2c22;stroke:#e8926a}
+  .b2{fill:#22352e;stroke:#6fc4a8}
+  .b3{fill:#262b40;stroke:#93a6e8}
+  .b4{fill:#37301f;stroke:#c9a94f}
+  .b5{fill:#37262f;stroke:#c07fa5}
+  .ct{fill:#e8e6e1}.cs{fill:#b8b3ab}
+  .ln{stroke:#8d8880}.lt{fill:#a5a099}
+ }
+</style>
+<defs><marker id="ah3" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+<path d="M0,0 L7,3.2 L0,6.4 z" fill="#8b857c"/></marker></defs>
+
+<rect class="blk b1" x="280" y="18" width="200" height="66"/>
+<text class="ct" x="300" y="44">C 地缘 · 能源</text>
+<text class="cs" x="300" y="64">今天的起点：霍尔木兹</text>
+<text class="cs" x="300" y="78">备用产能 ≈ 0</text>
+
+<rect class="blk b2" x="280" y="196" width="200" height="72"/>
+<text class="ct" x="300" y="222">B 通胀 · 增长</text>
+<text class="cs" x="300" y="242">CPI 3.4% / 核心 2.5%</text>
+<text class="cs" x="300" y="256">能源贡献约 +0.96pp</text>
+
+<rect class="blk b3" x="30" y="196" width="200" height="72"/>
+<text class="ct" x="50" y="222">A 货币政策 · 利率</text>
+<text class="cs" x="50" y="242">FFR 3.50–3.75%</text>
+<text class="cs" x="50" y="256">2Y 4.19% / 10Y 4.72%</text>
+
+<rect class="blk b4" x="530" y="196" width="200" height="72"/>
+<text class="ct" x="550" y="222">D 汇率 · 资本流动</text>
+<text class="cs" x="550" y="242">DXY 98.78</text>
+<text class="cs" x="550" y="256">USDSGD 1.2761</text>
+
+<rect class="blk b5" x="30" y="356" width="200" height="72"/>
+<text class="ct" x="50" y="382">E 信用 · 金融稳定</text>
+<text class="cs" x="50" y="402">高利率 → 再融资压力</text>
+<text class="cs" x="50" y="416">（今天尚未发作）</text>
+
+<rect class="blk b3" x="280" y="356" width="200" height="72"/>
+<text class="ct" x="300" y="382">F 股票估值</text>
+<text class="cs" x="300" y="402">标普 7,719</text>
+<text class="cs" x="300" y="416">长久期承压，AI 基建下跌</text>
+
+<rect class="blk b4" x="530" y="356" width="200" height="72"/>
+<text class="ct" x="550" y="382">G 你的组合</text>
+<text class="cs" x="550" y="402">汇率 + 折现率 + 生活成本</text>
+<text class="cs" x="550" y="416">三个暴露同向</text>
+
+<path class="ln" d="M380,84 L380,192"/>
+<text class="lt" x="388" y="140">油价进入 CPI</text>
+
+<path class="ln" d="M278,232 L234,232"/>
+<text class="lt" x="216" y="192">通胀迫使央行反应</text>
+
+<path class="ln" d="M482,232 L528,232"/>
+<text class="lt" x="486" y="192">进口成本 → MAS 收紧</text>
+
+<path class="ln" d="M130,268 L130,352"/>
+<text class="lt" x="138" y="312">利率 → 信用条件</text>
+
+<path class="ln" d="M180,250 L296,362"/>
+<text class="lt" x="176" y="330">折现率 → 估值</text>
+
+<path class="ln" d="M630,268 L630,352"/>
+<text class="lt" x="638" y="312">汇率 → 你的换算</text>
+
+<path class="ln" d="M482,392 L528,392"/>
+<text class="lt" x="470" y="450">股价 → 你的组合</text>
+
+<path class="ln" d="M600,196 C600,140 500,110 484,58" />
+<text class="lt" x="592" y="150">反馈：强势美元</text>
+<text class="lt" x="592" y="166">压低商品价格</text>
+
+<path class="ln" d="M240,392 L294,392"/>
+</svg>
+<figcaption><strong>图 3：今天这条链，在四大板块里走过的路径。</strong>起点在 C（地缘能源），向下进入 B（通胀），然后向左进入 A（货币政策）、向右进入 D（汇率）；A 继续往下影响 E（信用）和 F（估值），D 直接影响 G（你的组合）。<strong>注意右上角那条回头的箭头</strong>——这是一个反馈回路：美元走强会压低以美元计价的商品价格，从而缓解最初的通胀压力。今天这条回路方向是反的（美元在跌），所以它非但没有帮忙，反而在加剧问题。</figcaption>
+</figure>
+
+<h3>四大板块是怎么咬合的</h3>
+
+<p><strong>与利率（A）的咬合：</strong>能源价格是通胀里央行最无力的一块，但它偏偏是最显眼的一块（加油站的价格牌人人都看得到）。所以能源价格对<strong>通胀预期</strong>的影响，远大于它在 CPI 权重里的 6.5%。这就是为什么央行嘴上说「我们看核心」，实际上一直在偷看整体——因为整体才是老百姓形成预期的依据。</p>
+
+<p><strong>与信用（E）的咬合：</strong>今天这条链还没走到 E，但它随时可能走过去。机制是：加息 → 企业再融资成本上升 → 那些高杠杆、低现金流的公司出问题 → 信用利差扩大 → 银行收紧放贷 → 实体经济受损。<strong>这就是为什么央行在供给冲击面前如此为难：它治通胀的药，副作用可能是一场信用事故。</strong></p>
+
+<p><strong>与汇率（D）的咬合：</strong>今天最有意思的一点，是它演示了「同一个冲击对不同国家意味着不同的事」。对美国，油价上涨是通胀问题；对新加坡，油价上涨是<strong>汇率政策问题</strong>；对沙特，油价上涨是收入暴增。<strong>没有「全球统一的正确反应」，每个国家的位置决定了它的最优反应。</strong>而作为一个跨货币投资者，你实际上同时暴露在两套政策反应之下。</p>
+
+<p><strong>与增长（B）的咬合：</strong>最后一层。高油价本身就是对全球经济的一笔税——钱从消费国（美国、欧洲、中国、日本、新加坡）流向产油国。而产油国的边际消费倾向通常低于消费国（他们更多是储蓄和投资，而不是花掉）。<strong>所以石油涨价在全球层面是净减少总需求的。</strong>这就是为什么每一次大的油价上涨之后，都跟着一次经济放缓——1973、1979、1990、2008，无一例外。<strong>油价的天花板，最终总是由衰退来提供的。</strong></p>
+
+<h2><span class="num">SECTION 7</span>今日新术语卡片</h2>
+
+<table>
+<tr><th>术语（中／英）</th><th>一句话大白话</th><th>今天在链条的哪一环</th></tr>
+<tr><td><strong>风险溢价</strong><br>risk premium</td><td>因为担心坏事发生而多付的那部分价格。用「概率 × 幅度」算出来。</td><td>环 1：导弹落海但价格上涨的原因</td></tr>
+<tr><td><strong>边际买家／边际卖家</strong><br>marginal buyer / seller</td><td>最后那一个刚好成交、再差一点就退出的人。价格由他决定，不由平均值决定。</td><td>环 2 第一步：「定价」到底什么意思</td></tr>
+<tr><td><strong>供给曲线／成本曲线</strong><br>supply curve / cost curve</td><td>把所有卖家按成本从低到高排成一队的图。价格落在哪一级，那级以左的都在生产。</td><td>环 2 第二步：图 2</td></tr>
+<tr><td><strong>备用产能</strong><br>spare capacity</td><td>产油国现在没在用、30 天内能投产并维持 90 天的产量。就是餐厅的空桌子。</td><td>环 2 第三步：今天全课的核心（OPEC-8 仅 7 万桶/天）</td></tr>
+<tr><td><strong>有效备用产能</strong><br>effective spare capacity</td><td>备用产能里扣掉因制裁、战争、故障而实际用不上的部分。</td><td>环 2 第三步</td></tr>
+<tr><td><strong>（需求）弹性</strong><br>elasticity of demand</td><td>价格变 1%，买的量变几 %。石油短期约 0.05–0.1，意思是几乎不变。</td><td>环 2 第四步：2% ÷ 0.1 = 20% 的放大</td></tr>
+<tr><td><strong>现货溢价</strong><br>backwardation</td><td>近月合约比远月贵 = 现在缺货。市场紧张最诚实的证据。</td><td>环 2 第七步</td></tr>
+<tr><td><strong>期货溢价</strong><br>contango</td><td>近月比远月便宜 = 现在货多，多到要付钱存着。</td><td>环 2 第七步</td></tr>
+<tr><td><strong>CPI 权重</strong><br>weight</td><td>某一项在典型家庭支出里占的比例。它决定这一项涨价对整体通胀的影响有多大。</td><td>环 3：能源权重约 6.5%</td></tr>
+<tr><td><strong>核心通胀</strong><br>core inflation</td><td>剔掉食品和能源之后的通胀。用来看「经济本身的温度」。</td><td>环 3：核心 2.5% vs 整体 3.4%</td></tr>
+<tr><td><strong>一次效应／二次效应</strong><br>first / second-round effect</td><td>一次 = 油自己涨价；二次 = 油带动运费、食品、工资，再传到别的价格上。</td><td>环 3</td></tr>
+<tr><td><strong>通胀预期</strong><br>inflation expectations</td><td>大家心里认为未来通胀会是多少。它会自我实现，所以它本身就是通胀的原因。</td><td>环 4</td></tr>
+<tr><td><strong>盈亏平衡通胀率</strong><br>breakeven inflation rate</td><td>让普通国债和抗通胀国债一样赚的那个通胀率。＝ 市场用真金白银投出来的通胀预期。</td><td>环 4：今天 2.30%，全链最脆弱的数字</td></tr>
+<tr><td><strong>抗通胀国债</strong><br>TIPS</td><td>本金跟着 CPI 一起长的美国国债。通胀越高，你拿回来的越多。</td><td>环 4</td></tr>
+<tr><td><strong>（预期）锚定</strong><br>anchored expectations</td><td>短期通胀怎么跳，大家对长期通胀的看法都不动。船在浪里颠，但锚咬住了海底。</td><td>环 4</td></tr>
+<tr><td><strong>折现／现值／折现率</strong><br>discounting / PV / discount rate</td><td>把未来的钱换算成今天的钱。一年后的 100 块，按 5% 折现，今天值 95.24。</td><td>环 6 第一步</td></tr>
+<tr><td><strong>久期</strong><br>duration</td><td>资产对利率变化的敏感度。钱到手越晚，久期越长，利率一动它跌得越狠。</td><td>环 6 第二、三步</td></tr>
+<tr><td><strong>实际利率／名义利率</strong><br>real / nominal rate</td><td>名义 = 你看到的那个数；实际 = 名义减通胀 = 购买力真正增加了多少。</td><td>环 7：4.72% − 2.30% = 2.42%</td></tr>
+<tr><td><strong>机会成本</strong><br>opportunity cost</td><td>为了做这件事，你放弃的最好的另一个选择的价值。持有黄金的机会成本 = 本可以赚到的实际利率。</td><td>环 7</td></tr>
+<tr><td><strong>S$NEER</strong><br>新元名义有效汇率</td><td>新币对一篮子贸易伙伴货币的加权平均汇率。MAS 管的是它，不是美元兑新币。</td><td>环 8</td></tr>
+<tr><td><strong>政策带的斜率</strong><br>slope of the policy band</td><td>MAS 让新币每年升值多快。斜率调陡 = 收紧 = 进口更便宜 = 通胀更低。</td><td>环 8：7 月连续第二次上调</td></tr>
+<tr><td><strong>货币错配</strong><br>currency mismatch</td><td>你的资产和你的支出用的是不同货币。你赚的是新币，投的是美元。</td><td>第 4 节</td></tr>
+<tr><td><strong>基点</strong><br>basis point / bp</td><td>0.01 个百分点。100 个基点 = 1%。利率世界的通用单位。</td><td>贯穿全文</td></tr>
+<tr><td><strong>非线性</strong><br>non-linearity</td><td>输入平滑变化，输出突然跳变。缓冲耗尽时就会发生。</td><td>第 6 节</td></tr>
+<tr><td><strong>正偏</strong><br>positive skew</td><td>下方有底、上方无顶的分布形状。这种情况下「平均值」参考价值很低。</td><td>第 5 节情景分析</td></tr>
+</table>
+
+<h2><span class="num">SECTION 8</span>自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>题 1｜有人跟你说：「油价涨 37% 太夸张了，全世界石油实际只少了几个百分点，这明显是投机炒作。」请用今天学的东西回应他。</summary>
+<p>这个说法有一半对（供给确实只少了几个百分点），但结论完全错。完整推导如下：</p>
+<p><strong>第一步：先算「几个百分点」到底意味着什么。</strong>假设全球供给减少 2%。这 2% 的油，市场上就是没有了。既然没有了，就必须有人少买这 2%——总不能凭空变出来。</p>
+<p><strong>第二步：问「让谁少买」。</strong>要让人少买，只有靠涨价。那涨多少才能让人少买 2%？这取决于需求弹性。石油的短期需求弹性约 0.1，意思是价格涨 10%，需求只减 1%。所以要减 2% 的需求，价格需要涨 2% ÷ 0.1 = <strong>20%</strong>。</p>
+<p><strong>第三步：说明为什么正常年份不会涨 20%。</strong>正常年份，供给少了 2% 时，沙特等国会动用备用产能补上，缺口被填平，价格几乎不动。所以「供给少几个百分点，价格几乎不动」是我们习惯的经验——但这个经验依赖于「有人能补上」这个前提。</p>
+<p><strong>第四步：指出今年这个前提失效了。</strong>IEA 2026 年 8 月月报：OPEC-8 的有效备用产能只有 0.07 百万桶/天，占全球需求 0.07%。没有人能补上。所以第二步那个 20% 的算术，这次是真的会发生。</p>
+<p><strong>第五步：加上风险溢价。</strong>除了实际短缺，价格里还包含对未来更坏情况的定价：如果市场认为有 30% 概率海峡彻底封闭（那时价格 +20%），今天的价格就该先涨 30% × 20% ≈ 6%。</p>
+<p><strong>结论：</strong>20%（实际短缺的出清）+ 6%（风险溢价）+ 库存溢价等，加起来接近观察到的涨幅。这不是投机炒作，这是在备用产能归零的条件下，市场出清的必然结果。<strong>更准确的说法是：涨幅的大小不是市场情绪的函数，是缓冲厚度的函数。</strong></p>
+</details>
+
+<details>
+<summary>题 2｜债券市场的 10 年期盈亏平衡通胀率是 2.30%，而现在的实际通胀是 3.4%。这两个数字为什么可以同时存在？如果你想赌「市场错了」，你需要相信什么？</summary>
+<p><strong>先解释为什么可以同时存在。</strong></p>
+<p>盈亏平衡率 2.30% 说的不是「现在的通胀是 2.30%」，而是「<strong>未来十年的平均通胀</strong>会是 2.30%」。这两件事完全可以并存，只要市场相信当前的 3.4% 是暂时的。</p>
+<p>具体来说，市场的算术大概是这样的：假设未来 1 年通胀是 3.4%（当前水平），之后 9 年回到 2.2%。那么十年平均 = (1 × 3.4% + 9 × 2.2%) ÷ 10 = <strong>2.32%</strong>。差不多就是 2.30%。</p>
+<p><strong>所以 2.30% 这个数字，等价于市场在说：「这场能源冲击大约一年之内会过去。」</strong></p>
+<p><strong>如果你想赌市场错了，你需要相信什么？</strong>你需要相信以下至少一条：</p>
+<ul>
+<li><strong>（时间）</strong>霍尔木兹的关闭会持续远超一年——比如三年。那算术变成 (3 × 3.4% + 7 × 2.2%) ÷ 10 = <strong>2.56%</strong>，明显高于 2.30%。</li>
+<li><strong>（二次效应）</strong>油价即使回落，它已经推高的工资和服务价格降不回去（工资向下刚性）。那么「回到 2.2%」这个假设本身就是错的，后面九年可能是 2.6%。十年平均 = (1×3.4% + 9×2.6%) ÷ 10 = <strong>2.68%</strong>。</li>
+<li><strong>（央行意愿）</strong>美联储在就业和通胀之间会选择保就业，容忍更高的通胀中枢。</li>
+<li><strong>（结构性）</strong>能源转型、供应链区域化、地缘分裂使全球通胀中枢永久性抬升（这是 B44、B46 的话题）。</li>
+</ul>
+<p><strong>但也要诚实地说明反方论据：</strong>市场不是傻子。2.30% 这个数字是几万亿美元投票出来的，投票的人里包括全世界最专业的宏观基金。他们也读过 IEA 月报。<strong>所以「我觉得市场错了」这个判断，需要你能说清楚「为什么这么多聪明人会集体想错」。</strong>可能的答案包括：机构投资者有强制的久期配置需求（不能不买债券）、退休金对 TIPS 的结构性需求扭曲了定价、或者「锚定」本身是一种惯性而非计算。这些理由都是可辩论的，不是显然成立的。</p>
+<p><strong>这一题真正的教学点：</strong>反向倒推不是为了得出「我比市场对」的结论，而是为了知道<strong>你的观点和市场的分歧点具体在哪一条假设上</strong>。分歧点找到了，你就知道该盯哪个数据。</p>
+</details>
+
+<details>
+<summary>题 3｜假设明天霍尔木兹突然宣布完全重开。请从头到尾推一遍：油价、美国 CPI、10 年期盈亏平衡率、2 年期国债、AI 基建股、USDSGD 会怎么走？每一步都说明为什么。</summary>
+<p><strong>第 1 步：油价。</strong>正常时期霍尔木兹走 2000 万桶/天，现在只走 700–900 万。重开意味着一天多出 1100–1300 万桶的流动。同时，市场里那块风险溢价（用今天的算法估算约 20 美元）会立刻消失。<strong>方向：大跌。</strong>参考位置是 6 月 24 日的 73.74（当时正是「油轮恢复通行」那一天）。跌幅可能 20%–25%，而且大部分会在几个小时内完成——因为风险溢价的消失不需要任何实物移动，只需要重新算一遍加权平均。</p>
+<p><strong>第 2 步：美国 CPI（时滞 1–3 个月）。</strong>原油价格传到加油站零售价大约需要 2–6 周。能源分项同比会从 +14.7% 迅速回落甚至转负（因为去年同期基数已经很高了）。按今天的算法，能源对整体 CPI 的贡献从 +0.96 个百分点转向 0 甚至负值。<strong>整体 CPI 从 3.4% 掉向 2.5% 附近</strong>（即向核心靠拢）。注意核心 CPI 短期几乎不动——二次效应已经进去的部分不会退出来（工资降不回去）。</p>
+<p><strong>第 3 步：10 年期盈亏平衡率。</strong>这个数字现在是 2.30%，本来就已经假设了「冲击是暂时的」。所以重开兑现的是市场的<strong>基准情形</strong>，不是意外。<strong>方向：小幅下跌</strong>（也许到 2.20%–2.25%），但不会大跌——因为好消息本来就在价格里了。<strong>这是今天「反向倒推」这套方法最实用的一个应用：知道市场已经定价了什么，你就知道消息兑现时反应会有多大。</strong></p>
+<p><strong>第 4 步：2 年期国债。</strong>加息的理由消失了。2 年期收益率现在是 4.19%，高于政策利率中值 3.625% 约 56 个基点，这 56 个基点主要是加息预期。加息预期消失 → <strong>2 年期收益率大跌至 3.7%–3.9%</strong>。这个跌幅（约 30–50 个基点）比盈亏平衡率的跌幅大得多——因为 2 年期反映的是<strong>未来两年</strong>的政策路径，对短期油价的敏感度远高于十年期预期。</p>
+<p><strong>第 5 步：AI 基建股。</strong>这类股票的现金流集中在很多年之后，久期很长（假设 25）。折现率下降 = 现值上升。如果长端利率随着 2 年期一起下行 0.3 个百分点：价格变化 ≈ +25 × 0.3% = <strong>+7.5%</strong>。<strong>方向：大涨</strong>，而且涨幅远超大盘。反过来，能源股会大跌。这就是完整的「风格轮动」反转。</p>
+<p><strong>第 6 步：USDSGD。</strong>这一步要小心，因为有两股相反的力量：<br>
+（a）<strong>MAS 这一侧：</strong>进口通胀压力消失 → MAS 在下次评估中可能调平斜率 → 新币升值放缓 → <strong>USDSGD 上升</strong>（对你有利）。<br>
+（b）<strong>美元这一侧：</strong>美国加息预期消失 → 美元利率吸引力下降 → <strong>美元走弱 → USDSGD 下降</strong>（对你不利）。<br>
+<strong>净方向不确定，取决于哪一侧反应更快。</strong>经验上，美元利率的反应是即时的（债券市场几秒钟就重定价），而 MAS 的反应要等到季度政策评估（10 月）。<strong>所以最可能的路径是：短期 USDSGD 先跌（美元弱），几个月后随 MAS 转向而回升。</strong></p>
+<p><strong>这一题的教学点：</strong>同一个事件，在不同的环节上时滞完全不同——债券几秒钟、股票几分钟、CPI 几个月、MAS 一个季度。<strong>「传导链」不只是一串因果，它还是一串时钟。理解时滞，你才知道该在什么时候看什么数据。</strong></p>
+</details>
+
+<h3>今天就能做的一个小动作（5 分钟）</h3>
+
+<div class="note">
+<span class="lab">动作</span>
+<p>打开 <a href="https://fred.stlouisfed.org/series/T10YIE">FRED 的 T10YIE 页面</a>（免费，不用注册），把时间范围调到「Max」（全部历史）。</p>
+<p>然后看三个地方：</p>
+<ol>
+<li><strong>2008 年那个坑。</strong>你会看到这个数字在 2008 年底一度跌到接近 0，甚至短暂为负。那是市场在恐慌中认为「未来十年会通缩」。</li>
+<li><strong>2022 年那个峰。</strong>俄乌冲突后能源暴涨时，它冲到约 3%。<strong>请注意：即使在那次冲击中，它也没有突破 3.1%。</strong>这给了你一个历史参照系——知道「脱锚」在数字上长什么样。</li>
+<li><strong>今天的 2.30%。</strong>把它放回这条长长的历史曲线里看，你会立刻明白为什么大家说「预期仍然锚定」。</li>
+</ol>
+<p>然后把这个页面加书签。<strong>以后每次看到「通胀要失控了」的新闻标题，先来看一眼这个数字。</strong>它是一个免费的、实时的、由几万亿美元投票产生的事实核查工具。</p>
+</div>
+
+<h3>延伸阅读（三个，从易到难）</h3>
+
+<table>
+<tr><th>材料</th><th>为什么值得读</th><th>难度</th></tr>
+<tr><td><a href="https://www.iea.org/about/oil-security-and-emergency-response/strait-of-hormuz">IEA｜Strait of Hormuz 专页</a></td><td>今天课上关于海峡流量、替代管线能力、备用产能的所有数字都出自这里。篇幅很短（几屏），但每个数字都是原始出处。<strong>建议专门找出「Saudi East-West pipeline 有 3–5 mb/d 闲置能力」那一段</strong>——这是判断情景甲能否发生的关键变量。</td><td><strong>易</strong>。纯事实陈述，几乎没有术语。</td></tr>
+<tr><td><a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA｜Oil Market Report, August 2026</a>（摘要免费）</td><td>今天最核心的那个数字（OPEC-8 有效备用产能 0.07 mb/d）就在这里。<strong>更重要的是养成一个习惯：每月中旬看一次这份报告的摘要。</strong>它是全球石油供需最权威的公开来源，而且写得比大多数卖方研报诚实。读的时候重点看三块：demand、supply、stocks。</td><td><strong>中</strong>。有行业术语（mb/d、call on OPEC 等），但摘要部分基本能读懂。</td></tr>
+<tr><td><a href="https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints/">EIA｜World Oil Transit Chokepoints</a></td><td>把全球所有海运咽喉（霍尔木兹、马六甲、苏伊士、曼德海峡、巴拿马运河）的流量、替代路线、脆弱性做了系统梳理。<strong>对你特别有意义的一点：马六甲海峡就在新加坡门口，它的流量甚至比霍尔木兹更大。</strong>读完这份，你会对「全球贸易到底有多依赖几条窄水道」有一个具体的、数字化的认识——这是理解 C17（海运费率与供应链脆弱性）和 C38（关键基础设施与经济胁迫）的基础。</td><td><strong>中偏难</strong>。数据密集，需要边读边查地图，但没有数学。</td></tr>
+</table>
+
+<hr class="soft">
+
+<div class="disc">
+<p><strong>本课的边界与说明：</strong></p>
+<p>一、所有引用的数字都标注了来源链接，读者可自行核查。不同数据源在同一天对同一资产（例如布伦特原油）给出的价格可能存在差异，原因是合约月份、结算时点或评估口径不同；本课在引用时标明了出处，对量级的判断是稳健的，对小数点后的精确值不必较真。</p>
+<p>二、部分数字（CPI 中能源权重约 6.5%、可动用库存约占总量 25%、成长股久期约 25、二次效应约为一次效应的三分之一到二分之一）是行业常见的量级估计或教学假设，不是精确测定值。使用它们的目的是建立数量直觉，而不是做精确预测。文中已在相应位置标注。</p>
+<p>三、第 4 节和第 5 节涉及具体资产与市场走向的部分，全部是教学分析与机制演示，<strong>不构成投资建议</strong>。任何投资决策都应结合个人的财务状况、风险承受能力、时间跨度和税务情况，必要时咨询持牌专业人士。</p>
+<p>四、情景分析部分不给出概率，因为对地缘政治事件赋予精确概率是超出可靠推断范围的。给出的是机制推导：如果 A 发生，为什么 B 会跟着发生。</p>
+</div>
+
+<p class="src" style="margin-top:36px">
+<strong>本课全部来源：</strong><br>
+<a href="https://time.com/article/2026/08/19/uae-suspends-trade-with-iran-after-reported-missile-strikes/">TIME｜UAE Suspends Trade With Iran After Reported Missile Strikes（2026-08-19）</a><br>
+<a href="https://www.aljazeera.com/economy/2026/8/10/oil-prices-climb-as-iranian-demands-cloud-outlook-for-strait-of-hormuz">Al Jazeera｜Oil prices climb as Iranian demands cloud outlook for Strait of Hormuz（2026-08-10）</a><br>
+<a href="https://www.aljazeera.com/economy/2026/8/12/oil-prices-rise-as-attacks-dent-hopes-for-strait-of-hormuz-reopening">Al Jazeera｜Oil prices rise as attacks dent hopes for Strait of Hormuz reopening（2026-08-12）</a><br>
+<a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA｜Oil Market Report, August 2026</a><br>
+<a href="https://www.iea.org/about/oil-security-and-emergency-response/strait-of-hormuz">IEA｜Strait of Hormuz</a><br>
+<a href="https://tradingeconomics.com/commodity/brent-crude-oil">Trading Economics｜Brent Crude Oil</a>　·　<a href="https://tradingeconomics.com/commodity/gold">Gold</a>　·　<a href="https://tradingeconomics.com/united-states/stock-market">US Stock Market</a>　·　<a href="https://tradingeconomics.com/united-states/currency">US Dollar Index</a>　·　<a href="https://tradingeconomics.com/singapore/currency">USD/SGD</a><br>
+<a href="https://fortune.com/article/price-of-oil-08-19-2026/">Fortune｜Current price of oil as of Aug. 19, 2026</a><br>
+<a href="https://fred.stlouisfed.org/series/DGS2">FRED｜2-Year Treasury（DGS2）</a>　·　<a href="https://fred.stlouisfed.org/series/DGS10">10-Year Treasury（DGS10）</a>　·　<a href="https://fred.stlouisfed.org/series/T10YIE">10-Year Breakeven（T10YIE）</a><br>
+<a href="https://www.usinflationcalculator.com/inflation/cpi-july-2026/100073311/">US Inflation Calculator｜July 2026 CPI</a><br>
+<a href="https://www.kiplinger.com/investing/economy/cpi-report-july-2026-what-to-expect">Kiplinger｜July CPI Report Lowers September Rate-Hike Odds</a><br>
+<a href="https://www.chase.com/personal/investments/learning-and-insights/article/september-2026-rate-hike-now-expected-amid-energy-shocks">Chase / J.P. Morgan｜September 2026 Rate Hike Now Expected Amid Energy Shocks</a><br>
+<a href="https://www.mas.gov.sg/news/monetary-policy-statements/2026/mas-monetary-policy-statement-27jul26">MAS｜Monetary Policy Statement, July 2026</a>　·　<a href="https://mothership.sg/2026/07/mas-singapore-dollar-appreciate-july-2026/">Mothership 的中英文转述</a><br>
+<a href="https://en.wikipedia.org/wiki/2026%E2%80%932028_world_oil_market_chronology">Wikipedia｜2026–2028 world oil market chronology</a>（用于 6 月价格时间线）<br>
+<a href="https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints/">EIA｜World Oil Transit Chokepoints</a>
+</p>
+
+<p class="src" style="margin-top:30px;border-top:1px solid var(--line);padding-top:20px">
+Day 003 ｜ 领域 C 地缘政治、能源与大宗商品 ｜ 锚点原理 C1「油价的供需结构：谁在定价」<br>
+下一课（Day 004）轮到领域 D「汇率与全球资本流动」，锚点原理 D1「汇率报价、升贬值与直觉陷阱」。
+</p>
+
+</div>
+</body>
+</html>
