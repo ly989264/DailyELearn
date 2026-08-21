@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 4 · 汇率报价、升贬值与直觉陷阱 —— 从今早的日本CPI说起</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1e1c1a; --muted:#5f5a54; --line:#ddd8d0;
+  --accent:#8a4b2a; --accent2:#2a5c8a; --box:#f3efe8; --warn:#7a3b1f;
+  --good:#2f6b46; --card:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171a; --fg:#e9e6e1; --muted:#a8a29a; --line:#31353a;
+    --accent:#e8a97e; --accent2:#8fc0e8; --box:#1e2126; --warn:#e8a97e;
+    --good:#8ed3a8; --card:#1b1e22;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:17.5px; line-height:1.95; letter-spacing:.01em;
+}
+.wrap{max-width:760px; margin:0 auto; padding:48px 22px 120px}
+h1{font-size:1.72em; line-height:1.45; margin:0 0 6px; letter-spacing:-.01em}
+.sub{color:var(--muted); font-size:.9em; margin:0 0 40px; line-height:1.7}
+h2{
+  font-size:1.28em; margin:64px 0 18px; padding-top:22px;
+  border-top:2px solid var(--line); line-height:1.5;
+}
+h3{font-size:1.06em; margin:38px 0 12px; color:var(--accent); line-height:1.6}
+h4{font-size:.99em; margin:26px 0 10px; color:var(--accent2)}
+p{margin:0 0 18px}
+strong{font-weight:650}
+em{font-style:normal; background:linear-gradient(transparent 62%, rgba(138,75,42,.22) 62%)}
+@media (prefers-color-scheme: dark){em{background:linear-gradient(transparent 62%, rgba(232,169,126,.28) 62%)}}
+.calc{
+  background:var(--box); border-left:3px solid var(--accent);
+  padding:16px 20px; margin:20px 0; border-radius:0 6px 6px 0;
+  font-variant-numeric:tabular-nums; line-height:2.1;
+}
+.calc .line{display:block}
+.calc .res{font-weight:700; color:var(--accent)}
+.note{
+  background:var(--card); border:1px solid var(--line);
+  padding:16px 20px; margin:22px 0; border-radius:8px; font-size:.95em;
+}
+.note .t{font-weight:700; display:block; margin-bottom:6px; color:var(--accent2)}
+.q{
+  border-left:3px solid var(--line); padding:2px 0 2px 18px; margin:22px 0;
+  color:var(--muted); font-size:.96em;
+}
+.trap{
+  background:var(--card); border:1px solid var(--line); border-top:3px solid var(--warn);
+  padding:18px 20px; margin:26px 0; border-radius:6px;
+}
+.trap .t{font-weight:700; color:var(--warn); display:block; margin-bottom:8px}
+table{width:100%; border-collapse:collapse; margin:24px 0; font-size:.9em}
+th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+th{background:var(--box); font-weight:650}
+td.num{text-align:right; font-variant-numeric:tabular-nums}
+figure{margin:34px 0}
+figcaption{font-size:.86em; color:var(--muted); margin-top:10px; line-height:1.75}
+svg{width:100%; height:auto; display:block}
+details{
+  background:var(--card); border:1px solid var(--line);
+  border-radius:8px; padding:14px 18px; margin:14px 0;
+}
+details summary{cursor:pointer; font-weight:650}
+details[open] summary{margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--line)}
+ul,ol{margin:0 0 18px; padding-left:24px}
+li{margin-bottom:9px}
+a{color:var(--accent2)}
+.src{font-size:.84em; color:var(--muted); line-height:1.85}
+.tag{
+  display:inline-block; background:var(--box); border:1px solid var(--line);
+  border-radius:999px; padding:2px 11px; font-size:.78em; color:var(--muted);
+  margin:0 6px 6px 0;
+}
+hr{border:0; border-top:1px solid var(--line); margin:36px 0}
+.big{font-size:1.05em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Day 4｜汇率这个数字，到底在说什么</h1>
+<p class="sub">
+2026&nbsp;年&nbsp;8&nbsp;月&nbsp;21&nbsp;日（星期五，新加坡时间）<br>
+今日领域：<strong>D&nbsp;汇率与全球资本流动</strong>　·　锚点原理：<strong>D1　汇率报价、升贬值与直觉陷阱</strong><br>
+今日事件：日本&nbsp;7&nbsp;月全国&nbsp;CPI&nbsp;今晨发布，日元在一次「美日联手干预」之后又跌回原处
+</p>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p>今天从一件事出发：日本央行和美国财政部在&nbsp;8&nbsp;月初<strong>联手花了将近&nbsp;600&nbsp;亿美元</strong>去托日元，日元当天确实涨了，但两周之后又跌回了原来的位置。今天早上，日本又公布了一份可能逼日本央行加息的物价数据。</p>
+
+<p>今天要讲明白的道理只有一个，但它是所有汇率知识的地基：<strong>「USD/JPY&nbsp;=&nbsp;159」这个数字，究竟在说什么？</strong>为什么这个数字变大，反而是日元变便宜了？为什么「涨&nbsp;3%」和「跌&nbsp;3%」不是同一件事？为什么一个国家的钱涨了，你手上的钱就可能亏了？</p>
+
+<p>读完你能回答：如果我拿新币赚钱、拿美元投资，那么美元、日元、新元这三个数字变来变去的时候，<em>我到底是赚了还是亏了</em>？</p>
+
+<h2>1｜今天的事件</h2>
+
+<h3>事件本身</h3>
+
+<p>今天早上新加坡时间约&nbsp;7:50（日本时间&nbsp;8:50），日本总务省统计局发布了&nbsp;7&nbsp;月份的<strong>全国消费者物价指数</strong>。</p>
+
+<p>先解释这个名字。「消费者物价指数」的意思是：政府挑一大堆普通家庭平时会买的东西——米、菜、电费、房租、交通、理发——把它们的价格加权平均，做成一个数。这个数比一年前高多少，就叫「同比通胀率」。英文叫&nbsp;Consumer Price Index，缩写&nbsp;CPI。</p>
+
+<p>发布前，市场普遍预期的数字是：</p>
+
+<table>
+<tr><th>指标</th><th>7&nbsp;月预期</th><th>6&nbsp;月实际</th><th>这个数字在说什么</th></tr>
+<tr><td>核心&nbsp;CPI（剔除生鲜食品）</td><td class="num">+1.8%</td><td class="num">+1.6%</td><td>日常物价比一年前贵了多少（把菜价这种忽上忽下的东西拿掉之后）</td></tr>
+<tr><td>整体&nbsp;CPI</td><td class="num">+1.9%</td><td class="num">+1.6%</td><td>所有东西一起算，比一年前贵多少</td></tr>
+<tr><td>核心中的核心（再剔除能源）</td><td class="num">+1.9%</td><td class="num">+1.7%</td><td>把油电气也拿掉之后，剩下的物价涨幅</td></tr>
+</table>
+
+<p>如果&nbsp;1.8%&nbsp;这个预期兑现，那就是<strong>半年来的最高值</strong>。作为先行参考，7&nbsp;月份东京都的核心&nbsp;CPI&nbsp;已经先一步公布，是&nbsp;+1.9%，也是半年新高。</p>
+
+<div class="note">
+<span class="t">诚实说明</span>
+本文写作时（新加坡时间&nbsp;8&nbsp;月&nbsp;21&nbsp;日上午），我能检索到的公开来源尚未收录 7 月全国 CPI 的<strong>实际公布值</strong>，只能确认发布时点、市场预期（核心 +1.8%）与 6 月实际值（核心 +1.6%）。下文所有推理都建立在「预期值」与「已确认的历史数据」之上，不会假装知道实际数字。你可以到 <a href="https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-z.html">日本总务省统计局官网</a> 亲自核对。
+</div>
+
+<h3>它落在一个什么样的背景里</h3>
+
+<p>这份数据不是孤零零地掉下来的。过去两个月日元发生了这么一串事：</p>
+
+<table>
+<tr><th>日期（2026年）</th><th>发生了什么</th><th>USD/JPY</th></tr>
+<tr><td>6&nbsp;月&nbsp;30&nbsp;日</td><td>日元跌破&nbsp;162，创&nbsp;40&nbsp;年新低</td><td class="num">162</td></tr>
+<tr><td>7&nbsp;月&nbsp;22&nbsp;日</td><td>继续跌破&nbsp;163，市场开始警戒官方干预</td><td class="num">163+</td></tr>
+<tr><td>7&nbsp;月&nbsp;28&nbsp;日</td><td>新加坡金管局（MAS）连续第二次收紧新元政策</td><td class="num">—</td></tr>
+<tr><td>7&nbsp;月&nbsp;31&nbsp;日</td><td>日本央行按兵不动，政策利率维持&nbsp;1.0%，但警告核心通胀可能超过&nbsp;2%&nbsp;目标</td><td class="num">—</td></tr>
+<tr><td>8&nbsp;月&nbsp;2–3&nbsp;日</td><td><strong>美日联手干预</strong>：日本抛出约&nbsp;590&nbsp;亿美元买日元；美国财政部也下场买日元（用的是欧元而不是美元）。这是&nbsp;2011&nbsp;年以来第一次美日协同行动</td><td class="num">→ 155.20</td></tr>
+<tr><td>8&nbsp;月&nbsp;12&nbsp;日</td><td>媒体总结：干预未能止住日元下滑，已回到&nbsp;158&nbsp;附近</td><td class="num">158</td></tr>
+<tr><td>8&nbsp;月&nbsp;18&nbsp;日</td><td>日元跌破&nbsp;159.5；同日美国&nbsp;30&nbsp;年期国债收益率触及&nbsp;5.33%，19&nbsp;年新高</td><td class="num">159.5</td></tr>
+<tr><td>8&nbsp;月&nbsp;20&nbsp;日</td><td>美国财政部宣布大幅增加长期国债回购</td><td class="num">≈159.04</td></tr>
+<tr><td>8&nbsp;月&nbsp;21&nbsp;日（今天）</td><td>日本&nbsp;7&nbsp;月全国&nbsp;CPI&nbsp;发布；市场对&nbsp;9&nbsp;月日本央行加息的押注约&nbsp;80%</td><td class="num">—</td></tr>
+</table>
+
+<p>美国财长贝森特（Scott Bessent）在干预后说：「我们不会犹豫参与进一步的联合干预。」日本财务大臣片山皋月（Satsuki Katayama）称此举是为了「对抗日元的过度波动和无序变动」。</p>
+
+<h3>今天的市场读数（作为链条的落点）</h3>
+
+<table>
+<tr><th>读数</th><th>数值</th><th>日期</th><th>一句话解释</th></tr>
+<tr><td>USD/JPY</td><td class="num">≈159.04</td><td>8/20</td><td>1&nbsp;美元换&nbsp;159&nbsp;日元</td></tr>
+<tr><td>USD/SGD</td><td class="num">1.2708</td><td>8/20</td><td>1&nbsp;美元换&nbsp;1.27&nbsp;新元；新元处于&nbsp;11&nbsp;年高位附近</td></tr>
+<tr><td>美国联邦基金有效利率</td><td class="num">3.63%</td><td>8/18</td><td>美国银行之间隔夜借钱的实际利率</td></tr>
+<tr><td>美国&nbsp;3&nbsp;个月国债</td><td class="num">3.86%</td><td>8/18</td><td>借钱给美国政府三个月，年化能拿到的利息</td></tr>
+<tr><td>美国&nbsp;2&nbsp;年期国债</td><td class="num">4.19%</td><td>8/18</td><td>同上，期限两年</td></tr>
+<tr><td>美国&nbsp;10&nbsp;年期国债</td><td class="num">4.71%</td><td>8/18</td><td>同上，期限十年</td></tr>
+<tr><td>美国&nbsp;30&nbsp;年期国债</td><td class="num">5.28%</td><td>8/18</td><td>同上，期限三十年。这是&nbsp;2007&nbsp;年以来最高</td></tr>
+<tr><td>日本&nbsp;10&nbsp;年期国债</td><td class="num">2.853%</td><td>8/20</td><td>本周一度触及&nbsp;2.95%，1996&nbsp;年以来最高</td></tr>
+<tr><td>日本政策利率</td><td class="num">1.00%</td><td>7/31</td><td>日本央行控制的短期利率</td></tr>
+<tr><td>标普&nbsp;500</td><td class="num">7,681.27（−0.35%）</td><td>8/20</td><td>美国大盘股指数</td></tr>
+<tr><td>纳斯达克综合</td><td class="num">26,156.88（−0.66%）</td><td>8/20</td><td>美国科技股偏重的指数</td></tr>
+<tr><td>VIX（恐慌指数）</td><td class="num">15.73（+5.65%）</td><td>8/20</td><td>市场预期未来一个月股市波动有多大</td></tr>
+<tr><td>黄金</td><td class="num">4,536.40&nbsp;美元/盎司</td><td>8/20</td><td>—</td></tr>
+<tr><td>原油（9&nbsp;月合约）</td><td class="num">86.46&nbsp;美元/桶（+2.45%）</td><td>8/20</td><td>受伊朗局势影响近期上行</td></tr>
+</table>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 780 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="今日传导链示意图">
+<defs>
+<marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#8a8580"/></marker>
+<marker id="arR" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#b4553a"/></marker>
+</defs>
+<style>
+.bx{fill:#ffffff;stroke:#c9c3ba;stroke-width:1.4;rx:8}
+.bxh{fill:#f6ece2;stroke:#b4553a;stroke-width:2;rx:8}
+.bxs{fill:#eaf1f7;stroke:#4a7fa8;stroke-width:1.6;rx:8}
+.t{font:13px -apple-system,"Noto Sans SC",sans-serif;fill:#22201e}
+.tb{font:bold 13px -apple-system,"Noto Sans SC",sans-serif;fill:#22201e}
+.ts{font:11px -apple-system,"Noto Sans SC",sans-serif;fill:#6b665f}
+.tn{font:bold 11px -apple-system,"Noto Sans SC",sans-serif;fill:#b4553a}
+.ln{stroke:#8a8580;stroke-width:1.5;fill:none;marker-end:url(#ar)}
+.lnR{stroke:#b4553a;stroke-width:1.8;fill:none;marker-end:url(#arR);stroke-dasharray:5 3}
+@media (prefers-color-scheme: dark){
+.bx{fill:#22262b;stroke:#454b52}
+.bxh{fill:#332a24;stroke:#d98a5f}
+.bxs{fill:#1f2b35;stroke:#5b8fb8}
+.t,.tb{fill:#e6e3de}
+.ts{fill:#9b968e}
+.tn{fill:#d98a5f}
+}
+</style>
+
+<rect class="bx" x="20" y="16" width="230" height="52"/>
+<text class="tb" x="34" y="38">① 今早：日本物价数据</text>
+<text class="ts" x="34" y="57">核心 CPI 预期 +1.8%，半年新高</text>
+
+<path class="ln" d="M135 70 L135 96"/>
+<rect class="bx" x="20" y="98" width="230" height="52"/>
+<text class="tb" x="34" y="120">② 日本央行会加息吗</text>
+<text class="ts" x="34" y="139">9 月加息押注 ≈80%，1.00%→1.25%</text>
+
+<path class="ln" d="M135 152 L135 178"/>
+<rect class="bxh" x="20" y="180" width="230" height="66"/>
+<text class="tn" x="34" y="200">③【今日主菜】</text>
+<text class="tb" x="34" y="219">利差：美国 vs 日本</text>
+<text class="ts" x="34" y="237">美 3.63% 短端 ｜ 日 1.00%</text>
+
+<path class="ln" d="M135 248 L135 274"/>
+<rect class="bx" x="20" y="276" width="230" height="52"/>
+<text class="tb" x="34" y="298">④ 借日元、买美元</text>
+<text class="ts" x="34" y="317">套息交易：持续卖出日元</text>
+
+<path class="ln" d="M135 330 L135 356"/>
+<rect class="bxh" x="20" y="358" width="230" height="66"/>
+<text class="tn" x="34" y="378">⑤【锚点原理 D1】</text>
+<text class="tb" x="34" y="397">USD/JPY 这个数字变大</text>
+<text class="ts" x="34" y="415">159 ＝ 日元更便宜，不是更贵</text>
+
+<path class="ln" d="M135 426 L135 452"/>
+<rect class="bx" x="20" y="454" width="230" height="52"/>
+<text class="tb" x="34" y="476">⑥ 日本进口更贵</text>
+<text class="ts" x="34" y="495">7 月批发物价 +7.2% 同比</text>
+
+<path class="lnR" d="M20 480 L8 480 L8 42 L18 42"/>
+<text class="tn" x="14" y="266" transform="rotate(-90 14 266)">反馈回路：贬值→通胀→再加息压力</text>
+
+<path class="ln" d="M252 206 L300 206"/>
+<rect class="bx" x="302" y="180" width="240" height="66"/>
+<text class="tb" x="316" y="200">⑦ 美国这一侧为何利率高</text>
+<text class="ts" x="316" y="219">赤字约 2.1 万亿/年，30 年期 5.28%</text>
+<text class="ts" x="316" y="237">9 月可能「加息」而不是降息</text>
+
+<path class="ln" d="M252 390 L300 390"/>
+<rect class="bx" x="302" y="352" width="240" height="80"/>
+<text class="tb" x="316" y="374">⑧ 官方干预为什么没用</text>
+<text class="ts" x="316" y="393">8/2 联手买入约 590 亿美元</text>
+<text class="ts" x="316" y="411">＝ 该货币对一天成交量的 4.3%</text>
+<text class="ts" x="316" y="428">效果维持约两周</text>
+
+<path class="ln" d="M422 248 L422 348"/>
+
+<rect class="bxs" x="556" y="180" width="204" height="86"/>
+<text class="tb" x="570" y="202">⑨ 另一侧：新加坡</text>
+<text class="ts" x="570" y="221">MAS 7/28 二度收紧</text>
+<text class="ts" x="570" y="239">新元斜率 ≈+1.25%/年</text>
+<text class="ts" x="570" y="257">USD/SGD 1.2708，11 年高位</text>
+
+<path class="ln" d="M544 213 L554 213"/>
+
+<rect class="bxs" x="556" y="352" width="204" height="80"/>
+<text class="tb" x="570" y="374">⑩ 交叉汇率</text>
+<text class="ts" x="570" y="393">SGD/JPY ≈125.15</text>
+<text class="ts" x="570" y="411">一年内新元对日元 +8.7%</text>
+<path class="ln" d="M658 270 L658 348"/>
+
+<rect class="bxh" x="180" y="500" width="420" height="76"/>
+<text class="tn" x="196" y="522">⑪ 落到 Dylan 身上</text>
+<text class="t" x="196" y="543">新币收入 ＋ 美元资产 ＝ 新元升值时，同样的美股</text>
+<text class="t" x="196" y="562">换回新币会变少：过去一年 USD/SGD −1.38%</text>
+<path class="ln" d="M135 508 L176 520"/>
+<path class="ln" d="M658 436 L658 520 L604 528"/>
+
+<text class="ts" x="20" y="606">读法：从①往下是「事件如何一步步推到价格」；虚线是反过来咬自己的反馈；右边两栏是同一时刻的另外两条支线。</text>
+<text class="ts" x="20" y="626">深色框＝今天要讲最透的两环。</text>
+</svg>
+<figcaption><strong>图 1｜今天的完整传导链。</strong>左边一竖列是主链：日本物价 → 央行加息预期 → 美日利差 → 套息交易 → 日元汇率 → 日本进口成本，最后一环又反过来推高日本通胀，形成一个圈。中间一列是这条链的两个「为什么」：美国那边的利率为什么这么高，以及官方拿真金白银去干预为什么按不住。右边一列是同一时刻的新加坡支线：新元在走强。最下面是这三条线交汇之后，对一个「新币收入 + 美元资产」的人意味着什么。</figcaption>
+</figure>
+
+<h3>把这条链用人话读一遍</h3>
+
+<p>今天早上日本公布物价数据，预计物价涨得比上个月更快。物价涨得快，日本央行就更可能在下个月把利率从&nbsp;1%&nbsp;提到&nbsp;1.25%——现在市场认为这件事有八成把握。</p>
+
+<p>但问题是，就算日本提到&nbsp;1.25%，美国那边还有&nbsp;3.63%，而且美国&nbsp;9&nbsp;月可能不是降息、而是<strong>再加一次息</strong>。所以这中间的差距还是很大。</p>
+
+<p>差距大，全世界的资金就会做同一件事：<em>用便宜的日元借钱，换成美元去赚高利息</em>。而「把日元换成美元」这个动作本身，就是在卖日元。人人都卖，日元自然就便宜了。</p>
+
+<p>日元便宜之后，日本要进口的石油、粮食、天然气全都变贵——7&nbsp;月日本的批发物价同比涨了&nbsp;7.2%。进口变贵又推高日本国内物价，物价高又逼日本央行加息……<strong>这就绕回了起点，成了一个圈</strong>。</p>
+
+<p>8&nbsp;月初日本和美国联手拿出将近&nbsp;600&nbsp;亿美元去买日元。日元当天涨到&nbsp;155.20，两周后又跌回&nbsp;159。为什么？因为这&nbsp;600&nbsp;亿只相当于这个货币对<strong>一天成交量的百分之四点三</strong>——而让人们卖日元的那个理由（利差）一分钱都没变。</p>
+
+<p>与此同时，新加坡走的是另一条路：金管局在&nbsp;7&nbsp;月底连续第二次收紧新元政策，让新元加速升值，现在美元兑新元&nbsp;1.2708，新元处在&nbsp;11&nbsp;年高位。</p>
+
+<p>于是对一个在新加坡赚新币、却把钱投在美股上的人来说，结论是：<em>过去一年你的美元资产哪怕原地不动，换回新币时也少了&nbsp;1.38%</em>。这就是今天这条链最终落到你身上的地方。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<p>下面一环一环走。先讲今天的主菜——因为如果「汇率这个数字是什么」没搞清楚，后面每一句都是空的。</p>
+
+<hr>
+
+<h3>环⑤【今日锚点原理 · D1】汇率报价、升贬值与直觉陷阱</h3>
+
+<h4>第一步：先想一件跟钱无关的事</h4>
+
+<p>假设你在超市看到标签：<strong>「苹果　3&nbsp;元／个」</strong>。</p>
+
+<p>这个标签在说什么？它说的是：<em>要拿到&nbsp;1&nbsp;个苹果，你得付出&nbsp;3&nbsp;块钱</em>。</p>
+
+<p>现在标签变成了&nbsp;<strong>「苹果　5&nbsp;元／个」</strong>。数字变大了。是苹果变贵了，还是钱变便宜了？</p>
+
+<p>其实是同一件事的两种说法。你可以说「苹果贵了」，也可以说「钱不值钱了」。<strong>价格永远是两样东西的比值，谁涨谁跌取决于你把哪一样放在分母。</strong></p>
+
+<p>记住这句话。汇率的全部困惑都出自这一句。</p>
+
+<h4>第二步：USD/JPY = 159 到底在说什么</h4>
+
+<p>外汇市场的报价写成&nbsp;<strong>USD/JPY = 159.04</strong>。</p>
+
+<p>这里有一个约定，你必须先背下来，因为它是所有后续推理的前提：</p>
+
+<div class="calc">
+<span class="line">写在<strong>前面</strong>的货币（USD）＝ <strong>商品</strong>，也就是「1 个苹果」的那个苹果</span>
+<span class="line">写在<strong>后面</strong>的货币（JPY）＝ <strong>价格标签用的钱</strong>，也就是「3 元」的那个元</span>
+<span class="line res">所以 USD/JPY = 159.04 读作：1 美元　卖　159.04 日元</span>
+</div>
+
+<p>前面那个叫<strong>基准货币</strong>（英文&nbsp;base currency），后面那个叫<strong>报价货币</strong>（英文&nbsp;quote currency）。名字不重要，重要的是位置：<em>前面的是被买卖的东西，后面的是用来计价的钱</em>。</p>
+
+<h4>第三步：第一个陷阱——数字涨，货币跌</h4>
+
+<div class="trap">
+<span class="t">陷阱 1：「日元涨到 159 了」这句话是错的</span>
+你在中文财经新闻里会经常看到「日元涨到 159」这种说法。这句话把 <strong>USD/JPY 这个数字的上涨</strong> 和 <strong>日元的上涨</strong> 弄混了，而它们的方向<strong>正好相反</strong>。
+</div>
+
+<p>为什么相反？回到苹果。</p>
+
+<p>USD/JPY&nbsp;从&nbsp;155&nbsp;变成&nbsp;159，意思是：<em>同样&nbsp;1&nbsp;个美元，现在能换到更多日元了</em>。</p>
+
+<p>那反过来看，1&nbsp;个日元能换到多少美元？</p>
+
+<div class="calc">
+<span class="line">USD/JPY = 155.20 时：1 日元 = 1 ÷ 155.20 = <strong>0.006443</strong> 美元</span>
+<span class="line">USD/JPY = 159.04 时：1 日元 = 1 ÷ 159.04 = <strong>0.006288</strong> 美元</span>
+<span class="line res">日元能换到的美元变少了 → 日元变便宜了 → 日元贬值</span>
+</div>
+
+<p>所以正确的说法是：<strong>「USD/JPY 涨到 159」＝「日元跌到 159」</strong>。数字变大，日元变弱。</p>
+
+<p>你可能会想：那为什么不干脆反过来报价，写成「1&nbsp;日元&nbsp;=&nbsp;0.006288&nbsp;美元」，这样数字涨就是日元涨，多直观？</p>
+
+<p>因为&nbsp;0.006288&nbsp;这种数字读起来很痛苦，小数点后面要数好几位，交易员一天喊几千次会疯掉。市场选择了「让数字好读」而不是「让方向好懂」。这是一个纯粹的历史约定，没有更深的道理。<em>但代价是每个新手都要在这里摔一跤。</em></p>
+
+<h4>第四步：第二个陷阱——涨 3% 和跌 3% 不是同一件事</h4>
+
+<p>现在算一个具体的数。8&nbsp;月&nbsp;2&nbsp;日干预之后，USD/JPY&nbsp;=&nbsp;155.20；8&nbsp;月&nbsp;20&nbsp;日，USD/JPY&nbsp;≈&nbsp;159.04。</p>
+
+<p><strong>问题：这段时间日元贬值了百分之几？</strong></p>
+
+<p>大多数人的第一反应是这样算：</p>
+
+<div class="calc">
+<span class="line">(159.04 − 155.20) ÷ 155.20 = 3.84 ÷ 155.20 = <strong>+2.474%</strong></span>
+<span class="line">→「所以日元贬了 2.474%」</span>
+</div>
+
+<p><strong>这个答案不对。</strong>2.474%&nbsp;是<em>美元涨了多少</em>，不是<em>日元跌了多少</em>。</p>
+
+<p>为什么不一样？因为这两个百分比的<strong>分母不同</strong>。</p>
+
+<p>算「美元涨了多少」，分母是原来的美元价格（155.20&nbsp;日元）。算「日元跌了多少」，分母得是原来的日元价格（0.006443&nbsp;美元）。我们把日元的跌幅老老实实算一遍：</p>
+
+<div class="calc">
+<span class="line">日元原价：1 ÷ 155.20 = 0.0064433 美元</span>
+<span class="line">日元现价：1 ÷ 159.04 = 0.0062877 美元</span>
+<span class="line">跌幅 = (0.0062877 − 0.0064433) ÷ 0.0064433</span>
+<span class="line">　　 = −0.0001556 ÷ 0.0064433</span>
+<span class="line res">　　 = −2.414%</span>
+</div>
+
+<p>所以：<strong>美元涨了&nbsp;2.474%，同一时刻日元只跌了&nbsp;2.414%。</strong>差了&nbsp;0.06&nbsp;个百分点。</p>
+
+<p>这个差距在小幅波动时看着无所谓，但幅度一大就非常可观。举个极端的例子：</p>
+
+<div class="calc">
+<span class="line">USD/JPY 从 100 涨到 125　→ 美元涨了 (125−100)÷100 = <strong>+25%</strong></span>
+<span class="line">同一时刻，1 日元从 0.01 美元跌到 0.008 美元</span>
+<span class="line">日元跌幅 = (0.008 − 0.01) ÷ 0.01 = <strong>−20%</strong></span>
+<span class="line res">美元 +25%，日元 −20%。同一件事，两个数字。</span>
+</div>
+
+<div class="trap">
+<span class="t">陷阱 2：百分比的分母决定了答案</span>
+「A 相对 B 涨了 x%」和「B 相对 A 跌了 x%」<strong>永远不相等</strong>（除非 x=0）。数学上，如果 A 涨了 x，那么 B 跌的比例是 x ÷ (1+x)。代入 25%：0.25 ÷ 1.25 = 20%。<br><br>
+这不是汇率独有的问题。股票也一样：一只股票跌 50% 之后，要涨 <strong>100%</strong> 才回到原点。<em>下跌和上涨在数学上从来就不对称。</em>
+</div>
+
+<p>顺手算一下这个反面例子，你就永远不会忘：</p>
+
+<div class="calc">
+<span class="line">100 元　→ 涨 25% → 125 元　→ 跌 25% → 93.75 元</span>
+<span class="line res">先涨 25% 再跌 25%，你亏了 6.25%，不是回到原点。</span>
+</div>
+
+<h4>第五步：第三个陷阱——报价方向不统一</h4>
+
+<p>你会以为「前面是商品、后面是钱」这个规则天下通用。可惜市场并不整齐：</p>
+
+<table>
+<tr><th>货币对</th><th>今天的数</th><th>读法</th><th>数字变大 = ？</th></tr>
+<tr><td>USD/JPY</td><td class="num">159.04</td><td>1 美元 = 159.04 日元</td><td>美元强、日元弱</td></tr>
+<tr><td>USD/SGD</td><td class="num">1.2708</td><td>1 美元 = 1.2708 新元</td><td>美元强、<strong>新元弱</strong></td></tr>
+<tr><td>EUR/USD</td><td class="num">约 1.1–1.2</td><td>1 欧元 = 1.1x 美元</td><td>欧元强、<strong>美元弱</strong></td></tr>
+<tr><td>GBP/USD</td><td class="num">—</td><td>1 英镑 = x 美元</td><td>英镑强、美元弱</td></tr>
+</table>
+
+<p>看出问题了吗？在&nbsp;USD/JPY&nbsp;和&nbsp;USD/SGD&nbsp;里，美元在<strong>前面</strong>；在&nbsp;EUR/USD&nbsp;和&nbsp;GBP/USD&nbsp;里，美元在<strong>后面</strong>。</p>
+
+<p>所以「USD/JPY&nbsp;上涨」和「EUR/USD&nbsp;上涨」，对美元的含义是<em>完全相反</em>的。一个说美元变强，一个说美元变弱。</p>
+
+<p>这没有道理可讲，纯粹是历史习惯（大致是：英镑历史最老排最前，然后欧元、澳元、纽元，剩下的美元排前面）。<strong>你要做的只有一件事：每次看到一个货币对，先花两秒钟确认哪个在前面。</strong></p>
+
+<div class="trap">
+<span class="t">陷阱 3：对 Dylan 最要命的一条</span>
+你在新加坡，最该盯的是 <strong>USD/SGD</strong>。今天是 1.2708。<br><br>
+<strong>这个数字下跌，对你是坏消息。</strong><br><br>
+因为 USD/SGD 下跌 ＝ 1 美元能换到的新元变少 ＝ 你手上的美股换回新币会缩水。而新闻标题会写成「新元走强，创 11 年新高」——听起来像好事。<em>对出国旅游的你是好事，对持有美元资产的你是坏事。</em>下面第 4 节会把这笔账完整算一遍。
+</div>
+
+<h4>第六步：第四个陷阱——「强」和「弱」是相对的，没有绝对值</h4>
+
+<p>「日元很弱」这句话，严格来说是不完整的。弱——相对于谁？</p>
+
+<p>假设今天发生这样一件事：日元对美元跌了&nbsp;2%，但欧元对美元跌了&nbsp;4%。那么日元对欧元其实是<strong>涨</strong>的。所以「日元弱」这句话，在美元视角下成立，在欧元视角下就不成立。</p>
+
+<p>怎么办？经济学的做法是：<em>不要只跟一个国家比，跟所有主要贸易伙伴一起比，按贸易量加权平均</em>。</p>
+
+<p>这个东西有个名字，叫<strong>名义有效汇率</strong>（英文&nbsp;Nominal Effective Exchange Rate，缩写&nbsp;NEER）。「有效」这个词翻得不太好，你可以理解成「综合的」「加权的」。</p>
+
+<p>算法很朴素，就是加权平均。假设一个简化的日本：</p>
+
+<div class="calc">
+<span class="line">日本对外贸易里，美国占 40%、中国占 30%、欧洲占 30%</span>
+<span class="line">这个月日元对美元 −3%、对人民币 −2%、对欧元 −1%</span>
+<span class="line">日元的 NEER 变化 = (−3% × 0.40) + (−2% × 0.30) + (−1% × 0.30)</span>
+<span class="line">　　　　　　　　 = −1.2% + (−0.6%) + (−0.3%)</span>
+<span class="line res">　　　　　　　　 = −2.1%</span>
+</div>
+
+<p>这个&nbsp;−2.1%&nbsp;才是「日元整体上变弱了多少」的诚实答案。</p>
+
+<p><strong>为什么现在要讲这个？</strong>因为新加坡金管局（MAS）的整套货币政策，管的<em>就是这个数</em>。这是理解本课右侧支线的钥匙——第⑨环会展开。</p>
+
+<h4>第七步：第五个陷阱——交叉汇率</h4>
+
+<p>市场上直接报价的主要是「某货币兑美元」。那新元兑日元怎么办？</p>
+
+<p>用两个报价拼出来。这叫<strong>交叉汇率</strong>（英文&nbsp;cross rate）。</p>
+
+<p>推导逻辑就是「换两次」：你有&nbsp;1&nbsp;新元，先换成美元，再把美元换成日元。</p>
+
+<div class="calc">
+<span class="line">第一步：1 新元 能换多少美元？</span>
+<span class="line">　USD/SGD = 1.2708 的意思是 1 美元 = 1.2708 新元</span>
+<span class="line">　反过来：1 新元 = 1 ÷ 1.2708 = <strong>0.7869 美元</strong></span>
+<span class="line">第二步：0.7869 美元 能换多少日元？</span>
+<span class="line">　1 美元 = 159.04 日元</span>
+<span class="line">　0.7869 × 159.04 = <strong>125.15 日元</strong></span>
+<span class="line res">所以 SGD/JPY ≈ 125.15，即 1 新元 = 125.15 日元</span>
+</div>
+
+<p>更快的算法是直接除：<strong>159.04 ÷ 1.2708 = 125.15</strong>。为什么可以直接除？因为「1&nbsp;新元换多少日元」= (1&nbsp;美元换多少日元) ÷ (1&nbsp;美元换多少新元)，美元在分子分母上被约掉了。</p>
+
+<p>现在做一件更有意思的事——算一算过去一年这条交叉汇率走了多远。已知过去&nbsp;12&nbsp;个月：日元对美元贬了约&nbsp;7.18%，新元对美元升了约&nbsp;1.38%。</p>
+
+<div class="calc">
+<span class="line">一年前的 USD/JPY ≈ 159.04 ÷ 1.0718 = 148.39</span>
+<span class="line">一年前的 USD/SGD ≈ 1.2708 ÷ (1 − 0.0138) = 1.2886</span>
+<span class="line">一年前的 SGD/JPY = 148.39 ÷ 1.2886 = <strong>115.16</strong></span>
+<span class="line">今天的 SGD/JPY = 159.04 ÷ 1.2708 = <strong>125.15</strong></span>
+<span class="line">变化 = (125.15 − 115.16) ÷ 115.16 = <span class="res">+8.68%</span></span>
+</div>
+
+<p><strong>一年之内，新元对日元升值了将近&nbsp;9%。</strong>但你在任何一条新闻里都不会看到这个数字，因为&nbsp;SGD/JPY&nbsp;不是热门标的。它是两条独立新闻——「日元创&nbsp;40&nbsp;年新低」和「新元创&nbsp;11&nbsp;年新高」——相乘的结果。</p>
+
+<div class="trap">
+<span class="t">陷阱 4：你的真实敞口往往是一条没人报道的交叉汇率</span>
+如果你在新加坡赚新币，同时持有日股、或者常去日本旅行、或者买日本商品，那么对你有意义的价格是 SGD/JPY，而不是新闻里天天讲的 USD/JPY。<br><br>
+一般规律：<strong>把你「赚钱用的货币」放在分母，把你「花钱或持有资产的货币」放在分子</strong>，得到的那条汇率才是你真正的暴露。
+</div>
+
+<h4>第八步：这条原理成立的前提，和人们怎么误用它</h4>
+
+<p><strong>前提：</strong>上面所有算术都建立在一个假设上——市场上不存在无风险的三角套利机会。也就是说，你不可能通过「新元→美元→日元→新元」转一圈就白赚钱。如果&nbsp;SGD/JPY&nbsp;的实际报价不等于&nbsp;125.15，套利者会瞬间把它拉回去。<em>在主要货币上这个假设非常可靠</em>，因为参与者太多、成本太低。在流动性差的小币种（某些新兴市场货币、有资本管制的货币）上，交叉汇率可能会偏离，而且偏离得能持续。</p>
+
+<p><strong>常见误用一：把汇率的绝对水平当成国家实力的评分。</strong>「1&nbsp;英镑&nbsp;=&nbsp;1.7&nbsp;新元，1&nbsp;日元&nbsp;=&nbsp;0.008&nbsp;新元，所以英国比日本强&nbsp;200&nbsp;倍」——这显然荒唐。汇率的<em>绝对水平</em>只反映当初印钞票时选的面额大小，没有任何信息量。<strong>有信息量的永远是变化率，不是水平。</strong>日元一直是几十上百这个量级，只是因为日本战后没有像德国那样做过货币改值。</p>
+
+<p><strong>常见误用二：把「本币贬值」直接等同于「国家变差」。</strong>贬值对出口商是好消息（他们的产品在国外变便宜了），对进口商和消费者是坏消息。日本的丰田乐见日元贬值，日本的家庭主妇恨它。<em>汇率的每一次移动都同时制造赢家和输家</em>，说它「好」或「坏」之前，必须先说清「对谁」。</p>
+
+<p><strong>常见误用三：把百分比方向搞反后做决策。</strong>这一条听起来很低级，但在实务里非常常见——尤其是在计算对冲比例、或者比较「本币收益」和「外币收益」的时候。<em>本课第 4 节会给你一个不会算反的固定流程。</em></p>
+
+<hr>
+
+<h3>环①→② 物价数据如何变成加息概率</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>先讲清楚央行为什么会因为物价而动利率。</p>
+
+<p>日本央行有一个公开承诺：<strong>让物价每年涨大约&nbsp;2%</strong>。为什么是&nbsp;2%&nbsp;而不是&nbsp;0%？这是另一天的题目（原理表里的&nbsp;B&nbsp;和&nbsp;A&nbsp;两栏都会讲到），今天你只需要接受这个事实：这是它的官方目标。</p>
+
+<p>现在，日本的核心&nbsp;CPI&nbsp;已经连续五个月低于&nbsp;2%，6&nbsp;月是&nbsp;1.6%。如果&nbsp;7&nbsp;月真的跳到&nbsp;1.8%，方向就是「在往&nbsp;2%&nbsp;靠」。</p>
+
+<p>那为什么「靠近&nbsp;2%」会让央行加息？逻辑链是这样的，我一步步写：</p>
+
+<ol>
+<li>利率高 → 借钱贵 → 企业少借钱扩张、家庭少借钱买房 → 花出去的钱变少</li>
+<li>花出去的钱变少 → 商家看到东西卖不动 → 不敢涨价甚至降价</li>
+<li>所以：<strong>加息是给物价降温的刹车</strong></li>
+<li>反过来，日本现在利率只有&nbsp;1%，这个刹车基本没踩。如果物价已经在往&nbsp;2%&nbsp;走，而刹车还松着，央行就有理由踩一点</li>
+</ol>
+
+<p>7&nbsp;月&nbsp;31&nbsp;日日本央行开会决定按兵不动，但同时<strong>警告核心通胀可能超过&nbsp;2%&nbsp;目标</strong>。8&nbsp;月&nbsp;10&nbsp;日公布的会议纪要（日本叫「主要意见」）进一步显示，委员们在讨论「上行的物价风险」和「可能需要更快的加息节奏」。</p>
+
+<p>这就是为什么市场对&nbsp;9&nbsp;月加息的押注从&nbsp;8&nbsp;月初的约&nbsp;65%&nbsp;升到了现在的约&nbsp;80%。</p>
+
+<h4>这个影响有多大</h4>
+
+<p>假设&nbsp;9&nbsp;月真的加息，政策利率从&nbsp;1.00%&nbsp;到&nbsp;1.25%。这是&nbsp;<strong>0.25&nbsp;个百分点</strong>。</p>
+
+<p>这里插一个术语。金融业里&nbsp;0.01&nbsp;个百分点叫<strong>一个基点</strong>（英文&nbsp;basis point，缩写&nbsp;bp）。所以&nbsp;0.25&nbsp;个百分点&nbsp;=&nbsp;<strong>25&nbsp;个基点</strong>。</p>
+
+<p>为什么要发明这个单位？因为「利率从&nbsp;1%&nbsp;上升了&nbsp;25%」这句话有歧义：是从&nbsp;1%&nbsp;到&nbsp;1.25%，还是从&nbsp;1%&nbsp;到&nbsp;1.25%？（前者是加了&nbsp;0.25&nbsp;个点，后者是乘了&nbsp;1.25&nbsp;倍——都是&nbsp;1.25%，纯属巧合，但你能感到这有多容易吵架。）说「涨了&nbsp;25&nbsp;个基点」就完全没有歧义：<em>基点永远是加减，不是乘除</em>。</p>
+
+<h4>什么情况下这一环会断</h4>
+
+<p>如果&nbsp;CPI&nbsp;明显低于预期（比如只有&nbsp;1.6%），加息押注会立刻回落。更微妙的一种断裂是：<strong>数据好但央行不敢动</strong>。日本首相高市（Takaichi）政府近期在讨论削减消费税，市场担心财政资金来源不明——在这种政治气氛下，央行加息会被解读成「跟政府对着干」。<em>央行的独立性在纸面上写着，在现实中永远要打个折。</em></p>
+
+<hr>
+
+<h3>环②→③ 从加息概率到「利差」</h3>
+
+<h4>先说清楚什么是利差</h4>
+
+<p><strong>利差</strong>（英文&nbsp;interest rate differential）就是两个国家利率的差，没有更玄的东西。</p>
+
+<div class="calc">
+<span class="line">美国短端利率（联邦基金有效利率，8/18）：3.63%</span>
+<span class="line">日本政策利率（7/31 决议）：1.00%</span>
+<span class="line res">短端利差 = 3.63% − 1.00% = 2.63 个百分点</span>
+</div>
+
+<p>再看长一点的期限：</p>
+
+<div class="calc">
+<span class="line">美国 10 年期国债收益率（8/18）：4.71%</span>
+<span class="line">日本 10 年期国债收益率（8/20）：2.853%</span>
+<span class="line res">10 年期利差 = 4.71% − 2.853% = 1.857 个百分点</span>
+</div>
+
+<h4>为什么利差会决定汇率的方向</h4>
+
+<p>想象你是一个日本的保险公司，手上有一大笔日元，必须投出去赚钱。</p>
+
+<p>你面前有两个选择：</p>
+
+<ul>
+<li>买日本国债，10&nbsp;年拿&nbsp;2.853%</li>
+<li>把日元换成美元，买美国国债，10&nbsp;年拿&nbsp;4.71%</li>
+</ul>
+
+<p>差&nbsp;1.857&nbsp;个百分点，十年下来是很大一笔钱。所以你倾向于选第二个。而<strong>「把日元换成美元」这个动作，在外汇市场上就是卖出日元、买入美元</strong>。</p>
+
+<p>全世界成千上万的机构做同样的判断，日元的卖单就会持续多于买单。<em>价格由供需决定，卖的人多，价格就跌。</em></p>
+
+<p>这不是什么高深理论，就是「钱往回报高的地方流」这一句大白话。</p>
+
+<h4>这里有一个必须交代的复杂性</h4>
+
+<p>你可能会问：那为什么全世界不把所有钱都搬到美国去，直到日元跌到零？</p>
+
+<p>因为有一件事在拦着：<strong>你借的是日元，最后还的也得是日元。</strong>如果这十年里日元大幅升值，你换回日元的时候就要用更多美元去买日元，那笔汇兑损失可能把&nbsp;1.857%&nbsp;的利息优势全吃掉，甚至倒亏。</p>
+
+<p>所以真正的算式不是「利差有多大」，而是「利差 减去 你预期的汇率变动」。这个思路在经济学里叫<strong>利率平价</strong>（英文&nbsp;interest rate parity），它的完整版本是原理表里的&nbsp;D3，今天先只留一个直觉：<em>利差是确定的收益，汇率变动是不确定的风险，人们在拿后者的风险去换前者的收益。</em></p>
+
+<h4>关键的观察：这一环今年出了状况</h4>
+
+<p>现在看一件反直觉的事。过去一年：</p>
+
+<div class="calc">
+<span class="line">日本 10 年期国债收益率：从约 1.61% → 2.853%（上升约 124 个基点）</span>
+<span class="line">美国 10 年期国债收益率：4.71% 附近（大体持平）</span>
+<span class="line res">→ 利差在明显<strong>收窄</strong></span>
+<span class="line">按上面的逻辑，利差收窄，日元该<strong>升值</strong></span>
+<span class="line res">但实际上：日元对美元贬值了 7.18%</span>
+</div>
+
+<p><strong>教科书的方向反了。这是今天最值得记住的一处「机制失效」。</strong></p>
+
+<p>为什么会反？因为「日本国债收益率上升」这件事，可以有两种完全不同的成因：</p>
+
+<ul>
+<li><strong>好的成因：</strong>日本经济变好、央行要加息 → 持有日元的回报变高 → 日元该涨</li>
+<li><strong>坏的成因：</strong>投资者担心日本政府还不起债、要求更高的补偿才肯借钱 → 这是在给日本资产打折 → 日元该跌</li>
+</ul>
+
+<p>今年日本&nbsp;10&nbsp;年期收益率冲到&nbsp;1996&nbsp;年以来最高的&nbsp;2.95%，30&nbsp;年期到&nbsp;4.01%，同时市场在讨论「消费税削减但没有明确资金来源」。8&nbsp;月&nbsp;18&nbsp;日的市场评论直接把日元的走弱归因于「财政担忧和持续的通胀压力」。<em>这说明相当一部分收益率上升属于第二种。</em></p>
+
+<div class="note">
+<span class="t">这一步值得你反复咀嚼</span>
+<strong>同一个数字（收益率上升），在两种不同的成因下，对汇率的含义完全相反。</strong><br><br>
+这就是为什么「看数据做交易」远比听起来难：数据本身不带标签，你必须判断它是哪一种。<em>所有把宏观简化成「利率高 → 货币强」的说法，都会在这里翻车。</em>
+</div>
+
+<hr>
+
+<h3>环③→④ 套息交易：利差如何变成实际的卖单</h3>
+
+<h4>先讲这件事在生活里长什么样</h4>
+
+<p>假设新加坡有个人跟你说：我可以按&nbsp;1%&nbsp;的年利率借给你钱，你随便花&nbsp;10&nbsp;年。同时你知道，把这笔钱存进另一家银行能拿&nbsp;3.86%。</p>
+
+<p>你会怎么做？借出来，存进去，白赚中间的差价。</p>
+
+<p>这就是<strong>套息交易</strong>（英文&nbsp;carry trade）。「carry」在这里指的是「持有一个仓位每年自动产生的收益」，中文习惯译成「套息」或「息差交易」。</p>
+
+<h4>算给你看</h4>
+
+<p>用今天的真实数字。假设一家对冲基金：</p>
+
+<div class="calc">
+<span class="line">第 1 步：借入 1 亿美元等值的日元，年利率按日本短端 <strong>1.00%</strong> 计</span>
+<span class="line">　　　　　一年的利息成本 = 100,000,000 × 1.00% = <strong>100 万美元</strong></span>
+<span class="line">第 2 步：把日元换成美元（← 这一步就是在卖日元）</span>
+<span class="line">第 3 步：买美国 3 个月国债，滚动持有，年化 <strong>3.86%</strong></span>
+<span class="line">　　　　　一年的利息收入 = 100,000,000 × 3.86% = <strong>386 万美元</strong></span>
+<span class="line res">净收益 = 386 万 − 100 万 = 286 万美元，也就是 2.86%</span>
+</div>
+
+<p>2.86%&nbsp;听起来不多。但注意两件事。</p>
+
+<p><strong>第一，这个&nbsp;2.86%&nbsp;几乎是确定的。</strong>美国国债违约的可能性极低，日元的借款利率也是锁定的。所以在汇率不动的前提下，这钱是躺着赚的。</p>
+
+<p><strong>第二，可以加杠杆。</strong>什么叫杠杆？就是用自己的一块钱，去撬动十块钱的仓位。</p>
+
+<div class="calc">
+<span class="line">自有资金 1,000 万美元，借入 9,000 万，总仓位 1 亿</span>
+<span class="line">这 1 亿的净收益还是 286 万美元</span>
+<span class="line">但相对于你自己的 1,000 万本金：</span>
+<span class="line res">286 万 ÷ 1,000 万 = 28.6% 的年回报</span>
+</div>
+
+<p>28.6%&nbsp;的「无风险」年回报，会让全世界的钱蜂拥而至。而每一笔进来的钱，都要先做一件事：<em>卖出日元</em>。</p>
+
+<h4>这个影响有多大</h4>
+
+<p>USD/JPY&nbsp;是全球第二大货币对。根据国际清算银行（BIS）2025&nbsp;年的三年期调查，全球外汇市场日均成交&nbsp;<strong>9.6&nbsp;万亿美元</strong>，其中&nbsp;USD/JPY&nbsp;一天成交&nbsp;<strong>1.37&nbsp;万亿美元</strong>，占&nbsp;14.3%——相比&nbsp;2022&nbsp;年增长了&nbsp;35%，而这个增长本身就被归因于套息交易的兴起。</p>
+
+<h4>什么情况下这一环会断</h4>
+
+<p>套息交易的死穴写在它的算式里。你赚的是&nbsp;2.86%&nbsp;的利差，你赌的是汇率不动。那么：</p>
+
+<div class="calc">
+<span class="line">只要日元一年内升值超过 <strong>2.86%</strong>，这笔交易就开始亏钱</span>
+<span class="line">159.04 × (1 − 0.0286) = <strong>154.49</strong></span>
+<span class="line res">USD/JPY 跌破 154.49，无杠杆的套息交易者就白干了</span>
+</div>
+
+<p>如果加了&nbsp;10&nbsp;倍杠杆呢？你的本金只有仓位的&nbsp;1/10，日元升值&nbsp;<strong>10%</strong>&nbsp;就会把你的本金全部吃掉。而日元在剧烈行情里一周升值&nbsp;5%&nbsp;并不罕见。</p>
+
+<p><strong>这就是套息交易最危险的性质：慢慢赚，突然死。</strong>（英文有个很传神的说法：picking up nickels in front of a steamroller——在压路机前捡硬币。）</p>
+
+<p>2024&nbsp;年&nbsp;8&nbsp;月发生过一次真实的演练：日本央行意外加息，日元急升，套息交易者被迫平仓，而平仓意味着<em>买回日元</em>，买回日元又推动日元更快升值，逼更多人平仓……三天之内日本股市跌了两成多。这个自我强化的过程叫<strong>踩踏平仓</strong>（英文&nbsp;unwind）。</p>
+
+<hr>
+
+<h3>环⑤→⑥ 日元贬值如何绕回日本的物价</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>日本几乎不产石油、天然气和大部分粮食，全靠进口。而国际市场上这些东西是用美元定价的。</p>
+
+<p>算一笔账。假设一桶油的国际价格是&nbsp;86.46&nbsp;美元（8&nbsp;月&nbsp;20&nbsp;日的实际油价），日本一家电力公司要买它：</p>
+
+<div class="calc">
+<span class="line">一年前（USD/JPY = 148.39）：86.46 × 148.39 = <strong>12,830 日元</strong></span>
+<span class="line">今天（USD/JPY = 159.04）：86.46 × 159.04 = <strong>13,751 日元</strong></span>
+<span class="line res">油价一美分没变，日本人却要多付 921 日元，贵了 7.18%</span>
+</div>
+
+<p><strong>注意这一步有多干净：国际油价完全没动，日本的成本却涨了&nbsp;7.18%——涨幅正好等于日元的贬值幅度。</strong>这就是汇率贬值如何凭空制造通胀。</p>
+
+<p>这个现象有个名字：<strong>汇率传导</strong>（英文&nbsp;exchange rate pass-through），意思是「汇率的变化有多少比例会传到国内物价上」。</p>
+
+<h4>这个影响有多大、时滞多久</h4>
+
+<p>传导不是&nbsp;100%，也不是瞬间。真实路径是这样一层层往下渗的：</p>
+
+<ol>
+<li><strong>进口价格</strong>——几乎立刻，传导接近&nbsp;100%</li>
+<li><strong>批发／生产者物价（PPI）</strong>——几周到几个月。日本&nbsp;7&nbsp;月的批发物价同比涨了&nbsp;<strong>7.2%</strong>（略低于预期的&nbsp;7.4%），这个数远高于&nbsp;CPI，说明成本压力还堵在企业那一层</li>
+<li><strong>消费者物价（CPI）</strong>——6&nbsp;到&nbsp;18&nbsp;个月。企业不会马上把成本全转嫁给消费者，怕丢客户，会先自己吃掉一部分利润</li>
+</ol>
+
+<p>把&nbsp;7.2%&nbsp;的批发物价和&nbsp;1.8%&nbsp;的核心&nbsp;CPI&nbsp;放在一起看，你会得到一个很有信息量的判断：<em>批发端的压力远大于零售端，说明企业正在压缩利润率吸收成本。而这种吸收是有极限的。</em>一旦企业撑不住开始提价，CPI&nbsp;还有上行空间——这正是市场押注&nbsp;9&nbsp;月加息的底层理由之一。</p>
+
+<h4>反馈回路：链条咬住了自己的尾巴</h4>
+
+<p>现在把整条链首尾接起来：</p>
+
+<div class="calc">
+<span class="line">日元贬值 → 进口变贵 → 日本通胀上升 → 日本央行更可能加息</span>
+<span class="line">→ 日本利率上升 → 美日利差缩小 → 套息交易吸引力下降</span>
+<span class="line res">→ 日元该升值 → 这会抵消最开始的贬值</span>
+</div>
+
+<p>这是一个<strong>负反馈回路</strong>（英文&nbsp;negative feedback loop）：系统里存在一股自我纠正的力量，越偏离越有回拉的力。</p>
+
+<p><strong>但今年它没起作用。</strong>日元从&nbsp;148&nbsp;跌到&nbsp;162&nbsp;再到&nbsp;159，通胀确实上来了，日本央行也确实从&nbsp;0&nbsp;加到了&nbsp;1%，可日元还是弱。为什么？</p>
+
+<p>因为回路上有一个<strong>时滞</strong>。日本央行加息是一次&nbsp;25&nbsp;个基点、隔几个月一次；而利差有&nbsp;263&nbsp;个基点要补。<em>按这个速度，要十次加息、好几年时间。</em>而套息交易者今天就在赚今天的钱。</p>
+
+<p>这是学习宏观时最重要的一课之一：<strong>一个负反馈回路在数学上成立，不代表它在你关心的时间尺度上有用。</strong></p>
+
+<hr>
+
+<h3>环⑧ 拿真钱去干预，为什么按不住</h3>
+
+<h4>什么是外汇干预</h4>
+
+<p>用大白话说：<strong>政府自己下场买卖自己的货币。</strong></p>
+
+<p>日本要托住日元，就得<em>买日元</em>。买日元要用什么付钱？用外汇储备里的美元（这次美国财政部则用了欧元）。所以「干预」在操作上就是：把外汇储备里的美元卖掉，换成日元。</p>
+
+<h4>这次干预的规模</h4>
+
+<p>据报道，日本在&nbsp;8&nbsp;月&nbsp;2&nbsp;日联合行动前的周四，在纽约市场抛售了约&nbsp;<strong>589.7&nbsp;亿美元</strong>买入日元。美国财政部随后也下场买入日元，这是&nbsp;<strong>2011&nbsp;年以来第一次美日协同干预</strong>。</p>
+
+<p>590&nbsp;亿美元是个巨款吗？对任何一家公司来说是天文数字。但放在这个市场里：</p>
+
+<div class="calc">
+<span class="line">干预规模：589.7 亿美元</span>
+<span class="line">USD/JPY 日均成交：13,700 亿美元</span>
+<span class="line">589.7 ÷ 13,700 = <span class="res">4.3%</span></span>
+<span class="line res">＝ 这个货币对一天成交量的百分之四点三</span>
+</div>
+
+<p><strong>不到半小时的成交量。</strong>这就是第一层答案。</p>
+
+<h4>但规模不是真正的原因</h4>
+
+<p>如果规模是全部原因，那干预完全不该有效果——可它当天确实有效：日元跳升&nbsp;1.4%&nbsp;到&nbsp;155.20，加上此前两个交易日的走势合计涨了&nbsp;3.8%。</p>
+
+<p>为什么&nbsp;4.3%&nbsp;的量能推动价格&nbsp;1.4%？因为干预真正卖的不是美元，<strong>是信息</strong>。它在告诉市场三件事：</p>
+
+<ol>
+<li>官方在盯着这个价位，而且愿意动手</li>
+<li>官方口袋很深，还能再来（贝森特：「我们不会犹豫参与进一步的联合干预」）</li>
+<li>这次连美国都同意了——这是最强的信号，因为美国通常不喜欢别国干预汇率</li>
+</ol>
+
+<p>做空日元的人一看，风险变了：<em>我可能在任何一天被官方打一巴掌。</em>于是有些人先平掉一部分仓位，平仓＝买回日元＝推高日元。<strong>真正推动价格的不是官方那&nbsp;590&nbsp;亿，是被吓到的私人资金。</strong></p>
+
+<h4>那为什么两周就失效了</h4>
+
+<p>因为吓唬只能改变<em>持仓</em>，改变不了<em>动机</em>。</p>
+
+<p>让人们卖日元的理由是&nbsp;2.63&nbsp;个百分点的利差。干预之后，这个利差<strong>一个基点都没变</strong>。所以：</p>
+
+<ol>
+<li>第一波受惊的人平了仓，日元涨到&nbsp;155.20</li>
+<li>接下来几天，没有第二次干预出现</li>
+<li>交易员开始试探：官方到底是随时会动手，还是只在特定价位动手？</li>
+<li>试探没有被惩罚，赚&nbsp;2.86%&nbsp;的诱惑还在</li>
+<li>仓位重新建起来——彭博在&nbsp;8&nbsp;月&nbsp;14&nbsp;日的报道标题就是《套息交易者利用干预重建日元空头》</li>
+<li>日元跌回&nbsp;158、159</li>
+</ol>
+
+<p>OMFIF&nbsp;的评论把这一点讲得很直白：市场并非「无序」，它只是在对日本「过于宽松的政策」做出理性反应，因此干预是「创可贴」而非解药。</p>
+
+<div class="note">
+<span class="t">一条可以带走的通则</span>
+<strong>干预能改变价格的路径，很难改变价格的终点。</strong><br><br>
+它能把一次快速崩跌变成一次缓慢下滑（这本身有价值——给企业时间调整、避免恐慌），但只要基本面的驱动力还在，终点不会变。<br><br>
+历史上真正成功的干预（比如 1985 年的广场协议、2011 年的 G7 联合行动）都有一个共同点：<em>它们发生在基本面本来就要转向的时候，干预只是加速了转向。</em>逆着基本面的干预，几乎没有成功先例。
+</div>
+
+<hr>
+
+<h3>环⑦ 美国这一侧：为什么美元利率下不来</h3>
+
+<p>上面反复说「利差是驱动力」。那利差的另一半——美国——现在是什么状况？</p>
+
+<p>先看数字。这条曲线很不寻常：</p>
+
+<table>
+<tr><th>期限</th><th>收益率（8/18）</th><th>与隔夜利率之差</th></tr>
+<tr><td>隔夜（联邦基金有效利率）</td><td class="num">3.63%</td><td class="num">—</td></tr>
+<tr><td>3 个月</td><td class="num">3.86%</td><td class="num">+23 bp</td></tr>
+<tr><td>2 年</td><td class="num">4.19%</td><td class="num">+56 bp</td></tr>
+<tr><td>10 年</td><td class="num">4.71%</td><td class="num">+108 bp</td></tr>
+<tr><td>30 年</td><td class="num">5.28%</td><td class="num">+165 bp</td></tr>
+</table>
+
+<p>怎么读这张表？我给你一个简单但有力的解释框架。</p>
+
+<p><strong>2&nbsp;年期收益率大致等于「市场认为未来两年隔夜利率的平均水平」。</strong>现在隔夜是&nbsp;3.63%，2&nbsp;年期却是&nbsp;4.19%，高出&nbsp;56&nbsp;个基点。</p>
+
+<p>这说明什么？<em>市场认为未来两年的平均利率会比现在高。也就是说，市场在给「加息」定价，不是降息。</em></p>
+
+<p>这个判断有旁证：7&nbsp;月的&nbsp;FOMC（美联储的决策会议）以&nbsp;9&nbsp;票对&nbsp;3&nbsp;票维持利率不变，三位委员主张<strong>加息&nbsp;25&nbsp;个基点</strong>。摩根大通财富管理已经改口预期&nbsp;9&nbsp;月加息，期货市场隐含的&nbsp;9&nbsp;月加息概率约&nbsp;65%。原因被归结为两条：霍尔木兹海峡的供应中断迟迟没有恢复（原油&nbsp;86.46&nbsp;美元），以及&nbsp;7&nbsp;月会议之后市场对美联储抗通胀决心的怀疑。美国&nbsp;7&nbsp;月&nbsp;CPI&nbsp;同比&nbsp;3.4%，仍明显高于&nbsp;2%&nbsp;目标。</p>
+
+<p><strong>30&nbsp;年期的&nbsp;5.28%（8&nbsp;月&nbsp;18&nbsp;日一度触及&nbsp;5.33%，19&nbsp;年新高）则是另一个故事。</strong>这么长的期限里，「未来的政策利率」已经很难猜了，主导因素变成了「供求」：美国政府一年要借约&nbsp;2.1&nbsp;万亿美元的新钱。<em>债券卖得太多，买家就要求更高的利息才肯接。</em>Axios&nbsp;的报道特别指出，这轮长端上行发生在「消费和批发通胀数据都比较温和」的背景下——通胀预期解释不了它，赤字和供给才能。</p>
+
+<p>8&nbsp;月&nbsp;19–20&nbsp;日，美国财政部宣布未来几个月把&nbsp;10&nbsp;年、20&nbsp;年、30&nbsp;年期国债的回购规模<strong>增加一倍以上</strong>。「回购」的意思是财政部自己在二级市场把已经发行的债券买回来——买家多了，价格上去，收益率就下来。8&nbsp;月&nbsp;20&nbsp;日这个消息让长债先涨后跌，标普收跌&nbsp;0.35%，纳指跌&nbsp;0.66%。</p>
+
+<p><strong>这一环对今天的意义：</strong>只要美国这边的短端利率还有上行风险，日本央行那几次&nbsp;25&nbsp;个基点的加息就追不上。<em>利差是两条腿的赛跑，日本在加速，但美国也没停下。</em></p>
+
+<hr>
+
+<h3>环⑨ 新加坡支线：一种完全不同的汇率制度</h3>
+
+<h4>MAS 和别的央行不一样在哪</h4>
+
+<p>你已经知道，美联储和日本央行的做法是：<strong>设定一个利率，然后接受汇率随便走</strong>。</p>
+
+<p>新加坡金管局（Monetary Authority of Singapore，MAS）反过来：<strong>设定汇率的走向，然后接受利率随便走</strong>。</p>
+
+<p>为什么？因为新加坡是一个极端开放的小经济体——进出口总额远超&nbsp;GDP，吃穿用度绝大部分靠进口。在这种结构里，<em>汇率对国内物价的影响，远大于利率对国内需求的影响</em>。要控制通胀，捏住汇率比捏住利率直接得多。</p>
+
+<h4>MAS 具体在管什么</h4>
+
+<p>它管的不是&nbsp;USD/SGD，而是前面讲过的那个<strong>名义有效汇率</strong>——新元对一篮子贸易伙伴货币的加权平均，行业里写作&nbsp;<strong>S$NEER</strong>。</p>
+
+<p>MAS&nbsp;设定三个参数：</p>
+
+<ul>
+<li><strong>斜率</strong>（slope）：这个篮子每年应该升值多少</li>
+<li><strong>中心</strong>（centre）：这条上升轨道的中线在哪</li>
+<li><strong>宽度</strong>（width）：允许在中线上下多大范围内浮动</li>
+</ul>
+
+<p>想象一条向上倾斜的管道。新元被允许在管道里上下晃，但管道整体在往上走。<strong>MAS&nbsp;不管每天的位置，只管这条管道的角度、位置和粗细。</strong></p>
+
+<h4>7 月 28 日它做了什么</h4>
+
+<div class="calc">
+<span class="line">把 S$NEER 的<strong>斜率</strong>提高约 25 个基点，到约 <strong>1.25%/年</strong></span>
+<span class="line">中心和宽度<strong>不变</strong></span>
+<span class="line res">＝ 让新元的升值速度从每年约 1% 提高到约 1.25%</span>
+<span class="line">这是连续第二次收紧（4 月已经调过一次，幅度更大）</span>
+</div>
+
+<p>背景数据：新加坡&nbsp;2026&nbsp;年一季度&nbsp;GDP&nbsp;同比&nbsp;6.3%，二季度&nbsp;5.7%，上半年约&nbsp;6%，远超官方全年&nbsp;2–4%&nbsp;的预测区间。MAS&nbsp;维持&nbsp;2026&nbsp;年整体和核心通胀预测在&nbsp;1.5–2.5%。宣布后&nbsp;USD/SGD&nbsp;下探到约&nbsp;1.2890。</p>
+
+<p><strong>「让货币更快升值」为什么能压通胀？</strong>把环⑥的算术倒过来做一遍就懂了：新元升值&nbsp;→ 同样的美元进口价，换算成新元变少 → 新加坡的进口成本下降 → 国内物价降温。<em>新加坡是用汇率直接给通胀踩刹车，跳过了「加息压需求」那一整段。</em></p>
+
+<h4>结果</h4>
+
+<p>8&nbsp;月&nbsp;20&nbsp;日&nbsp;USD/SGD&nbsp;=&nbsp;1.2708，一个月内跌了&nbsp;1.60%，一年跌了&nbsp;1.38%。新元处在十余年来的高位区间（今年&nbsp;1&nbsp;月一度触及&nbsp;1.27，为&nbsp;2014&nbsp;年&nbsp;10&nbsp;月以来最强）。</p>
+
+<div class="note">
+<span class="t">把日本和新加坡放在一起看，这一天的教学价值就完整了</span>
+两个国家面对的是<strong>同一个外部环境</strong>：美元利率高、油价上行、全球资金追逐利差。<br><br>
+日本选择了「守住低利率」，代价是货币贬到 40 年低点，进口通胀 7.2%，并且要花 590 亿美元去做一次注定失效的干预。<br><br>
+新加坡选择了「让货币升值」，代价是出口商的竞争力承压、利率完全交给市场决定。<br><br>
+<em>没有免费的选择，只有取舍。这是宏观经济学里最普遍的一条真理。</em>（原理表里的 D8「不可能三角」会把这个取舍讲成一个精确的定理。）
+</div>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="big"><strong>先明确一件事：以下是教学分析和思考框架，不是投资建议。我不了解你的完整财务状况、风险承受能力和目标，也不会对具体标的给出买卖意见。所有数字都是用来演示算法的。</strong></p>
+
+<h3>第一步：先看清你的货币结构</h3>
+
+<p>根据你的画像，你的财务结构大致是这样：</p>
+
+<table>
+<tr><th>项目</th><th>货币</th><th>说明</th></tr>
+<tr><td>工资收入</td><td>SGD</td><td>你未来几十年的现金流入</td></tr>
+<tr><td>日常开销、房租/房贷</td><td>SGD</td><td>你的支出</td></tr>
+<tr><td>CPF</td><td>SGD</td><td>强制储蓄，利率由规则设定</td></tr>
+<tr><td>投资组合（美股/美元资产）</td><td>USD</td><td>你的主要资产</td></tr>
+</table>
+
+<p>这个结构有一个专门的名字：<strong>货币错配</strong>（英文&nbsp;currency mismatch）。意思是<em>你赚钱用的货币，和你持有资产的货币，不是同一种</em>。</p>
+
+<p>「错配」这个词听起来像是做错了什么，其实不一定。它只是描述一个事实：<strong>你除了承担股票涨跌的风险，还额外承担了一份汇率风险，而这份风险你可能从来没有主动选择过。</strong></p>
+
+<h3>第二步：把这份汇率风险算成钱</h3>
+
+<p>用真实数字走一遍。假设一年前你投了&nbsp;10,000&nbsp;美元买美股&nbsp;ETF。</p>
+
+<p><strong>先看最干净的情形：股票一年不涨不跌。</strong></p>
+
+<div class="calc">
+<span class="line">一年前 USD/SGD ≈ 1.2886</span>
+<span class="line">你投入的钱换算成新元：10,000 × 1.2886 = <strong>12,886 新元</strong></span>
+<span class="line">今天 USD/SGD = 1.2708</span>
+<span class="line">你的 10,000 美元换算成新元：10,000 × 1.2708 = <strong>12,708 新元</strong></span>
+<span class="line res">你亏了 178 新元，也就是 −1.38%</span>
+</div>
+
+<p><strong>美股一分钱没跌，你以新元衡量却亏了&nbsp;1.38%。</strong>这&nbsp;178&nbsp;新元不是市场拿走的，是汇率拿走的。</p>
+
+<p>现在加上股票的收益：</p>
+
+<div class="calc">
+<span class="line">情形 A：美股一年涨 5%</span>
+<span class="line">　美元价值 = 10,000 × 1.05 = 10,500 → 换算 10,500 × 1.2708 = 13,343 新元</span>
+<span class="line">　对比起点 12,886 新元 → <span class="res">新元回报 +3.55%</span>（美元回报是 +5%）</span>
+<span class="line" style="margin-top:10px">情形 B：美股一年涨 10%</span>
+<span class="line">　10,000 × 1.10 × 1.2708 = 13,979 新元</span>
+<span class="line">　对比 12,886 → <span class="res">新元回报 +8.48%</span>（美元回报是 +10%）</span>
+<span class="line" style="margin-top:10px">情形 C：美股一年涨 15%</span>
+<span class="line">　10,000 × 1.15 × 1.2708 = 14,614 新元</span>
+<span class="line">　对比 12,886 → <span class="res">新元回报 +13.41%</span>（美元回报是 +15%）</span>
+</div>
+
+<p>规律看出来了吗？<strong>每一种情形，新元回报都比美元回报低了大约&nbsp;1.4&nbsp;个百分点。</strong></p>
+
+<p>为什么是「大约」而不是精确？因为汇率折算是乘法不是减法：</p>
+
+<div class="calc">
+<span class="line">新元总回报 = (1 + 美元回报) × (1 + 汇率变动) − 1</span>
+<span class="line">逐项翻译：</span>
+<span class="line">　「1 + 美元回报」＝ 你的美元资产变成了原来的几倍</span>
+<span class="line">　「1 + 汇率变动」＝ 每 1 美元能换到的新元变成了原来的几倍</span>
+<span class="line">　两个一乘，就是你的新元财富变成了原来的几倍，再减 1 得到百分比</span>
+<span class="line" style="margin-top:8px">代入情形 B：(1 + 0.10) × (1 − 0.0138) − 1</span>
+<span class="line">　　　　　　 = 1.10 × 0.9862 − 1 = 1.08482 − 1 = <span class="res">+8.482%</span></span>
+</div>
+
+<p><em>注意「乘法」这个细节：股票涨得越多，汇率损失的绝对金额也越大，因为它是按整个资产规模打折的。</em></p>
+
+<h3>第三步：一个不会算反的固定流程</h3>
+
+<p>前面讲了那么多陷阱，这里给你一个傻瓜流程，照着做永远不会搞反方向：</p>
+
+<ol>
+<li><strong>确定你的「记账货币」</strong>——你花钱、交房租、过日子用的那种。对你是&nbsp;SGD。所有盈亏最终都要用它来衡量。</li>
+<li><strong>把汇率写成「1 单位外币 = 多少记账货币」</strong>。今天：1&nbsp;美元&nbsp;=&nbsp;1.2708&nbsp;新元。<em>永远用这个方向，不要用反的。</em></li>
+<li><strong>这个数字变大 = 你的外币资产变值钱；变小 = 变便宜。</strong>方向永远不会反。</li>
+<li><strong>算总回报时用乘法：</strong>(1 + 资产回报) × (今天的汇率 ÷ 当初的汇率) − 1。</li>
+</ol>
+
+<p>用第&nbsp;3&nbsp;条检查一遍今天的新闻：「新元创&nbsp;11&nbsp;年新高」→ 1&nbsp;美元能换的新元变少了 → 你的美元资产以新元计变便宜了 → <strong>对你的组合是逆风。</strong>清清楚楚，不会搞错。</p>
+
+<h3>第四步：那要不要对冲？</h3>
+
+<p>「对冲」（英文&nbsp;hedge）在这里指的是：通过一笔额外的交易，把汇率变动的影响抵消掉，让你的回报只反映股票本身。</p>
+
+<p>关键在于——<strong>对冲不是免费的，而且它的成本恰恰来自今天讲的利差。</strong></p>
+
+<p>为什么？对冲美元敞口的常见做法，是签一份约定：一年后按某个固定价格把美元换成新元。这个约定的价格叫<strong>远期汇率</strong>（英文&nbsp;forward rate）。</p>
+
+<p>远期汇率不是任何人对未来的预测，它由一条无套利关系机械地决定：</p>
+
+<div class="calc">
+<span class="line">远期汇率 ≈ 即期汇率 × (1 + 新元利率) ÷ (1 + 美元利率)</span>
+<span class="line">逐项翻译：</span>
+<span class="line">　「即期汇率」＝ 今天的价格 1.2708</span>
+<span class="line">　「新元利率」＝ 新元存一年能拿到的利息</span>
+<span class="line">　「美元利率」＝ 美元存一年能拿到的利息</span>
+</div>
+
+<p>为什么必须是这个式子？因为如果不是，就能白赚钱。走一遍你就明白了：假设美元一年期利率&nbsp;3.9%，新元一年期利率&nbsp;1.9%（仅为演示，非当日报价）。</p>
+
+<div class="calc">
+<span class="line">路线 1：拿 1.2708 新元，存新元一年 → 1.2708 × 1.019 = <strong>1.2949 新元</strong></span>
+<span class="line">路线 2：把 1.2708 新元换成 1 美元，存美元一年 → 1.039 美元</span>
+<span class="line">　　　　同时今天就锁定一年后的换回价格 F</span>
+<span class="line">　　　　一年后拿到 1.039 × F 新元</span>
+<span class="line" style="margin-top:8px">两条路都没有风险，所以结果必须相等：</span>
+<span class="line">　1.039 × F = 1.2949　→　F = 1.2949 ÷ 1.039 = <strong>1.2463</strong></span>
+<span class="line res">一年期远期价格 1.2463，比即期 1.2708 低了 1.93%</span>
+</div>
+
+<p><strong>读懂这个结果：</strong>市场愿意在一年后用&nbsp;1.2463&nbsp;跟你换，而不是&nbsp;1.2708。也就是说，你锁定汇率的代价是<em>预先接受&nbsp;1.93%&nbsp;的折价</em>。</p>
+
+<p>而这&nbsp;1.93%&nbsp;正好等于美元利率减去新元利率（3.9%&nbsp;−&nbsp;1.9%&nbsp;≈&nbsp;2%，小差异来自复利）。</p>
+
+<div class="note">
+<span class="t">这是今天最实用的一个结论</span>
+<strong>对冲的成本 ≈ 两国的利率差。</strong><br><br>
+当美元利率高于新元利率时，对冲美元敞口意味着你要放弃这部分利差。<em>你不可能既拿着高息货币的利息，又免费躲掉它的汇率风险</em>——如果可以，那就是永动机。<br><br>
+所以「要不要对冲」不是一个技术问题，而是一个取舍问题：<strong>你是愿意付出确定的成本换取确定性，还是愿意承担不确定性以保留那份利差？</strong>这个问题的答案取决于你的投资期限、你的现金流需求、以及你对波动的心理承受力。原理表里的 D30 会专门用一整天来算这笔账。
+</div>
+
+<h3>第五步：几件今天就能想清楚的事</h3>
+
+<ol>
+<li><strong>你的时间期限有多长？</strong>如果是&nbsp;20&nbsp;年以上，汇率的年度波动会被大幅平滑——长期看，汇率大致围绕购买力在摆动（这是原理表&nbsp;D2&nbsp;的内容）。如果是&nbsp;2–3&nbsp;年内要用的钱，1.4%&nbsp;一年的汇率漂移就很有分量了。</li>
+<li><strong>你的人力资本也是新元资产。</strong>你未来几十年的工资是一笔巨大的、以新元计价的现金流。从整体资产负债表看，你已经<em>重仓新元</em>了——持有美元资产在某种意义上是一种分散，不全是风险。（这是原理表&nbsp;G2&nbsp;的角度。）</li>
+<li><strong>不要因为一条新闻改变长期结构。</strong>今天这条链讲的是&nbsp;1.38%&nbsp;一年的漂移，不是&nbsp;30%&nbsp;的崩塌。<em>把它当作理解世界的一扇窗，而不是行动的信号。</em></li>
+</ol>
+
+<h2>5｜反向倒推</h2>
+
+<p>先说清楚这一节在干什么。</p>
+
+<p>前面&nbsp;1–4&nbsp;节都是<strong>顺着推</strong>：发生了&nbsp;A（日本&nbsp;CPI&nbsp;上升），所以会有&nbsp;B（加息预期上升），所以会有&nbsp;C（利差收窄）……</p>
+
+<p>这一节反过来问：<strong>市场今天的价格摆在这里，说明大家心里在赌什么？</strong></p>
+
+<p>这个思路的前提是：<em>价格是一群拿真钱下注的人共同押注的结果。所以从价格可以倒推出他们的假设。</em>而一旦你知道了他们在赌什么，你就知道该盯着什么——因为只有当这些假设被推翻时，价格才会大幅移动。</p>
+
+<h3>市场此刻已经定价了哪些假设</h3>
+
+<h4>假设一：日本央行会加息，但只会慢慢加</h4>
+
+<p><strong>证据：</strong>9&nbsp;月加息押注约&nbsp;80%，目标&nbsp;1.25%。</p>
+
+<p><strong>为什么这个数字能反映这个假设：</strong>期货市场上有一批合约，价格直接对应「未来某个日期的利率是多少」。交易员用真金白银押注，价格算出来的&nbsp;80%，就是集体的概率判断。</p>
+
+<p><strong>但更关键的证据在汇率上：</strong>USD/JPY&nbsp;还在&nbsp;159。如果市场认为日本央行会连续、快速地加息（比如一年内到&nbsp;2.5%），日元早就该大幅走强了。<em>日元没走强，说明市场认定这次加息之后又是漫长的等待。</em></p>
+
+<h4>假设二：美国 9 月更可能加息，短端利率不会下来</h4>
+
+<p><strong>证据：</strong>2&nbsp;年期国债&nbsp;4.19%，比隔夜利率&nbsp;3.63%&nbsp;高出&nbsp;56&nbsp;个基点。</p>
+
+<p><strong>为什么这能反映这个假设：</strong>回到那句话——「2&nbsp;年期收益率≈未来两年隔夜利率的平均」。如果市场预期降息，未来两年的平均利率会低于&nbsp;3.63%，2&nbsp;年期收益率就该<em>低于</em>&nbsp;3.63%。它高出&nbsp;56&nbsp;个基点，说明预期的是<strong>上行</strong>。旁证是期货市场约&nbsp;65%&nbsp;的&nbsp;9&nbsp;月加息概率。</p>
+
+<h4>假设三：美国的财政问题会被管住，但只是勉强</h4>
+
+<p><strong>证据：</strong>30&nbsp;年期&nbsp;5.28%，19&nbsp;年新高，但在财政部宣布加倍回购后有所回落。</p>
+
+<p><strong>为什么这能反映这个假设：</strong>19&nbsp;年新高说明市场对&nbsp;2.1&nbsp;万亿赤字的担忧是真的；而对「回购」这种技术性操作反应明显，说明市场目前把它当作供需问题而非信用问题。<em>如果市场真的怀疑美国的偿债能力，那不是回购能压住的。</em></p>
+
+<h4>假设四：新加坡的高增长会持续，MAS 会继续偏紧</h4>
+
+<p><strong>证据：</strong>USD/SGD&nbsp;1.2708，处于&nbsp;11&nbsp;年高位区间。</p>
+
+<p><strong>为什么这能反映这个假设：</strong>MAS&nbsp;的政策是「设定升值斜率」，所以新元的强弱直接反映市场对&nbsp;MAS&nbsp;下一步的判断。新元维持在高位，说明市场认为&nbsp;7&nbsp;月的收紧不会很快被逆转。上半年&nbsp;6%&nbsp;的&nbsp;GDP&nbsp;增速支持这个判断。</p>
+
+<h4>假设五：市场认为一切都会平稳发生</h4>
+
+<p><strong>证据：</strong>VIX&nbsp;=&nbsp;15.73。</p>
+
+<p><strong>为什么这能反映这个假设：</strong>VIX&nbsp;衡量的是「市场预期未来一个月股价波动有多大」。历史上&nbsp;VIX&nbsp;的长期平均大约在&nbsp;19–20，恐慌时会冲到&nbsp;30&nbsp;以上。<strong>15.73&nbsp;属于偏低区间</strong>，意思是：在标普刚创新高、30&nbsp;年期国债收益率处于&nbsp;19&nbsp;年高位、中东有供应中断、日元套息交易规模庞大的情况下，<em>市场依然认为未来一个月会风平浪静。</em></p>
+
+<h3>哪一个假设最脆弱</h3>
+
+<p class="big"><strong>我认为最脆弱的是「假设一」：市场相信日本央行会慢慢加息，因此日元可以继续被安全地做空。</strong></p>
+
+<p>理由有四条，一条条说：</p>
+
+<p><strong>1）押注本身已经很拥挤。</strong>BIS&nbsp;数据显示&nbsp;USD/JPY&nbsp;的成交量三年增长&nbsp;35%，被明确归因于套息交易。彭博在&nbsp;8&nbsp;月&nbsp;14&nbsp;日报道套息交易者「利用干预重建空头」。<em>一边倒的仓位是脆弱性的定义</em>：当所有人站在同一边，转向时没有人接盘。</p>
+
+<p><strong>2）这个交易的数学结构是不对称的。</strong>回顾环④的算术：年化赚&nbsp;2.86%，但日元升值&nbsp;2.86%&nbsp;就归零。<strong>你在用可能&nbsp;10%&nbsp;的损失去博&nbsp;2.86%&nbsp;的收益。</strong>这种结构可以维持很久，但一旦反转就是暴力反转——2024&nbsp;年&nbsp;8&nbsp;月已经演示过一次。</p>
+
+<p><strong>3）当局已经表明了立场。</strong>贝森特说过「不会犹豫参与进一步的联合干预」。虽然单次干预改不了终点，但如果它<em>叠加在一次日本央行的意外加息上</em>，效果会完全不同——因为那时干预不再是逆着基本面，而是顺着。</p>
+
+<p><strong>4）市场几乎没有为它付保费。</strong>VIX&nbsp;15.73&nbsp;说明保护成本很低，也说明很少有人在买保护。</p>
+
+<h3>如果这个假设错了，价格会怎么走</h3>
+
+<p>把&nbsp;2024&nbsp;年&nbsp;8&nbsp;月的剧本再放一遍，路径大致是：</p>
+
+<ol>
+<li><strong>触发：</strong>日本央行加息幅度或措辞超预期，或者美国数据突然转弱让美联储转向降息</li>
+<li><strong>第一波：</strong>日元快速升值，USD/JPY&nbsp;跌破&nbsp;155</li>
+<li><strong>强制平仓：</strong>加杠杆的套息仓位触及止损，被迫买回日元</li>
+<li><strong>自我强化：</strong>买回日元推动日元进一步升值，逼更多人平仓（这就是环④说的「踩踏」）</li>
+<li><strong>外溢：</strong>套息交易借来的日元不只买了美债，也买了股票、新兴市场资产。平仓意味着这些资产被一起抛售 → 全球风险资产同步下跌 → VIX&nbsp;从&nbsp;15&nbsp;跳到&nbsp;30&nbsp;以上</li>
+<li><strong>对你：</strong>美股下跌 + 避险时美元通常先强后弱，新元也可能承压。<em>方向不确定，但波动一定放大</em></li>
+</ol>
+
+<h3>未来 1–3 个月的观察清单</h3>
+
+<table>
+<tr><th>时间</th><th>看什么</th><th>为什么它能证实/证伪上面的假设</th></tr>
+<tr><td>9 月 16 日</td><td><strong>美联储 FOMC 决议</strong></td><td>加息 → 利差扩大 → 日元更弱；意外降息 → 利差急剧收窄 → 触发平仓</td></tr>
+<tr><td>9 月中下旬</td><td><strong>日本央行会议</strong>：是否加息、加多少、声明措辞</td><td>核心变量。加 25bp 但措辞鸽派 → 日元可能反而下跌（「利好出尽」）；暗示连续加息 → 触发平仓</td></tr>
+<tr><td>每月</td><td><strong>日本 CPI</strong>（每月约 19–21 日）</td><td>核心 CPI 若站上 2%，日本央行的加息节奏就必须提速</td></tr>
+<tr><td>每月</td><td><strong>日本企业物价指数 PPI</strong></td><td>7 月是 +7.2%。若持续高位而 CPI 追不上，说明企业利润在被挤压，传导迟早发生</td></tr>
+<tr><td>随时</td><td><strong>USD/JPY 是否再次接近 162–163</strong></td><td>这是上次触发干预的区域。逼近即意味着第二次干预风险上升</td></tr>
+<tr><td>随时</td><td><strong>日本财务省的措辞升级</strong></td><td>「密切关注」→「高度紧迫感」→「不排除一切手段」是有固定序列的。措辞升级往往先于行动</td></tr>
+<tr><td>随时</td><td><strong>美国 30 年期国债收益率是否重上 5.33%</strong></td><td>若回购操作压不住，说明是信用/供给问题而非技术问题，假设三被证伪</td></tr>
+<tr><td>10 月</td><td><strong>MAS 季度政策声明</strong></td><td>若继续收紧 → 新元更强 → 你的美元资产以新元计的逆风加大</td></tr>
+<tr><td>随时</td><td><strong>VIX 是否突破 20</strong></td><td>「一切都会平稳」这个假设的即时体温计</td></tr>
+<tr><td>随时</td><td><strong>霍尔木兹海峡局势与油价</strong></td><td>油价上行同时打击日本（进口国）和美联储（通胀），会让两边同时更紧张</td></tr>
+</table>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>今天这条链体现的思维方式：区分「水平」与「变化」，区分「存量」与「流量」</h3>
+
+<p>今天有两处推理，本质上是同一种思维：</p>
+
+<p><strong>第一处：</strong>汇率的绝对水平（159）没有信息，变化率（−7.18%）才有。</p>
+
+<p><strong>第二处：</strong>干预投入的&nbsp;590&nbsp;亿美元是一次性的<em>存量</em>；而利差驱动的卖单是每天都在发生的<em>流量</em>。用一次存量去对抗持续的流量，注定失败。</p>
+
+<p>把这两处提炼成一句可以到处用的话：<strong>看到一个数字，先问它是「水位」还是「水流」。</strong></p>
+
+<h4>这种思维在别处怎么用</h4>
+
+<p><strong>例子一（个人财务）：</strong>「我有&nbsp;20&nbsp;万存款」是水位；「我每个月存&nbsp;3,000」是水流。两个人都有&nbsp;20&nbsp;万，一个每月存&nbsp;3,000、一个每月透支&nbsp;1,000，五年后差距是&nbsp;24&nbsp;万。<em>水流决定未来，水位只描述现在。</em>看理财状况先看水流。</p>
+
+<p><strong>例子二（公司分析）：</strong>「这家公司账上有&nbsp;50&nbsp;亿现金」是水位；「它每季度烧&nbsp;8&nbsp;亿」是水流。50&nbsp;亿听起来很安全，除以&nbsp;8&nbsp;亿，你会发现它只剩六个季度。<em>财报里最容易骗人的是资产负债表（水位），最难粉饰的是现金流量表（水流）。</em>（这是原理表&nbsp;F13&nbsp;的主题。）</p>
+
+<p><strong>例子三（政策辩论）：</strong>「政府发了&nbsp;1,000&nbsp;亿补贴」是水位；「这项补贴每年要花多少、持续几年」是水流。新闻永远报道水位，因为数字大、有冲击力；决定财政可持续性的是水流。</p>
+
+<h3>今天这条链在整个系统里的位置</h3>
+
+<figure>
+<svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="四大板块咬合关系图">
+<style>
+.cc{fill:#f6ece2;stroke:#b4553a;stroke-width:1.8}
+.cc2{fill:#eaf1f7;stroke:#4a7fa8;stroke-width:1.8}
+.tt{font:bold 14px -apple-system,"Noto Sans SC",sans-serif;fill:#22201e;text-anchor:middle}
+.tt2{font:11px -apple-system,"Noto Sans SC",sans-serif;fill:#6b665f;text-anchor:middle}
+.lk{stroke:#9a948c;stroke-width:1.4;fill:none}
+.lb{font:10.5px -apple-system,"Noto Sans SC",sans-serif;fill:#8a4b2a;text-anchor:middle}
+@media (prefers-color-scheme: dark){
+.cc{fill:#332a24;stroke:#d98a5f}
+.cc2{fill:#1f2b35;stroke:#5b8fb8}
+.tt{fill:#e6e3de} .tt2{fill:#9b968e} .lb{fill:#e8a97e}
+}
+</style>
+<line class="lk" x1="180" y1="105" x2="540" y2="105"/>
+<line class="lk" x1="180" y1="295" x2="540" y2="295"/>
+<line class="lk" x1="150" y1="135" x2="150" y2="265"/>
+<line class="lk" x1="570" y1="135" x2="570" y2="265"/>
+<line class="lk" x1="185" y1="140" x2="535" y2="260"/>
+<line class="lk" x1="535" y1="140" x2="185" y2="260"/>
+
+<circle class="cc" cx="150" cy="105" r="72"/>
+<text class="tt" x="150" y="98">利率</text>
+<text class="tt2" x="150" y="118">美 3.63% ｜ 日 1.00%</text>
+
+<circle class="cc2" cx="570" cy="105" r="72"/>
+<text class="tt" x="570" y="98">汇率</text>
+<text class="tt2" x="570" y="118">USD/JPY 159</text>
+<text class="tt2" x="570" y="133">USD/SGD 1.2708</text>
+
+<circle class="cc" cx="150" cy="295" r="72"/>
+<text class="tt" x="150" y="288">增长与通胀</text>
+<text class="tt2" x="150" y="308">日本 CPI 1.8%?</text>
+<text class="tt2" x="150" y="323">美国 CPI 3.4%</text>
+
+<circle class="cc2" cx="570" cy="295" r="72"/>
+<text class="tt" x="570" y="288">信用与杠杆</text>
+<text class="tt2" x="570" y="308">套息交易杠杆</text>
+<text class="tt2" x="570" y="323">美国赤字 2.1 万亿</text>
+
+<text class="lb" x="360" y="96">利差 → 资金流向 → 汇率（环③④）</text>
+<text class="lb" x="360" y="312">赤字 → 长端利率 → 全球定价（环⑦）</text>
+<text class="lb" x="82" y="200" transform="rotate(-90 82 200)">加息压需求（环①②）</text>
+<text class="lb" x="638" y="200" transform="rotate(90 638 200)">贬值→进口通胀（环⑥）</text>
+<text class="lb" x="290" y="180">干预（环⑧）</text>
+<text class="lb" x="430" y="222">平仓踩踏</text>
+
+<text class="tt2" x="360" y="376" style="text-anchor:middle">四个板块两两相连，任何一个动了，另外三个都要重新定价。今天这条链把四个都走了一遍。</text>
+</svg>
+<figcaption><strong>图 2｜宏观金融的四大板块。</strong>利率、汇率、增长通胀、信用杠杆，这四个板块之间每一条连线都是双向的。今天的事件从「增长与通胀」（日本 CPI）出发，经过「利率」（加息预期与利差），落到「汇率」（日元），又通过进口成本绕回「增长与通胀」，同时通过套息交易牵动「信用与杠杆」。<em>这就是为什么宏观不能分科目学——它是一个环，不是一条线。</em></figcaption>
+</figure>
+
+<h3>三条值得记住的顶层判断</h3>
+
+<p><strong>第一，价格是被「边际上的那个人」决定的，不是被平均意见决定的。</strong>日本有大量长期持有日元的家庭和企业，他们从不交易。决定&nbsp;USD/JPY&nbsp;的是那些每天在做决策的机构。<em>所以「日本人不会抛弃日元」这种话，对汇率没有任何解释力。</em></p>
+
+<p><strong>第二，政策工具能改变时间路径，很难改变最终位置。</strong>干预、回购、口头警告，都属于「买时间」。买来的时间有价值——它避免恐慌、给实体经济调整的空间——但如果这段时间里基本面没变，价格终究会走到它该去的地方。<em>看到任何政策动作，先问：它改变了驱动力，还是只改变了路径？</em></p>
+
+<p><strong>第三，制度选择决定了压力从哪里释放。</strong>日本选择控制利率，压力就跑到汇率上（跌到&nbsp;40&nbsp;年低点）。新加坡选择控制汇率，压力就跑到利率上（新元利率完全由市场决定，本地借贷成本随之波动）。<strong>压力不会消失，只会换个地方出现。</strong><em>这个洞察在你分析任何一个国家的政策时都适用：先找出他们固定了什么，然后去看压力被赶到了哪里。</em></p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<table>
+<tr><th>术语（中／英）</th><th>一句话大白话</th><th>出现在哪一环</th></tr>
+<tr><td>消费者物价指数 / CPI</td><td>把一堆老百姓常买的东西价格加权平均，看比去年贵了多少</td><td>环①</td></tr>
+<tr><td>核心 CPI / Core CPI</td><td>把生鲜食品（价格忽上忽下）剔掉之后的物价涨幅，更能反映趋势</td><td>环①</td></tr>
+<tr><td>基点 / basis point (bp)</td><td>0.01 个百分点。说「加 25 个基点」比说「加 0.25%」不容易吵架</td><td>环①②</td></tr>
+<tr><td>政策利率 / policy rate</td><td>央行直接设定的那个短期利率，是所有其他利率的起点</td><td>环②</td></tr>
+<tr><td>利差 / interest rate differential</td><td>两个国家利率之差。今天美日短端差 2.63 个百分点</td><td>环③</td></tr>
+<tr><td>基准货币 / base currency</td><td>汇率报价里写在前面的那个，是「被买卖的商品」</td><td>环⑤</td></tr>
+<tr><td>报价货币 / quote currency</td><td>写在后面的那个，是「用来标价的钱」</td><td>环⑤</td></tr>
+<tr><td>升值 / appreciation</td><td>一单位本币能换到更多外币了</td><td>环⑤</td></tr>
+<tr><td>贬值 / depreciation</td><td>一单位本币能换到的外币变少了。注意：USD/JPY 数字变大＝日元贬值</td><td>环⑤</td></tr>
+<tr><td>名义有效汇率 / NEER</td><td>本币对一篮子贸易伙伴货币的加权平均汇率，回答「整体上强还是弱」</td><td>环⑤、⑨</td></tr>
+<tr><td>交叉汇率 / cross rate</td><td>用两个对美元的报价拼出来的第三条汇率，比如 SGD/JPY = 159.04 ÷ 1.2708</td><td>环⑤、⑩</td></tr>
+<tr><td>套息交易 / carry trade</td><td>借利率低的货币，换成利率高的货币去赚差价</td><td>环④</td></tr>
+<tr><td>杠杆 / leverage</td><td>用自己的一块钱撬动十块钱的仓位。放大收益，也放大亏损</td><td>环④</td></tr>
+<tr><td>踩踏平仓 / unwind</td><td>大家同时被迫关掉同一笔交易，互相踩踏，把价格推得更极端</td><td>环④</td></tr>
+<tr><td>汇率传导 / exchange rate pass-through</td><td>汇率变了，有多少比例最终传到国内物价上，以及要花多久</td><td>环⑥</td></tr>
+<tr><td>生产者物价指数 / PPI</td><td>企业之间买卖东西的价格，通常比 CPI 更早反应成本变化</td><td>环⑥</td></tr>
+<tr><td>负反馈回路 / negative feedback loop</td><td>系统里自我纠正的力量：越偏离，回拉的力越大</td><td>环⑥</td></tr>
+<tr><td>外汇干预 / FX intervention</td><td>政府自己下场买卖本国货币，试图影响汇率</td><td>环⑧</td></tr>
+<tr><td>收益率曲线 / yield curve</td><td>把不同期限国债的利率画成一条线，反映市场对未来利率的看法</td><td>环⑦</td></tr>
+<tr><td>国债回购 / debt buyback</td><td>财政部在市场上把已经发行的债券买回来，以压低收益率</td><td>环⑦</td></tr>
+<tr><td>货币错配 / currency mismatch</td><td>你赚钱的货币和你持有资产的货币不是同一种</td><td>第 4 节</td></tr>
+<tr><td>远期汇率 / forward rate</td><td>今天就约定好、未来某天换汇用的价格。由两国利差机械决定</td><td>第 4 节</td></tr>
+<tr><td>对冲 / hedge</td><td>额外做一笔交易，把某个风险抵消掉。成本约等于两国利差</td><td>第 4 节</td></tr>
+<tr><td>VIX / 波动率指数</td><td>市场预期未来一个月股市波动有多大。长期均值约 19–20</td><td>第 5 节</td></tr>
+</table>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>第 1 题：某天新闻说「日元对美元下跌 5%」。请问 USD/JPY 从 150 会变成多少？（提示：不是 157.5）</summary>
+<p><strong>先想清楚题目在问什么。</strong>「日元下跌 5%」说的是<em>日元的价值</em>掉了 5%，不是 USD/JPY 这个数字涨了 5%。这两件事不一样——这是本课陷阱 2 的直接应用。</p>
+<p><strong>第一步：把日元的价值写出来。</strong></p>
+<div class="calc">
+<span class="line">USD/JPY = 150 时，1 日元 = 1 ÷ 150 = 0.0066667 美元</span>
+</div>
+<p><strong>第二步：让它掉 5%。</strong></p>
+<div class="calc">
+<span class="line">0.0066667 × (1 − 0.05) = 0.0066667 × 0.95 = <strong>0.0063333 美元</strong></span>
+</div>
+<p><strong>第三步：换回 USD/JPY 的报价方式。</strong></p>
+<div class="calc">
+<span class="line">USD/JPY = 1 ÷ 0.0063333 = <span class="res">157.89</span></span>
+</div>
+<p><strong>验算一下这个答案对不对：</strong>从 150 到 157.89，USD/JPY 涨了 (157.89 − 150) ÷ 150 = 5.26%。</p>
+<p>所以：<strong>日元跌 5%，对应美元涨 5.26%。</strong>如果你按 150 × 1.05 = 157.5 算，你算的是「美元涨 5%」，那对应的日元跌幅其实只有 0.05 ÷ 1.05 = 4.76%，跟题目不符。</p>
+<p><strong>一个可以记住的捷径：</strong>如果 B 跌了 x，那么 A/B 这个报价涨的比例是 x ÷ (1−x)。代入：0.05 ÷ 0.95 = 5.26%。✓</p>
+</details>
+
+<details>
+<summary>第 2 题：如果日本央行 9 月加息 25 个基点到 1.25%，套息交易的年化收益从 2.86% 掉到多少？日元需要升值多少才能让这笔交易归零？这个变化足以让套息交易者收手吗？</summary>
+<p><strong>第一步：算新的利差。</strong></p>
+<div class="calc">
+<span class="line">原来：美国 3 个月国债 3.86% − 日元借款 1.00% = 2.86%</span>
+<span class="line">加息后：3.86% − 1.25% = <span class="res">2.61%</span></span>
+</div>
+<p><strong>第二步：算新的归零点。</strong>套息交易在「日元升值幅度 = 利差」时收益归零。</p>
+<div class="calc">
+<span class="line">原来的归零点：159.04 × (1 − 0.0286) = 154.49</span>
+<span class="line">加息后：159.04 × (1 − 0.0261) = <span class="res">154.89</span></span>
+</div>
+<p><strong>第三步：判断这够不够。</strong></p>
+<p>收益从 2.86% 掉到 2.61%，减少了 0.25 个百分点，也就是<strong>下降了不到 9%</strong>（0.25 ÷ 2.86 = 8.7%）。归零点从 154.49 移到 154.89，只挪了 0.4 日元——大约 0.25%。</p>
+<p><strong>结论：单靠这一次加息，几乎不足以让套息交易者收手。</strong>2.61% 依然是很有吸引力的确定收益，加上 10 倍杠杆仍有 26% 的年化。</p>
+<p><strong>但这里有一个关键的区分：</strong>真正能改变行为的不是<em>已经发生的这 25 个基点</em>，而是<em>市场对后面还有几次加息的预期</em>。</p>
+<p>假设加息后日本央行暗示「未来一年还会加四次」，那么市场立刻会往前算：一年后日本利率是 2.25%，利差只剩 1.61%。<strong>而汇率是马上就会反应这个未来预期的，不会等到一年后。</strong></p>
+<p>所以正确的答案是：<em>看的不是这一次加息的幅度，而是这次加息之后的措辞。</em>这也是为什么第 5 节的观察清单里，我把「声明措辞」和「加多少」并列。</p>
+</details>
+
+<details>
+<summary>第 3 题：假设你有 10 万新元。方案 A：全部换成美元买美股 ETF。方案 B：一半留新元存款，一半换美元买美股。如果一年后美股涨 12%，USD/SGD 从 1.2708 跌到 1.2400，新元存款利率 2%，哪个方案的新元回报更高？请算给我看。然后回答一个更重要的问题：这个计算能证明哪个方案「更好」吗？</summary>
+<p><strong>方案 A：全部投美股</strong></p>
+<div class="calc">
+<span class="line">第 1 步：换汇。100,000 ÷ 1.2708 = <strong>78,690 美元</strong></span>
+<span class="line">第 2 步：涨 12%。78,690 × 1.12 = <strong>88,133 美元</strong></span>
+<span class="line">第 3 步：换回新元。88,133 × 1.2400 = <strong>109,285 新元</strong></span>
+<span class="line res">回报 = (109,285 − 100,000) ÷ 100,000 = +9.29%</span>
+</div>
+<p>用乘法公式验算：(1 + 0.12) × (1.2400 ÷ 1.2708) − 1 = 1.12 × 0.97576 − 1 = <strong>+9.29%</strong>　✓</p>
+<p><strong>方案 B：一半一半</strong></p>
+<div class="calc">
+<span class="line">新元那一半：50,000 × 1.02 = <strong>51,000 新元</strong></span>
+<span class="line">美元那一半：50,000 ÷ 1.2708 = 39,345 美元</span>
+<span class="line">　　　　　　39,345 × 1.12 = 44,066 美元</span>
+<span class="line">　　　　　　44,066 × 1.2400 = <strong>54,642 新元</strong></span>
+<span class="line">合计 = 51,000 + 54,642 = <strong>105,642 新元</strong></span>
+<span class="line res">回报 = +5.64%</span>
+</div>
+<p><strong>算术上的答案：方案 A 更高，9.29% vs 5.64%，差 3.65 个百分点。</strong></p>
+<p><strong>但这个计算能证明 A「更好」吗？不能。而这才是这道题真正要问的东西。</strong></p>
+<p>原因有三条：</p>
+<ol>
+<li><strong>我们是先假设了「美股涨 12%」才算出这个结果的。</strong>如果美股跌 12% 呢？方案 A 的新元回报会是 1.12 → 0.88，即 0.88 × 0.97576 − 1 = <strong>−14.13%</strong>；方案 B 则是 (50,000 × 1.02) + (39,345 × 0.88 × 1.24) = 51,000 + 42,933 = 93,933，即 <strong>−6.07%</strong>。<em>方案 A 在好年份多赚 3.65 个点，在坏年份多亏 8 个点。</em></li>
+<li><strong>把已知结果代入去比较方案，是一种事后偏误。</strong>做决策的时候你并不知道会涨 12%。正确的做法是把多种情景（涨、平、跌）各算一遍，看整个分布，而不是挑一个情景下结论。（这个方法在原理表 B43 里有专门一天。）</li>
+<li><strong>「更好」取决于这笔钱要干什么。</strong>如果这 10 万新元是你三年后的购房首付，方案 A 的 −14% 情景可能直接毁掉计划；如果是你 25 年后才动的退休金，短期波动几乎无关紧要。<em>没有脱离用途的最优组合。</em></li>
+</ol>
+<p><strong>这道题真正的教学点是：算术能告诉你「如果 X 发生会怎样」，但不能告诉你「该不该赌 X」。</strong>前者是数学，后者是判断。</p>
+</details>
+
+<h3>一个今天就能做的小动作（10 分钟）</h3>
+
+<p>打开一个表格，做四行字：</p>
+
+<ol>
+<li>写下你目前<strong>美元资产的大致总额</strong>（不用精确，量级就行）</li>
+<li>写下今天的 <strong>USD/SGD = 1.2708</strong>，以及今天的日期</li>
+<li>算一下：<em>如果 USD/SGD 跌到 1.20（大约 −5.6%），这笔资产以新元计会少多少钱？</em>把这个数字写出来</li>
+<li>看着这个数字，问自己一句：<strong>如果明天真的发生了，我会睡不着觉，还是无所谓？</strong>把答案写下来</li>
+</ol>
+
+<p>这个动作的价值不在数字，在最后那句自问。<em>它衡量的不是你的风险承受<strong>能力</strong>（那是数学），而是你的风险承受<strong>意愿</strong>（那是心理）。</em>这两者的区别是原理表 G4 的主题，而绝大多数投资失误都源于混淆了它们。</p>
+
+<h3>延伸阅读</h3>
+
+<ol>
+<li>
+<strong>MAS 官网的货币政策说明页</strong>　<a href="https://www.mas.gov.sg/monetary-policy">https://www.mas.gov.sg/monetary-policy</a><br>
+<span class="tag">难度：低</span><span class="tag">约 20 分钟</span><br>
+<em>为什么值得读：</em>你住在新加坡，而新加坡的货币政策框架在全世界是独一份。这是官方对「斜率、中心、宽度」这三个参数最权威的解释，读完你会对第⑨环有更立体的理解。语言平实，不需要数学基础。
+</li>
+<li>
+<strong>国际清算银行 2025 年三年期外汇市场调查</strong>　<a href="https://www.bis.org/statistics/rpfx25.htm">https://www.bis.org/statistics/rpfx25.htm</a><br>
+<span class="tag">难度：中</span><span class="tag">看图表即可</span><br>
+<em>为什么值得读：</em>本课「590 亿只是一天成交量的 4.3%」这个判断就来自这份报告（全球日均 9.6 万亿美元，USD/JPY 1.37 万亿）。这是外汇市场规模最权威的原始数据源，每三年更新一次。你不需要读全文，把成交量的表格看懂就够了——<strong>亲自从原始来源确认一个数字，比读十篇二手评论更有价值。</strong>
+</li>
+<li>
+<strong>日本总务省统计局 CPI 速报页</strong>　<a href="https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-z.html">https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-z.html</a><br>
+<span class="tag">难度：中（有英文版）</span><span class="tag">10 分钟</span><br>
+<em>为什么值得读：</em>今天这一课的起点数据就在这里。去核对一下 7 月的实际数字是多少，跟本文引用的市场预期 1.8% 比一比。<strong>养成「回到一手数据」的习惯，是你这一年最值钱的投资之一。</strong>
+</li>
+<li>
+<strong>OMFIF：《日本的日元干预与美国不同寻常的支持》</strong>　<a href="https://www.omfif.org/2026/08/japans-yen-intervention-and-the-us-unusual-support/">链接</a><br>
+<span class="tag">难度：中高</span><span class="tag">15 分钟</span><br>
+<em>为什么值得读：</em>这是本课环⑧的主要参考之一。它的核心论点——「市场并非无序，只是在理性回应过于宽松的政策，因此干预是创可贴」——正是今天想教给你的那种判断方式。读的时候留意作者如何用「基本面 vs 情绪」这一组区分来支撑结论。有少量术语，但可以边查边读。
+</li>
+</ol>
+
+<hr>
+
+<h2 style="border:0;margin-top:56px">来源</h2>
+<p class="src">
+本课所有数字均来自以下公开来源，未经核实的部分已在正文中标注。<br><br>
+· <a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15 每日选定利率（2026-08-18）</a> — 联邦基金有效利率 3.63%、3M 3.86%、2Y 4.19%、10Y 4.71%、30Y 5.28%<br>
+· <a href="https://investinglive.com/central-banks/preview-japan-core-cpi-seen-hitting-six-month-high-lifting-bets-on-boj-september-hike/">investingLive：日本核心 CPI 预览</a> — 7 月核心 CPI 预期 1.8%、6 月 1.6%、9 月加息押注约 80%、发布时间 2350 GMT<br>
+· <a href="https://investinglive.com/news/economic-and-event-calendar-in-asia-friday-august-21-2026-focus-on-japanese-inflation-data/">investingLive：8 月 21 日亚洲经济日历</a><br>
+· <a href="https://www.aljazeera.com/economy/2026/8/3/japan-and-us-confirm-rare-joint-intervention-to-prop-up-yen">Al Jazeera：美日确认罕见联合干预（2026-08-03）</a> — 约 589.7 亿美元、USD/JPY 至 155.20、贝森特与片山皋月表态、2011 年以来首次<br>
+· <a href="https://www.omfif.org/2026/08/japans-yen-intervention-and-the-us-unusual-support/">OMFIF：日本的日元干预与美国不同寻常的支持</a> — 日本 1.0% vs 美国 3.5–3.75%、干预后回到 158、美国用欧元买入<br>
+· <a href="https://tradingeconomics.com/japan/currency">TradingEconomics：日元</a> — USD/JPY 约 159.04（2026-08-20）、月度 +2.53%、年度 −7.18%、8/18–8/20 每日评论<br>
+· <a href="https://tradingeconomics.com/singapore/currency">TradingEconomics：新元</a> — USD/SGD 1.2708（2026-08-20）、月度 −1.60%、年度 −1.38%<br>
+· <a href="https://tradingeconomics.com/japan/government-bond-yield">TradingEconomics：日本 10 年期国债</a> — 2.853%（2026-08-20）、本周高点 2.95%（1996 年以来最高）、30 年期 4.01%、同比上升 1.24 个百分点<br>
+· <a href="https://tradingeconomics.com/japan/core-inflation-rate">TradingEconomics：日本核心通胀</a> — 6 月 1.60%，7 月数据发布安排与预期<br>
+· <a href="https://www.fxstreet.com/news/singapore-dollar-hawkish-mas-supports-sgd-against-us-dollar-mufg-202607272119">FXStreet / MUFG：MAS 政策评论</a> — S$NEER 斜率上调约 25bp 至约 1.25%/年、中心与宽度不变、Q1 GDP 6.3%、Q2 5.7%<br>
+· <a href="https://www.vtmarkets.com/en-asia/live-updates/mas-tightens-sgd-policy-band-slope-again-as-usd-sgd-slips-and-growth-outlook-brightens/">VT Markets：MAS 再度收紧新元政策带斜率</a> — 决议日期、USD/SGD 至约 1.2890、2026 年通胀预测 1.5–2.5%<br>
+· <a href="https://www.disruptionbanking.com/2025/12/11/how-bis-ranked-the-real-2025-fx-power-pairs/">Disruption Banking 引述 BIS 2025 三年期调查</a> — 全球日均 9.6 万亿美元、USD/JPY 1.37 万亿（14.3%）、较 2022 年 +35%<br>
+· <a href="https://www.chase.com/personal/investments/learning-and-insights/article/september-2026-rate-hike-now-expected-amid-energy-shocks">Chase / 摩根大通财富管理（2026-08-05）</a> — 联邦基金目标区间 3.50–3.75%、7 月 FOMC 9:3 维持、9 月加息概率约 65%、油价情景<br>
+· <a href="https://www.axios.com/2026/08/17/treasury-yields-warsh-bonds">Axios：不断上升的国债收益率在告诉我们什么（2026-08-17）</a> — 30 年期 5.26%、2007 年 6 月以来最高、赤字约 2.1 万亿/年、现任美联储主席 Kevin Warsh<br>
+· <a href="https://www.cnbc.com/2026/08/18/treasury-yields-.html">CNBC：30 年期国债收益率触及 5.33%（2026-08-18）</a><br>
+· <a href="https://finance.yahoo.com/markets/stocks/articles/stock-market-today-aug-20-135212527.html">Yahoo Finance：8 月 20 日市场收盘</a> — 标普 7,681.27（−0.35%）、纳指 26,156.88（−0.66%）、道指 53,072.74（−0.73%）、VIX 15.73、黄金 4,536.40、原油 86.46、财政部长债回购加倍<br>
+· <a href="https://www.cnbc.com/2026/08/12/cpi-inflation-report-july-2026.html">CNBC：美国 7 月 CPI（2026-08-12）</a> — 环比 +0.1%、同比 3.4%<br>
+· <a href="https://www.cnbc.com/2026/08/13/japan-ppi-inflation-energy-prices-takaichi-cpi.html">CNBC：日本 7 月批发通胀（2026-08-13）</a> — PPI 同比 +7.2%，低于预期的 7.4%<br>
+· <a href="https://www.cnbc.com/2026/07/31/boj-rates-yen-intervention-inflation-japan.html">CNBC：日本央行维持利率 1%（2026-07-31）</a><br>
+· <a href="https://www.japantimes.co.jp/business/2026/08/10/economy/boj-summary-opinions-july/">Japan Times：日本央行 7 月主要意见（2026-08-10）</a> — 上行物价风险、可能更快的加息节奏<br>
+· <a href="https://www.japantimes.co.jp/business/2026/06/30/markets/yen-breakout-162/">Japan Times：日元跌破 162，创 40 年新低（2026-06-30）</a><br>
+· <a href="https://www.cnbc.com/2026/07/22/yen-slides-past-163-raising-intervention-alert.html">CNBC：日元跌破 163（2026-07-22）</a><br>
+· <a href="https://www.bloomberg.com/news/articles/2026-08-14/carry-traders-are-exploiting-intervention-to-rebuild-yen-shorts">Bloomberg：套息交易者利用干预重建日元空头（2026-08-14）</a><br>
+· <a href="https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-z.html">日本总务省统计局：CPI 月度速报</a>
+</p>
+
+<p class="src" style="margin-top:36px; padding-top:20px; border-top:1px solid var(--line)">
+<strong>免责声明：</strong>本文是教学材料，不构成投资建议、财务建议或税务建议。文中所有涉及具体资产、货币和数字的讨论均为教学演示，用于说明经济与金融的运作机制。任何投资决策都应结合你自己的完整财务状况、风险承受能力与目标，并在必要时咨询持牌专业人士。文中数据均标注来源与日期，市场数据会持续变动，请以原始来源为准。
+</p>
+
+</div>
+</body>
+</html>
