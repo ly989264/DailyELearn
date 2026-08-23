@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 6 · 股票的本质：一串未来现金流 —— 从 Moderna 一天涨 177% 讲起</title>
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#1c1b19; --muted:#5f5c57; --line:#dedad3;
+  --card:#ffffff; --accent:#8a4b1f; --accent-soft:#f3e7dc;
+  --guess-bg:#fff6e5; --guess-line:#c98a1e; --guess-fg:#6b4405;
+  --src-bg:#eef4ee; --src-line:#5b8a5b; --src-fg:#2f4f2f;
+  --math-bg:#f2f1ee; --break-bg:#fdecec; --break-line:#c05a5a; --break-fg:#7a2020;
+}
+@media (prefers-color-scheme: dark){
+:root{
+  --bg:#16161a; --fg:#e8e6e1; --muted:#a7a29a; --line:#33323a;
+  --card:#1e1e24; --accent:#e0a06a; --accent-soft:#3a2a1c;
+  --guess-bg:#3a2f14; --guess-line:#d1a13c; --guess-fg:#f2dda6;
+  --src-bg:#1c2a1c; --src-line:#6fa86f; --src-fg:#cfe6cf;
+  --math-bg:#232329; --break-bg:#3a1e1e; --break-line:#c97b7b; --break-fg:#f3cfcf;
+}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  font-size:17px; line-height:1.9; overflow-x:hidden;
+}
+.wrap{max-width:740px; margin:0 auto; padding:32px 20px 96px}
+header.top{border-bottom:2px solid var(--line); padding-bottom:20px; margin-bottom:32px}
+.kicker{font-size:13px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase}
+h1{font-size:26px; line-height:1.45; margin:10px 0 8px; font-weight:700}
+.sub{color:var(--muted); font-size:14.5px; line-height:1.7}
+h2{font-size:21px; margin:52px 0 14px; padding-top:14px; border-top:1px solid var(--line); font-weight:700}
+h3{font-size:17.5px; margin:34px 0 10px; font-weight:700; color:var(--accent)}
+h4{font-size:16px; margin:22px 0 8px; font-weight:700}
+p{margin:14px 0}
+ul,ol{padding-left:22px; margin:14px 0}
+li{margin:7px 0}
+strong{font-weight:700}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92em; background:var(--math-bg); padding:1px 5px; border-radius:4px}
+a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; word-break:break-word}
+.lead{font-size:17.5px}
+.math{background:var(--math-bg); border-left:3px solid var(--accent); padding:14px 16px; margin:18px 0; border-radius:0 6px 6px 0; font-size:16px; line-height:2.05}
+.math .eq{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:15px; display:block; margin:6px 0}
+.math .res{font-weight:700; color:var(--accent)}
+.guess{background:var(--guess-bg); border:2px dashed var(--guess-line); border-radius:8px; padding:16px 18px; margin:22px 0}
+.guess .tag{display:inline-block; background:var(--guess-line); color:#fff; font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px; margin-bottom:8px; letter-spacing:.04em}
+.guess p{color:var(--guess-fg); margin:8px 0}
+.guess strong{color:var(--guess-fg)}
+.brk{background:var(--break-bg); border:1px solid var(--break-line); border-left:4px solid var(--break-line); border-radius:0 8px 8px 0; padding:14px 16px; margin:20px 0; font-size:15.5px}
+.brk p{color:var(--break-fg); margin:6px 0}
+.brk .tag{font-weight:700; color:var(--break-fg)}
+.src{background:var(--src-bg); border-left:3px solid var(--src-line); padding:9px 13px; margin:14px 0; font-size:13.5px; color:var(--src-fg); border-radius:0 5px 5px 0}
+.src a{color:var(--src-fg)}
+.card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin:22px 0}
+.tw{overflow-x:auto; margin:20px 0; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; min-width:420px; font-size:14.5px}
+th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+th{background:var(--accent-soft); font-weight:700}
+figure{margin:26px 0}
+svg{display:block; width:100%; height:auto; max-width:100%}
+figcaption{font-size:13.5px; color:var(--muted); margin-top:10px; line-height:1.7}
+details{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:14px 0}
+summary{cursor:pointer; font-weight:700; font-size:15.5px}
+details[open] summary{margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line)}
+.q{font-weight:700; margin-top:20px}
+.pause{border-left:3px solid var(--muted); padding-left:14px; color:var(--muted); font-style:normal; margin:18px 0; font-size:16px}
+.foot{margin-top:60px; padding-top:20px; border-top:2px solid var(--line); font-size:14px; color:var(--muted)}
+/* SVG theme hooks */
+.s-box{fill:var(--card); stroke:var(--fg); stroke-width:1.6}
+.s-box-dash{fill:var(--guess-bg); stroke:var(--guess-line); stroke-width:1.8; stroke-dasharray:7 5}
+.s-box-math{fill:var(--math-bg); stroke:var(--accent); stroke-width:1.6}
+.s-t{fill:var(--fg); font-size:13px; font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif}
+.s-t-b{fill:var(--fg); font-size:13.5px; font-weight:700; font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif}
+.s-t-s{fill:var(--muted); font-size:11.5px; font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif}
+.s-l{stroke:var(--fg); stroke-width:1.8; fill:none}
+.s-l-d{stroke:var(--guess-line); stroke-width:2; fill:none; stroke-dasharray:7 5}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 006 · 领域 F 股票估值与企业基本面 · 锚点原理 F1</div>
+  <h1>股票的本质：一串未来现金流<br><span style="font-weight:400;font-size:20px">—— 一家去年亏了 31 亿美元的公司，为什么一天之内多值 440 亿？</span></h1>
+  <p class="sub">今日事件：2026 年 8 月 19 日，Merck 与 Moderna 公布个体化癌症疫苗三期临床达标，Moderna 收盘暴涨 176.97%。<br>本文写于 2026 年 8 月 23 日（新加坡时间）。所有数据的出处与口径见文末第 9 节。</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+<p class="lead">今天从一件事出发：上周三，一家药企公布了一个试验结果，它的股票一天涨了 177%。这家公司上一个季度还在亏钱，试验结果也不会让它今年多收到一分钱。</p>
+<p class="lead">我们要讲明白一个道理：<strong>你买一只股票，买的从来不是它现在赚多少钱，而是它未来能给你多少钱——而未来的钱，要打折才能算成今天的钱。</strong></p>
+<p class="lead">读完你能回答这个问题：一条今天没带来任何收入的消息，为什么能让市值凭空多出几百亿美元？以及——这个数字算得过来吗？（剧透：今天我们会真的把它算一遍，结果有点出乎意料。）</p>
+
+<h2>1｜今天的事件</h2>
+
+<h3>1.1 临床试验的结果</h3>
+<p>2026 年 8 月 19 日，美国药企 <strong>Merck</strong>（默沙东，股票代码 MRK）与 <strong>Moderna</strong>（莫德纳，股票代码 MRNA）联合发布新闻稿，宣布一项名为 <strong>INTerpath-001</strong> 的三期临床试验达到了预设目标。</p>
+<p>具体事实（全部来自双方官方新闻稿）：</p>
+<ul>
+  <li>受试药物叫 <strong>intismeran autogene</strong>（此前代号 mRNA-4157 / V940），与 Merck 的现有抗癌药 KEYTRUDA（帕博利珠单抗）联合使用。</li>
+  <li>入组 <strong>1,137 名</strong>患者，均为「已完整手术切除的 IIB–IV 期皮肤黑色素瘤」、且此前未接受过全身治疗。</li>
+  <li>在<strong>期中分析</strong>（interim analysis，即试验尚未跑完就先看一次数据）时，主要终点<strong>无复发生存期（RFS）</strong>与关键次要终点<strong>无远处转移生存期（DMFS）</strong>均达到「统计学显著且临床意义明确」的改善。</li>
+  <li><strong>关键的一点：具体数字没有公布。</strong>新闻稿说详细疗效数据将在「即将召开的国际医学会议」上公布。也就是说，市场当天看到的是「成功了」，而不是「成功了多少」。</li>
+  <li>新闻稿中引用的是更早的<strong>二期</strong>（Phase 2b）数据作为参考：复发或死亡风险降低 49%（HR = 0.51，95% 置信区间 0.294–0.887）；远处转移或死亡风险降低 59%（HR = 0.411，95% 置信区间 0.200–0.843）。<strong>请注意这是二期的旧数据，不是这次三期的数据。</strong></li>
+</ul>
+<div class="src">出处：<a href="https://www.merck.com/news/merck-and-moderna-announce-phase-3-interpath-001-trial-of-intismeran-autogene-plus-keytruda-met-endpoints-of-recurrence-free-survival-rfs-and-distant-metastasis-free-survival-dmfs-in-patient/">Merck 官方新闻稿，2026-08-19</a></div>
+
+<h3>1.2 这两家公司怎么分钱</h3>
+<p>这个细节今天非常重要，请记住：<strong>Merck 与 Moderna 对这个产品「成本平摊、利润平分」（50/50）。</strong>这是 2022 年 10 月 12 日 Merck 行使选择权时确定的安排，当时 Merck 向 Moderna 支付了 2.5 亿美元。</p>
+<div class="src">出处：<a href="https://www.merck.com/news/merck-and-moderna-announce-exercise-of-option-by-merck-for-joint-development-and-commercialization-of-investigational-personalized-cancer-vaccine/">Merck 官方新闻稿，2022-10-12</a>（原文：“Merck and Moderna will share costs and any profits equally under this worldwide collaboration.”）</div>
+
+<h3>1.3 股价的反应</h3>
+<div class="tw">
+<table>
+<thead><tr><th>数据</th><th>数值</th><th>口径说明</th></tr></thead>
+<tbody>
+<tr><td>Moderna 8/19 收盘价</td><td>$174.38</td><td>当日<strong>收盘</strong>，涨幅 +176.97%（反推前一日收盘约 $62.96）</td></tr>
+<tr><td>Moderna 市值变化</td><td>约 250 亿 → 690 亿美元</td><td>同日，增加约 <strong>440 亿美元</strong></td></tr>
+<tr><td>Moderna 成交量</td><td>1.851 亿股</td><td>较三个月均量高 1,819%</td></tr>
+<tr><td>Merck 8/19 盘中</td><td>$153.12，+13.28%</td><td><strong>盘中价</strong>（非收盘），前一日收盘 $135.17；按 24.7 亿股计，市值增加约 <strong>444 亿美元</strong></td></tr>
+<tr><td>标普 500 指数 8/19 收盘</td><td>7,708</td><td>当日 +0.43%</td></tr>
+<tr><td>纳斯达克综合 8/19 收盘</td><td>26,331</td><td>当日 +0.16%</td></tr>
+<tr><td>Moderna 8/21 收盘价</td><td>$145.13</td><td>市值 579.4 亿美元；流通股 3.9924 亿股</td></tr>
+<tr><td>Moderna 52 周价格区间</td><td>$22.28 – $176.66</td><td>截至 2026-08-21</td></tr>
+</tbody>
+</table>
+</div>
+<div class="src">出处：<a href="https://www.fool.com/coverage/stock-market-today/2026/08/19/stock-market-today-aug-19-moderna-skyrockets-177-on-positive-phase-3-melanoma-data/">The Motley Fool，2026-08-19 收盘数据</a>｜<a href="https://stockanalysis.com/stocks/mrna/">stockanalysis.com MRNA 页面（8/21 收盘）</a>｜Merck 盘中数据见第 9 节，来源质量较低，已标注。</div>
+
+<h3>1.4 这家公司现在的经营状况</h3>
+<p>这一段是全文的关键对照组。Moderna 2026 年第二季度财报（2026 年 7 月 31 日发布）：</p>
+<ul>
+  <li>季度总收入：<strong>1.45 亿美元</strong></li>
+  <li>季度净亏损（GAAP 口径）：<strong>7.82 亿美元</strong>，每股亏损 $1.97</li>
+  <li>期末现金及投资：<strong>69 亿美元</strong></li>
+  <li>公司自己给 2026 全年的指引：研发费用约 29 亿美元，年末现金及投资 47–52 亿美元</li>
+</ul>
+<p>再看过去十二个月（TTM，trailing twelve months，就是"最近连续 12 个月"的合计）：收入 22.3 亿美元，<strong>净亏损 31.5 亿美元</strong>，每股亏损 $8.01。</p>
+<div class="src">出处：<a href="https://www.sec.gov/Archives/edgar/data/1682852/000168285226000147/exhibit9912026q2pressrelea.htm">Moderna 2026 Q2 财报新闻稿（SEC EDGAR 存档，Exhibit 99.1）</a>｜TTM 数据：<a href="https://stockanalysis.com/stocks/mrna/">stockanalysis.com</a></div>
+
+<div class="card">
+<p style="margin-top:0"><strong>把 1.3 和 1.4 放在一起看，一个矛盾就出现了：</strong></p>
+<p>这家公司过去一年<strong>亏了 31.5 亿美元</strong>，本季度收入只有 1.45 亿美元。按「赚钱」这个标准，它是负的。</p>
+<p>但市场愿意为它付 <strong>579 亿美元</strong>（8/21 收盘市值）。而且在 8 月 19 日那一天，仅仅因为一条不会带来任何当期收入的消息，市场就<strong>多付了 440 亿美元</strong>。</p>
+<p style="margin-bottom:0">440 亿美元是什么概念？它比这家公司过去十二个月全部收入（22.3 亿）的<strong>十九倍</strong>还多。而这一切，发生在一天之内，且公司当天没有多收到一分钱。</p>
+</div>
+<p>如果你现在觉得「这不合理」——很好，这正是今天要拆的东西。</p>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 720 1080" role="img" aria-label="从临床试验结果到股价重估的传导链">
+  <!-- 1 -->
+  <rect class="s-box" x="60" y="14" width="600" height="62" rx="8"/>
+  <text class="s-t-b" x="76" y="38">① 8/19 公布：三期临床达标（具体数字未公布）</text>
+  <text class="s-t-s" x="76" y="60">来源：Merck 官方新闻稿</text>
+  <path class="s-l" d="M360 76 L360 108" marker-end="url(#ar)"/>
+
+  <!-- 2 -->
+  <rect class="s-box" x="60" y="110" width="600" height="62" rx="8"/>
+  <text class="s-t-b" x="76" y="134">② 这条产品线两家 50/50 平分利润</text>
+  <text class="s-t-s" x="76" y="156">来源：2022 年 Merck 官方新闻稿</text>
+  <path class="s-l" d="M360 172 L360 204" marker-end="url(#ar)"/>
+
+  <!-- 3 dashed -->
+  <rect class="s-box-dash" x="60" y="206" width="600" height="70" rx="8"/>
+  <text class="s-t-b" x="76" y="230">③ 投资者心里「这药最终能卖出去」的概率大幅上调</text>
+  <text class="s-t-s" x="76" y="252">这一环无法直接观测——没人公布过概率。</text>
+  <text class="s-t-s" x="76" y="268">这是我的推测（合理，但不是事实）。</text>
+  <path class="s-l-d" d="M360 276 L360 308" marker-end="url(#ard)"/>
+
+  <!-- 4 -->
+  <rect class="s-box-math" x="60" y="310" width="600" height="76" rx="8"/>
+  <text class="s-t-b" x="76" y="334">④ 未来每一年的「期望现金流」被上调</text>
+  <text class="s-t-s" x="76" y="356">期望值 = 金额 × 概率。概率涨了，期望值就涨。</text>
+  <text class="s-t-s" x="76" y="376">纯算术，第 3.2 节会带你算一遍。</text>
+  <path class="s-l" d="M360 386 L360 418" marker-end="url(#ar)"/>
+
+  <!-- 5 -->
+  <rect class="s-box-math" x="60" y="420" width="600" height="86" rx="8"/>
+  <text class="s-t-b" x="76" y="444">⑤ 这些现金流在很多年以后 → 必须「折现」回今天</text>
+  <text class="s-t-s" x="76" y="466">折现率的地基是长期国债利率。8/19 前后 30 年期美债</text>
+  <text class="s-t-s" x="76" y="484">收益率约 5.2%（来源：Axios / Yahoo Finance 报道）。</text>
+  <text class="s-t-s" x="76" y="500">折现算法：纯算术，第 3.3 节。</text>
+  <path class="s-l" d="M360 506 L360 538" marker-end="url(#ar)"/>
+
+  <!-- 6 -->
+  <rect class="s-box" x="60" y="540" width="600" height="80" rx="8"/>
+  <text class="s-t-b" x="76" y="564">⑥ 实际发生：两家公司市值当天各增加约 440 亿美元</text>
+  <text class="s-t-s" x="76" y="586">Moderna 250 亿 → 690 亿；Merck 约 +444 亿（盘中口径）</text>
+  <text class="s-t-s" x="76" y="604">来源：收盘价 / 盘中价 + 流通股数，可自行核对</text>
+  <path class="s-l" d="M360 620 L360 652" marker-end="url(#ar)"/>
+
+  <!-- 7 -->
+  <rect class="s-box-math" x="60" y="654" width="600" height="92" rx="8"/>
+  <text class="s-t-b" x="76" y="678">⑦ 反过来算：黑色素瘤这一个适应症值多少钱？</text>
+  <text class="s-t-s" x="76" y="700">用已公开的销售预测（Barclays：2035 年约 30 亿美元/年）</text>
+  <text class="s-t-s" x="76" y="718">折现回今天 ≈ 每家 16 亿美元量级，只占 440 亿的约 3.5%。</text>
+  <text class="s-t-s" x="76" y="738">算术推导，第 3.5 节会完整走一遍。</text>
+  <path class="s-l-d" d="M360 746 L360 778" marker-end="url(#ard)"/>
+
+  <!-- 8 dashed -->
+  <rect class="s-box-dash" x="60" y="780" width="600" height="78" rx="8"/>
+  <text class="s-t-b" x="76" y="804">⑧ 结论：市场买的不是「黑色素瘤」，是「这个平台能复制」</text>
+  <text class="s-t-s" x="76" y="826">数字上黑色素瘤撑不起这个价，所以剩下的必然是别的东西。</text>
+  <text class="s-t-s" x="76" y="846">这是我的推断——算术排除了一种解释，不等于证明了另一种。</text>
+  <path class="s-l" d="M360 858 L360 890" marker-end="url(#ar)"/>
+
+  <!-- 9 -->
+  <rect class="s-box" x="60" y="892" width="600" height="62" rx="8"/>
+  <text class="s-t-b" x="76" y="916">⑨ 8/20–8/21 回落：收盘 $145.13，市值 579 亿</text>
+  <text class="s-t-s" x="76" y="938">两天内市场收回了约 110 亿美元。来源：收盘价数据</text>
+
+  <!-- legend -->
+  <rect x="60" y="978" width="600" height="86" rx="8" fill="none" stroke="var(--line)" stroke-width="1"/>
+  <text class="s-t-b" x="76" y="1000">图例</text>
+  <line class="s-l" x1="78" y1="1018" x2="118" y2="1018"/>
+  <text class="s-t" x="126" y="1023">实线 = 有一手出处，或纯算术可自行验证</text>
+  <line class="s-l-d" x1="78" y1="1044" x2="118" y2="1044"/>
+  <text class="s-t" x="126" y="1049">虚线 = 我的推测，不是事实</text>
+
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="ard" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="var(--guess-line)"/>
+    </marker>
+  </defs>
+</svg>
+<figcaption>传导链全图。注意第 ③ 环和第 ⑧ 环是虚线——它们是推测。这条链一共九环，其中两环我接不上硬证据，我会在正文里再说一次。</figcaption>
+</figure>
+
+<h4>用人话把这条链读一遍</h4>
+<p>8 月 19 日，两家公司说了一句话：我们那个个体化癌症疫苗，三期试验成功了。这句话不带来今年的任何收入——药还没批，还没卖。但市场立刻给这两家公司各加了大约 440 亿美元。</p>
+<p>为什么？因为持有一张股票，本质上是持有「这家公司未来所有能分给股东的钱」的一份索取权。三期成功这件事，不改变今年的钱，但它大幅提高了「未来某一年真的有一笔钱进来」的可能性。可能性变了，那串未来的钱的<strong>期望值</strong>就变了，把它们折算回今天，今天的价格就该变。</p>
+<p>然后我们做一件市场很少有人当场做的事：<strong>把这 440 亿反过来算一遍</strong>。用公开的销售预测算下来，黑色素瘤这一个适应症，折现回今天大概只值十几亿美元量级。它解释不了 440 亿。所以市场加的这笔钱，绝大部分不是给黑色素瘤的——是给「这套技术可以复制到别的癌症上」这个可能性的。</p>
+<p>最后，8 月 20–21 两天，市场又把其中约 110 亿收了回去。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>3.1｜锚点原理：股票到底是什么东西</h3>
+<p class="pause">这一节是今天的主菜，会写得最厚。如果你只看一节，看这一节。</p>
+
+<h4>先从一个你能想象的东西开始：一间奶茶店</h4>
+<p>假设你朋友开了一间奶茶店，你出钱占了 10%。这 10% 让你拥有什么？</p>
+<p>它不让你拥有那台封口机的 10%，也不让你可以随便进去拿奶茶。它给你的东西只有一样：<strong>以后这店赚了钱、分红的时候，你拿其中的 10%。</strong>如果哪天店卖掉了，卖出去的钱你也拿 10%。</p>
+<p>就这么多。你拥有的是<strong>一串未来会流到你手里的钱</strong>。</p>
+<p>股票是同一回事，只是把「10%」换成了「万分之一的万分之一」，并且可以随时在市场上转手。</p>
+<div class="card" style="border-left:4px solid var(--accent)">
+<p style="margin:0"><strong>经济学和金融学给这件事起了个名字：股票是对企业未来现金流的剩余索取权（residual claim on future cash flows）。</strong></p>
+<p style="margin:8px 0 0">「剩余」的意思是：公司赚的钱，先付供应商、先付工资、先付利息、先交税，<strong>剩下的</strong>才轮到股东。所以股东排在最后一位。这一点今天先记住，以后讲 E 领域（信用与银行）会反复用到。</p>
+</div>
+
+<h4>那么问题来了：未来的钱，今天值多少？</h4>
+<p>这是全篇最重要的一步，我们慢慢来。</p>
+<p>先做一个生活里的选择题。有人给你两个选项：</p>
+<ul>
+<li>A：<strong>今天</strong>给你 10,000 新币</li>
+<li>B：<strong>一年后</strong>给你 10,000 新币</li>
+</ul>
+<p>你会选 A。为什么？大部分人第一反应是「因为一年后钱会变毛」（通胀），这没错，但还有一个更基本的理由，就算完全没有通胀也成立：</p>
+<p><strong>因为今天拿到这 10,000，你可以把它存起来，一年后它会变成不止 10,000。</strong></p>
+<p>假设银行定期存款年利率是 5%。今天存 10,000：</p>
+<div class="math">
+<span class="eq">一年后 = 10,000 × (1 + 0.05) = <span class="res">10,500</span></span>
+</div>
+<p>所以「今天的 10,000」和「一年后的 10,500」是等价的——你可以在两者之间自由转换。</p>
+<p>那反过来问：<strong>「一年后的 10,000」，今天值多少？</strong></p>
+<p>我们要找一个数 X，使得 X 存一年后正好变成 10,000：</p>
+<div class="math">
+<span class="eq">X × 1.05 = 10,000</span>
+<span class="eq">X = 10,000 ÷ 1.05 = <span class="res">9,523.81</span></span>
+</div>
+<p>所以：一年后的 10,000 新币，今天只值 9,523.81 新币。差的那 476 新币，就是「等一年」的代价。</p>
+<div class="card">
+<p style="margin:0"><strong>刚才这个「除以 1.05」的动作，经济学给它起了个名字，叫「折现」（discounting）。</strong>那个 5%，叫「折现率」（discount rate）。算出来的 9,523.81，叫这笔未来现金的「现值」（present value，常缩写为 PV）。</p>
+</div>
+
+<h4>如果不是一年，是很多年呢？</h4>
+<p>两年后的 10,000，今天值多少？要除两次：</p>
+<div class="math">
+<span class="eq">10,000 ÷ 1.05 ÷ 1.05 = 10,000 ÷ 1.1025 = <span class="res">9,070.29</span></span>
+</div>
+<p>十年后的 10,000：</p>
+<div class="math">
+<span class="eq">1.05 自乘 10 次 = 1.62889</span>
+<span class="eq">10,000 ÷ 1.62889 = <span class="res">6,139.13</span></span>
+</div>
+<p>你可能会想：<em>为什么不是简单地「10 年 × 5% = 50%，所以打五折」？</em></p>
+<p>因为利息本身也会生利息。第二年的利息是按「本金 + 第一年利息」算的。这个滚雪球叫<strong>复利</strong>（compounding）。折现就是复利倒过来跑。</p>
+<p>把这些数字排在一起，你会看到今天最要紧的那个规律：</p>
+<div class="tw">
+<table>
+<thead><tr><th>这笔钱在几年后到手</th><th>折现率 5% 时，今天值多少<br>（每 10,000 元）</th><th>折现率 10% 时，今天值多少</th></tr></thead>
+<tbody>
+<tr><td>1 年后</td><td>9,524</td><td>9,091</td></tr>
+<tr><td>3 年后</td><td>8,638</td><td>7,513</td></tr>
+<tr><td>5 年后</td><td>7,835</td><td>6,209</td></tr>
+<tr><td>10 年后</td><td>6,139</td><td>3,855</td></tr>
+<tr><td>20 年后</td><td>3,769</td><td>1,486</td></tr>
+<tr><td>30 年后</td><td>2,314</td><td>573</td></tr>
+</tbody>
+</table>
+</div>
+<p>看最后一行：折现率 10% 时，30 年后的 10,000 元，今天只值 573 元。<strong>不到 6%。</strong></p>
+<p>这张表你今天先记住两条：</p>
+<ol>
+<li><strong>时间越远，折得越狠</strong>——而且不是线性变狠，是加速变狠。</li>
+<li><strong>折现率越高，折得越狠</strong>——而且越远的钱，对折现率越敏感（看 30 年那一行，5% 和 10% 之间差了四倍；1 年那一行只差 5%）。</li>
+</ol>
+<p>第 2 条以后会反复出现，它是「为什么加息的时候成长股跌得最惨」的全部答案（这是后面 F6 的内容，今天先埋个种子）。</p>
+
+<h4>把一串现金流加起来，就是一只股票的价值</h4>
+<p>现在我们有了工具。一家公司未来每一年都会给股东一些钱，把每一年的钱各自折现回今天，然后全部加起来，就是这家公司今天该值的钱。</p>
+<p>举一个完全<strong>示意</strong>的例子（下面这些数字是我编的，只为演示算法，不是任何真实公司的数据）：</p>
+<p>假设一家公司，从明年起每年给股东 100 万，一共给 5 年，然后关门。折现率 10%。</p>
+<div class="math">
+<span class="eq">第 1 年：100 ÷ 1.1        = 90.91 万</span>
+<span class="eq">第 2 年：100 ÷ 1.1²= 100 ÷ 1.21    = 82.64 万</span>
+<span class="eq">第 3 年：100 ÷ 1.1³= 100 ÷ 1.331   = 75.13 万</span>
+<span class="eq">第 4 年：100 ÷ 1.1⁴= 100 ÷ 1.4641  = 68.30 万</span>
+<span class="eq">第 5 年：100 ÷ 1.1⁵= 100 ÷ 1.61051 = 62.09 万</span>
+<span class="eq">－－－－－－－－－－－－－－－－－－－－－</span>
+<span class="eq">合计现值 = <span class="res">379.08 万</span></span>
+</div>
+<p>（把上面五个四舍五入后的数直接相加会得到 379.07，差的这 0.01 是舍入误差，不是算错了。）</p>
+<p>注意：这家公司未来一共会付出 500 万，但今天只值 379 万。</p>
+<div class="card" style="border-left:4px solid var(--accent)">
+<p style="margin:0"><strong>刚才做的这件事，金融学给它起了个名字，叫「折现现金流估值」（Discounted Cash Flow，简称 DCF）。</strong>如果把「现金流」特指为股利，就叫「股利折现模型」（Dividend Discount Model，DDM）。</p>
+<p style="margin:8px 0 0">这个想法最早系统提出，一般追溯到 John Burr Williams 1938 年的《The Theory of Investment Value》；Myron Gordon 1959 年给出了它最常用的简化形式（现在教科书里叫 Gordon Growth Model）。</p>
+</div>
+
+<h4>你现在应该有一个疑问</h4>
+<p>你可能会想：<em>「可是 Moderna 不发股利啊。它现在还在亏钱，一分钱都没给过股东。按这个模型，它岂不是值零？」</em></p>
+<p>这是个非常好的疑问，而且它正好戳到 DCF 最容易被误用的地方。答案分三层：</p>
+<p><strong>第一层：模型算的是「未来所有年份」，不是「现在」。</strong>一家公司今年不发钱，不代表 2035 年不发。上面那张表里，第 1 年是 0、第 2 年是 0，但第 10 年是 100 万——这个现金流照样有现值，只是折得比较狠。</p>
+<p><strong>第二层：不发股利不等于不产生现金。</strong>公司可以把钱留下来再投资，也可以回购股票。所以现代做法通常折的不是「股利」，而是「自由现金流」（free cash flow）——公司支付完所有必要开销和投资后，真正能自由支配的钱。这是后面 F3 的内容。</p>
+<p><strong>第三层：这才是关键——</strong>对于 Moderna 这种公司，<strong>它的价值几乎 100% 来自很多年以后的现金流</strong>。它今天的现金流是负的（在烧钱）。所以它的股价对「未来会怎样」的判断极端敏感，而对「今年赚多少」几乎不敏感。这就是为什么一条不影响今年收入的消息，能让它一天涨 177%——因为今年的收入本来就不是它值钱的原因。</p>
+<p>反过来想想一家成熟的公用事业公司：它的价值大部分来自未来 5–10 年比较确定的现金流。同样一条「十年后可能有新业务」的消息，对它的股价影响会小得多。</p>
+
+<h4>这个原理有分歧吗？有，而且是金融学最著名的争论之一</h4>
+<p>我必须把反对意见讲清楚，否则今天这一课就是一家之言。</p>
+<p><strong>反对意见的核心是这样一个观察。</strong>如果股价真的等于「未来股利的现值之和」，那么股价的波动，就应该只来自「大家对未来股利的看法变了」。而未来股利实际上是相当平稳的——公司不会今年发 100 亿、明年发 5 亿。既然被折现的东西很平稳，折出来的价格也不该剧烈波动。</p>
+<p>但现实中股价波动极大。</p>
+<p><strong>Robert Shiller 在 1981 年把这件事量化了。</strong>他的做法很聪明：他从 1871 年往后，拿真实发生过的股利数据，事后倒算出「如果当时的人有完美预知能力，股价本该是多少」（他叫这个「事后理性价格」）。然后把这条线和真实股价画在一起。</p>
+<p>结果是：真实股价<strong>围绕</strong>那条线剧烈上下波动，而那条线本身平滑得多。他的结论是，股价的波动幅度远远超过后续股利变化所能解释的范围。这篇论文叫《Do Stock Prices Move Too Much to be Justified by Subsequent Changes in Dividends?》，发表在 American Economic Review 1981 年 6 月号（71 卷 3 期，421–436 页）。同一年 Stephen LeRoy 与 Richard Porter 独立得出了类似结论。</p>
+<p><strong>支持 DCF 的一方怎么回应？</strong>主要有两条：</p>
+<ul>
+<li><strong>折现率不是常数。</strong>Shiller 的原始检验假设折现率固定。但如果折现率本身会随时间大幅变化（比如投资者在恐慌时要求更高的回报），那么即使未来股利很平稳，价格也可以剧烈波动——波动来自分母，不是分子。这是 Eugene Fama 一派的主要回应，后来 John Campbell 与 Shiller 自己发展的「Campbell–Shiller 分解」正是用来区分这两个来源的工具。有意思的是，Fama 和 Shiller 在 2013 年<strong>共同</strong>获得诺贝尔经济学奖。</li>
+<li><strong>统计方法上的质疑。</strong>Terry Marsh 与 Robert Merton 在 1986 年指出，Shiller 的检验依赖于股利过程的某些统计假设，如果这些假设不成立，「过度波动」可能是检验方法本身的产物。</li>
+</ul>
+<div class="card">
+<p style="margin:0"><strong>今天你该怎么用这个分歧？</strong></p>
+<p style="margin:8px 0 0">别把 DCF 当成一台「输入公司、输出正确价格」的机器。它更像一副<strong>翻译眼镜</strong>：它把「市场付了这个价」翻译成「市场必须在相信些什么，这个价才说得通」。</p>
+<p style="margin:8px 0 0">这个用法不依赖「市场是对的」这个假设——恰恰相反，它是用来<strong>检查市场对不对</strong>的。第 3.5 节我们就会这样用它。</p>
+</div>
+<div class="src">依据：折现算术为纯推导，读者可自行核对；Shiller (1981) AER 71(3):421–436；LeRoy & Porter (1981)；Marsh & Merton (1986)；Williams (1938)；Gordon (1959)。均为金融学标准教科书引用文献。</div>
+
+<h3>3.2｜从「概率变了」到「期望现金流变了」</h3>
+<p>上一节我们说，价值来自未来现金流。但药还没批下来，未来现金流是<strong>不确定</strong>的。怎么把不确定的东西放进算式？</p>
+<p>用一个日常场景。假设你买了一张彩票，中奖能拿 1,000 元，中奖概率 1%。这张彩票「值」多少？</p>
+<div class="math">
+<span class="eq">1,000 × 1% = <span class="res">10 元</span></span>
+</div>
+<div class="card">
+<p style="margin:0"><strong>这个「金额 × 概率」算出来的数，数学上叫「期望值」（expected value）。</strong>它不是你真的会拿到的数——你要么拿 1,000，要么拿 0，永远不会正好拿到 10。它的意思是：如果这件事重复很多很多次，平均下来每次是 10 元。</p>
+</div>
+<p>现在把这个搬到药上。</p>
+<p>一款药从进入三期临床到最终上市赚钱，中间要过好几关：三期数据要好、监管要批、生产要跟上、医保要愿意付钱、医生要愿意开。每一关都可能挂掉。</p>
+<p>假设（<strong>以下数字是我编的示意数字，只为演示算法</strong>）：这款药如果最终成功，从 2032 年起每年能给 Moderna 带来 20 亿美元的税后现金流。</p>
+<ul>
+<li>三期公布<strong>之前</strong>：市场认为最终成功的概率是 <strong>30%</strong>。<br>那么 2032 年这笔钱的期望值 = 20 亿 × 30% = <strong>6 亿</strong></li>
+<li>三期公布<strong>之后</strong>：最大的一关过了，市场把概率上调到 <strong>75%</strong>。<br>期望值 = 20 亿 × 75% = <strong>15 亿</strong></li>
+</ul>
+<p>一天之内，2032 年那一笔的期望值从 6 亿变成 15 亿，多了 9 亿。而 2033、2034、2035……每一年都发生了同样的事。<strong>公司当天的收入一分没变，但未来每一年的期望现金流都跳了一级。</strong></p>
+<p>这就是那一环的机制：<strong>好消息不改变现金流的金额，它改变现金流的概率；而估值算的是金额 × 概率。</strong></p>
+<p class="q">这一环什么情况下会断？</p>
+<p>如果市场事先就已经认为成功概率很高（比如 85%），那么「成功」这个消息只能把它推到 95%，期望值只涨 12%，股价不该有大反应。<strong>股价的反应大小，取决于消息相对于「事先预期」有多意外，而不是消息本身有多好。</strong>这一点极其重要，以后 F32（财报季的市场反应机制）会专门讲。</p>
+<p>反过来看：Moderna 一天涨了 177%，这本身就在告诉我们，市场事先对这件事的概率估计<strong>相当低</strong>。</p>
+<div class="src">依据：期望值计算为纯算术推导；本节所有金额与概率为示意数字，已明确标注，非真实数据。</div>
+
+<h3>3.3｜折现率：分母此刻在发生什么</h3>
+<p>3.1 节我们用了 5% 和 10% 这样的折现率。它们从哪来？</p>
+<p>完整答案是后面 F4（WACC）的内容，今天只讲最底下那一层。</p>
+<p>回到那个选择题：为什么「一年后的 10,000」比「今天的 10,000」少值？因为今天的钱可以拿去<strong>无风险</strong>地生息。那么「无风险生息」能生多少？基准就是<strong>政府债券的收益率</strong>——因为美国政府用美元还美元债，被市场视为几乎不会违约。</p>
+<p>所以折现率的地基是国债收益率，在这个地基上，再叠加一层「你承担了风险，所以要多赚一点」的补偿。</p>
+<p>那么今天这个地基有多高？</p>
+<ul>
+<li>8 月 19 日前后，<strong>30 年期美国国债收益率约 5.2%</strong>（据报道，此前伊朗战事之前约为 4.63%）。</li>
+<li><strong>10 年期</strong>：8 月 19 日（周三）低点约 4.64%，8 月 20 日（周四）早盘升破 4.7%。</li>
+<li>8 月 19 日，美国财政部宣布把长端国债回购规模从每次 20 亿美元<strong>翻倍到至少 40 亿美元</strong>，针对 10 年至 30 年期品种，执行期 2026 年 9 月 9 日至 11 月 4 日——这是财政部在试图给长端利率降温。</li>
+</ul>
+<div class="src">出处：<a href="https://www.axios.com/2026/08/19/rates-treasury-borrowing-bessent">Axios，2026-08-19</a>｜<a href="https://finance.yahoo.com/economy/article/one-day-after-doubling-treasury-buybacks-bessent-says-hes-ready-to-boost-them-further-to-push-down-long-term-yields-181218236.html">Yahoo Finance，2026-08-20</a>。口径说明：这些是媒体报道的盘中/收盘约数，不是美国财政部官方收益率曲线数据（该官方页面我今天无法抓取，见第 9 节）。</div>
+
+<p><strong>为什么这跟今天的故事有关？</strong>因为 Moderna 的价值几乎全部来自 2032 年以后的现金流，而 3.1 节那张表告诉我们：<strong>越远的钱，对折现率越敏感。</strong></p>
+<p>算一遍你就知道有多敏感。假设某笔钱在 9 年后到手：</p>
+<div class="math">
+<span class="eq">折现率 10%：1.1 自乘 9 次 = 2.35795 → 除以 2.35795</span>
+<span class="eq">折现率 12%：1.12 自乘 9 次 = 2.77308 → 除以 2.77308</span>
+<span class="eq">价值变化 = 2.35795 ÷ 2.77308 − 1 = <span class="res">−15.0%</span></span>
+</div>
+<p>折现率从 10% 抬到 12%（涨了 2 个百分点，也就是 <strong>200 个基点</strong>——「基点」basis point 就是万分之一，100 基点 = 1 个百分点），9 年后那笔钱的现值就少了 15%。什么都没发生，纯粹因为分母变了。</p>
+<p class="q">这一环今天成立吗？——我要说清楚：这一环今天是「背景」，不是「主因」。</p>
+<p>8 月 19 日 Moderna 涨 177%，长端利率那天并没有崩塌式的变化。<strong>今天这个事件是分子的故事（现金流的概率变了），不是分母的故事。</strong>我把利率放进来，是因为它是同一个算式的另一半，而且它这一周确实在动——但我不会说「利率导致了 Moderna 上涨」，那样说就是编。</p>
+<div class="src">依据：折现率敏感度为纯算术推导；利率水平有媒体出处（口径已标注）；「今天是分子而非分母的故事」是我基于时间点的判断。</div>
+
+<h3>3.4｜市场加了多少钱：一个可以当场核对的检验</h3>
+<p>这一环最有意思，因为它能被验证。</p>
+<p>回忆 1.2 节那个细节：这个产品，两家公司<strong>成本平摊、利润平分</strong>。</p>
+<p>那么如果市场是在给「这个产品未来的利润」定价，并且市场算得自洽，它应该给两家公司加上<strong>差不多相同的美元金额</strong>——不是相同的百分比，是相同的<strong>金额</strong>。因为它们各拿一半利润。</p>
+<p>我们来核对：</p>
+<div class="math">
+<span class="eq">Moderna：市值 250 亿 → 690 亿，增加 <span class="res">约 440 亿美元</span></span>
+<span class="eq">Merck ：前收 $135.17 → 盘中 $153.12（+13.28%）</span>
+<span class="eq">        涨幅 $17.95 × 24.7 亿股 = <span class="res">约 443 亿美元</span></span>
+</div>
+<p>440 亿 对 443 亿。</p>
+<p>我第一次算出来的时候是有点意外的。这不是我事后凑的——这是「50/50 分成」这个<strong>事前已知</strong>的合同条款，对市场行为做出的一个可检验预测，而它对上了。</p>
+<p class="q">但我必须泼三盆冷水，否则这就变成了漂亮的叙事。</p>
+<ol>
+<li><strong>口径不一致。</strong>Moderna 的 440 亿是<strong>收盘</strong>口径，Merck 的 443 亿是<strong>盘中</strong>口径。两个不同时点的数字放在一起比，本身就不严谨。而且 Merck 的盘中数据来源质量一般（见第 9 节），我没能拿到 Merck 当天的官方收盘数。</li>
+<li><strong>两边的「额外故事」并不对称。</strong>对 Merck 来说，这个药还有一层特殊价值：它的支柱产品 KEYTRUDA 在 2025 年贡献了约 317 亿美元收入（约占 Merck 总收入的一半），而其美国化合物专利 2028 年 12 月到期。一个必须<strong>联合</strong> KEYTRUDA 使用的新疗法，可以延长 KEYTRUDA 的商业寿命——这部分价值不在 50/50 分成里。对 Moderna 来说，则多了一层「我们这套 mRNA 平台被验证了」的价值，也不在分成里。<strong>两边各有一笔账外的东西，恰好抵消到 3 亿美元以内，更可能是巧合而不是精算。</strong></li>
+<li><strong>这不能证明市场「算对了」。</strong>它只说明市场的两个报价之间是自洽的。两个人可以在同一个错误答案上达成一致。</li>
+</ol>
+<div class="src">出处：Moderna 市值来自 <a href="https://www.fool.com/coverage/stock-market-today/2026/08/19/stock-market-today-aug-19-moderna-skyrockets-177-on-positive-phase-3-melanoma-data/">Motley Fool</a>；Merck 盘中价与股数见第 9 节（来源质量低，已标注）；KEYTRUDA 收入与专利期见 <a href="https://www.benzinga.com/trading-ideas/movers/26/08/61305527/modernas-cancer-vaccine-win-is-mercks-story-too">Benzinga，2026-08-19</a>。乘法为纯算术。</div>
+
+<h3>3.5｜反过来算：黑色素瘤到底值多少钱</h3>
+<p>现在用 3.1 节那副「翻译眼镜」。市场付了 440 亿。我们问：<strong>要相信什么，这 440 亿才说得通？</strong></p>
+<p>先找一个有出处的销售预测。目前我能查到的公开数字是：Barclays 预计这款疫苗<strong>仅黑色素瘤一个适应症</strong>，到 2035 年年销售额约 <strong>30 亿美元</strong>。</p>
+<div class="src">出处：Barclays 预测，转引自 <a href="https://noah-news.com/moderna-melanoma-vaccine-timeline/">Noah Intelligence</a> 与 <a href="https://ts2.tech/en/merck-stock-jumps-13-as-a-44-billion-gain-outruns-cancer-vaccine-forecasts/">ts2.tech</a>。<strong>口径警告：这是二手转引，我没能找到 Barclays 原始研报。</strong>下面的计算依赖这个数字，如果它错了，结论要重算。</div>
+
+<p>现在一步一步折。<strong>下面每一步的假设我都会标出来是「有出处」还是「我设的示意值」。</strong></p>
+
+<p><strong>第 1 步：Moderna 能分到多少收入？</strong></p>
+<div class="math">
+<span class="eq">30 亿 × 50%（合同条款，有出处）= <span class="res">15 亿美元/年</span></span>
+</div>
+
+<p><strong>第 2 步：这 15 亿收入里，有多少变成真正到手的现金？</strong></p>
+<p>要扣掉生产成本、销售费用、税。肿瘤专科药的利润率通常不低，但这款药是<strong>为每个病人单独制造</strong>的——要先给肿瘤测序、再设计专属的 mRNA 分子、再生产这一支。业内的看法是它「制造复杂且昂贵」。</p>
+<p>我设一个<strong>偏乐观</strong>的税后现金流率：<strong>40%</strong>。（<strong>这是我设的示意值，不是查来的。</strong>设得偏高，是为了让结论更稳健——如果连乐观假设都撑不起 440 亿，那悲观假设更撑不起。）</p>
+<div class="math">
+<span class="eq">15 亿 × 40% = <span class="res">6 亿美元/年（税后现金流）</span></span>
+</div>
+
+<p><strong>第 3 步：这笔钱能收几年？</strong></p>
+<p>我设 <strong>10 年</strong>（2035–2044），之后专利到期、仿制品进来。（<strong>示意值。</strong>）</p>
+
+<p><strong>第 4 步：把 2035–2044 这十年的钱，先折算到 2035 年那个时点。</strong></p>
+<p>连续 10 年、每年 6 亿、折现率 10%，这一串的现值是多少？我们不用背公式，直接看它等于什么：</p>
+<div class="math">
+<span class="eq">1.1 自乘 10 次 = 2.59374</span>
+<span class="eq">1 ÷ 2.59374 = 0.38554</span>
+<span class="eq">（1 − 0.38554）÷ 0.10 = <span class="res">6.1446</span></span>
+<span class="eq">→ 6 亿 × 6.1446 = <span class="res">36.9 亿美元（站在 2035 年看）</span></span>
+</div>
+<details>
+<summary>这个 6.1446 是怎么来的？（点开看逐年加总的版本，结果一样）</summary>
+<div class="math" style="margin-top:10px">
+<span class="eq">第 1 年 6 ÷ 1.1        = 5.455</span>
+<span class="eq">第 2 年 6 ÷ 1.21       = 4.959</span>
+<span class="eq">第 3 年 6 ÷ 1.331      = 4.508</span>
+<span class="eq">第 4 年 6 ÷ 1.4641     = 4.098</span>
+<span class="eq">第 5 年 6 ÷ 1.61051    = 3.726</span>
+<span class="eq">第 6 年 6 ÷ 1.771561   = 3.387</span>
+<span class="eq">第 7 年 6 ÷ 1.9487171  = 3.079</span>
+<span class="eq">第 8 年 6 ÷ 2.14358881 = 2.799</span>
+<span class="eq">第 9 年 6 ÷ 2.35794769 = 2.545</span>
+<span class="eq">第10 年 6 ÷ 2.59374246 = 2.313</span>
+<span class="eq">－－－－－－－－－－－－－－－－－－</span>
+<span class="eq">合计 = <span class="res">36.87 亿</span></span>
+</div>
+<p style="margin-bottom:0">那个 6.1446 只是「每年 1 元、连续 10 年、10% 折现」的合计，乘以 6 就行。它叫「年金现值系数」（annuity factor），是个省事的捷径，不是新道理。</p>
+</details>
+
+<p><strong>第 5 步：再从 2035 年折回 2026 年——还有 9 年。</strong></p>
+<div class="math">
+<span class="eq">1.1 自乘 9 次 = 2.35795</span>
+<span class="eq">36.9 亿 ÷ 2.35795 = <span class="res">15.6 亿美元</span></span>
+</div>
+
+<p><strong>结果：</strong>按 Barclays 的黑色素瘤销售预测，加上我一组偏乐观的假设，这个适应症对 Moderna 的现值大约是 <strong>16 亿美元</strong>。</p>
+<div class="math">
+<span class="eq">市场当天给 Moderna 加了：440 亿美元</span>
+<span class="eq">黑色素瘤能解释：约 15.6 亿美元</span>
+<span class="eq">占比 = 15.6 ÷ 440 = <span class="res">3.5%</span></span>
+</div>
+
+<p class="q">你可能会想：会不会是我的假设太保守了？</p>
+<p>我们把假设开到荒谬地乐观再算一次：峰值销售不是 30 亿而是 <strong>100 亿</strong>美元/年，专利期不是 10 年而是 <strong>20 年</strong>，利润率还是 40%。</p>
+<div class="math">
+<span class="eq">100 亿 × 50% × 40% = 20 亿/年</span>
+<span class="eq">1.1 自乘 20 次 = 6.72750；1 ÷ 6.72750 = 0.14864</span>
+<span class="eq">（1 − 0.14864）÷ 0.10 = 8.5136</span>
+<span class="eq">20 亿 × 8.5136 = 170.3 亿（站在 2035 年）</span>
+<span class="eq">170.3 亿 ÷ 2.35795 = <span class="res">72.2 亿美元</span></span>
+<span class="eq">占 440 亿的比例 = <span class="res">16.4%</span></span>
+</div>
+<p>就算把销售额吹到 Barclays 预测的三倍多、专利期翻倍，黑色素瘤仍然只能解释市场加价的六分之一。</p>
+
+<div class="card" style="border-left:4px solid var(--accent)">
+<p style="margin:0"><strong>这一节的结论，请注意它的形式：</strong></p>
+<p style="margin:8px 0 0">算术能做的是<strong>排除</strong>——它相当有力地说明，市场那天加的 440 亿美元，<strong>不可能主要是在为黑色素瘤这一个适应症付钱</strong>。这个排除是稳健的：我把假设推到极端乐观，结论依然成立。</p>
+<p style="margin:8px 0 0">算术不能做的是<strong>指认</strong>——它没法告诉我剩下那 84%–96% 到底是在为什么付钱。</p>
+</div>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>我的推断是：市场买的是「平台」。</strong>三期成功证明的不只是「这个药能治黑色素瘤」，而是「给每个病人单独造一支 mRNA 疫苗、教免疫系统认出他自己的肿瘤」这套方法在最严格的试验设计下真的管用。如果方法本身管用，它原则上可以搬到别的癌症上。目前公开信息显示该项目在黑色素瘤之外还有八个中后期项目，包括膀胱癌和非小细胞肺癌。</p>
+<p><strong>反对这个推断的看法是什么？</strong>至少有三种，都不能排除：</p>
+<p>（一）<strong>可能只是短期资金行为。</strong>当天成交量是三个月均量的 19 倍多，这种量能里通常有大量空头回补和期权对冲盘。这些交易和「未来现金流」毫无关系。8/20–8/21 两天回吐约 110 亿，某种程度上支持这个看法。</p>
+<p>（二）<strong>可能就是 Shiller 说的那件事。</strong>价格波动本来就常常超出基本面能解释的范围。我在 3.1 节讲了这个分歧，我不能一边承认它、一边假设今天的价格是理性算出来的。</p>
+<p>（三）<strong>可能我的折现率设错了。</strong>我用了 10%。生物科技的资金成本通常更高，如果用 15%，我算出来的 16 亿会进一步缩水到约 7 亿——这会让「黑色素瘤解释不了」的结论更强，但也说明这类计算对假设极其敏感。</p>
+<p><strong>需要什么材料才能判断？</strong>最关键的一份：那次医学会议上公布的<strong>完整三期数据</strong>（风险比 HR、置信区间、亚组表现、安全性）。有了它，才谈得上判断这套方法有多强、能不能外推。其次是定价与医保报销的信息，以及个体化生产的产能与单位成本——这三样目前都是空白。</p>
+</div>
+
+<div class="brk">
+<p><span class="tag">这里我接不上</span></p>
+<p>我无法从「市场加了 440 亿」倒推出「市场认为平台成功概率是多少」。因为要做这个反推，我需要知道市场对「平台完全成功」情形的估值是多少——而那个数字没有任何公开出处，只能靠我编。所以我在这里停住，不搭这座桥。</p>
+<p>同理，我也<strong>没有</strong>三期试验的具体疗效数字（HR、置信区间），因为公司还没公布。任何声称「这个疗效意味着多少销售额」的说法，今天都是编的。</p>
+</div>
+<div class="src">依据：50% 分成有出处；30 亿峰值销售为二手转引；40% 现金流率、10 年专利期、10% 折现率均为我设定的示意值，已逐项标注；所有折现计算为纯算术，可自行核对。</div>
+
+<h2>4｜对你意味着什么</h2>
+<p class="pause">先说清楚：以下是教学分析和判断框架，<strong>不是针对你个人情况的投资建议</strong>。我不知道你的资产规模、收入稳定性、家庭责任和风险承受能力，也不该在不知道的情况下给建议。</p>
+
+<h4>4.1 你的指数基金里，这一天发生了什么（几乎什么都没发生）</h4>
+<p>如果你像大多数新加坡的美股投资者一样，主要通过标普 500 指数基金持有美股，那么 8 月 19 日这天，一只股票涨了 177%，你的组合涨了多少？</p>
+<p>我们可以用当天的公开数据算一个上界。标普 500 当天涨了 <strong>0.43%</strong>。如果 Moderna 在指数里的权重是 w，它对指数的贡献就是 <code>w × 177%</code>。假设那天别的股票全都原地不动（实际不成立，道指当天涨了 1%），那么：</p>
+<div class="math">
+<span class="eq">w × 177% ≤ 0.43%</span>
+<span class="eq">w ≤ 0.43 ÷ 177 = <span class="res">0.24%</span></span>
+</div>
+<p>由于别的股票当天其实也在涨，Moderna 的真实权重<strong>比这个上界还小</strong>。</p>
+<p>这个算术告诉你一件很朴素的事：<strong>指数投资者对单个公司的爆发几乎完全免疫——好的方向和坏的方向都是。</strong>这就是分散化（diversification）的字面含义。我们后面 G5 会专门讲它为什么被称为「投资里唯一的免费午餐」，以及这句话成立的条件是什么。</p>
+
+<h4>4.2 这类股票的形状：看看那个 52 周区间</h4>
+<p>Moderna 过去 52 周的价格区间是 <strong>$22.28 到 $176.66</strong>。最高价是最低价的 <strong>7.9 倍</strong>。</p>
+<p>这不是「波动大」这么简单。这是<strong>二元</strong>——一个由少数几个「成/不成」事件决定命运的资产。3.1 节解释了为什么：它的价值几乎全部来自很多年以后的、概率性的现金流，所以每次概率被重估，价格就要跳一大步。</p>
+<p>对你的实际含义是：<strong>这类资产的仓位大小，不能按「我觉得它会涨」来定，要按「如果它明天腰斩，我的生活和情绪能不能照常运转」来定。</strong>这是后面 G4（风险承受能力 vs 风险承受意愿）的核心。</p>
+
+<h4>4.3 你收 SGD、持 USD，中间隔着一层汇率</h4>
+<p>这一层新手最容易忽略。假设一只美股涨了 10%，你的钱涨了多少？取决于同期美元兑新币怎么走。</p>
+<p>举一组<strong>示意数字</strong>（不是今天的真实汇率）：</p>
+<div class="math">
+<span class="eq">买入时：1 美元 = 1.30 新币，投入 13,000 新币 = 10,000 美元</span>
+<span class="eq">一年后：股票涨 10% → 11,000 美元</span>
+<span class="eq">但汇率变成 1 美元 = 1.24 新币（美元贬值约 4.6%）</span>
+<span class="eq">换回新币 = 11,000 × 1.24 = 13,640 新币</span>
+<span class="eq">你的实际回报 = 13,640 ÷ 13,000 − 1 = <span class="res">+4.9%</span></span>
+</div>
+<p>股票涨了 10%，你只赚了 4.9%。差的那部分被汇率吃掉了。</p>
+<p>反过来如果美元升值，你会赚得比 10% 多。<strong>关键是：你的真实回报永远是「资产回报」和「汇率变动」两件事叠加，不能只看前一个。</strong>汇率对冲要不要做、成本从哪来，是后面 D30 和 G30 的内容。</p>
+
+<h4>4.4 今天这一课能给你的一个可以马上用的动作</h4>
+<p>当你下次看到「某某股票因为某消息大涨 X%」时，问自己三个问题：</p>
+<ol>
+<li><strong>这条消息改变了「金额」还是「概率」？</strong>（大多数是概率）</li>
+<li><strong>这笔钱大概哪一年会到手？</strong>（越远，涨跌就越该被折现打薄；如果一条「十年后的好消息」让股票今天涨了 50%，你要警惕）</li>
+<li><strong>用一个粗糙的 DCF 反推，市场付的这个价，需要相信什么才说得通？</strong>（就是 3.5 节做的事，五步、一张纸、十分钟）</li>
+</ol>
+<p>第 3 个问题是今天真正的可迁移技能。它不要求你预测未来，只要求你把市场的价格<strong>翻译</strong>成一句可以被检验的话。</p>
+
+<h2>5｜反向倒推</h2>
+<p class="pause">前面几节都是顺着推：发生了 A，所以会有 B。这一节倒过来问：<strong>市场现在的价格，说明大家心里在赌什么？</strong></p>
+
+<h4>市场已经把什么定价进去了</h4>
+<p><strong>读数一：Moderna 8/21 收盘 $145.13，市值 579.4 亿美元。</strong>比消息前的约 250 亿高出 <strong>329 亿</strong>，比 8/19 收盘的 690 亿低了约 110 亿。</p>
+<p>这个数字能说明什么？把 3.5 节的结果套上去：黑色素瘤在极端乐观假设下值 72 亿，在合理假设下值 16 亿。<strong>市场保留下来的 329 亿里，至少有 250 亿以上不是黑色素瘤的钱。</strong>这是算术，不是叙事。</p>
+<p><strong>读数二：TTM 净亏损 31.5 亿美元，市值 579 亿。</strong>这个组合本身就是一句陈述：市场对这家公司的估值<strong>完全不来自它现在的盈利</strong>，因为它现在的盈利是负的。你甚至算不出市盈率——分母是负数。</p>
+<p><strong>读数三（对照组）：Merck 8/20 收盘 $148.99，市值 3,675.8 亿，市盈率 117.05，TTM 收入 665.7 亿、净利润 31.7 亿。</strong>一家年入 666 亿的成熟药企，市盈率 117——这个数字看起来荒谬。真实原因几乎肯定是 TTM 净利润里有一次性的巨额支出（净利润同比降了 80.7%，收入却增长了 4.6%，这种落差通常来自减值或并购相关的一次性费用）。<strong>但我今天没有查证具体原因，所以这只是我的合理猜测，不要当结论。</strong>它顺带说明了一件事：<strong>市盈率这个指标，在有一次性项目时会彻底失真——这正是为什么我们今天一整节都在讲现金流，而不是讲市盈率。</strong></p>
+
+<h4>最脆弱的假设是哪一个</h4>
+<p>按 3.5 节的算术，市场付的钱里绝大部分不在黑色素瘤上。那么它压在哪里？我在推测框里说了，我认为是「平台可复制」。</p>
+<p>那么<strong>最脆弱的一环，就是「这套个体化制造能在经济上跑通」</strong>。</p>
+<p>为什么是这一环最脆弱？因为它有两个特点：第一，它<strong>不是</strong>刚刚被三期试验验证的东西——试验验证的是疗效，不是产能和成本；第二，它是个<strong>纯工程与经济问题</strong>，而工程与经济问题往往比生物学问题更难在几年内解决。给一个病人的肿瘤测序、设计专属 mRNA、单独生产一支，然后重复几十万次——这条产线的单位成本和产能，目前没有任何公开数字。</p>
+
+<h4>如果这个假设错了，价格该怎么走</h4>
+<p>如果最终发现这套方法只能在少数适应症、少数有能力承担的医疗体系里小规模使用，那么它就退化成一个「高价小众专科药」。按 3.5 节的第二组极端乐观假设，那也就是 70 亿美元量级的现值。市场目前额外保留的 329 亿，就需要收回其中的大部分。</p>
+<p><strong>注意这个说法的性质：它是一个条件预测，可以被证伪。</strong>如果未来产能和成本数据出来后很难看、而股价却不跌，那说明我这条链错了。</p>
+
+<h4>未来 1–3 个月，哪些具体事件会证实或证伪它</h4>
+<ol>
+<li><strong>那次国际医学会议上的完整三期数据。</strong>这是最近、最重要的一个。要看的是：风险比 HR 是多少、置信区间多宽、在肿瘤负荷较低的 IIB/IIC 期患者中效果如何、三级以上不良反应率多少。如果数据强于此前二期（HR 0.51），平台叙事得到加强；如果明显弱于二期，整条链要重估。</li>
+<li><strong>监管递交的具体公告。</strong>公司说会「与监管机构就递交事宜沟通」。真正递交的时间点，直接决定现金流从哪一年开始——从 3.1 节那张表你已经知道，早一年晚一年，现值差别不小。</li>
+<li><strong>其他适应症的读数。</strong>公开信息提到黑色素瘤之外还有八个中后期项目（含膀胱癌、非小细胞肺癌）。<strong>如果平台叙事是对的，这些读数对股价的影响应该大于黑色素瘤的商业化进展。</strong>这是这条链最直接的可检验预测——它是事前就能说出口的，不是事后解释。</li>
+<li><strong>Moderna 的 Q3 2026 财报。</strong>重点看现金及投资余额（Q2 末 69 亿，公司指引年末 47–52 亿）和研发指引是否上调。如果为了铺开平台而大幅增加研发和产能投入，那是管理层在用真金白银押注平台叙事——比任何声明都可信。</li>
+<li><strong>长端美债收益率。</strong>30 年期目前约 5.2%。财政部的回购加码从 9 月 9 日开始执行。如果长端利率继续上行，按 3.3 节的算术，所有「现金流在很远的未来」的资产都会同步承压，与公司自身消息无关。</li>
+</ol>
+
+<div class="card">
+<p style="margin:0"><strong>自检：这套说法在事情发生之前能用来做预测吗？</strong></p>
+<p style="margin:8px 0 0">第 3 项是能的——「平台消息对股价的影响应该大于黑色素瘤商业化消息」，这句话在任何一次未来读数<strong>之前</strong>就可以说出口，并且会被证伪。</p>
+<p style="margin:8px 0 0">但我要诚实：<strong>第 3.5 节那个「440 亿撑不起黑色素瘤」的算术是事后做的。</strong>它是对已发生价格的检验，不是预测。它有价值（它排除了一种解释），但它不是预言。这两者我不该混为一谈，你也不该。</p>
+</div>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h4>今天这条链体现的思维方式：把价格翻译成一句可以被检验的话</h4>
+<p>大多数人看到一个价格，问的是「它会涨还是会跌」。这个问题几乎无法回答。</p>
+<p>今天我们做的是另一件事：<strong>把价格当成一个方程的答案，反推方程里的未知数。</strong>市场付了 440 亿——好，那么在「未来现金流折现」这个框架下，什么样的假设组合才能得出 440 亿？算下来发现黑色素瘤只占 3.5%。这不是预测，这是<strong>解码</strong>。</p>
+<p>解码的好处是它把一个无法回答的问题（会涨吗）换成了一个可以回答的问题（这个价格隐含的假设，我信不信）。而后者你是能有观点的——尤其当你对某个具体行业、某个具体环节有一手了解的时候。</p>
+
+<p><strong>这套思维在别处怎么用？给两个跨领域的例子：</strong></p>
+<ul>
+<li><strong>在利率市场（A 领域）：</strong>联邦基金期货的价格，可以反推出「市场认为未来一年会降息几次」。你不需要预测央行，你只需要判断：市场隐含的这条路径，比起我读到的通胀数据，是太鸽还是太鹰。这就是后面 A5 和 A36 要做的事——完全同一套动作。</li>
+<li><strong>在生活里：</strong>你在看一间出租公寓，房东报价每月 4,500 新币。你可以反推：按这个租金和当地房价，房东的租金回报率是多少？如果算出来只有 2%，而定存有 3%，那么房东要么是在赌房价上涨，要么就是算错了。你不需要预测房价，你只需要看出「这个价格里藏着一个关于房价上涨的赌注」，然后决定自己信不信。</li>
+</ul>
+
+<h4>今天这条链在整个系统里的位置</h4>
+<p>把经济—金融系统想成四块咬合的齿轮：<strong>增长、通胀与利率、信用、汇率</strong>。今天讲的股票估值，是这四块的<strong>下游汇合处</strong>——它不是独立的一块，而是前面几块共同决定的结果。</p>
+<div class="math" style="line-height:2.2">
+<span class="eq">一只股票的价值 = 未来现金流（分子）÷ 折现的累积效果（分母）</span>
+<span class="eq"></span>
+<span class="eq">分子由「增长」决定：经济好不好、这家公司的产品卖不卖得动</span>
+<span class="eq">分母由「利率」决定：无风险利率多高、要求的风险补偿多大</span>
+<span class="eq">分母还受「信用」影响：融资环境紧不紧、公司借得到钱吗</span>
+<span class="eq">对你而言，最后还要乘上「汇率」：USD 资产换回 SGD</span>
+</div>
+<p>这就是为什么这门课不能只讲股票。今天的事件是一个罕见的<strong>纯分子事件</strong>——好消息全部作用在现金流的概率上，跟利率、信用、汇率都没关系。正因为它这么「纯」，它是学习 F1 的最佳标本：所有干扰项都被剥掉了，你能清清楚楚看见「未来现金流」这一条腿单独在起作用。</p>
+<p>后面的日子里，我们会遇到几乎全是<strong>分母</strong>的事件（央行意外加息，所有股票一起跌），也会遇到分子分母同时动、方向相反的事件（那些最难判断，也最值钱）。今天先把这条腿站稳。</p>
+
+<h2>7｜今日新术语卡片</h2>
+<div class="tw">
+<table>
+<thead><tr><th>术语（中文 / English）</th><th>一句话大白话</th><th>出现在链条哪一环</th></tr></thead>
+<tbody>
+<tr><td>剩余索取权<br>residual claim</td><td>公司付完供应商、工资、利息、税之后，剩下的才归股东——股东排最后</td><td>3.1</td></tr>
+<tr><td>折现<br>discounting</td><td>把未来的一笔钱换算成今天值多少：除以「1 + 利率」，隔几年就除几次</td><td>3.1、⑤</td></tr>
+<tr><td>折现率<br>discount rate</td><td>做上面那个除法时用的百分数；它的地基是国债收益率，再加风险补偿</td><td>3.3、⑤</td></tr>
+<tr><td>现值<br>present value (PV)</td><td>折现算出来的那个「今天值多少」的数</td><td>3.1</td></tr>
+<tr><td>复利<br>compounding</td><td>利息也会生利息，所以增长比「年数 × 利率」快；折现是它倒过来跑</td><td>3.1</td></tr>
+<tr><td>折现现金流估值<br>DCF</td><td>把公司未来每年能给股东的钱各自折现、再加总，得到今天该值多少</td><td>3.1、3.5</td></tr>
+<tr><td>股利折现模型<br>DDM</td><td>DCF 的一个特例：被折现的现金流特指股利</td><td>3.1</td></tr>
+<tr><td>期望值<br>expected value</td><td>金额 × 概率。不是你真会拿到的数，是重复很多次的平均数</td><td>3.2、④</td></tr>
+<tr><td>年金现值系数<br>annuity factor</td><td>「每年 1 元、连续 N 年」的现值合计，一个省事的乘数，不是新道理</td><td>3.5</td></tr>
+<tr><td>基点<br>basis point (bp)</td><td>万分之一。100 个基点 = 1 个百分点</td><td>3.3</td></tr>
+<tr><td>过度波动之谜<br>excess volatility puzzle</td><td>Shiller 的发现：股价的波动远大于后来实际股利变化所能解释的范围</td><td>3.1（分歧）</td></tr>
+<tr><td>期中分析<br>interim analysis</td><td>临床试验还没跑完，先按预定规则看一次数据</td><td>1.1、①</td></tr>
+<tr><td>TTM（过去十二个月）<br>trailing twelve months</td><td>最近连续 12 个月的合计，不受财年切割影响</td><td>1.4</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<p class="q">思考题 1</p>
+<p>某公司承诺 5 年后一次性给股东每股 100 美元，之后清算，再无其他现金流。若折现率为 8%，这只股票今天理论上值多少？如果折现率突然升到 12%，它值多少？跌了百分之几？</p>
+<details><summary>参考答案（完整推导）</summary>
+<div class="math">
+<span class="eq">【折现率 8%】</span>
+<span class="eq">1.08 自乘 5 次：</span>
+<span class="eq">1.08 × 1.08 = 1.1664</span>
+<span class="eq">1.1664 × 1.08 = 1.259712</span>
+<span class="eq">1.259712 × 1.08 = 1.36048896</span>
+<span class="eq">1.36048896 × 1.08 = 1.4693280768</span>
+<span class="eq">现值 = 100 ÷ 1.46933 = <span class="res">$68.06</span></span>
+<span class="eq"></span>
+<span class="eq">【折现率 12%】</span>
+<span class="eq">1.12 × 1.12 = 1.2544</span>
+<span class="eq">1.2544 × 1.12 = 1.404928</span>
+<span class="eq">1.404928 × 1.12 = 1.57351936</span>
+<span class="eq">1.57351936 × 1.12 = 1.7623416832</span>
+<span class="eq">现值 = 100 ÷ 1.76234 = <span class="res">$56.74</span></span>
+<span class="eq"></span>
+<span class="eq">跌幅 = 56.74 ÷ 68.06 − 1 = <span class="res">−16.6%</span></span>
+</div>
+<p>要点：公司什么都没变，未来那 100 美元一分没少。价格跌 16.6% 完全来自分母。这就是「利率上升，长久期资产受伤」的最纯粹形式。</p>
+<p style="margin-bottom:0">再多想一层：如果这笔钱是 1 年后而不是 5 年后到手，同样的利率变化会让价格跌多少？<code>100/1.08 = 92.59</code>，<code>100/1.12 = 89.29</code>，跌 3.6%。<strong>同样的利率变化，5 年期的资产跌 16.6%，1 年期的只跌 3.6%。</strong>时间距离就是放大器。</p>
+</details>
+
+<p class="q">思考题 2</p>
+<p>假设三期公布前，市场认为某药最终成功的概率是 20%；公布后上调到 70%。如果这款药成功后的全部现值是 200 亿美元（且公司除此之外别无价值），公司市值应该从多少变成多少？涨幅是多少百分比？<br>然后回答一个更难的问题：如果实际观察到的涨幅比你算出来的<strong>小</strong>，可能是什么原因？</p>
+<details><summary>参考答案（完整推导）</summary>
+<div class="math">
+<span class="eq">公布前市值 = 200 亿 × 20% = <span class="res">40 亿</span></span>
+<span class="eq">公布后市值 = 200 亿 × 70% = <span class="res">140 亿</span></span>
+<span class="eq">涨幅 = 140 ÷ 40 − 1 = <span class="res">+250%</span></span>
+</div>
+<p><strong>为什么实际涨幅可能更小？至少四个原因：</strong></p>
+<p>（1）<strong>公司还有别的业务。</strong>题目假设「除此之外别无价值」，现实中不成立。假如公司另有 60 亿的其他价值，那么市值是 100 亿 → 200 亿，涨 100%，不是 250%。分母里的「其他价值」会稀释涨幅。</p>
+<p>（2）<strong>市场事先的概率可能比 20% 高。</strong>三期临床能进行到期中分析本身就是信息，市场未必只给 20%。</p>
+<p>（3）<strong>成功后还要花钱。</strong>「成功」不等于「立刻收钱」——还要建产能、铺销售。这些开支会从 200 亿里扣掉。</p>
+<p style="margin-bottom:0">（4）<strong>可能要增发股票。</strong>如果公司为了商业化而增发新股融资，未来的钱要被更多股份分，每股价值上涨幅度小于公司总价值的上涨幅度。这一点新手最容易漏，以后 F20 会专门讲。</p>
+</details>
+
+<p class="q">思考题 3</p>
+<p>用 3.5 节那五步，反推一个新问题：假设你相信市场那天加的 440 亿全部是理性的，并且全部来自「平台」（黑色素瘤之外的适应症），折现率 10%、现金流从 2035 年起、持续 20 年、Moderna 分成 50%、税后现金流率 40%。那么市场隐含地认为，这个平台在所有适应症上的<strong>年销售峰值</strong>是多少？<br>算完之后，评论一下这个数字合不合理。</p>
+<details><summary>参考答案（完整推导）</summary>
+<p>把 3.5 节的五步<strong>倒着走</strong>：</p>
+<div class="math">
+<span class="eq">第 5 步倒推：440 亿 × 2.35795 = 1,037.5 亿（站在 2035 年的价值）</span>
+<span class="eq">第 4 步倒推：1,037.5 ÷ 8.5136（20 年年金系数）= 121.9 亿/年（Moderna 的税后现金流）</span>
+<span class="eq">第 2 步倒推：121.9 ÷ 40% = 304.7 亿/年（Moderna 分到的收入）</span>
+<span class="eq">第 1 步倒推：304.7 ÷ 50% = <span class="res">约 609 亿美元/年（整个平台的销售峰值）</span></span>
+</div>
+<p><strong>这个数字合理吗？给几个参照点，然后你自己判断：</strong></p>
+<ul>
+<li>Merck 的 KEYTRUDA，全球最畅销的抗癌药之一，2025 年收入约 <strong>317 亿美元</strong>（有出处，见第 9 节）。</li>
+<li>Merck <strong>整家公司</strong>过去十二个月的收入是 <strong>665.7 亿美元</strong>（有出处）。</li>
+</ul>
+<p>也就是说，这个反推意味着市场隐含地认为：这个平台的年销售峰值要接近 KEYTRUDA 的两倍，或者接近整个 Merck 公司现在的收入规模。</p>
+<p><strong>我的评论：</strong>这个数字非常激进。它不是不可能——个体化癌症疫苗如果真的能覆盖多种实体瘤，理论上的患者池很大。但它需要一系列事情<strong>全部</strong>发生：多个适应症成功、生产能规模化、定价能被支付方接受、竞争对手没有更快更便宜的方案。</p>
+<p style="margin-bottom:0"><strong>不过请注意这个练习的真正教益：</strong>反推出的 609 亿之所以这么大，一部分原因是我强行假设了「440 亿全部理性、全部来自平台」。这个前提很可能不成立（见 3.5 节推测框里的三条反对意见）。<strong>反推的价值不在于得到一个数，而在于看清这个数有多离谱——离谱本身就是信息。</strong></p>
+</details>
+
+<h4>今天就能做的一个小动作（十分钟）</h4>
+<p>打开你自己持有的任何一只股票或基金，找到两个数：<strong>当前市值</strong>和<strong>过去十二个月的净利润</strong>（stockanalysis.com 这类网站上都有）。然后问自己一个问题：</p>
+<p><strong>「如果这家公司从今往后每年就赚这么多、永远不增长，用 8% 折现，它该值多少？」</strong></p>
+<p>算法很简单（这叫永续年金，perpetuity）：<code>年利润 ÷ 0.08</code>。比如年利润 10 亿，那就是 <code>10 ÷ 0.08 = 125 亿</code>。</p>
+<p>把这个数和真实市值比一比。真实市值高出多少？<strong>高出的那部分，就是市场为「未来的增长」付的钱。</strong>你信不信那部分，就是你对这只股票真正的看法。</p>
+<p>把这个数字和你的判断写下来，存一份。这是 G45（投资日志）的起点。</p>
+
+<h4>延伸阅读</h4>
+<ul>
+<li><strong><a href="https://www.merck.com/news/merck-and-moderna-announce-phase-3-interpath-001-trial-of-intismeran-autogene-plus-keytruda-met-endpoints-of-recurrence-free-survival-rfs-and-distant-metastasis-free-survival-dmfs-in-patient/">今天这条新闻的原始出处（Merck 官方新闻稿）</a></strong><br>难度：低。值得读的理由：<strong>去感受一下「一手材料」和「新闻报道」的差别</strong>。你会发现原文其实说得非常克制——具体数字一个都没给。而市场当天涨了 177%。这个反差本身就是今天最好的一课。</li>
+<li><strong><a href="https://www.nber.org/papers/w0456">Shiller (1981), "Do Stock Prices Move Too Much to be Justified by Subsequent Changes in Dividends?"（NBER 工作论文版）</a></strong><br>难度：中高，有计量内容。值得读的理由：不要求你读懂全部推导——<strong>去看那张图就够了</strong>（真实股价 vs 事后理性价格）。那张图是整个行为金融学的起点，一眼就能明白它在说什么。</li>
+<li><strong>Aswath Damodaran（纽约大学教授）的公开估值课程与博客</strong>，网址 <a href="https://pages.stern.nyu.edu/~adamodar/">pages.stern.nyu.edu/~adamodar/</a><br>难度：从入门到很深都有。值得读的理由：他是把 DCF 讲得最清楚的人，而且<strong>他会公开自己的估值电子表格和犯过的错</strong>。对你现在的阶段，先看他关于「story to numbers」（把故事翻译成数字）的内容——那正是我们今天 3.5 节做的事。</li>
+</ul>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+<p>这不是免责声明，是给你的可信度地图。<strong>请把它当成正文的一部分来读。</strong></p>
+
+<h4>9.1 有一手出处的（可点开核对）</h4>
+<div class="tw">
+<table>
+<thead><tr><th>内容</th><th>口径</th><th>出处</th></tr></thead>
+<tbody>
+<tr><td>INTerpath-001 三期达标；1,137 例；IIB–IV 期已切除黑色素瘤；期中分析；RFS 主要终点、DMFS 关键次要终点；详细数据未公布</td><td>公司官方新闻稿，2026-08-19</td><td><a href="https://www.merck.com/news/merck-and-moderna-announce-phase-3-interpath-001-trial-of-intismeran-autogene-plus-keytruda-met-endpoints-of-recurrence-free-survival-rfs-and-distant-metastasis-free-survival-dmfs-in-patient/">merck.com</a></td></tr>
+<tr><td>Phase 2b 数据 HR=0.51（95% CI 0.294–0.887）、HR=0.411（95% CI 0.200–0.843）</td><td><strong>二期旧数据</strong>，非本次三期数据</td><td>同上</td></tr>
+<tr><td>Merck 与 Moderna 成本平摊、利润平分；2022-10-12 支付 2.5 亿美元选择权</td><td>公司官方新闻稿，2022-10-12</td><td><a href="https://www.merck.com/news/merck-and-moderna-announce-exercise-of-option-by-merck-for-joint-development-and-commercialization-of-investigational-personalized-cancer-vaccine/">merck.com</a></td></tr>
+<tr><td>Moderna Q2 2026：收入 1.45 亿、GAAP 净亏 7.82 亿、EPS −$1.97、现金及投资 69 亿；FY26 研发指引约 29 亿、年末现金 47–52 亿</td><td>2026-07-31 发布；GAAP 口径；美元</td><td><a href="https://www.sec.gov/Archives/edgar/data/1682852/000168285226000147/exhibit9912026q2pressrelea.htm">SEC EDGAR Exhibit 99.1</a></td></tr>
+<tr><td>Moderna 8/19 收盘 $174.38（+176.97%）；市值 250 亿→690 亿；成交 1.851 亿股。标普 500 收 7,708（+0.43%）；纳斯达克 26,331（+0.16%）</td><td>2026-08-19 <strong>收盘</strong>口径</td><td><a href="https://www.fool.com/coverage/stock-market-today/2026/08/19/stock-market-today-aug-19-moderna-skyrockets-177-on-positive-phase-3-melanoma-data/">Motley Fool</a></td></tr>
+<tr><td>Moderna 8/21 收盘 $145.13；市值 579.4 亿；股数 3.9924 亿；TTM 收入 22.3 亿、净亏 31.5 亿、EPS −$8.01；52 周区间 $22.28–$176.66</td><td>2026-08-21 收盘；TTM 口径</td><td><a href="https://stockanalysis.com/stocks/mrna/">stockanalysis.com</a></td></tr>
+<tr><td>Merck 8/20 收盘 $148.99；市值 3,675.8 亿；股数 24.7 亿；TTM 收入 665.7 亿、净利 31.7 亿、PE 117.05；股息率 2.28%</td><td>2026-08-20 收盘；TTM 口径</td><td><a href="https://stockanalysis.com/stocks/mrk/">stockanalysis.com</a></td></tr>
+<tr><td>KEYTRUDA 2025 年收入约 317 亿美元、约占 Merck 总收入一半；美国化合物专利 2028 年 12 月到期，欧盟至 2031 年</td><td>媒体报道，2026-08-19</td><td><a href="https://www.benzinga.com/trading-ideas/movers/26/08/61305527/modernas-cancer-vaccine-win-is-mercks-story-too">Benzinga</a></td></tr>
+<tr><td>财政部长端回购由每次 20 亿加倍至至少 40 亿美元，10–30 年期，2026-09-09 至 11-04；30 年期收益率约 5.2%；10 年期 8/19 低点约 4.64%、8/20 升破 4.7%</td><td>媒体报道的约数，<strong>非官方收益率曲线数据</strong></td><td><a href="https://www.axios.com/2026/08/19/rates-treasury-borrowing-bessent">Axios</a>；<a href="https://finance.yahoo.com/economy/article/one-day-after-doubling-treasury-buybacks-bessent-says-hes-ready-to-boost-them-further-to-push-down-long-term-yields-181218236.html">Yahoo Finance</a></td></tr>
+<tr><td>Shiller (1981), AER 71(3): 421–436</td><td>学术文献，标准引用</td><td><a href="https://www.nber.org/papers/w0456">NBER w0456</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>9.2 出处质量偏弱、请打折看的</h4>
+<ul>
+<li><strong>Merck 8/19 盘中 $153.12（+13.28%）、前收 $135.17、市值增加约 444 亿美元。</strong>来源是聚合类站点 ts2.tech，不是一级市场数据商。我用它是因为 3.4 节的对称性检验需要它，但请注意：<strong>这是盘中价不是收盘价，而且我没能用第二个独立来源交叉验证。</strong>如果这个数字有误，3.4 节的「440 亿 vs 443 亿」这个漂亮的巧合就不成立。</li>
+<li><strong>Barclays 预测黑色素瘤 2035 年约 30 亿美元/年销售额。</strong>二手转引（Noah Intelligence、ts2.tech），<strong>我没能找到 Barclays 原始研报</strong>。3.5 节整个计算建立在这个数字上。我通过「把假设推到极端乐观（100 亿/年、20 年）结论仍成立」来降低对它的依赖，但依赖没有消除。</li>
+<li><strong>「黑色素瘤之外还有八个中后期项目，含膀胱癌、非小细胞肺癌」。</strong>来源 Clinical Trials Arena，媒体报道，非公司披露文件。</li>
+</ul>
+
+<h4>9.3 纯算术推导的（不需要相信我，自己算）</h4>
+<ul>
+<li>3.1 节全部折现计算与折现率对照表</li>
+<li>3.2 节期望值计算（<strong>其中的金额与概率是我编的示意数字</strong>，已在正文标注）</li>
+<li>3.3 节折现率敏感度（10% vs 12%，9 年，−15.0%）</li>
+<li>3.4 节 Merck 市值增量 = $17.95 × 24.7 亿股</li>
+<li>3.5 节全部五步折现（<strong>其中 40% 现金流率、10 年专利期、10% 折现率是我设的示意值</strong>，已逐项标注）</li>
+<li>4.1 节指数权重上界 0.24%（<strong>这是上界不是精确值</strong>，因为其他股票当天也在动）</li>
+<li>4.3 节汇率换算（<strong>示意汇率，非真实数据</strong>）</li>
+<li>第 8 节全部三道题的答案</li>
+</ul>
+
+<h4>9.4 我的推测（正文里都在黄色虚线框内）</h4>
+<ul>
+<li><strong>链条第 ③ 环：</strong>「投资者上调了成功概率」。没有任何地方公布过市场隐含概率，这是我的推断。</li>
+<li><strong>链条第 ⑧ 环：</strong>「市场买的是平台不是黑色素瘤」。算术只能<strong>排除</strong>「主要是黑色素瘤」，不能<strong>指认</strong>是平台。三条反对意见我在 3.5 节的推测框里都写了。</li>
+<li><strong>Merck 市盈率 117 的原因</strong>是一次性支出——我在 5 节里明确标注了这是我的猜测，今天没有查证。</li>
+</ul>
+
+<h4>9.5 我接不上的地方（明写）</h4>
+<ul>
+<li><strong>三期试验的具体疗效数字（HR、置信区间、亚组、安全性）</strong>——公司还没公布。这意味着<strong>没有人</strong>（包括华尔街）今天能真正判断这个疗效有多强。任何声称「这个疗效值多少钱」的说法都超出了现有证据。</li>
+<li><strong>从「440 亿」倒推「市场隐含的平台成功概率」</strong>——需要一个「平台完全成功值多少」的锚，这个锚没有任何公开出处。我在 3.5 节明确停在这里，没有搭桥。</li>
+<li><strong>个体化生产的单位成本与产能</strong>——完全空白。而这恰好是我在第 5 节判断为「最脆弱一环」的东西。<strong>我判断它脆弱，正是因为它没有数据，不是因为我有数据说明它不行。</strong>这两者要分清。</li>
+<li><strong>定价与医保报销</strong>——完全空白。</li>
+<li><strong>美国财政部官方收益率曲线数据</strong>——该页面今天抓不到（robots 限制），所以第 3.3 节的利率是媒体报道的约数，不是官方数据。如果你要严谨引用，请自行查 home.treasury.gov 的每日收益率曲线。</li>
+<li><strong>8 月 21 日（周五）的完整市场读数</strong>——标普/纳指收盘、VIX、油价、金价、USDSGD，我今天都没能拿到可靠出处，所以第 5 节没有用它们。<strong>我宁可少写一段，也不填一个我没查到的数。</strong></li>
+<li><strong>新加坡投资者持有美股的股息预扣税细节</strong>——4 节本来该讲（Merck 有 2.28% 股息率），但我今天没有查证，所以没写进正文。留给 G26。</li>
+</ul>
+
+<div class="foot">
+<p><strong>Day 006</strong>｜领域 F（股票估值与企业基本面）｜锚点原理 F1：股票的本质——一串未来现金流</p>
+<p>全文九环链条中：五环有一手出处，两环为纯算术推导，两环为我的推测（已用黄色虚线框和图中虚线标出）。有六处我明确接不上，见 9.5。</p>
+<p>本材料为教学用途，不构成任何投资建议。文中所有涉及个人财务的内容均为分析框架的演示，不针对任何个人情况。</p>
+</div>
+
+</div>
+</body>
+</html>
