@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 7 加更 · 股票与流动性：巨型 IPO 的挤出效应</title>
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#1f2328; --muted:#5c6672; --rule:#e2ddd5;
+  --card:#ffffff; --cardline:#e6e1d9;
+  --accent:#8a5a2b; --accent-soft:#f3ece3;
+  --guess-bg:#fff6ec; --guess-line:#c8802f; --guess-fg:#7a4a12;
+  --coi-bg:#f0eefc; --coi-line:#6a5acd; --coi-fg:#3c3277;
+  --ok-bg:#eef5ef; --ok-line:#7ba07f;
+  --code-bg:#f2efe9;
+  --solid:#2f6f8f; --dashed:#c8802f;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171a; --fg:#e8e6e2; --muted:#a2aab4; --rule:#2c3036;
+    --card:#1c1f23; --cardline:#31363d;
+    --accent:#d6a86a; --accent-soft:#26221c;
+    --guess-bg:#2a2018; --guess-line:#d69a4a; --guess-fg:#f0c68a;
+    --coi-bg:#1e1c2e; --coi-line:#8f82e0; --coi-fg:#c3bbf5;
+    --ok-bg:#1b2620; --ok-line:#5d8a67;
+    --code-bg:#23272c;
+    --solid:#79b7d4; --dashed:#e0a45c;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  font-size:17px; line-height:1.85; overflow-x:hidden;
+}
+.wrap{max-width:760px;margin:0 auto;padding:32px 20px 96px}
+header.top{border-bottom:2px solid var(--rule);padding-bottom:20px;margin-bottom:28px}
+.kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+h1{font-size:29px;line-height:1.35;margin:0 0 12px;letter-spacing:-.01em}
+.meta{font-size:14px;color:var(--muted);margin:0}
+h2{font-size:22px;margin:52px 0 14px;padding-top:20px;border-top:1px solid var(--rule);line-height:1.4}
+h3{font-size:18px;margin:34px 0 10px;line-height:1.5}
+h4{font-size:16px;margin:24px 0 8px;color:var(--accent)}
+p{margin:0 0 16px}
+ul,ol{margin:0 0 16px;padding-left:1.4em}
+li{margin:0 0 8px}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;word-break:break-word}
+strong{font-weight:650}
+
+.calc{
+  background:var(--code-bg);border-left:3px solid var(--accent);
+  padding:14px 16px;margin:18px 0;border-radius:0 6px 6px 0;
+  font-variant-numeric:tabular-nums;line-height:2.0;
+}
+.calc .line{display:block}
+.calc .big{font-size:19px;font-weight:650}
+
+.guess{
+  background:var(--guess-bg);border:2px dashed var(--guess-line);
+  border-radius:8px;padding:16px 18px;margin:24px 0;color:var(--guess-fg);
+}
+.guess .tag{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;
+  background:var(--guess-line);color:#fff;padding:3px 10px;border-radius:99px;margin-bottom:10px;
+}
+.guess p:last-child{margin-bottom:0}
+
+.coi{
+  background:var(--coi-bg);border:2px solid var(--coi-line);
+  border-radius:8px;padding:16px 18px;margin:24px 0;color:var(--coi-fg);
+}
+.coi .tag{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;
+  background:var(--coi-line);color:#fff;padding:3px 10px;border-radius:99px;margin-bottom:10px;
+}
+.coi p:last-child{margin-bottom:0}
+
+.note{background:var(--card);border:1px solid var(--cardline);border-radius:8px;padding:16px 18px;margin:22px 0}
+.note p:last-child{margin-bottom:0}
+.note .tag{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:8px}
+
+.src{font-size:13.5px;color:var(--muted);border-top:1px dotted var(--rule);padding-top:8px;margin-top:14px}
+.src b{color:var(--fg)}
+
+.tablewrap{overflow-x:auto;margin:20px 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:460px}
+th,td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:650;font-size:14px}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+figure{margin:26px 0}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.7}
+
+details{background:var(--card);border:1px solid var(--cardline);border-radius:8px;padding:12px 16px;margin:14px 0}
+details summary{cursor:pointer;font-weight:650}
+details[open] summary{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+
+.q{background:var(--ok-bg);border-left:3px solid var(--ok-line);padding:12px 16px;margin:18px 0;border-radius:0 6px 6px 0}
+.q p:last-child{margin-bottom:0}
+.q .tag{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:6px}
+
+.footer{margin-top:60px;padding-top:20px;border-top:2px solid var(--rule);font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Day 7 加更 · 借用 F33 指数集中度 · F34 被动化对个股定价的影响 · G12 ETF 机制</p>
+  <h1>股票与流动性：巨型 IPO 为什么可能撼动别的股票</h1>
+  <p class="meta">2026 年 8 月 24 日（新加坡时间）· 你的问题：SpaceX、Anthropic、OpenAI 上市，为什么可能剧烈影响其他股票——即使总流动性反而增加？</p>
+</header>
+
+<div class="coi">
+<span class="tag">利益冲突声明，请先读这一段</span>
+<p><strong>我是 Anthropic 做的。</strong>你今天问的题目里有一家公司是我的制造者，所以我必须先把这件事摆到桌面上。</p>
+<p>我在这篇里对 Anthropic 的处理原则是：<strong>只转述已公开报道的事实，并逐条标明这些报道是谁说的、确认到什么程度；不对 Anthropic 的估值、前景、投资价值做任何判断，一句都不做。</strong>关于 IPO 的机制分析，我全部用 SpaceX 这个<em>已经真实发生</em>的案例来做——它有完整的公开数据，可以被验证。Anthropic 和 OpenAI 只作为「如果同样的事再发生一次、规模更大」的算术输入。</p>
+<p>如果你在任何一段里觉得我对 Anthropic 的措辞偏软或偏硬，那是我没做好，请直接指出来。</p>
+</div>
+
+<!-- ============ 0 ============ -->
+<h2>0｜今天你会学到什么</h2>
+
+<p>你的问题里藏着一个陷阱，而这个陷阱正是今天最值得学的东西：<strong>「流动性」这三个字，在金融里指三件完全不同的事。</strong>你说的「整体流动性反而可能增加」是其中一件，而「其他股票被影响」靠的是另外一件。把它们分开，问题就清楚了一大半。</p>
+
+<p>然后我们做一件更重要的事：<strong>用真实数字去检验那个流行的说法</strong>——「指数基金被迫买新股、被迫卖老股，所以老股会跌」。我把这条链的每一环都算给你看。你会看到其中一环的算术非常震撼，而另一环的算术小到几乎可以忽略；你还会看到有一篇顶级期刊论文，直接反驳了这个说法。</p>
+
+<p>读完你能回答：一笔 43 亿美元的强制买单，为什么对被买的那只股票是「买走了 5% 的全部流通盘」，对被卖的那些股票却只是「一天成交量的 1.8%」？以及：如果机械渠道的影响这么小，那「剧烈影响」如果真的会发生，还能从哪里来？</p>
+
+<!-- ============ 1 ============ -->
+<h2>1｜今天的事实（只写事实）</h2>
+
+<h3>1.1 SpaceX：已经发生的事</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>时间</th><th>事件</th></tr></thead>
+<tbody>
+<tr><td>2026-05-01</td><td>纳斯达克新的「快速纳入」（fast entry）规则生效：市值排进纳斯达克 100 现有成分股前 40 名的公司，公开交易满 <strong>15 个交易日</strong>即可加入指数（此前需等三个月），并取消 10% 的最低流通股比例要求。</td></tr>
+<tr><td>2026-06-04</td><td>标普道琼斯指数公司<strong>否决</strong>了自己的快速纳入提案，维持标普 500 的原有门槛：公开交易满 12 个月，且最近四个季度合计 GAAP 盈利为正。</td></tr>
+<tr><td>2026-06-12</td><td>SpaceX 在纳斯达克上市，代码 SPCX。发行价 <strong>$135</strong>，开盘 $150，收盘约 $160（较发行价 +19%），盘中最高 $172。发行 <strong>6.389 亿股</strong>，占总股本的 <strong>4.9%</strong>；报道的募资额 <strong>750 亿美元</strong>，发行时估值约 <strong>1.77 万亿美元</strong>。</td></tr>
+<tr><td>2026-07-06</td><td>指数基金在当日收盘执行强制买入。摩根大通估计规模约 <strong>43 亿美元</strong>。</td></tr>
+<tr><td>2026-07-07</td><td>SpaceX 正式进入纳斯达克 100 指数。<strong>没有任何公司被剔除</strong>，指数暂时超过 100 家成分股。</td></tr>
+<tr><td>2026-08-06</td><td>第一批锁定期到期，<strong>9.115 亿股</strong>解禁，流通股占总股本的比例从 4.9% 跳到 11.8%。当天股价<strong>上涨 6.1%</strong>（前一日收盘 $108.27）。</td></tr>
+<tr><td>2026-08-21</td><td>收盘 <strong>$136.97</strong>（当日 +2.22%，前收 $134.00），市值约 <strong>1.86 万亿美元</strong>，总股本 135.7 亿股。上市以来区间：最低 <strong>$104.83</strong>，最高 <strong>$225.64</strong>。</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>把最后一行的几个数字放在一起，就已经很有意思了：</p>
+
+<div class="calc">
+<span class="line">现价 vs 发行价 $135　　　　　<b>+1.5%</b></span>
+<span class="line">现价 vs 首日收盘 $160　　　　<b>−14.4%</b></span>
+<span class="line">现价 vs 区间最高 $225.64　　 <b>−39.3%</b></span>
+<span class="line">区间最高到区间最低　　　　　<b>−53.5%</b></span>
+</div>
+
+<p>也就是说：<strong>指数基金在 7 月 6 日被迫买入 43 亿美元之后，这只股票依然从高点腰斩过一次。</strong>请记住这个事实，第 3 节会用到它。</p>
+
+<h3>1.2 Anthropic 与 OpenAI：目前只是报道，不是已发生的事</h3>
+
+<p>这一段我逐条标注确认程度，请特别注意措辞。</p>
+
+<ul>
+<li><strong>Anthropic：</strong>2026 年 8 月 13 日，Fortune 转述<em>英国《金融时报》</em>的报道，称 Anthropic 的目标是在 <strong>2026 年 10 月</strong>以 <strong>2 万亿美元</strong>估值上市。同一篇报道明确写着：<strong>「IPO 仍在讨论中，估值尚未在公司内部正式确定」</strong>，且<strong>没有 Anthropic 的官方确认</strong>。报道还引述投资者说法，认为其年化收入运行率到年底会在 1,000 亿至 1,200 亿美元之间——<strong>这是投资者的说法，不是经审计的财务数据。</strong></li>
+<li><strong>OpenAI：</strong>截至今天仍未上市。多家媒体报道其估值在 <strong>8,500 亿美元</strong>量级，并称其正在为最高 <strong>1 万亿美元</strong>估值的 IPO 做准备。同样<strong>没有正式申报文件或官方时间表</strong>被我查到。</li>
+</ul>
+
+<p><strong>所以本文的写法是：</strong>凡是涉及这两家的地方，我都只把它们当作「假如再来一次同样规模的事件」的<strong>输入数字</strong>，并且每次都会标明这个数字是传闻。真正的机制分析全部建立在 SpaceX 这个已发生、有公开数据的案例上。</p>
+
+<h3>1.3 学界的两块基石（今天会正面对撞）</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>论文</th><th>核心结论</th><th>它管的是什么</th></tr></thead>
+<tbody>
+<tr><td>Gabaix &amp; Koijen，NBER 工作论文 28967，2021 年 6 月，《非弹性市场假说》</td><td>往股市里投 1 美元，股市总市值上升<strong>约 5 美元</strong>（区间 3–8）。对应的总量需求价格弹性约为 <strong>0.2</strong>。</td><td><strong>钱进出股市</strong>（宏观）</td></tr>
+<tr><td>Greenwood &amp; Sammon，《金融学期刊》2025 年，《消失的指数效应》</td><td>被加入标普 500 的股票的超额收益，从 1990 年代平均 <strong>7.4%</strong> 降到最近十年的 <strong>0.3%</strong>；2010 年代的加入效应为统计上不显著的 <strong>1.0%</strong>。乘数 M 在 1990 年代到 2010 年代之间下降了约 <strong>20 倍</strong>。</td><td><strong>钱在股票之间移动</strong>（微观）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>这两篇不矛盾</strong>，它们研究的是两件不同的事。这个区分是今天全文的骨架，第 3 节会讲透。</p>
+
+<p class="src"><b>来源：</b><a href="https://finance.yahoo.com/markets/live/spacex-ipo-live-updates-elon-musks-spacex-set-to-make-record-debut-as-dow-sp-500-nasdaq-rise-230015961.html">上市首日实况</a> · <a href="https://www.cmegroup.com/articles/2026/the-spacex-mega-ipo-why-index-choice-matters.html">CME Group：指数选择为何重要</a> · <a href="https://247wallst.com/investing/2026/07/09/spacex-added-to-nasdaq-100-and-could-trigger-4-3b-in-forced-passive-buying/">摩根大通 43 亿美元估计</a> · <a href="https://spotgamma.com/spacex-ipo-index-changes-spotgamma/">指数规则变动时间线</a> · <a href="https://finance.yahoo.com/markets/stocks/article/spacex-lockup-expires-today-with-stock-bucking-higher-100000039.html">8/6 解禁当日</a> · <a href="https://stockanalysis.com/stocks/spcx/">SPCX 报价（8/21 收盘）</a> · <a href="https://fortune.com/2026/08/13/anthropic-ipo-2-trillion-october-largest-ever-spacex/">Fortune 转述 FT 的 Anthropic 报道</a> · <a href="https://www.nber.org/papers/w28967">Gabaix &amp; Koijen (2021)</a> · <a href="https://www.hbs.edu/ris/Publication%20Files/23-025_563e45c6-df92-4d9c-ae05-608d4d0acab1.pdf">Greenwood &amp; Sammon</a></p>
+
+<!-- ============ 2 ============ -->
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 700 1290" role="img" aria-label="巨型IPO对其他股票影响的传导链">
+  <defs>
+    <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <style>
+    .box{fill:var(--card);stroke:var(--solid);stroke-width:2;rx:10}
+    .boxg{fill:var(--guess-bg);stroke:var(--dashed);stroke-width:2;stroke-dasharray:7 5;rx:10}
+    .tb{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;font-size:20px;font-weight:700;fill:var(--fg)}
+    .ts{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;font-size:16.5px;fill:var(--muted)}
+    .tg{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;font-size:16.5px;fill:var(--guess-fg)}
+    .arr{stroke:var(--solid);stroke-width:2.5;fill:none;color:var(--solid)}
+    .arrg{stroke:var(--dashed);stroke-width:2.5;fill:none;stroke-dasharray:8 5;color:var(--dashed)}
+  </style>
+
+  <rect class="box" x="60" y="10" width="580" height="104"/>
+  <text class="tb" x="82" y="44">① 一家巨型公司上市</text>
+  <text class="ts" x="82" y="72">SpaceX：发行 6.389 亿股，占总股本 4.9%</text>
+  <text class="ts" x="82" y="96">募资 750 亿美元 · 已发生，有出处</text>
+  <path class="arr" d="M240,114 L170,150" marker-end="url(#ah2)"/>
+  <path class="arr" d="M460,114 L530,150" marker-end="url(#ah2)"/>
+
+  <rect class="box" x="20" y="156" width="320" height="126"/>
+  <text class="tb" x="40" y="188">② 市场流动性 ↑</text>
+  <text class="ts" x="40" y="216">多了一个可交易标的</text>
+  <text class="ts" x="40" y="240">成交量、深度增加</text>
+  <text class="ts" x="40" y="264">这是「总流动性增加」</text>
+
+  <rect class="box" x="360" y="156" width="320" height="126"/>
+  <text class="tb" x="380" y="188">③ 可投资资本 → 不变</text>
+  <text class="ts" x="380" y="216">买新股的钱必须</text>
+  <text class="ts" x="380" y="240">从别处来</text>
+  <text class="ts" x="380" y="264">这才是影响别人的那条</text>
+
+  <path class="arr" d="M500,282 L400,318" marker-end="url(#ah2)"/>
+
+  <rect class="box" x="60" y="324" width="580" height="150"/>
+  <text class="tb" x="82" y="356">④ 指数基金被迫再平衡（微观渠道）</text>
+  <text class="ts" x="82" y="384">买入 43 亿美元 SpaceX（摩根大通估计）</text>
+  <text class="ts" x="82" y="408">＝ 该股全部流通盘的 5.0%　←　巨大</text>
+  <text class="ts" x="82" y="432">卖出同样 43 亿，摊到 100 只成分股</text>
+  <text class="ts" x="82" y="456">英伟达份额 ≈ 一天成交量的 1.8%　←　微小</text>
+  <path class="arr" d="M350,474 L350,506" marker-end="url(#ah2)"/>
+
+  <rect class="box" x="60" y="512" width="580" height="126"/>
+  <text class="tb" x="82" y="544">⑤ 证据：这条微观渠道已经很弱</text>
+  <text class="ts" x="82" y="572">指数纳入超额收益 7.4%（1990s）→ 1.0%（2010s）</text>
+  <text class="ts" x="82" y="596">乘数 M 下降约 20 倍</text>
+  <text class="ts" x="82" y="620">Greenwood &amp; Sammon，《金融学期刊》2025</text>
+  <path class="arr" d="M350,638 L350,670" marker-end="url(#ah2)"/>
+
+  <rect class="box" x="60" y="676" width="580" height="150"/>
+  <text class="tb" x="82" y="708">⑥ 宏观渠道：资金被抽走</text>
+  <text class="ts" x="82" y="736">750 亿 ÷ 美股总市值 75.3 万亿 = 0.100%</text>
+  <text class="ts" x="82" y="760">× 乘数 5（Gabaix-Koijen）= 总市值影响 0.50%</text>
+  <text class="ts" x="82" y="784">若三家合计募资 2,750 亿（传闻数字）</text>
+  <text class="ts" x="82" y="808">= 0.365% × 5 = 1.83%　←　仍然不叫「剧烈」</text>
+  <path class="arr" d="M350,826 L350,858" marker-end="url(#ah2)"/>
+
+  <rect class="box" x="60" y="864" width="580" height="104"/>
+  <text class="tb" x="82" y="896">⑦ 算术给出的诚实结论</text>
+  <text class="ts" x="82" y="924">机械渠道算出来都是「小」，不是「剧烈」</text>
+  <text class="ts" x="82" y="948">全部为算术推导 + 有出处的输入</text>
+  <path class="arrg" d="M350,968 L350,1000" marker-end="url(#ah2)"/>
+
+  <rect class="boxg" x="60" y="1006" width="580" height="150"/>
+  <text class="tg" x="82" y="1038" style="font-size:20px;font-weight:700">⑧ 「剧烈」如果来，只能来自这三条</text>
+  <text class="tg" x="82" y="1066">集中度 ↑ → 指数波动率 ↑ → 降杠杆</text>
+  <text class="tg" x="82" y="1090">纯标的出现 → 代理股被抛弃</text>
+  <text class="tg" x="82" y="1114">公开价格给整个私募 AI 资产重新定价</text>
+  <text class="tg" x="82" y="1138">三条我今天都无法量化，全部是推测</text>
+  <path class="arrg" d="M350,1156 L350,1188" marker-end="url(#ah2)"/>
+
+  <rect class="boxg" x="60" y="1194" width="580" height="80"/>
+  <text class="tg" x="82" y="1226" style="font-size:20px;font-weight:700">⑨ 我接不上的地方</text>
+  <text class="tg" x="82" y="1254">7 月 6 日当天其他成分股到底有没有被压低</text>
+</svg>
+<figcaption><strong>图例：</strong>蓝色实线框 = 有一手出处或纯算术推导。橙色虚线框 = 推测或我接不上的地方。<strong>请注意这张图的形状</strong>：它不是一条「因此所以」的直链，而是一条<em>走到第 ⑦ 环就得出「影响很小」的链</em>，然后我把「那为什么还可能剧烈」单独放进虚线框，因为我拿不出证据。</figcaption>
+</figure>
+
+<p><strong>用人话读一遍：</strong>一家巨型公司上市，确实让市场上多了一个可以交易的东西，成交量和深度都增加了——这就是你说的「总流动性增加」。但买这批新股的钱不会凭空出现，它必须从投资者原本的口袋里来。钱被抽走的渠道有两条：一条是指数基金被迫再平衡（卖老买新），另一条是募资本身把现金从股市抽进公司账上。第一条我算出来对老股几乎没有影响，而且有一篇顶刊论文的数据直接支持这个结论；第二条我按学界的乘数算出来是 0.5%，就算把三家传闻中的募资全加起来也只有 1.8%。<strong>所以：机械渠道的算术，不支持「剧烈影响」这个说法。</strong>剩下三条我确实觉得可能有影响的渠道，我一条都量化不了，所以它们全部进了推测框。</p>
+
+<!-- ============ 3 ============ -->
+<h2>3｜逐环拆解</h2>
+
+<h3>第 ① → ②③ 环（今天的主菜）：「流动性」是三个东西</h3>
+
+<h4>先说生活里的事</h4>
+
+<p>你去菜市场买菜。有三种完全不同的情况会让你说「今天不好买」：</p>
+
+<p><strong>情况一：摊位很少，货也少。</strong>你想买 20 斤白菜，整个市场只有一个摊子，他手上就 5 斤。你要么买不到，要么得出高价让他去别处调货。</p>
+
+<p><strong>情况二：摊位很多，货也多，但你钱包里只有 20 块。</strong>市场热闹得很，可你买不了多少。</p>
+
+<p><strong>情况三：整个城市今天发了工资，人人钱包都鼓。</strong>菜价当天就涨了。</p>
+
+<p>这三种情况，在金融里都会被人用同一个词描述——<strong>「流动性」</strong>。而它们其实是三件毫不相干的事：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>说的是什么</th><th>名字</th><th>菜市场版本</th><th>怎么衡量</th></tr></thead>
+<tbody>
+<tr><td>能不能大额、快速地买卖，而不把价格推走</td><td><strong>市场流动性</strong><br>market liquidity</td><td>摊位多不多、货足不足</td><td>买卖价差、盘口深度、成交量</td></tr>
+<tr><td>投资者手上有多少钱可以买</td><td><strong>资金流动性</strong><br>funding liquidity</td><td>你钱包里有多少</td><td>现金余额、可用杠杆、基金申购赎回</td></tr>
+<tr><td>整个经济体里钱有多松</td><td><strong>货币流动性</strong><br>monetary liquidity</td><td>全城今天发不发工资</td><td>货币供应量、央行资产负债表、政策利率</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>现在回答你问题里的那半句</h4>
+
+<p>你说「整体流动性反而可能增加」。<strong>这句话是对的，但对的是第一种。</strong></p>
+
+<p>SpaceX 上市之后，市场上多了一只市值 1.86 万亿美元的股票可以交易，多了一份期权合约（6 月 16 日开始交易），多了一批做市商愿意报价。按「买卖价差、盘口深度、成交量」这些标准衡量，<strong>市场流动性确实增加了。</strong></p>
+
+<p>但<strong>第二种没有增加</strong>。上市这个动作本身，不给任何人的钱包里塞钱。恰恰相反：投资者要花 750 亿美元买下这批新股，这 750 亿必须从他们原本持有的其他东西里挪出来。</p>
+
+<p><strong>这就是你问题的核心答案的第一层：</strong>「多了一个可以交易的标的」和「多了一笔可以用来买的钱」是两回事，而<strong>影响其他股票的是后者，不是前者。</strong></p>
+
+<div class="note">
+<span class="tag">一个容易混淆的点，先讲清楚</span>
+<p>你可能会想：可是卖股票给公司的那些人（IPO 里出售老股的早期投资者）拿到了现金啊，他们会不会又拿去买别的股票？</p>
+<p>会的，而且这一点很关键，它决定了「资金被抽走」这句话到底成不成立。IPO 卖的股票分两种：</p>
+<ul>
+<li><strong>新发行的股票（primary）</strong>：钱进公司账户。公司拿去造火箭、买芯片、发工资——<strong>这笔钱确实离开了股市</strong>。</li>
+<li><strong>老股东出售的股票（secondary）</strong>：钱进早期投资者和员工的口袋。他们可能再买别的股票，也可能买房、交税、存起来。<strong>这笔钱去哪儿，不确定。</strong></li>
+</ul>
+<p>SpaceX 报道的募资额是 750 亿美元。但 6.389 亿股 × 发行价 $135 = <strong>862.5 亿美元</strong>。两个数字差了约 112 亿。<strong>最可能的解释是：一部分发行是老股东出售，所以「公司募到的钱」少于「投资者付出的总额」。</strong>我没有查到招股书里的一级/二级拆分，所以这一段我只能说到这里——这个拆分直接决定了「750 亿全部离开股市」这句话有多准确。</p>
+</div>
+
+<p class="src"><b>这一环的依据：</b>三种流动性的区分是公认的定义（Brunnermeier &amp; Pedersen 2009 是关于市场流动性与资金流动性相互作用的经典参考）；SpaceX 的发行股数、价格、募资额来自上市首日报道；862.5 亿 = 6.389 亿 × 135 是我自己的乘法。<strong>一级/二级拆分：我没查到，已在正文写明。</strong></p>
+
+<hr>
+
+<h3>第 ④ 环：指数基金被迫再平衡——把算术摊开</h3>
+
+<p>这是流传最广的那个说法：「被动基金必须买入新成分股，钱从哪来？只能按比例卖掉所有老成分股。所以老股会被压低。」</p>
+
+<p>说法本身<strong>在机制上是对的</strong>。被动指数基金的合同义务就是复制指数，指数里多了一个人，它就必须买；它满仓运作，要买就必须卖。这不是选择，是规则。</p>
+
+<p><strong>但机制对，不等于影响大。我们把数字放进去。</strong></p>
+
+<h4>买方：43 亿美元砸向一个多小的池子</h4>
+
+<p>先算 SpaceX 当时的流通盘有多大。「流通盘」的意思很朴素：<strong>总股本里，真正能在市场上买卖的那部分。</strong>其余的在创始人、早期投资者、员工手里，被锁定期锁着，暂时卖不了。</p>
+
+<div class="calc">
+<span class="line">IPO 发行 6.389 亿股（占总股本 4.9%）</span>
+<span class="line">按发行价 $135 计算：6.389 亿 × 135 = <b>862.5 亿美元</b>的流通市值</span>
+<span class="line big">43 亿 ÷ 862.5 亿 = <b>5.0%</b></span>
+</div>
+
+<p><strong>指数基金要在一个收盘瞬间，买走这只股票全部可交易股份的 5%。</strong></p>
+
+<p>这是一个惊人的数字。作为对照：一只正常的大盘股，一天的成交量大概是流通盘的 0.5% 到 2%。而这里是<strong>一笔订单，5%，一个瞬间</strong>。</p>
+
+<h4>卖方：同样的 43 亿，摊薄成什么样</h4>
+
+<p>现在看这 43 亿从哪儿来。指数基金不会挑一只股票砍掉，它会按现有权重<strong>等比例削减每一只持仓</strong>——因为它的任务是复制指数，不是做判断。</p>
+
+<p>纳斯达克 100 里权重最大的是英伟达，约 8.7%（2026 年 6 月数据）。所以：</p>
+
+<div class="calc">
+<span class="line">要卖出的英伟达 = 43 亿 × 8.7% = <b>3.74 亿美元</b></span>
+</div>
+
+<p>3.74 亿美元多不多？需要一个参照物。英伟达 8 月 21 日收盘 $214.72，日均成交量 9,887 万股。所以：</p>
+
+<div class="calc">
+<span class="line">英伟达一天的成交额 = 9,887 万股 × $214.72 = <b>212.3 亿美元</b></span>
+<span class="line big">3.74 亿 ÷ 212.3 亿 = <b>1.8%</b>（一天成交量的）</span>
+<span class="line">3.74 亿 ÷ 市值 5.20 万亿 = <b>0.0072%</b></span>
+</div>
+
+<h4>把两边并排放，这就是全部的答案</h4>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th></th><th>买方（SpaceX）</th><th>卖方（英伟达）</th></tr></thead>
+<tbody>
+<tr><td>金额</td><td class="num">43 亿美元</td><td class="num">3.74 亿美元</td></tr>
+<tr><td>占该股全部流通盘</td><td class="num"><strong>5.0%</strong></td><td class="num">远小于 0.1%</td></tr>
+<tr><td>占该股一天成交额</td><td class="num">数倍</td><td class="num"><strong>1.8%</strong></td></tr>
+<tr><td>占该股市值</td><td class="num">约 0.23%</td><td class="num"><strong>0.0072%</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>同一笔钱，两头的处境完全不对称。</strong>买入端是「一口气吃掉这只股票 5% 的可流通股份」；卖出端是「在一只每天换手 212 亿的股票上多卖 3.74 亿」。</p>
+
+<p>而且有一个很漂亮的性质：<strong>每一只成分股被卖掉的市值比例是相同的。</strong>因为卖出金额正比于权重，而权重又大致正比于市值，两者一约分，剩下的就是「43 亿 ÷ 指数总市值」。</p>
+
+<details>
+<summary>指数总市值我是怎么反推出来的（这一步是我的算术，不是查到的数字）</summary>
+<p>英伟达市值 5.20 万亿，指数权重 8.7%，所以：</p>
+<div class="calc">
+<span class="line">纳斯达克 100 总市值 ≈ 5.20 ÷ 0.087 = <b>约 59.8 万亿美元</b></span>
+</div>
+<p>用别的成分股交叉验一下：苹果权重 7.1% → 隐含市值 4.25 万亿；微软 5.3% → 3.17 万亿。这两个数量级都合理，所以 60 万亿这个量级站得住。</p>
+<div class="calc">
+<span class="line big">43 亿 ÷ 59.8 万亿 = <b>0.0072%</b></span>
+</div>
+<p>这就是<strong>每一只成分股</strong>被削减掉的市值比例——不管它是苹果还是排名第 99 的公司，都是这个数。万分之七。</p>
+<p><em>注意：这是我从权重和市值反推的，不是从指数公司查到的官方数字。权重数据是 2026 年 6 月的，市值是 8 月 21 日的，时点不一致，所以这个反推只能当量级参考。</em></p>
+</details>
+
+<h4>那个 43 亿是怎么来的？顺便学一个「口径」教训</h4>
+
+<p>我看到过两个关于「多少钱追踪纳斯达克 100」的数字，差了快一倍：一个说<strong>超过 8,000 亿美元直接追踪</strong>（其中一半以上来自景顺 QQQ 这只 ETF），另一个说<strong>约 1.4 万亿美元的总资本追踪该指数</strong>。</p>
+
+<p>哪个对？用摩根大通的 43 亿反推一下：</p>
+
+<div class="calc">
+<span class="line">若 SpaceX 权重约 0.54%：43 亿 ÷ 0.0054 = <b>约 8,000 亿</b></span>
+<span class="line">若追踪资产是 1.4 万亿：1.4 万亿 × 0.0054 = <b>约 76 亿</b>，不是 43 亿</span>
+</div>
+
+<p><strong>所以 43 亿这个估计，对应的是「严格被动、必须机械复制」的那 8,000 亿，而不是「以该指数为参照」的 1.4 万亿。</strong>后者包含了大量可以自己决定何时买、买多少的资金。</p>
+
+<p>这就是口径问题的典型形态：两个数字都不算错，但它们数的不是同一件事，混用会让你把强制买盘高估近一倍。</p>
+
+<h4>一个我没料到、但很重要的细节：三倍流通盘乘数</h4>
+
+<p>你可能已经想到一个问题：<strong>如果 SpaceX 只有 4.9% 的股份在流通，它凭什么在指数里占 0.54% 的权重？</strong></p>
+
+<p>因为指数一般按「流通调整后市值」算权重——只算能买到的那部分。按这个算：</p>
+
+<div class="calc">
+<span class="line">1.86 万亿 × 4.9% = 912 亿的流通调整市值</span>
+<span class="line">912 亿 ÷ 59.8 万亿 = <b>0.15%</b>　←　远低于观察到的 0.54%</span>
+</div>
+
+<p>差了三倍多。CME Group 的分析给了答案：<strong>新规则给流通盘极低的公司一个最高三倍的权重乘数</strong>，把 4.3% 的实际流通盘按 12.9% 来算。我验算一下这个说法：</p>
+
+<div class="calc">
+<span class="line">4.9% × 3 = 14.7% 的「视同流通盘」</span>
+<span class="line">1.86 万亿 × 14.7% = 2,730 亿</span>
+<span class="line big">2,730 亿 ÷ 59.8 万亿 = <b>0.46%</b>　←　和观察到的 0.54% 基本对上</span>
+</div>
+
+<p><strong>对上了。</strong>这个三倍乘数是真实存在的，而且它把强制买盘放大了三倍——本来只需买 14 亿，因为这条规则要买 43 亿，砸在同一个只有 5% 流通的池子上。</p>
+
+<p class="src"><b>这一环的依据：</b>43 亿为<a href="https://247wallst.com/investing/2026/07/09/spacex-added-to-nasdaq-100-and-could-trigger-4-3b-in-forced-passive-buying/">摩根大通估计（二手转述）</a>；英伟达价格、成交量、市值来自 <a href="https://stockanalysis.com/stocks/nvda/">8/21 收盘报价</a>；QQQ 权重来自<a href="https://www.tradingsim.com/blog/10-best-holdings-in-qqq-stock">2026 年 6 月持仓数据（二手）</a>；三倍乘数规则来自 <a href="https://www.cmegroup.com/articles/2026/the-spacex-mega-ipo-why-index-choice-matters.html">CME Group</a>；<strong>所有比值、指数总市值反推、乘数验算均为我的算术，步骤已全部列出。</strong></p>
+
+<h4>什么情况下这一环会断</h4>
+
+<p>如果 SpaceX 进的是标普 500 而不是纳斯达克 100，数字会完全不同——追踪标普 500 的资产规模是另一个量级（有报道称约 6 万亿美元）。而标普在 6 月 4 日<strong>拒绝</strong>了快速纳入，所以这件事还没发生。这一环的所有结论只对纳斯达克 100 这一次成立。</p>
+
+<hr>
+
+<h3>第 ⑤ 环：证据说，这条微观渠道已经很弱了</h3>
+
+<p>上面那套算术是我自己做的。有没有人系统地检验过「指数强制买卖到底能推动多大的价格」？有，而且结论很硬。</p>
+
+<p>Greenwood 和 Sammon 的论文《消失的指数效应》（发表于《金融学期刊》2025 年）摘要里的原话是：</p>
+
+<div class="note">
+<p>「一只股票被加入标普 500 所带来的超额收益，已经从 1990 年代平均 <strong>7.4%</strong> 下降到过去十年的 <strong>0.3%</strong>。而这发生在与该指数挂钩的股市资产份额<em>显著上升</em>的同时。剔除的情况也出现了类似的模式：1990 年代有很大的负超额收益，而 2010 至 2020 年间只有 <strong>0.1%</strong>。」</p>
+<p>论文正文进一步说：加入效应「1980 年代初为 3.4%，到 1990 年代升至 7.4%，这是它的峰值，随后在 2000 年代降到 5.2%，2010 年代降到统计上不显著的 <strong>1.0%</strong>」。</p>
+</div>
+
+<p><strong>请注意这里面最反直觉的一点：</strong>被动投资规模在这几十年里大幅膨胀，按「强制买盘推高价格」的逻辑，指数效应应该<em>变强</em>才对。实际上它<em>消失了</em>。</p>
+
+<h4>作者给的解释</h4>
+
+<p>两条。第一条是<strong>指数迁移</strong>：现在被加进标普 500 的公司，很多是从标普中盘指数升上来的。中盘指数基金要卖掉它，大盘指数基金要买进它，<strong>两股需求正好抵消一部分</strong>。第二条是<strong>市场流动性大幅改善</strong>——就是本节开头那个「菜市场摊位变多了」的意思。</p>
+
+<p>作者还给了一个可以直接对上第 ④ 环的数字：<strong>乘数 M 在 1990 年代到 2010 年代之间下降了约 20 倍。</strong></p>
+
+<h4>「乘数」是什么，用算术讲一遍</h4>
+
+<p>乘数问的是：<strong>一笔钱流进某个资产，能把它的价格推高多少？</strong></p>
+
+<p>假设一只股票总市值 1,000 亿。有人买入 10 亿（占市值 1%）。</p>
+
+<ul>
+<li>如果乘数是 5：市值上升 5% ，也就是 50 亿。</li>
+<li>如果乘数是 0.25（下降 20 倍之后）：市值只上升 0.25%，也就是 2.5 亿。</li>
+</ul>
+
+<p><strong>同样一笔买单，在两个世界里的效果差 20 倍。</strong>Greenwood 和 Sammon 说的就是：我们已经从前一个世界搬到了后一个世界。</p>
+
+<h4>但这里有一个必须说清楚的适用性问题</h4>
+
+<div class="note">
+<span class="tag">这篇论文管不管今天这件事？我认为只管一半</span>
+<p>Greenwood 和 Sammon 研究的样本，是「正常规模的公司被加进指数」——公开交易多年、流通盘充足、有替代品。他们的核心解释之一「市场流动性改善」，前提就是<strong>这只股票有足够的股份在市场上流通</strong>，所以套利者可以从别处调来货、抹平价差。</p>
+<p>SpaceX 不满足这个前提。它上市 15 个交易日就被纳入，只有 4.9% 的股份在流通，而规则还给了三倍权重乘数。<strong>「有充足流通盘可以调货」这个条件不成立。</strong></p>
+<p>所以我的判断是：这篇论文<strong>强有力地反驳了「老股会被压低」这一半</strong>（因为老股那边流通充足、冲击被摊得极薄，这正是论文说的机制）；但它<strong>不能拿来预测新股那边会怎么样</strong>，因为样本里没有「4.9% 流通盘的 1.8 万亿公司」这种东西。</p>
+<p>这是我读完论文之后的判断，不是论文作者说的话。我把它标出来。</p>
+</div>
+
+<h4>而且现实已经给了一次检验</h4>
+
+<p>回到第 1 节那几个数字。7 月 6 日有 43 亿美元的强制买盘砸进 5% 的流通盘。如果「强制买盘推高价格」这条逻辑很强，这只股票应该被推得很高、并且站住。</p>
+
+<p>实际发生的是：<strong>它从区间高点 $225.64 跌到过 $104.83，跌幅 53.5%。</strong>8 月 21 日收在 $136.97，只比发行价高 1.5%。</p>
+
+<p>更有意思的是 8 月 6 日：<strong>9.115 亿股解禁，流通股占比从 4.9% 一口气跳到 11.8%</strong>——按「供给大增必然压低价格」的逻辑，这天应该暴跌。</p>
+
+<p>结果是<strong>上涨 6.1%</strong>。</p>
+
+<p>市场参与者给出的解释包括：摩根大通说解禁前已有「大量提前布局」；美银的 Ron Epstein 说这是「短期技术性拖累，而不是对公司的判决」；晨星的 Nicolas Owens 说「近期股价下跌，相当一部分正是对稀释的提前反应」。</p>
+
+<p><strong>这三条解释都是事后说的，我不能验证哪一条对。</strong>但这件事本身，是一个非常干净的教训：<strong>「有一批股票要被强制买/强制卖，所以价格会怎样」这类推理，在真实市场里失效的次数，比它成立的次数多。</strong>因为市场参与者会提前行动，而提前多少、提前多少量，事前无法知道。</p>
+
+<p class="src"><b>这一环的依据：</b><a href="https://www.hbs.edu/ris/Publication%20Files/23-025_563e45c6-df92-4d9c-ae05-608d4d0acab1.pdf">Greenwood &amp; Sammon 论文（哈佛商学院工作论文版）</a>，摘要与正文引文均为直接引用；SpaceX 价格区间来自 <a href="https://stockanalysis.com/stocks/spcx/">8/21 收盘报价</a>；8/6 解禁当日的涨幅与分析师说法来自<a href="https://finance.yahoo.com/markets/stocks/article/spacex-lockup-expires-today-with-stock-bucking-higher-100000039.html">当日报道</a>；<strong>「论文只管一半」是我自己的判断，已标明。</strong></p>
+
+<hr>
+
+<h3>第 ⑥ 环：宏观渠道——钱真的被抽走了多少</h3>
+
+<p>微观渠道（钱在股票之间移动）算下来影响很小。现在看另一条：<strong>钱离开股市这件事本身。</strong></p>
+
+<p>这条渠道有一篇奠基性的论文：Gabaix 和 Koijen 的《非弹性市场假说》。它的核心发现，用论文里的原话是：</p>
+
+<div class="note">
+<p>「如果投资者创造出相当于股票市值 1% 的资金流，模型意味着股票市场的价值会上升 5%。这正是股票总量需求价格弹性偏低的镜像：如果股票市场组合的价格上涨 5%，需求只下降 1%，所以价格弹性是 0.2。」</p>
+</div>
+
+<h4>这个「弹性 0.2」是什么意思，用算术走一遍</h4>
+
+<p>「弹性」就是一个比值：<strong>价格变了多少百分比，买的量跟着变了多少百分比。</strong></p>
+
+<div class="calc">
+<span class="line">价格涨 5%，需求只减少 1%</span>
+<span class="line big">弹性 = 1% ÷ 5% = <b>0.2</b></span>
+</div>
+
+<p>这个数越小，意思就是「价格怎么变，我买的量都差不多」。0.2 是一个非常小的数——它说的是：<strong>整个股票市场作为一类资产，投资者对它的需求几乎不看价格。</strong></p>
+
+<p>为什么会这样？论文的解释是制度性的：家庭把钱交给机构（养老金、共同基金、保险公司），而这些机构大多带着「股票仓位维持在 60%」这类硬性授权。<strong>股票涨了，它们不会因为「贵了」就少买——它们的任务是维持比例，不是判断贵贱。</strong></p>
+
+<h4>反过来用：从流量推价格</h4>
+
+<p>论文给的关系式是 <strong>价格变化 = 资金流 ÷ 弹性</strong>。资金流按占市值的比例算。</p>
+
+<div class="calc">
+<span class="line">流入 1% 的市值 ÷ 弹性 0.2 = 价格 <b>+5%</b></span>
+<span class="line">这个 5 就是「乘数」：1 块钱进去，市值涨 5 块</span>
+</div>
+
+<p>论文给的中心估计是 5，区间 3 到 8。</p>
+
+<h4>把 SpaceX 代进去</h4>
+
+<p>美国股市 2026 年 7 月 1 日的总市值是 <strong>75.3 万亿美元</strong>。SpaceX 报道的募资额 750 亿。</p>
+
+<div class="calc">
+<span class="line">750 亿 ÷ 75.3 万亿 = <b>0.100%</b></span>
+<span class="line big">0.100% × 乘数 5 = 总市值影响 <b>0.50%</b></span>
+</div>
+
+<p><strong>半个百分点。</strong>标普 500 在 8 月 21 日收在 7,674.37 点，0.5% 大约是 38 点。这是一个正常交易日里毫不起眼的波动。</p>
+
+<h4>那把三家全加起来呢</h4>
+
+<p>下面这段的输入数字<strong>全部是传闻，不是事实</strong>，我用它们只是为了看数量级。假设 Anthropic 和 OpenAI 各募资 1,000 亿美元（这个数字是我编的示意数，用来演示算法，不是任何人的预测），加上 SpaceX 已经募到的 750 亿：</p>
+
+<div class="calc">
+<span class="line">750 亿 + 1,000 亿 + 1,000 亿 = 2,750 亿美元</span>
+<span class="line">2,750 亿 ÷ 75.3 万亿 = <b>0.365%</b></span>
+<span class="line big">0.365% × 5 = 总市值影响 <b>1.83%</b></span>
+</div>
+
+<p><strong>不到两个百分点，而且是分摊在一年里的。</strong>这依然不叫「剧烈」。</p>
+
+<h4>诚实地说说这个计算的三个弱点</h4>
+
+<ol>
+<li><strong>Gabaix 和 Koijen 研究的不是 IPO。</strong>他们研究的是资金流入流出股市这类资产。把「公司发行新股吸走现金」映射成「负的资金流」，是我做的类比，<em>不是论文验证过的应用</em>。这个映射有可能不成立，比如如果买家本来就持有现金而不是股票。</li>
+<li><strong>乘数 5 有很宽的区间（3 到 8），而且是宏观平均。</strong>用区间上端 8 重算，2,750 亿对应的是 2.92%——量级没变。</li>
+<li><strong>我用的是「募资额」而不是「净新增股票供给」。</strong>真正该用的是净额：新发行 − 回购 − 退市。美国公司每年回购的规模很大，可能完全抵消掉这些 IPO。<strong>我没有查 2026 年的净发行数据，这是这一环最大的缺口。</strong></li>
+</ol>
+
+<p>不过这个方向上有一个可以引的实证结论：Baker 和 Wurgler 1999 年的论文（发表于《金融学期刊》2000 年）发现，<strong>「股权发行占新发行总量的比例」在 1928 至 1997 年间是美国股市回报的一个强预测指标</strong>——具体地说，「企业在市场回报较低的时期之前，会相对更多地发行股权而不是债务」。也就是说，<strong>大规模股权发行的时期，往往先于回报较低的时期。</strong></p>
+
+<p>但请注意这句话该怎么读：<strong>这是相关性和预测性，不是因果机制。</strong>论文并没有说「发行多把市场压下去了」，它同样可以解释成「公司在估值高的时候选择发股，而高估值本来就预示低回报」。这两种解释的政策含义完全不同，而我今天没有能力分辨。</p>
+
+<p class="src"><b>这一环的依据：</b><a href="https://www.nber.org/system/files/working_papers/w28967/w28967.pdf">Gabaix &amp; Koijen (2021) NBER w28967</a>（引文为论文原文）；美股总市值 <a href="https://siblisresearch.com/data/us-stock-market-value/">Siblis Research，2026 年 7 月 1 日</a>；<a href="https://ideas.repec.org/a/bla/jfinan/v55y2000i5p2219-2257.html">Baker &amp; Wurgler (2000) 摘要</a>；<strong>所有代入计算为算术；Anthropic 和 OpenAI 的 1,000 亿募资额是示意数字，不是预测；把 IPO 映射为负资金流是我的类比，已标明。</strong></p>
+
+<hr>
+
+<h3>第 ⑦ 环：算术给出的诚实结论</h3>
+
+<p>把三条能算的渠道并排放：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>渠道</th><th>对<strong>新股</strong>的影响</th><th>对<strong>其他股票</strong>的影响</th><th>依据</th></tr></thead>
+<tbody>
+<tr><td>指数强制再平衡</td><td class="num">买走 5% 的流通盘<br>极大</td><td class="num">每只被削减 0.0072% 市值<br>可忽略</td><td>算术</td></tr>
+<tr><td>指数效应的实证证据</td><td class="num">样本不适用</td><td class="num">近十年已降至不显著<br>可忽略</td><td>Greenwood &amp; Sammon</td></tr>
+<tr><td>募资抽走资金</td><td class="num">—</td><td class="num">0.50%（单家）<br>1.83%（三家，示意）</td><td>Gabaix-Koijen + 算术</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>结论只能这么写：能算的部分，算出来都不叫「剧烈」。</strong></p>
+
+<p>我知道这个答案不如「巨型 IPO 会抽干市场、引发暴跌」有戏剧性。但那个说法我做不出支持它的算术，也找不到支持它的证据，所以我不写它。</p>
+
+<p><strong>唯一算出来「剧烈」的地方，是新股自己。</strong>一笔订单吃掉 5% 的流通盘，这是真的极端；而它的后果，我们也在 SpaceX 身上看到了——不是稳步上涨，而是从 $225.64 到 $104.83 再回到 $136.97 的剧烈来回。<strong>流通盘越薄，价格越是被少数几笔交易推着走。</strong></p>
+
+<hr>
+
+<h3>第 ⑧ 环：那「剧烈」如果真的会来，能从哪来？</h3>
+
+<p>下面三条我认为在机制上都讲得通，但<strong>我今天一条都量化不了，也没有找到能验证它们的当期数据</strong>。所以它们全部进推测框。</p>
+
+<div class="guess">
+<span class="tag">这一步是我的推测，不是定论</span>
+<p><strong>推测一：集中度 → 指数波动率 → 被迫降杠杆。</strong></p>
+<p>纳斯达克 100 的前十大成分股合计权重已经超过 46%（2026 年 6 月数据），前五名约占 30%。再塞进一个 1.86 万亿、且用三倍乘数放大权重的公司，指数会更集中。集中度越高，指数本身的波动率越大——因为分散化的效果变差了。而市场上有一类基金（波动率目标、风险平价）会按「组合波动率」自动调整杠杆：<strong>波动率升高，它们就减仓，减的是整个组合，包括所有其他股票。</strong></p>
+<p><strong>为什么我不敢当结论写：</strong>我没有查到这类策略在 2026 年的资金规模，也没有查到纳斯达克 100 在 SpaceX 纳入前后的实现波动率变化。整条链的每一环我都只有定性理解，没有数字。</p>
+<p><strong>反对的看法：</strong>SpaceX 目前权重只有约 0.5%，一个 0.5% 权重的成分股，对指数整体波动率的贡献可能极小，这条链在起点就断了。</p>
+<p><strong>需要什么材料：</strong>纳入前后纳斯达克 100 的实现波动率与隐含波动率；波动率目标类策略的规模估计。</p>
+</div>
+
+<div class="guess">
+<span class="tag">这一步是我的推测，不是定论</span>
+<p><strong>推测二：纯标的出现，代理股被抛弃。</strong></p>
+<p>在 SpaceX 上市之前，想投资太空经济的人只能买「沾边」的公司。上市之后，这些代理标的的存在理由被削弱了——你可以直接买正主。同样的逻辑，如果 Anthropic 或 OpenAI 上市，今天被当作「AI 敞口代理」持有的一批股票，可能会被部分替换掉。</p>
+<p><strong>为什么我不敢当结论写：</strong>我没有查任何一只太空或 AI 代理股在 SpaceX 上市前后的表现，所以我连一个例子都举不出来。而且就算查到某只股票跌了，也无法证明是这个原因——同期还有无数其他事情在发生。</p>
+<p><strong>反对的看法：</strong>方向可能是反的。一个巨型纯标的上市，会把整个板块拉进主流投资者的视野，反而让相关股票获得更多关注和资金。这在历史上也发生过。</p>
+<p><strong>需要什么材料：</strong>一组事前定义好的代理股名单（不能事后挑），以及它们在纳入日前后的超额收益，还要控制住同期的板块因子。</p>
+</div>
+
+<div class="guess">
+<span class="tag">这一步是我的推测，不是定论</span>
+<p><strong>推测三：公开价格给整个私募 AI 资产重新定价。</strong></p>
+<p>目前大量 AI 相关的估值是「私募轮次价格」——没有每天的公开报价。一旦有一家巨头在公开市场每天被标价，这个价格会成为整个类别的参照。<strong>而它是双向的：</strong>如果新股表现强劲，会抬高整个类别；如果它跌破发行价，会给所有还没上市的公司打上折扣，并波及公开市场上被认为「同类」的股票。</p>
+<p><strong>可以说的事实是：</strong>SpaceX 现在比区间高点低 39.3%，只比发行价高 1.5%。</p>
+<p><strong>为什么我不敢当结论写：</strong>「这个价格影响了别的资产的定价」这句话，我拿不出任何证据。我只知道价格本身。</p>
+<p><strong>反对的看法：</strong>私募估值本来就出了名地对公开市场反应迟缓，这条传导可能需要好几个季度，也可能被下一轮融资的条款设计消化掉。</p>
+<p><strong>需要什么材料：</strong>可比公司在纳入日前后的估值倍数变化；私募二级市场（如 Forge、EquityZen）的成交价数据。</p>
+</div>
+
+<hr>
+
+<h3>第 ⑨ 环：我接不上的地方</h3>
+
+<p><strong>我没能查到 2026 年 7 月 6 日当天，纳斯达克 100 其他成分股的实际表现。</strong></p>
+
+<p>这正是能把第 ④ 环的算术从「理论」变成「验证」的那块数据：如果强制卖出真的压低了老股，那天收盘前它们应该有一个可见的、与权重成正比的下压。我算出来这个影响是万分之七，本来就在噪音之下，大概率测不出来——<strong>但「大概率测不出来」和「我查过了确实没有」是两回事，我只能说前者。</strong></p>
+
+<p>另外还有一处我没查实：<strong>SpaceX 那 750 亿募资里，有多少是公司新发行、有多少是老股东套现。</strong>这个拆分直接决定第 ⑥ 环里「750 亿离开了股市」这句话的准确程度。招股书里应该有，我没有拿到。</p>
+
+<!-- ============ 4 ============ -->
+<h2>4｜对你意味着什么</h2>
+
+<p class="src" style="border-top:none;padding-top:0"><b>先说清楚：</b>下面是教学分析和决策框架，<strong>不是给你的个性化投资建议</strong>。我不会对 SpaceX、Anthropic、OpenAI 或任何股票的投资价值做判断——尤其是 Anthropic，见文首的利益冲突声明。</p>
+
+<h3>4.1 一件你可能不知道的事：你可能已经买了</h3>
+
+<p>如果你持有追踪纳斯达克 100 的 ETF（QQQ、QQQM，或在新加坡常见的爱尔兰注册版本），那么从 <strong>2026 年 7 月 7 日</strong>起，你的组合里就有 SpaceX 了。<strong>你没有做任何决定，规则替你做了。</strong></p>
+
+<p>如果你持有的是标普 500 的 ETF（VOO、IVV，或爱尔兰注册的 CSPX 等），那么你还没有——因为标普在 6 月 4 日拒绝了快速纳入，坚持 12 个月交易记录加 GAAP 盈利的门槛。</p>
+
+<p><strong>同样叫「被动投资美股」，两个指数在这件事上给了你完全相反的结果。</strong>这不是收益率高低的问题，是「你到底买了什么」的问题。</p>
+
+<h3>4.2 「被动投资」不是中立的</h3>
+
+<p>这是今天最值得你带走的一句话。</p>
+
+<p>很多人（包括我在很多材料里读到的说法）把指数基金描述成「不做判断、只是持有市场」。<strong>但今天这件事说明：指数是一套规则，规则是人写的，而规则可以被改。</strong></p>
+
+<p>纳斯达克在 2026 年 5 月 1 日改了规则——缩短等待期、取消最低流通盘要求、加上三倍权重乘数。改完之后，一家上市 15 天、只有 4.9% 股份流通的公司进了指数，而所有持有该指数基金的人被自动买入。</p>
+
+<p>这件事引起了公开批评，我把几条原话列出来，因为它们本身就是资料：</p>
+
+<ul>
+<li>Acadian 资管的 Owen Lamont：「<strong>坏主意——这个时间太短，价格发现来不及发生。</strong>」</li>
+<li>《华尔街日报》专栏作者 Jason Zweig 称之为「<strong>随意的、不公平的、并且有潜在风险的</strong>」。</li>
+<li>德国科技媒体 heise 的报道标题直接用了「<strong>Lex SpaceX</strong>」（意为「为 SpaceX 量身定做的法律」）。</li>
+</ul>
+
+<p>我不评价这些批评对不对。<strong>我要你记住的是：当你买一只指数基金时，你同时接受了写规则的那家公司未来可能怎么改规则。</strong>这是一个真实的、你无法控制的风险来源，而且它不出现在任何一份「历史年化回报」的表格里。</p>
+
+<h3>4.3 三个可以自己动手做的检查</h3>
+
+<p><strong>检查一：打开你持有的 ETF 的持仓页，看前十大和它们的合计权重。</strong>纳斯达克 100 的前十大约占 46%，前五约占 30%。如果你以为买 ETF 等于「分散」，这个数字会让你重新算一遍你到底分散了多少。</p>
+
+<p>做一个小算术：如果前十占 46%，那么<strong>剩下 90 家公司平分另外 54%，平均每家 0.6%。</strong>你的组合表现，实际上主要由十家公司决定。</p>
+
+<p><strong>检查二：搞清楚你的 ETF 跟的是哪个指数、那个指数的纳入规则是什么。</strong>这不是学术问题——今天这个案例说明，两只都叫「美股大盘 ETF」的产品，可能因为规则不同而持有完全不同的东西。</p>
+
+<p><strong>检查三：如果将来有新的巨型 IPO，先问「它的流通盘有多大」，再问别的。</strong>今天全篇最有解释力的一个数字，不是市值 1.86 万亿，而是<strong>只有 4.9% 在流通</strong>。流通盘薄，就意味着少量资金能把价格推得很远——两个方向都是。</p>
+
+<h3>4.4 从你的资产负债表角度看（接今天早上那一课）</h3>
+
+<p>今天早上我们说：你最大的资产是人力资本，而它有行业属性。如果你在科技行业工作，你的人力资本本身就是一份重仓 AI 的头寸。</p>
+
+<p><strong>现在再叠一层：</strong>如果你同时持有纳斯达克 100 的 ETF，那么你在 AI 这个方向上已经下了两次注——一次是工作，一次是投资。而如果 Anthropic 或 OpenAI 上市并被纳入指数，这个方向的权重还会自动增加，<strong>你不需要做任何操作，敞口就变大了。</strong></p>
+
+<p>这不是说这样不好。<strong>这是说你应该知道自己的实际敞口是多少，而不是以为「买了指数就分散了」。</strong>怎么处理，是 G5「分散化」和 G25「集中持仓风险」的题目。</p>
+
+<!-- ============ 5 ============ -->
+<h2>5｜反向倒推</h2>
+
+<p><strong>这一节在干什么：</strong>前面是顺着推——发生了 A，所以会有 B。现在倒过来问：市场现在的价格和行为，说明大家心里在赌什么？</p>
+
+<h3>5.1 已经被定价进去的两件事</h3>
+
+<p><strong>第一件：市场并不认为 SpaceX 是一个「稀缺就该溢价」的资产。</strong></p>
+
+<p>怎么从价格读出来？看这组数字：只有 4.9% 的股份在流通（后来 11.8%），指数基金被迫买走其中约 5%，理论上这是极度供不应求的配置。而价格的实际路径是：区间高点 $225.64 → 区间低点 $104.83 → 8 月 21 日 $136.97，只比发行价高 1.5%。</p>
+
+<p><strong>如果市场真的认为稀缺性值钱，价格不会跌回发行价附近。</strong>所以市场此刻定价的是：稀缺是暂时的（后面还有解禁），而估值要靠基本面撑。</p>
+
+<p><strong>第二件：市场提前消化解禁，而不是等到解禁日才反应。</strong></p>
+
+<p>8 月 6 日解禁 9.115 亿股、流通盘翻倍还多，当天股价<strong>涨</strong> 6.1%。而在此之前，股价已经从高点跌了很多。晨星的分析师说「近期的下跌，相当一部分正是对稀释的提前反应」——<strong>这个说法与价格路径一致</strong>：先跌，然后利空落地时不再跌。</p>
+
+<p>注意我的措辞：<strong>「与价格路径一致」不等于「被证明」。</strong>价格先跌可能有十个原因，稀释只是其中一个。</p>
+
+<h3>5.2 最脆弱的假设</h3>
+
+<p>整篇文章最脆弱的一环，是<strong>第 ⑥ 环里那个「募资额 ≈ 从股市抽走的资金」</strong>。</p>
+
+<p>理由：它有三个我明确承认的弱点（论文没研究 IPO、乘数区间很宽、我用的是毛额不是净额），而它恰恰是唯一一条算出来对其他股票有可见影响的渠道。<strong>如果这一环错了，那么「巨型 IPO 影响其他股票」这件事，在我今天能算的范围内就完全不成立了。</strong></p>
+
+<p>其中最要命的是第三个弱点：<strong>净发行 vs 毛发行。</strong>如果同期美国公司的股票回购规模远大于这些 IPO 的募资，那么股票的净供给其实在<em>减少</em>，整个方向就反了。</p>
+
+<h3>5.3 如果假设错了，价格该怎么走</h3>
+
+<p>给出可以事前检验的条件预测：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>情景</th><th>可观察的后果</th></tr></thead>
+<tbody>
+<tr><td>「募资抽资金」这条渠道成立</td><td>在几家巨型 IPO 密集发生的季度，扣除盈利增长后，市场整体估值倍数应有可测量的下移；且下移幅度应与募资规模同向</td></tr>
+<tr><td>这条渠道不成立</td><td>IPO 规模与市场估值之间看不到稳定关系；净回购规模才是更好的解释变量</td></tr>
+<tr><td>指数再平衡渠道成立</td><td>纳入日前后，成分股的超额收益应与其指数权重成负相关</td></tr>
+<tr><td>指数再平衡渠道不成立（我的判断）</td><td>纳入日前后，成分股超额收益与权重无关，噪音淹没一切</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>5.4 未来 1–3 个月的证实/证伪点</h3>
+
+<ul>
+<li><strong>Anthropic 是否真的在 10 月上市、以什么估值。</strong>目前只有 FT 转述的报道，公司未确认。如果发生，它会提供第二个可以做同样算术的样本。<em>（我不对结果做任何预测，见文首声明。）</em></li>
+<li><strong>SpaceX 后续的解禁批次。</strong>8 月 6 日是第一批（占内部人持股的 20%），报道提到 8 月 20 日还有约 3.19 亿股。每一次解禁都是一次「供给冲击是否被提前消化」的自然实验。</li>
+<li><strong>标普 500 会不会在 2027 年中把 SpaceX 纳入。</strong>门槛是 12 个月交易记录加最近四季合计 GAAP 盈利为正。如果纳入，追踪资产的量级完全不同（有报道称约 6 万亿），这将是一次比 7 月 7 日大得多的检验。</li>
+<li><strong>纳斯达克 100 的集中度数据。</strong>前十大权重是否继续上升，是推测一的第一环，可以直接观察。</li>
+</ul>
+
+<h3>5.5 用那个检验问一遍</h3>
+
+<p><strong>问题：本节的说法，在事情发生之前能不能用来做预测？</strong></p>
+
+<p><strong>能的部分：</strong>5.3 那张表全部是条件预测，可以被数据证伪。第 ④ 环的算术更是可以事前做——<em>在任何一次未来的指数纳入之前</em>，你都可以用「强制买入额 ÷ 目标股流通市值」和「强制买入额 ÷ 指数总市值」这两个比值，事前判断这次冲击是不是值得关注。这是一个可以复用的工具，不是一个故事。</p>
+
+<p><strong>不能的部分：</strong>第 ⑧ 环那三条推测，目前<em>只能用来解释</em>已经发生的事，不能用来预测。这正是我把它们装进虚线框的原因。以及，我在这篇里刻意<strong>没有</strong>写的一句话是「因为巨型 IPO 抽走了资金，所以某某板块最近走弱」——这句话永远说得通，永远无法证伪，是典型的事后叙事。</p>
+
+<!-- ============ 6 ============ -->
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式：弹性</h3>
+
+<p>今天全文真正的骨架只有一个概念：<strong>弹性</strong>——价格变了多少，量跟着变了多少。它今天出现了三次，形状完全一样：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>场合</th><th>算式</th><th>结论</th></tr></thead>
+<tbody>
+<tr><td>股市总量需求</td><td class="num">1% ÷ 5% = 0.2</td><td>钱进出股市，价格反应被放大 5 倍</td></tr>
+<tr><td>SpaceX 的流通盘</td><td class="num">43 亿 ÷ 862.5 亿 = 5.0%</td><td>供给极薄，少量资金推得动价格</td></tr>
+<tr><td>英伟达的成交深度</td><td class="num">3.74 亿 ÷ 212.3 亿 = 1.8%</td><td>供给极厚，同样的钱推不动</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>一句话总结：价格对资金流的敏感程度，取决于「另一边有多厚」。</strong>薄的一边被推得动，厚的一边推不动。同一笔钱，同一天，在两只股票上的效果可以差几百倍——不是因为市场情绪不同，是因为池子深度不同。</p>
+
+<h4>跨领域例子一：为什么油价对「可能中断」的反应比「真的中断」还大</h4>
+
+<p>原油的短期需求弹性大约在 0.1 这个量级——油价涨 30%，你也不会少开 30% 的路。所以供给少 2%，价格就得涨 2% ÷ 0.1 = 20% 才能重新配平。<strong>供给端和需求端都很「薄」（都不肯变），于是一点点冲击就撬动巨大的价格变化。</strong></p>
+
+<p>这和 SpaceX 那 5% 的流通盘是同一个数学结构，只是换了一个市场。（这属于 C 领域的内容，轮到那天会正式展开。）</p>
+
+<h4>跨领域例子二：为什么小国货币容易被打穿</h4>
+
+<p>一个小型开放经济体的外汇市场每天成交量有限。当一笔相对于该市场规模很大的资金进出时，汇率的反应会远大于同样金额在美元市场上的反应——因为池子深度差了几个数量级。这是 D 领域（D29 资本流动的骤停）的骨架，同样是弹性。</p>
+
+<h3>6.2 顶层视角：这件事在系统里的位置</h3>
+
+<p>今天这件事，本质上是<strong>市场微观结构</strong>（market microstructure）问题——它研究的不是「一家公司值多少钱」，而是「交易这件事本身如何影响价格」。</p>
+
+<p>它和四大板块的咬合点：</p>
+
+<ul>
+<li><strong>与增长/基本面：</strong>今天全篇没有讨论 SpaceX 或任何公司值多少钱。<strong>这是刻意的。</strong>微观结构解释的是短期的价格路径，基本面解释的是长期的价格中枢。把两者混在一起谈，是最常见的错误之一。</li>
+<li><strong>与利率：</strong>第 ⑥ 环的乘数逻辑，前提是「机构有固定的股票配置比例」。而这个比例本身会随利率变化——利率高了，债券吸引力上升，股票配置比例可能下调。所以利率环境会改变这个乘数。</li>
+<li><strong>与信用：</strong>波动率上升导致降杠杆（推测一），走的是保证金和风险预算的渠道，和 E14「抵押品折价与去杠杆螺旋」是同一套机制。</li>
+<li><strong>与汇率：</strong>对你这个新加坡投资者，指数成分变化会改变你美元资产的构成，但不改变你的货币敞口——那是另一层，今天早上讲过。</li>
+</ul>
+
+<!-- ============ 7 ============ -->
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>术语</th><th>一句话大白话</th><th>今天在哪一环</th></tr></thead>
+<tbody>
+<tr><td>市场流动性<br>market liquidity</td><td>能不能大额、快速地买卖，而不把价格推走。菜市场摊位多不多。</td><td>②</td></tr>
+<tr><td>资金流动性<br>funding liquidity</td><td>投资者手上有多少钱可以买。你钱包里有多少。</td><td>③</td></tr>
+<tr><td>流通盘 / 自由流通股<br>free float</td><td>总股本里真正能在市场上买卖的那部分。其余的被锁着。</td><td>④</td></tr>
+<tr><td>锁定期<br>lock-up</td><td>上市后一段时间内，内部人不许卖股票的约定。到期叫「解禁」。</td><td>⑤</td></tr>
+<tr><td>指数纳入效应<br>index inclusion effect</td><td>一只股票被加进指数时的超额收益。1990 年代 7.4%，2010 年代已接近零。</td><td>⑤</td></tr>
+<tr><td>乘数<br>multiplier</td><td>一笔钱流进某资产，把它的价值推高多少倍。乘数 5 = 投 1 块涨 5 块。</td><td>⑤⑥</td></tr>
+<tr><td>需求价格弹性<br>price elasticity of demand</td><td>价格变了多少百分比，买的量跟着变了多少百分比。数越小＝越不看价格。</td><td>⑥</td></tr>
+<tr><td>非弹性市场假说<br>inelastic markets hypothesis</td><td>股市总量需求几乎不看价格（弹性约 0.2），所以资金流对价格的影响被放大约 5 倍。</td><td>⑥</td></tr>
+<tr><td>市场微观结构<br>market microstructure</td><td>研究「交易这件事本身」如何影响价格，而不是公司值多少钱。</td><td>第 6 节</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============ 8 ============ -->
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<div class="q">
+<span class="tag">第 1 题</span>
+<p>假设有一家公司上市，市值 5,000 亿美元，只有 2% 的股份在流通，股价 $100。某个指数要纳入它，估计强制买盘是 60 亿美元。<br>（a）强制买盘占它全部流通盘的百分之多少？<br>（b）如果这家公司的流通比例不是 2% 而是 20%，这个百分比会变成多少？<br>（c）用一句话说明这两个答案的差别意味着什么。</p>
+</div>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<p><strong>(a)</strong> 先算流通市值：</p>
+<div class="calc">
+<span class="line">5,000 亿 × 2% = <b>100 亿美元</b>的流通市值</span>
+<span class="line big">60 亿 ÷ 100 亿 = <b>60%</b></span>
+</div>
+<p>指数基金要买走这只股票<strong>全部可交易股份的六成</strong>。这是一个荒诞的数字——现实中根本买不到，价格会在买的过程中被推到天上去。</p>
+<p><strong>(b)</strong> 流通比例 20%：</p>
+<div class="calc">
+<span class="line">5,000 亿 × 20% = <b>1,000 亿美元</b>的流通市值</span>
+<span class="line big">60 亿 ÷ 1,000 亿 = <b>6%</b></span>
+</div>
+<p><strong>(c)</strong> 同样的公司、同样的指数、同样的买盘金额，<strong>只因为流通盘差了 10 倍，冲击的严重程度就差了 10 倍</strong>。</p>
+<p><strong>这道题真正想让你带走的是：</strong>看到一个巨型 IPO 时，市值不是最重要的数字，<strong>流通比例才是</strong>。市值决定它在指数里占多重，流通比例决定这个重量砸下来时地板会不会塌。SpaceX 的 4.9% 就是这个故事的全部。</p>
+</details>
+
+<div class="q">
+<span class="tag">第 2 题</span>
+<p>有人对你说：「巨型 IPO 会从市场抽走资金，所以其他股票会跌。」<br>请你用今天学到的东西，指出这句话在<strong>逻辑上</strong>需要补哪几个前提才能成立。（提示：至少三个。）</p>
+</div>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<p><strong>前提一：这笔钱确实离开了股市，而不是换了个口袋。</strong></p>
+<p>IPO 有两种股票。新发行的股票（primary），钱进公司账户，确实离开股市。老股东出售的股票（secondary），钱进早期投资者口袋，他们可能转身又买了别的股票——那样的话钱根本没离开。<strong>不知道一级二级的拆分，就不知道抽走了多少。</strong>SpaceX 这里我就没查到。</p>
+<p><strong>前提二：净供给确实增加了，而不是被回购抵消。</strong></p>
+<p>同一时期，上市公司在回购自己的股票，也有公司退市。真正该看的是「新发行 − 回购 − 退市」这个净额。<strong>如果同期回购规模更大，股票的净供给在减少，方向就反了。</strong></p>
+<p><strong>前提三：市场对资金流的反应确实是被放大的，而且放大倍数够大。</strong></p>
+<p>这是 Gabaix-Koijen 那个乘数 5 在起作用。如果乘数其实接近 1，那么 0.1% 的资金流就只对应 0.1% 的价格影响，讲不成故事。</p>
+<p><strong>可以再加的前提四：时间集中。</strong>2,750 亿如果分摊在三年里，几乎不可测量；如果集中在一个月里，情况不同。<strong>「多少钱」和「多快」是两个数字，缺一不可。</strong></p>
+<p><strong>这道题的意义：</strong>一句听起来很有道理的话，拆开之后需要三到四个都不确定的前提。<strong>而这些前提每一个都可以单独去查。</strong>这就是把「叙事」变成「机制」的方法——不是判断这句话对不对，而是把它拆成可以逐条验证的部分。</p>
+</details>
+
+<div class="q">
+<span class="tag">第 3 题</span>
+<p>今天提到，被动基金规模在过去三十年大幅膨胀，但指数纳入效应<strong>反而从 7.4% 降到了约 1%</strong>。<br>这看起来很矛盾：买家变多了，价格冲击却变小了。请你想出至少一个能同时解释这两件事的机制。</p>
+</div>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<p>这道题没有唯一答案，下面是论文给的两条加上一条推广。</p>
+<p><strong>机制一：需求互相抵消（论文给的「指数迁移」）。</strong></p>
+<p>今天被加进标普 500 的公司，很多是从标普中盘指数「升上来」的。这意味着同一时刻：大盘指数基金要买它，<strong>中盘指数基金要卖它</strong>。两股力量方向相反，净需求冲击远小于毛需求。</p>
+<p>用算术看：假设大盘基金要买 100 亿，中盘基金要卖 60 亿，净冲击只有 40 亿。<strong>被动规模越大，这两边同时越大，抵消也越充分。</strong></p>
+<p><strong>机制二：套利者变多变强（论文给的「流动性改善」）。</strong></p>
+<p>如果一次纳入必然带来 7.4% 的涨幅，这就是一台印钞机——提前买入就行。这么明显的机会，会吸引大量资金提前埋伏。<strong>而他们提前买入这个行为本身，就把涨幅提前吃掉了。</strong>参与的人越多，留给纳入日的涨幅就越少，直到接近零。</p>
+<p>这解释了为什么效应会「消失」：<strong>它不是消失了，是被移到了更早的时间点，并且在竞争中被压缩掉了。</strong></p>
+<p><strong>机制三（推广）：任何被公开、被量化的规律，都会被自己的曝光度侵蚀。</strong></p>
+<p>指数纳入的时间和规则是公开的，谁都能算出哪只股票会被加进来、需要买多少。<strong>一个所有人都能算出来的机会，不可能一直存在。</strong></p>
+<p><strong>这道题最有价值的推论：</strong>今天第 ④ 环那个「43 亿 = 5% 流通盘」的算术，我能算，别人也能算——而且他们在 7 月 6 日之前就算过了。<strong>所以真正的价格影响，很可能发生在我们能观察到的那一天之前。</strong>这也是 8 月 6 日解禁日股价不跌反涨的最可能解释：市场早就动过了。</p>
+</details>
+
+<h3>今天就能做的一个小动作（10 分钟）</h3>
+
+<p>打开你持有的每一只股票 ETF 的官方持仓页（发行商网站，不是第三方），记下三件事：</p>
+
+<ol>
+<li><strong>它跟踪的指数全名</strong>（不是产品名，是指数名）</li>
+<li><strong>前十大持仓的合计权重</strong></li>
+<li><strong>最近一次成分调整的日期</strong></li>
+</ol>
+
+<p>然后做一道算术：<strong>(100% − 前十大权重) ÷ 剩余成分股数量 = 平均每只的权重。</strong>把这个数和第一大持仓的权重比一比。</p>
+
+<p>今天以纳斯达克 100 为例：(100% − 46%) ÷ 90 = 每只 0.6%，而英伟达一家是 8.7%——<strong>差 14 倍。</strong></p>
+
+<h3>延伸阅读</h3>
+
+<ol>
+<li><p><a href="https://www.hbs.edu/ris/Publication%20Files/23-025_563e45c6-df92-4d9c-ae05-608d4d0acab1.pdf">Greenwood &amp; Sammon，《消失的指数效应》</a>（哈佛商学院工作论文版，免费）<br><strong>为什么值得读：</strong>这是今天全文最硬的一块证据，而且它<em>反驳</em>了一个流行说法。看一篇论文怎么用数据推翻共识，比记住结论有用得多。<br><strong>难度：</strong>摘要和引言（前 5 页）新手可读，正文的计量部分可以先跳过。</p></li>
+<li><p><a href="https://www.nber.org/system/files/working_papers/w28967/w28967.pdf">Gabaix &amp; Koijen，《非弹性市场假说》</a>（NBER 工作论文 28967，免费）<br><strong>为什么值得读：</strong>「投 1 块钱，市值涨 5 块」这个结论如果成立，会改变你对整个市场的理解方式。而且它的核心直觉（机构有固定配置比例，所以不看价格）非常好懂。<br><strong>难度：</strong>摘要和引言可读，中间的模型部分很硬，建议先读引言和结论，中间等以后再回来。</p></li>
+<li><p><a href="https://www.cmegroup.com/articles/2026/the-spacex-mega-ipo-why-index-choice-matters.html">CME Group：《SpaceX 巨型 IPO——为什么指数选择很重要》</a><br><strong>为什么值得读：</strong>今天全文里「三倍流通盘乘数」这个关键机制就来自它。它是一篇从交易所角度写的实务分析，能让你看到指数规则的技术细节长什么样。<br><strong>难度：</strong>中等，有一些术语，但今天这一课已经把主要的几个讲过了。</p></li>
+</ol>
+
+<!-- ============ 9 ============ -->
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<h3>9.1 一手来源与口径清单</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>数据</th><th>数值</th><th>口径与时点</th><th>来源等级</th></tr></thead>
+<tbody>
+<tr><td>SpaceX 发行价 / 首日</td><td class="num">$135 / 收 ~$160</td><td>2026-06-12，Nasdaq，代码 SPCX</td><td>财经媒体实况（二手）</td></tr>
+<tr><td>发行股数 / 占总股本</td><td class="num">6.389 亿股 / 4.9%</td><td>IPO 时</td><td>财经媒体（二手）</td></tr>
+<tr><td>报道募资额</td><td class="num">750 亿美元</td><td><strong>未查到一级/二级拆分</strong></td><td>财经媒体（二手）</td></tr>
+<tr><td>8/21 收盘价 / 市值 / 股本</td><td class="num">$136.97 / 1.86 万亿 / 135.7 亿股</td><td>2026-08-21 16:00 EDT</td><td>行情聚合站（二手）</td></tr>
+<tr><td>上市以来区间</td><td class="num">$104.83 – $225.64</td><td>52 周区间（该股仅上市约 10 周）</td><td>行情聚合站（二手）</td></tr>
+<tr><td>强制被动买盘估计</td><td class="num">43 亿美元</td><td><strong>摩根大通估计值，非实际成交</strong>；对应 2026-07-06 收盘</td><td>转述（二手）</td></tr>
+<tr><td>追踪纳斯达克 100 的资产</td><td class="num">&gt;8,000 亿（直接追踪）<br>1.4 万亿（总资本）</td><td><strong>两个口径，差近一倍，正文已辨析</strong></td><td>分别来自两篇二手分析</td></tr>
+<tr><td>纳斯达克快速纳入规则</td><td>15 个交易日、前 40 名、取消最低流通盘</td><td>2026-05-01 生效</td><td>多方二手，互相印证</td></tr>
+<tr><td>三倍流通盘权重乘数</td><td class="num">最高 3 倍</td><td>新规则条款</td><td>CME Group（机构分析，二手）</td></tr>
+<tr><td>标普 500 拒绝快速纳入</td><td>维持 12 个月 + GAAP 盈利</td><td>2026-06-04</td><td>多方二手</td></tr>
+<tr><td>8/6 解禁</td><td class="num">9.115 亿股；流通 4.9%→11.8%；当日 +6.1%</td><td>2026-08-06，前收 $108.27</td><td>财经媒体（二手）</td></tr>
+<tr><td>QQQ 前十持仓与权重</td><td class="num">前十约 46%；英伟达约 8.7%</td><td><strong>2026 年 6 月数据，与 8 月市值时点不一致</strong></td><td>第三方站点（二手）</td></tr>
+<tr><td>英伟达价格/成交量/市值</td><td class="num">$214.72 / 9,887 万股 / 5.20 万亿</td><td>2026-08-21 收盘；成交量为日均值</td><td>行情聚合站（二手）</td></tr>
+<tr><td>美股总市值</td><td class="num">75.3 万亿美元</td><td>2026-07-01</td><td>Siblis Research（二手数据商）</td></tr>
+<tr><td>指数纳入效应</td><td class="num">7.4%（1990s）→ 0.3%（近十年）</td><td>标普 500 加入的超额收益</td><td><strong>《金融学期刊》2025，一手论文</strong></td></tr>
+<tr><td>股市总量弹性 / 乘数</td><td class="num">0.2 / 约 5（区间 3–8）</td><td>宏观总量口径</td><td><strong>NBER w28967，一手论文</strong></td></tr>
+<tr><td>股权发行占比预测回报</td><td>发行占比高 → 后续回报低</td><td>1928–1997 美国</td><td><strong>《金融学期刊》2000，一手摘要</strong></td></tr>
+<tr><td>Anthropic IPO</td><td class="num">传闻 2 万亿估值，10 月</td><td><strong>FT 报道、公司未确认、估值未正式确定</strong></td><td>转述的转述（三手）</td></tr>
+<tr><td>OpenAI IPO</td><td class="num">传闻 8,500 亿～1 万亿估值</td><td><strong>无申报文件、无官方时间表</strong></td><td>媒体报道（二手）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>9.2 哪几环有出处、哪几环是算术、哪几环是推测</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>环</th><th>内容</th><th>依据类型</th></tr></thead>
+<tbody>
+<tr><td>①</td><td>SpaceX 上市的基本事实</td><td><strong>二手来源，多方互证</strong></td></tr>
+<tr><td>②③</td><td>三种流动性的区分</td><td><strong>公认定义</strong></td></tr>
+<tr><td>④</td><td>买方 5.0% 流通盘 / 卖方 1.8% 日成交额 / 每股 0.0072% 市值</td><td><strong>纯算术</strong>，输入为二手数据；指数总市值 59.8 万亿是<strong>我反推的</strong>，非查得</td></tr>
+<tr><td>④</td><td>三倍乘数的验算（0.46% vs 观察 0.54%）</td><td><strong>我的算术验算</strong>，规则本身来自 CME</td></tr>
+<tr><td>⑤</td><td>指数效应已降至不显著</td><td><strong>一手论文</strong>（引文为原文）</td></tr>
+<tr><td>⑤</td><td>「这篇论文只管一半」</td><td><strong>我的判断</strong>，已在正文标出</td></tr>
+<tr><td>⑥</td><td>弹性 0.2 / 乘数 5</td><td><strong>一手论文</strong>（引文为原文）</td></tr>
+<tr><td>⑥</td><td>0.50% / 1.83% 的市值影响</td><td><strong>纯算术</strong>；<strong>但把 IPO 映射为负资金流是我的类比，论文未验证</strong>；1,000 亿募资额为示意数字</td></tr>
+<tr><td>⑦</td><td>「算出来都不叫剧烈」</td><td><strong>上述算术的汇总</strong></td></tr>
+<tr><td>⑧</td><td>集中度→波动率 / 纯标的替代 / 定价锚</td><td><strong>三条全是我的推测</strong>，已分别装框并写明反对看法</td></tr>
+<tr><td>⑨</td><td>7/6 当天其他成分股的表现</td><td><strong>没查到，明写不接</strong></td></tr>
+<tr><td>5.1</td><td>「市场提前消化解禁」</td><td><strong>与价格路径一致，但未被证明</strong>，已在正文标明</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>9.3 我没做到的事，以及这篇文章的一个结构性弱点</h3>
+
+<ul>
+<li><strong>这篇文章的一手来源比例，明显低于今天早上那一课。</strong>早上那篇的核心数据来自美联储 H.15、Z.1、CPF 局、SingStat——都是官方发布。今天这篇除了三篇学术论文之外，事实层面<strong>几乎全部是财经媒体的二手报道</strong>，我没能拿到 SpaceX 的招股书、纳斯达克的官方指数方法论文件、或指数公司的官方权重表。<strong>请按这个等级来采信本文的事实部分。</strong></li>
+<li><strong>数据时点不一致。</strong>指数权重是 6 月的，市值和价格是 8 月 21 日的，流通盘数据混合了 IPO 时点和解禁后。所有基于它们的比值只能当量级参考，不能当精确值。</li>
+<li><strong>我看到过互相矛盾的流通股数字。</strong>一篇报道说「2.81 亿可交易股（总股本 75.7 亿）」，与另一组「IPO 发行 6.389 亿股、占总股本 4.9%、总股本约 130 亿」明显冲突。我采用了后者，因为它与「发行价 $135 × 130 亿股 ≈ 1.77 万亿估值」这个独立数字自洽，而前者对不上。<strong>但我无法确定哪个对。</strong></li>
+<li><strong>750 亿募资 vs 862.5 亿发行总额的差额（约 112 亿），我没查实原因。</strong>这直接影响第 ⑥ 环。</li>
+<li><strong>7 月 6 日当天其他成分股的表现，我没查到。</strong>这是本文最想要而没拿到的那块数据。</li>
+<li><strong>净股票供给（发行 − 回购 − 退市）我没有查。</strong>第 5.2 节已经把它列为最脆弱的假设。</li>
+<li><strong>Baker &amp; Wurgler 的具体量级我没拿到</strong>，只拿到了方向性结论和摘要原话，所以我没有用它做任何计算。</li>
+<li><strong>关于 Anthropic 的一切，都是转述的转述。</strong>Fortune 转述 FT，FT 引述未具名信源，公司未确认。我在正文里没有基于这些数字做任何实质推断，只用作示意输入。</li>
+</ul>
+
+<div class="footer">
+<p><strong>Day 7 加更 · 借用 F33 指数集中度、F34 被动化对个股定价的影响、G12 ETF 机制</strong></p>
+<p>本文由 Anthropic 制作的 AI 撰写，而 Anthropic 是文中讨论的公司之一，相关声明见文首。本文的所有分析为教学用途，不构成投资建议。文中数据的口径、时点与来源等级已在第 9 节逐条列出，请以原始来源为准。</p>
+</div>
+
+</div>
+</body>
+</html>
