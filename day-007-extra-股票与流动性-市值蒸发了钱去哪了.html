@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 7 加更二 · 市值蒸发了，钱去哪了</title>
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#1f2328; --muted:#5c6672; --rule:#e2ddd5;
+  --card:#ffffff; --cardline:#e6e1d9;
+  --accent:#8a5a2b; --accent-soft:#f3ece3;
+  --guess-bg:#fff6ec; --guess-line:#c8802f; --guess-fg:#7a4a12;
+  --warn-bg:#fdeeee; --warn-line:#b5504a; --warn-fg:#7d2f2a;
+  --ok-bg:#eef5ef; --ok-line:#7ba07f;
+  --code-bg:#f2efe9;
+  --solid:#2f6f8f; --dashed:#c8802f;
+  --up:#2e7d55; --down:#b5504a;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171a; --fg:#e8e6e2; --muted:#a2aab4; --rule:#2c3036;
+    --card:#1c1f23; --cardline:#31363d;
+    --accent:#d6a86a; --accent-soft:#26221c;
+    --guess-bg:#2a2018; --guess-line:#d69a4a; --guess-fg:#f0c68a;
+    --warn-bg:#2c1c1b; --warn-line:#d1756d; --warn-fg:#f0aaa4;
+    --ok-bg:#1b2620; --ok-line:#5d8a67;
+    --code-bg:#23272c;
+    --solid:#79b7d4; --dashed:#e0a45c;
+    --up:#6fc496; --down:#e0857d;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  font-size:17px; line-height:1.85; overflow-x:hidden;
+}
+.wrap{max-width:760px;margin:0 auto;padding:32px 20px 96px}
+header.top{border-bottom:2px solid var(--rule);padding-bottom:20px;margin-bottom:28px}
+.kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+h1{font-size:29px;line-height:1.35;margin:0 0 12px;letter-spacing:-.01em}
+.meta{font-size:14px;color:var(--muted);margin:0}
+h2{font-size:22px;margin:52px 0 14px;padding-top:20px;border-top:1px solid var(--rule);line-height:1.4}
+h3{font-size:18px;margin:34px 0 10px;line-height:1.5}
+h4{font-size:16px;margin:24px 0 8px;color:var(--accent)}
+p{margin:0 0 16px}
+ul,ol{margin:0 0 16px;padding-left:1.4em}
+li{margin:0 0 8px}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;word-break:break-word}
+strong{font-weight:650}
+.up{color:var(--up);font-weight:650}
+.dn{color:var(--down);font-weight:650}
+
+.calc{
+  background:var(--code-bg);border-left:3px solid var(--accent);
+  padding:14px 16px;margin:18px 0;border-radius:0 6px 6px 0;
+  font-variant-numeric:tabular-nums;line-height:2.0;
+}
+.calc .line{display:block}
+.calc .big{font-size:19px;font-weight:650}
+
+.guess{background:var(--guess-bg);border:2px dashed var(--guess-line);border-radius:8px;padding:16px 18px;margin:24px 0;color:var(--guess-fg)}
+.guess .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;background:var(--guess-line);color:#fff;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.guess p:last-child{margin-bottom:0}
+
+.warn{background:var(--warn-bg);border:2px solid var(--warn-line);border-radius:8px;padding:16px 18px;margin:24px 0;color:var(--warn-fg)}
+.warn .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;background:var(--warn-line);color:#fff;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.warn p:last-child{margin-bottom:0}
+
+.note{background:var(--card);border:1px solid var(--cardline);border-radius:8px;padding:16px 18px;margin:22px 0}
+.note p:last-child{margin-bottom:0}
+.note .tag{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:8px}
+
+.src{font-size:13.5px;color:var(--muted);border-top:1px dotted var(--rule);padding-top:8px;margin-top:14px}
+.src b{color:var(--fg)}
+
+.tablewrap{overflow-x:auto;margin:20px 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:460px}
+th,td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:650;font-size:14px}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+figure{margin:26px 0}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.7}
+
+details{background:var(--card);border:1px solid var(--cardline);border-radius:8px;padding:12px 16px;margin:14px 0}
+details summary{cursor:pointer;font-weight:650}
+details[open] summary{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+
+.q{background:var(--ok-bg);border-left:3px solid var(--ok-line);padding:12px 16px;margin:18px 0;border-radius:0 6px 6px 0}
+.q p:last-child{margin-bottom:0}
+.q .tag{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:6px}
+
+.footer{margin-top:60px;padding-top:20px;border-top:2px solid var(--rule);font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Day 7 加更二 · 借用 F1 股票的本质 · F37 风格轮动 · H4 供求均衡与价格发现</p>
+  <h1>市值蒸发了，钱去哪了？</h1>
+  <p class="meta">2026 年 8 月 24 日 · 美股盘中（美东时间 11:20–11:25，市场仍在交易）· 你的问题：从今天芯片和航天的下跌说起，板块轮动、资金流向，以及——股票是不是「虚无」？钱是凭空产生的，还是转移的？</p>
+</header>
+
+<div class="warn">
+<span class="tag">先纠正一件事：你的前提只对了一半</span>
+<p>你说「芯片、航天的下跌」。我查了实时行情：</p>
+<p><strong>芯片是真的在跌。</strong>美光 <span class="dn">−7.19%</span>，闪迪 <span class="dn">−10.91%</span>，英伟达 <span class="dn">−2.65%</span>。</p>
+<p><strong>但航天几乎没动。</strong>SpaceX（SPCX）<span class="dn">−0.25%</span>——基本是平的。火箭实验室（RKLB）我只拿到了上周五的收盘价，今天的实时数据没查到。</p>
+<p>这个差别<strong>不是细节，它是今天最有信息量的事实</strong>。因为如果真的是「资金正在撤出高估值成长板块」，那么航天——同样是高估值、同样是现金流在遥远未来的板块——应该跟着一起跌。它没有。第 3 节会用这一点来拆掉一个流行说法。</p>
+</div>
+
+<!-- ============ 0 ============ -->
+<h2>0｜今天你会学到什么</h2>
+
+<p>你问了一个很多人问了一辈子也没得到干净答案的问题：<strong>股价跌了，钱去哪了？</strong></p>
+
+<p>今天我用美光这一只股票、今天这一个上午的真实数字，把这件事算清楚。你会看到一个结果：<strong>它的市值在几个小时里少了 783 亿美元，而在同一段时间里，净流出这只股票的钱是 0 美元。</strong>不是很少，是零。这不是修辞，是会计恒等式。</p>
+
+<p>然后我们回答你后面那半个问题：既然如此，股票是不是「虚无」？答案是<strong>不是</strong>，而且我能给你一个具体的数字来证明——过去 12 个月，标普 500 的公司真金白银付给股东 <strong>1.685 万亿美元</strong>。那不是虚的。</p>
+
+<p>读完你能回答三个问题：市值和钱是不是同一个东西？「板块轮动」这四个字到底在描述什么？如果钱不是从一个板块流到另一个板块，那价格为什么会变？</p>
+
+<!-- ============ 1 ============ -->
+<h2>1｜今天的事实（只写事实）</h2>
+
+<div class="note">
+<span class="tag">重要的口径提醒：这些是盘中快照</span>
+<p>我写这一课的时候，<strong>美股正在交易</strong>（美东时间 8 月 24 日上午 11 点 20 分左右，距收盘还有约 4 个半小时）。下面所有带「今天」的数字都是<strong>盘中某一瞬间的快照</strong>，不是收盘价。它们在你读到这篇的时候几乎肯定已经变了。</p>
+<p>我仍然用它们，是因为今天要讲的道理不依赖于具体数值——但你必须知道它们是什么口径。<strong>「盘中 11:20 的价格」和「收盘价」是两个不同的东西，混用会出错。</strong></p>
+</div>
+
+<h3>1.1 今天在跌的和没跌的</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>标的</th><th class="num">现价</th><th class="num">今日变动</th><th class="num">前收盘</th><th class="num">市值</th></tr></thead>
+<tbody>
+<tr><td>美光科技 MU（存储芯片）</td><td class="num">$897.23</td><td class="num dn">−7.19%</td><td class="num">$966.78</td><td class="num">1.01 万亿</td></tr>
+<tr><td>闪迪 SNDK（存储）</td><td class="num">—</td><td class="num dn">−10.91%</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>英伟达 NVDA</td><td class="num">$209.03</td><td class="num dn">−2.65%</td><td class="num">$214.72</td><td class="num">5.06 万亿</td></tr>
+<tr><td><strong>SpaceX SPCX（航天）</strong></td><td class="num">$136.63</td><td class="num dn">−0.25%</td><td class="num">$136.97</td><td class="num">1.85 万亿</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>数据时点：美光、英伟达、SpaceX 均为美东时间 8 月 24 日 11:20–11:21 的报价；闪迪的 −10.91% 来自同日一篇盘中报道，我没有拿到它的具体价格。</p>
+
+<h3>1.2 十一个板块今天的表现</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>板块 ETF</th><th class="num">今日变动</th><th>板块 ETF</th><th class="num">今日变动</th></tr></thead>
+<tbody>
+<tr><td>XLRE 房地产</td><td class="num up">+0.43%</td><td>XLB 材料</td><td class="num up">+0.10%</td></tr>
+<tr><td>XLP 必需消费</td><td class="num up">+0.40%</td><td>XLF 金融</td><td class="num">+0.00%</td></tr>
+<tr><td>XLU 公用事业</td><td class="num up">+0.22%</td><td>XLY 可选消费</td><td class="num">−0.00%</td></tr>
+<tr><td>XLV 医疗保健</td><td class="num up">+0.05%</td><td>XLC 通信服务</td><td class="num dn">−0.13%</td></tr>
+<tr><td>XLE 能源</td><td class="num dn">−0.28%</td><td>XLI 工业</td><td class="num dn">−0.31%</td></tr>
+<tr><td colspan="2"></td><td><strong>XLK 科技</strong></td><td class="num dn"><strong>−0.72%</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>市场宽度：2,568 只活跃股票中有 1,258 只上涨，占 <strong>49%</strong>。</p>
+
+<p><strong>请先记住一个数字：</strong>今天最好的板块（房地产 +0.43%）和最差的板块（科技 −0.72%）之间，差距是</p>
+
+<div class="calc">
+<span class="line big">0.43% − (−0.72%) = <b>1.15 个百分点</b></span>
+</div>
+
+<p>而美光一只股票今天跌了 7.19%——<strong>是整个板块最大价差的 6.3 倍。</strong>这个对比第 3 节会用到。</p>
+
+<h3>1.3 背景：30 年期国债收益率刚创了 19 年新高</h3>
+
+<p>美联储 H.15 的 30 年期国债固定期限收益率，最近几天是：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>日期</th><th class="num">8/14</th><th class="num">8/17</th><th class="num">8/18</th><th class="num">8/19</th><th class="num">8/20</th></tr></thead>
+<tbody><tr><td>30 年期收益率</td><td class="num">5.25%</td><td class="num"><strong>5.31%</strong></td><td class="num">5.28%</td><td class="num">5.19%</td><td class="num">5.23%</td></tr></tbody>
+</table>
+</div>
+
+<p>有一篇 8 月 21 日的评论文章说 30 年期「达到 5.33%，为 2007 年 6 月以来的最高水平」。</p>
+
+<div class="note">
+<span class="tag">这里有一个口径差异，正好可以学</span>
+<p>那篇文章说 5.33%，而美联储 H.15 的记录里最高是 5.31%（8 月 17 日）。<strong>两个数字都可能是对的，因为它们数的不是同一件事。</strong></p>
+<p>H.15 的「固定期限收益率」（constant maturity）是每天在一个固定时点、从收益率曲线上插值出来的一个数。而媒体常引用的是<strong>盘中最高点</strong>——某一瞬间成交或报价的水平。盘中高点自然会高于当日定点快照。</p>
+<p>另外那篇文章把日期写成了「8 月 20 日星期二」，但 2026 年 8 月 20 日是星期四。<strong>按 H.15 的数据，那一周的高点在星期一（8 月 17 日）。</strong>我采信 H.15。</p>
+</div>
+
+<h3>1.4 一份可以核对的资金流数据</h3>
+
+<p>LSEG Lipper 统计的美国基金资金流，<strong>截至 8 月 12 日那一周</strong>：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>类别</th><th class="num">当周净流入</th></tr></thead>
+<tbody>
+<tr><td>货币市场基金</td><td class="num up">+139.2 亿美元</td></tr>
+<tr><td>债券基金</td><td class="num up">+94.0 亿美元</td></tr>
+<tr><td>成长型基金</td><td class="num up">+87.8 亿美元</td></tr>
+<tr><td>美国股票基金</td><td class="num up">+25.8 亿美元</td></tr>
+<tr><td>价值型基金</td><td class="num up">+17.9 亿美元</td></tr>
+<tr><td><strong>科技板块基金</strong></td><td class="num dn"><strong>−46.2 亿美元</strong></td></tr>
+<tr><td>板块型基金（更广口径）</td><td class="num dn">−37.8 亿美元</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>散户这一侧，Vanda Research 的数据（7 月底那一周）：某个周三，散户<strong>净卖出个股 2.43 亿美元</strong>，被称为「COVID 以来最大的单日净流出」；<strong>同一天他们净买入 ETF 3.88 亿美元</strong>。这是 2026 年散户第九个净卖出日，而这种事「在 2021、2024、2025 年一次都没发生过」。他们卖得最多的正是存储板块：美光、闪迪、希捷、西部数据。</p>
+
+<h3>1.5 上市公司付给股东的钱（这是第 3 节的关键）</h3>
+
+<p>标普道琼斯指数公司的官方统计，<strong>截至 2025 年 9 月的 12 个月</strong>：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>项目</th><th class="num">金额</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>股票回购</td><td class="num">1.020 万亿美元</td><td>创纪录</td></tr>
+<tr><td>现金分红</td><td class="num">6,649 亿美元</td><td>创纪录</td></tr>
+<tr><td><strong>合计付给股东</strong></td><td class="num"><strong>1.685 万亿美元</strong></td><td>创纪录</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>对照另一个方向：Renaissance Capital 统计，<strong>2026 年至今</strong>美国 IPO 共 104 家，募资 <strong>1,458 亿美元</strong>（家数比去年少 24.6%，金额比去年多 543.7%——主要是 SpaceX 那一笔）。</p>
+
+<p class="src"><b>来源：</b>个股实时报价 <a href="https://stockanalysis.com/stocks/mu/">美光</a>、<a href="https://stockanalysis.com/stocks/nvda/">英伟达</a>、<a href="https://stockanalysis.com/stocks/spcx/">SpaceX</a>（均为 8/24 11:20–11:21 EDT）· 板块 ETF <a href="https://www.thedesperatetrader.com/sector-performance">当日板块表现</a> · 30 年期收益率 <a href="https://fred.stlouisfed.org/series/DGS30">FRED DGS30（转载美联储 H.15）</a> · 5.33% 与 19 年高点说法 <a href="https://www.fool.com/investing/2026/08/21/chip-stocks-didn-t-fall-on-chip-news-this-week-they-fell-on-a-19-year-high-in-the-30-year-treasury-yield/">Motley Fool 8/21</a> · 基金流 <a href="https://ts2.tech/en/etf-week-ahead-4-6-billion-tech-exit-meets-energys-7-7-surge/">LSEG Lipper 经转述</a> · 散户流 <a href="https://www.aol.com/articles/retail-investors-starting-cold-feet-144431000.html">Vanda Research 经转述</a> · 回购与分红 <a href="https://www.spglobal.com/spdji/en/documents/index-news-and-announcements/20251218-sp-500-buyback-q3-2025.pdf">标普道琼斯指数公司新闻稿（2025-12-18）</a> · IPO 统计 <a href="https://www.renaissancecapital.com/IPO-Center/Stats">Renaissance Capital</a></p>
+
+<!-- ============ 2 ============ -->
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 700 1310" role="img" aria-label="从今天的芯片下跌到市值与货币的关系">
+  <defs>
+    <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <style>
+    .box{fill:var(--card);stroke:var(--solid);stroke-width:2;rx:10}
+    .boxg{fill:var(--guess-bg);stroke:var(--dashed);stroke-width:2;stroke-dasharray:7 5;rx:10}
+    .tb{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;font-size:20px;font-weight:700;fill:var(--fg)}
+    .ts{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;font-size:16.5px;fill:var(--muted)}
+    .tg{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;font-size:16.5px;fill:var(--guess-fg)}
+    .arr{stroke:var(--solid);stroke-width:2.5;fill:none;color:var(--solid)}
+    .arrg{stroke:var(--dashed);stroke-width:2.5;fill:none;stroke-dasharray:8 5;color:var(--dashed)}
+  </style>
+
+  <rect class="box" x="60" y="10" width="580" height="104"/>
+  <text class="tb" x="82" y="44">① 今天：美光 −7.19%，SpaceX −0.25%</text>
+  <text class="ts" x="82" y="72">同为高估值长久期，一个塌了一个没动</text>
+  <text class="ts" x="82" y="96">实时报价，8/24 11:20 EDT</text>
+  <path class="arr" d="M350,114 L350,146" marker-end="url(#ah3)"/>
+
+  <rect class="box" x="60" y="152" width="580" height="126"/>
+  <text class="tb" x="82" y="184">② 同一个下跌，四家媒体四种解释</text>
+  <text class="ts" x="82" y="212">中国存储获准供货 · 三星分红意外</text>
+  <text class="ts" x="82" y="236">国债收益率上行 · 专利诉讼与现货价见顶</text>
+  <text class="ts" x="82" y="260">全部发表于同一天 · 事后叙事的活体标本</text>
+  <path class="arr" d="M350,278 L350,310" marker-end="url(#ah3)"/>
+
+  <rect class="box" x="60" y="316" width="580" height="150"/>
+  <text class="tb" x="82" y="348">③ 市值是怎么算出来的</text>
+  <text class="ts" x="82" y="376">美光当天只有 1.17% 的股份换手</text>
+  <text class="ts" x="82" y="400">但 100% 的股份被重新标价</text>
+  <text class="ts" x="82" y="424">市值蒸发 783 亿 = 全天毛成交额的 6.7 倍</text>
+  <text class="ts" x="82" y="448">纯算术，可自行验算</text>
+  <path class="arr" d="M350,466 L350,498" marker-end="url(#ah3)"/>
+
+  <rect class="box" x="60" y="504" width="580" height="126"/>
+  <text class="tb" x="82" y="536">④ 二级市场的净资金流恒等于零</text>
+  <text class="ts" x="82" y="564">每一笔买入都对应一笔等额卖出</text>
+  <text class="ts" x="82" y="588">钱在人之间转移，没有离开这个市场</text>
+  <text class="ts" x="82" y="612">会计恒等式</text>
+  <path class="arr" d="M350,630 L350,662" marker-end="url(#ah3)"/>
+
+  <rect class="box" x="60" y="668" width="580" height="150"/>
+  <text class="tb" x="82" y="700">⑤ 钱真正进出的三道闸门</text>
+  <text class="ts" x="82" y="728">进公司：IPO 与增发（2026 年至今 1,458 亿）</text>
+  <text class="ts" x="82" y="752">出公司：分红 + 回购（12 个月 16,850 亿）</text>
+  <text class="ts" x="82" y="776">净额：公司给投资者的是拿走的 11.6 倍</text>
+  <text class="ts" x="82" y="800">标普道琼斯 + Renaissance，一手数据</text>
+  <path class="arr" d="M350,818 L350,850" marker-end="url(#ah3)"/>
+
+  <rect class="box" x="60" y="856" width="580" height="150"/>
+  <text class="tb" x="82" y="888">⑥ 所以「钱转移了吗」有三个不同答案</text>
+  <text class="ts" x="82" y="916">交易层面：转移了，而且总额守恒</text>
+  <text class="ts" x="82" y="940">市值层面：财富不守恒，可以集体消失</text>
+  <text class="ts" x="82" y="964">现金层面：公司→股东的现金真实且巨大</text>
+  <text class="ts" x="82" y="988">混用这三层，就是所有困惑的来源</text>
+  <path class="arr" d="M350,1006 L350,1038" marker-end="url(#ah3)"/>
+
+  <rect class="box" x="60" y="1044" width="580" height="126"/>
+  <text class="tb" x="82" y="1076">⑦ 股票不是虚无，但价格是估计值</text>
+  <text class="ts" x="82" y="1104">现金流真实 · 折现率一动，估值就大动</text>
+  <text class="ts" x="82" y="1128">折现率 6%→7.33%，同一串现金流少 25%</text>
+  <text class="ts" x="82" y="1152">纯算术</text>
+  <path class="arrg" d="M350,1170 L350,1202" marker-end="url(#ah3)"/>
+
+  <rect class="boxg" x="60" y="1208" width="580" height="92"/>
+  <text class="tg" x="82" y="1240" style="font-size:20px;font-weight:700">⑧ 我接不上的地方</text>
+  <text class="tg" x="82" y="1268">今天的下跌里，有多少是折现率、多少是</text>
+  <text class="tg" x="82" y="1292">基本面消息——我分不开，也不打算硬分</text>
+</svg>
+<figcaption><strong>图例：</strong>蓝色实线框 = 有一手出处或纯算术推导。橙色虚线框 = 我接不上的地方。<strong>注意第 ② 环</strong>：它不是链条的一环，它是一个<em>警告标志</em>——我把四种互相竞争的解释并排放在那里，正是为了说明这一段不能连成因果。</figcaption>
+</figure>
+
+<p><strong>用人话读一遍：</strong>今天芯片跌了，航天没跌，而这两个板块的估值特征其实很像——所以「资金撤出高估值板块」这个说法一开始就对不上。翻开媒体，同一个 7% 的下跌有四种互相竞争的解释，全部发在同一天。于是我不去解释它，转而去算一件可以算清楚的事：美光今天蒸发了 783 亿美元的市值，而当天只有 1.17% 的股份真正换过手——市值是用「1% 的成交价」乘以「100% 的股份」推出来的，它是一个外推值，不是一堆钱。更进一步，二级市场买卖的净资金流恒等于零，因为每一笔买都配一笔卖。钱真正进出股市只有三道闸门：IPO 和增发把钱送进公司，分红和回购把钱送回投资者——而过去 12 个月，送回来的是送进去的 11.6 倍。所以「钱去哪了」这个问题有三个不同层次的答案，混用它们就是所有困惑的源头。最后，股票不是虚无的，因为那 1.685 万亿是真钱；但价格是对未来现金流的<em>估计</em>，而估计对折现率极其敏感——折现率从 6% 升到 7.33%，同一串现金流的现值就少了四分之一。</p>
+
+<!-- ============ 3 ============ -->
+<h2>3｜逐环拆解</h2>
+
+<h3>第 ① 环：先检验前提——为什么「航天没跌」很重要</h3>
+
+<p>今天早上那一课我们讲过折现：<strong>越远的钱，对利率变化越敏感。</strong>（如果你还没读，简单说就是：把未来的钱换算成今天的钱，要一年一年地除，越远的钱除的次数越多，除数变一点点，结果就差很多。）</p>
+
+<p>芯片和航天有一个共同点：<strong>它们的价值主要来自很远的未来。</strong>一家造火箭的公司，今天的利润很少甚至没有，市场买的是十年二十年后的现金流。一家高估值的芯片公司也一样——评论文章提到英伟达约 33 倍市盈率，AMD 约 42 倍远期市盈率。</p>
+
+<div class="note">
+<span class="tag">先把「市盈率」讲清楚，这是今天第一个新词</span>
+<p>你花 33 块钱买了某家公司的一股，这家公司今年每股赚 1 块钱。那么你付的价格是它一年利润的 33 倍。</p>
+<p>经济学和会计给这个比值起了个名字，叫<strong>市盈率</strong>（price-to-earnings ratio，简称 P/E 或市盈率倍数）。算法就是：</p>
+<div class="calc"><span class="line big">市盈率 = 股价 ÷ 每股年利润 = 33 ÷ 1 = <b>33 倍</b></span></div>
+<p>换一个角度看，这个数字在说什么？<strong>如果利润永远不增长，你要 33 年才能靠利润回本。</strong>所以人们愿意付 33 倍，一定是因为他们预期利润会增长——也就是说，<strong>他们买的大部分价值在很远的未来。</strong></p>
+<p>反过来，一家市盈率 8 倍的公司，8 年就回本，价值集中在近期。<strong>市盈率高 = 价值靠后 = 对利率敏感。</strong>这就是市盈率和「久期」的关系。</p>
+</div>
+
+<p>所以，如果今天的下跌真的是「利率上升压低了长久期资产」，那么<strong>航天应该和芯片一起跌</strong>。</p>
+
+<p>实际上：</p>
+
+<div class="calc">
+<span class="line">美光　　　<b class="dn">−7.19%</b></span>
+<span class="line">闪迪　　　<b class="dn">−10.91%</b></span>
+<span class="line">英伟达　　<b class="dn">−2.65%</b></span>
+<span class="line">SpaceX　　<b class="dn">−0.25%</b>　←　基本没动</span>
+</div>
+
+<p><strong>结论：今天的下跌不是一个「板块级别」的现象，而是集中在存储芯片这个很窄的行业里。</strong>英伟达跌得比美光轻得多，SpaceX 几乎没跌。</p>
+
+<p>而且看板块数据也印证这一点：整个科技板块（XLK）只跌了 0.72%。<strong>如果科技板块里有股票跌 7%、10%，而板块整体只跌 0.72%，那说明板块里大部分股票根本没怎么动。</strong></p>
+
+<p class="src"><b>这一环的依据：</b>四个价格均为 8/24 11:20–11:21 EDT 实时报价；板块数据同日；市盈率数值引自 Motley Fool 8/21 的评论文章；「越远的钱对利率越敏感」是折现算术的直接结果，今天早上已推导过。</p>
+
+<hr>
+
+<h3>第 ② 环：同一个下跌，四种解释——请仔细看这一节</h3>
+
+<p>我为了搞清楚美光今天为什么跌，读了四篇当天的报道。它们给出的原因是：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>来源</th><th>给出的原因</th></tr></thead>
+<tbody>
+<tr><td>Motley Fool（8/24 当日）</td><td>特朗普政府批准苹果向中国存储厂商长鑫（CXMT）和长江存储（YMTC）采购芯片，用于在中国销售的产品。廉价中国芯片威胁美光份额。</td></tr>
+<tr><td>ts2.tech</td><td>三星的分红方案让投资者意外，暴露出存储板块是一个过度拥挤的交易。</td></tr>
+<tr><td rowspan="3">TradingKey（8/24 当日，同一篇给了三条）</td><td>亚洲半导体普跌，同业「资本回报计划令人失望」。</td></tr>
+<tr><td>美国国债收益率上行，抬高了大型科技客户的融资成本，可能放慢它们采购 AI 基础设施的节奏。</td></tr>
+<tr><td>Netlist 的专利诉讼可能导致 DDR5 产品被限制进口；存储现货价格的涨势可能正在从周期高点放缓。</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="warn">
+<span class="tag">这张表是今天最值得你保存的东西</span>
+<p><strong>同一只股票、同一个上午、同一个 7% 的下跌，被给出了至少五个不同的原因，全部发表在同一天。</strong></p>
+<p>它们不是互相补充的，是互相竞争的。「因为中国芯片获批」和「因为国债收益率上行」是两个完全不同的世界：前者是美光独有的坏消息，后者是所有长久期资产共有的压力。<strong>如果是后者，SpaceX 应该也跌；它没跌。</strong>这至少让「收益率」这条解释在今天变得可疑。</p>
+<p>而这正是这门课反复警告的那件事：<strong>价格先动，解释后到。</strong>写文章的人看到了 −7%，然后去找当天有什么坏消息，找到了就写上去。这个过程<strong>永远能产出一个听起来合理的答案</strong>，而且几乎<strong>永远无法被证伪</strong>。</p>
+<p><strong>我今天不打算加入他们。我不知道美光为什么跌 7%。</strong>我能做的是把四种说法并排列出来，让你看见它们互相矛盾。这比我挑一个最顺眼的写成结论要诚实得多。</p>
+</div>
+
+<h4>你可能会想：那有没有办法分辨呢？</h4>
+
+<p>有，但需要今天做不到的工作。真正的做法是<strong>事件研究</strong>（event study）：把消息公布的<em>精确时刻</em>找出来，看价格是在那个时刻之后的几分钟内跳的，还是早就在跌了。如果价格在消息公布前一小时就已经跌了 5%，那这条消息就解释不了它。</p>
+
+<p>这需要分钟级的价格数据和消息的精确时间戳。<strong>我今天两样都没有。</strong>所以我停在这里。</p>
+
+<p class="src"><b>这一环的依据：</b>四段解释均为当日报道原文转述，链接见页尾清单。<strong>「它们互相矛盾」是我的判断；「我不知道美光为什么跌」是我的结论。</strong></p>
+
+<hr>
+
+<h3>第 ③ 环（今天的主菜 A）：市值到底是怎么算出来的</h3>
+
+<p>现在进入你真正想问的问题。</p>
+
+<h4>先说生活里的事</h4>
+
+<p>假设你住的那栋楼有 100 户，户型完全一样。上个月，其中一户以 150 万新元成交了。</p>
+
+<p>于是所有人都说：这栋楼值 1.5 亿（100 户 × 150 万）。</p>
+
+<p>这个月，另一户急着出国，130 万就卖了。</p>
+
+<p>现在所有人说：这栋楼值 1.3 亿。<strong>「蒸发」了 2,000 万。</strong></p>
+
+<p><strong>请问：这 2,000 万，是谁的钱？流到哪里去了？</strong></p>
+
+<p>答案是：<strong>没有任何人损失过 2,000 万现金，也没有任何人收到过 2,000 万。</strong>整个过程中真正流动的钱，是第二个买家付给第二个卖家的 130 万。其余 98 户一分钱没动，甚至可能睡了一觉什么都不知道——<strong>但他们的「身家」在纸面上各少了 20 万。</strong></p>
+
+<p>这就是市值。<strong>它是用「最后一笔成交的价格」乘以「全部的数量」推出来的一个数，不是一堆钱。</strong></p>
+
+<h4>现在用美光今天的真实数字算一遍</h4>
+
+<p>第一步，算美光有多少股。市值除以股价就行：</p>
+
+<div class="calc">
+<span class="line">1.01 万亿美元 ÷ $897.23 = <b>约 11.26 亿股</b></span>
+</div>
+
+<p>第二步，算市值少了多少。股价从 $966.78 跌到 $897.23，每股少了 $69.55：</p>
+
+<div class="calc">
+<span class="line">11.26 亿股 × $69.55 = <b>783 亿美元</b></span>
+</div>
+
+<p>第三步——<strong>这一步是关键</strong>——算今天有多少股票真的换了手。美光的日均成交量是 1,312 万股。</p>
+
+<div class="calc">
+<span class="line">1,312 万股 ÷ 11.26 亿股 = <b>1.17%</b></span>
+<span class="line big">也就是说：<b>98.83% 的股份今天根本没有交易</b></span>
+</div>
+
+<p><strong>但是这 98.83% 的股份，全部被按新价格重新标了价。</strong></p>
+
+<h4>把这两个数字并排放</h4>
+
+<div class="calc">
+<span class="line">市值蒸发　　　　　　　　　　783 亿美元</span>
+<span class="line">全天毛成交额（按日均量估）　1,312 万股 × $897 ≈ 118 亿美元</span>
+<span class="line big">783 ÷ 118 = <b>6.7 倍</b></span>
+</div>
+
+<p><strong>「蒸发」掉的市值，是当天所有买卖加起来总金额的 6.7 倍。</strong>而这还是把买方付出的钱和卖方收到的钱只数了一遍——如果你问「净流出多少钱」，答案在下一环。</p>
+
+<div class="note">
+<span class="tag">口径提醒</span>
+<p>我用的是<strong>日均</strong>成交量（1,312 万股），不是今天的实际成交量。跌 7% 的日子成交量通常会放大，可能是平时的两三倍。就算放大到三倍（约 354 亿美元），市值蒸发仍然是它的 2.2 倍。<strong>结论的方向不变，但这个 6.7 倍是估算值，不是精确值。</strong>今天的实际成交量我没有查到。</p>
+</div>
+
+<h4>英伟达的数字更极端</h4>
+
+<div class="calc">
+<span class="line">股本 = 5.06 万亿 ÷ $209.03 = <b>约 242 亿股</b></span>
+<span class="line">市值蒸发 = 242 亿股 × $5.69 = <b>1,377 亿美元</b></span>
+<span class="line">日均成交 9,887 万股 ÷ 242 亿股 = <b>0.41% 的股份</b></span>
+<span class="line big"><b>99.59% 的英伟达股票今天没动过，但全部被重新定价</b></span>
+</div>
+
+<p class="src"><b>这一环的依据：</b><strong>全部为纯算术</strong>，输入为 8/24 11:20–11:21 的实时报价与日均成交量，每一步中间值都已列出，你可以自己验算。</p>
+
+<hr>
+
+<h3>第 ④ 环（今天的主菜 B）：为什么净资金流恒等于零</h3>
+
+<p>上一环说「市值不是钱」。这一环说一件更强的事：<strong>在二级市场上，钱根本没有净流出，一分都没有。</strong></p>
+
+<h4>先说生活里的事</h4>
+
+<p>你在二手平台上把一台旧相机卖了 500 块。这 500 块从买家的口袋，进了你的口袋。</p>
+
+<p>请问：这个交易之后，「二手相机市场」里的钱是多了还是少了？</p>
+
+<p><strong>都不是。</strong>买家少了 500，你多了 500。加起来是 0。</p>
+
+<h4>股票完全一样，而且没有例外</h4>
+
+<p>股票市场上的每一笔成交，都<strong>必须</strong>同时有一个买方和一个卖方，金额完全相等（先不算手续费）。这不是通常如此，这是<strong>定义上如此</strong>——没有对手方，交易就不成立。</p>
+
+<p>所以：</p>
+
+<div class="calc">
+<span class="line">买方付出的钱　　　　　＝ X</span>
+<span class="line">卖方收到的钱　　　　　＝ X</span>
+<span class="line big">净流入这只股票的钱 = X − X = <b>0</b></span>
+</div>
+
+<p><strong>不管成交量是 100 万还是 1,000 亿，不管价格是涨是跌，这个等式永远是 0。</strong></p>
+
+<h4>所以「资金流出美光」这句话，字面上是错的</h4>
+
+<p>今天有人卖美光，一定有人在买。<strong>卖的人拿到了钱，买的人拿到了股票。股票和钱只是换了主人。</strong></p>
+
+<p>那为什么价格会跌？<strong>因为想卖的人比想买的人更着急。</strong>为了让交易成交，价格必须一路下调，直到有人愿意接。</p>
+
+<p><strong>价格下跌不是「钱流走了」的结果，是「双方在什么价格上愿意成交」的结果。</strong>这两句话听起来像，其实完全不同——前者说的是数量，后者说的是条件。</p>
+
+<h4>现在，最震撼的那个对照</h4>
+
+<p>还记得第 1.4 节那个数字吗？散户「COVID 以来最大的单日净卖出」是 <strong>2.43 亿美元</strong>。</p>
+
+<p>把它和美光今天一只股票蒸发的 783 亿放在一起：</p>
+
+<div class="calc">
+<span class="line big">2.43 亿 ÷ 783 亿 = <b>0.31%</b></span>
+</div>
+
+<p>再和整个美股市场比。美国股市总市值 75.3 万亿美元（2026 年 7 月 1 日），涨跌 1% 就是 7,530 亿美元：</p>
+
+<div class="calc">
+<span class="line big">2.43 亿 ÷ 7,530 亿 = <b>0.032%</b></span>
+</div>
+
+<p><strong>被媒体称为「COVID 以来最大」的散户资金流，只相当于市场波动 1% 的三千分之一。</strong></p>
+
+<p>这个对照不是为了嘲笑散户。<strong>它是为了让你看清楚：市值的变动，和资金流的规模，根本不在一个数量级上。</strong>用后者去解释前者，在算术上就不成立。</p>
+
+<p class="src"><b>这一环的依据：</b>「每笔买对应每笔卖」是市场机制的定义，任何一本市场微观结构教材的第一章；所有比值为算术；散户净卖出 2.43 亿来自 Vanda Research（经转述）；美股总市值来自 Siblis Research。</p>
+
+<hr>
+
+<h3>第 ⑤ 环：那钱到底从哪进、从哪出？三道闸门</h3>
+
+<p>如果二级市场买卖的净额永远是 0，那股市里的钱总量是怎么变的？</p>
+
+<p><strong>只有三道闸门。</strong>把股市想象成一个池子，投资者的钱在里面循环，只有这三个地方通向池子外面：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>闸门</th><th>方向</th><th>12 个月/年度规模（口径见下）</th></tr></thead>
+<tbody>
+<tr><td>IPO 与增发</td><td>投资者 → 公司</td><td class="num">1,458 亿美元（2026 年至今 IPO）</td></tr>
+<tr><td>现金分红</td><td>公司 → 投资者</td><td class="num">6,649 亿美元</td></tr>
+<tr><td>股票回购</td><td>公司 → 投资者</td><td class="num">1.020 万亿美元</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>回购这道闸门要单独讲清楚，因为它最反直觉</h4>
+
+<p>「回购」的意思是：<strong>公司拿自己账上的现金，到市场上买回自己的股票，然后注销掉。</strong></p>
+
+<p>为什么这算「公司给投资者钱」？因为公司确实掏了现金出去，而收到这笔现金的是<strong>卖股票给它的那些投资者</strong>。同时，因为股票被注销了，剩下的股东手里每一股所代表的公司份额变大了。</p>
+
+<p>用算术看：一家公司有 100 股，值 1,000 元，每股 10 元。它花 100 元买回 10 股并注销。</p>
+
+<div class="calc">
+<span class="line">公司剩余价值 = 1,000 − 100 = 900 元</span>
+<span class="line">剩余股数 = 100 − 10 = 90 股</span>
+<span class="line big">每股 = 900 ÷ 90 = <b>10 元</b>（没变）</span>
+</div>
+
+<p>每股价值不变，但<strong>有 100 元现金从公司流到了 10 个卖出的股东手里</strong>，而且剩下的股东现在持有的公司比例从 1% 变成了 1.11%。</p>
+
+<h4>把三道闸门加起来</h4>
+
+<div class="calc">
+<span class="line">流出公司（给股东）＝ 10,200 + 6,649 = <b>16,850 亿美元</b></span>
+<span class="line">流入公司（IPO）　　＝ <b>1,458 亿美元</b></span>
+<span class="line big">比值 = 16,850 ÷ 1,458 = <b>11.6 倍</b></span>
+<span class="line">净额 = 16,850 − 1,458 = <b>15,392 亿美元流向投资者</b></span>
+</div>
+
+<div class="note">
+<span class="tag">这个计算的三个诚实说明</span>
+<p><strong>一、时间口径不一致。</strong>回购和分红是「截至 2025 年 9 月的 12 个月」，IPO 是「2026 年至今」。两者不能严格相减，这个 11.6 倍只能当量级参考。</p>
+<p><strong>二、流入端不止 IPO。</strong>还有已上市公司的增发、可转债转股、员工股权激励发行等。这些我<strong>没有查到</strong>，所以真实的流入数字比 1,458 亿更大。不过要把 11.6 倍抹平，需要流入端再多出十倍，这不太可能。</p>
+<p><strong>三、口径都是标普 500，不是全市场。</strong>回购和分红的统计只覆盖标普 500 的 500 家公司，而 IPO 统计覆盖全美。这个不对称会让「流出」被低估。</p>
+</div>
+
+<h4>这顺便回答了昨天那一课里我没查实的问题</h4>
+
+<p>上一课讲巨型 IPO 时，我在最后写了一句：「净股票供给（发行 − 回购 − 退市）我没有查，这是最脆弱的假设。」</p>
+
+<p><strong>现在查到了一半，而结果是：方向和「IPO 抽干市场」这个说法相反。</strong>过去一年，美国上市公司付给股东的钱，比它们从股东手里募到的多了一个数量级。<strong>股票的净供给不是在增加，而是在大幅减少。</strong></p>
+
+<p>所以「SpaceX、Anthropic、OpenAI 上市会抽走市场资金」这个担心，即使方向对，规模也小到被回购完全淹没。SpaceX 那 750 亿，还不到 12 个月回购额的 7.4%。</p>
+
+<div class="calc">
+<span class="line">750 亿 ÷ 10,200 亿 = <b>7.4%</b></span>
+</div>
+
+<p class="src"><b>这一环的依据：</b>回购与分红数据为<strong>标普道琼斯指数公司官方新闻稿</strong>（一手，2025-12-18 发布）；IPO 数据为 Renaissance Capital（行业数据商）；回购的算术示例为示意数字，用于演示机制；所有加减除法为算术；<strong>三个口径问题已在上框中写明。</strong></p>
+
+<hr>
+
+<h3>第 ⑥ 环：那「板块轮动」到底在说什么？</h3>
+
+<p>现在回到你问题的中间那一段。</p>
+
+<h4>先看这个词通常指什么</h4>
+
+<p>「板块轮动」（sector rotation）的字面意思是：<strong>资金从一个行业流向另一个行业。</strong>比如「资金从科技轮动到防御性板块」。</p>
+
+<p>但根据第 ④ 环，<strong>这句话字面上不可能成立</strong>——卖科技股的人，一定有人在同一时刻买了科技股。钱没有「离开科技板块」。</p>
+
+<h4>那基金流数据算什么？</h4>
+
+<p>第 1.4 节那份数据是真的：科技板块基金当周净流出 46.2 亿美元。这个数字有明确含义：<strong>把钱交给科技主题基金去管的人，净减少了 46.2 亿。</strong></p>
+
+<p>但请注意<strong>基金流出不等于股票被卖出后没人接</strong>。基金赎回时要卖股票，而买走这些股票的可能是另一只基金、可能是公司自己在回购、可能是散户。<strong>钱只是换了管理人。</strong></p>
+
+<h4>而且这份数据本身就自相矛盾</h4>
+
+<p>看仔细一点：</p>
+
+<div class="calc">
+<span class="line">科技板块基金　<b class="dn">−46.2 亿</b></span>
+<span class="line">成长型基金　　<b class="up">+87.8 亿</b></span>
+</div>
+
+<p><strong>成长型基金持有的最大一块，恰恰就是科技股。</strong>所以同一周，「科技基金」在失血，而「成长基金」在吸血——而后者拿到钱之后会去买什么？大概率还是科技股。</p>
+
+<p><strong>如果只看第一行，你会得出「资金撤离科技」的结论。加上第二行，这个结论就站不住了。</strong>这是分类口径造成的假象：同一批股票，被装在两个不同标签的袋子里统计。</p>
+
+<h4>今天的板块数据也不支持「轮动」这个词</h4>
+
+<p>回到第 1.2 节：今天最好和最差的板块相差 1.15 个百分点，而市场宽度是 49% 上涨——<strong>差不多一半涨一半跌，非常接近随机。</strong></p>
+
+<p>同时，美光一只股票跌了 7.19%，是整个板块价差的 6.3 倍。</p>
+
+<div class="calc">
+<span class="line">7.19% ÷ 1.15% = <b>6.3 倍</b></span>
+</div>
+
+<p><strong>所以今天真正发生的事，用「某个行业出了具体的坏消息」来描述，比用「板块轮动」准确得多。</strong></p>
+
+<h4>那「散户 vs 华尔街」呢？</h4>
+
+<p>你问到了资金在不同群体之间的移动方向。可以确认的事实是：</p>
+
+<ul>
+<li>7 月底那一周，散户单日净卖出个股 2.43 亿美元，是 2026 年的第九个净卖出日，而 2021、2024、2025 年一次都没有过。</li>
+<li>同一天，散户净<strong>买入</strong> ETF 3.88 亿美元。</li>
+<li>他们卖得最多的正是存储股：美光、闪迪、希捷、西部数据。</li>
+</ul>
+
+<p><strong>值得注意的是最后一条：散户在七月底就开始卖存储股，而美光今天跌 7%。</strong></p>
+
+<p>但我必须马上加一句：<strong>这不能证明任何因果关系。</strong>可能是散户先知先觉，可能是他们看到了跌势才跑，也可能纯属巧合——七月底到今天隔了将近一个月，中间发生的事太多了。<strong>一个月的时间差，配上一个方向一致的结果，这是最容易骗人的那种「证据」。</strong></p>
+
+<p>还有一件事我没做到：<strong>我没有拿到机构那一侧的对应数据。</strong>「散户在卖」这半句话，如果不知道谁在买，就是半个句子。而买方是谁，我今天查不到。</p>
+
+<p class="src"><b>这一环的依据：</b>基金流数据来自 LSEG Lipper（经转述）；散户数据来自 Vanda Research（经转述）；板块数据为当日；<strong>「成长基金和科技基金重叠」是我的判断，我没有查这两类基金的实际持仓重叠度；「散户先卖」与「今天下跌」之间我明确不建立因果。</strong></p>
+
+<hr>
+
+<h3>第 ⑦ 环（升华）：股票是虚无的吗？</h3>
+
+<p>现在回答你最后那个问题。</p>
+
+<h4>「虚无」这个怀疑从哪来，是有道理的</h4>
+
+<p>看完前面几环，你完全有理由怀疑：既然市值只是「最后成交价 × 总股数」这样一个外推数字，既然它可以在没有任何钱移动的情况下蒸发 783 亿，那这东西是不是就是一场集体幻觉？</p>
+
+<p><strong>这个怀疑是健康的，而且它的前半部分完全正确。</strong>市值确实是一个外推数字。价格确实可以在无人交易的情况下重估一切。</p>
+
+<p><strong>但结论是错的。原因只有一个：分红和回购。</strong></p>
+
+<h4>那个能证伪「虚无论」的数字</h4>
+
+<p>过去 12 个月，标普 500 的公司付给股东：</p>
+
+<div class="calc">
+<span class="line">现金分红　　　6,649 亿美元</span>
+<span class="line">股票回购　　10,200 亿美元</span>
+<span class="line big">合计　　　　<b>16,850 亿美元</b></span>
+</div>
+
+<p><strong>这是真钱。</strong>它从公司的银行账户，转到了股东的银行账户。它可以用来交房租、付学费、买菜。它不依赖于任何人相信任何东西。</p>
+
+<p>用一个思想实验来确认这一点：<strong>假设明天全世界的股票交易所都永久关闭</strong>，再也没有人能买卖股票，也就再也没有「市价」这个东西。</p>
+
+<p>你手里的股票会变成一张废纸吗？<strong>不会。</strong>你仍然是那家公司的部分所有者，公司仍然会赚钱，仍然会按你的持股比例给你分红。你会继续每年收到支票。</p>
+
+<p><strong>这就是股票「不虚无」的那一部分：它是一份对未来现金流的法律权利。</strong>市价只是别人愿意为这份权利出多少钱，市价消失了，权利还在。</p>
+
+<h4>那什么是「虚」的部分？</h4>
+
+<p>是<strong>价格</strong>。</p>
+
+<p>价格是市场对「这串未来现金流今天值多少」的<strong>估计</strong>。而这个估计有两个输入，任何一个动一下，估计就会大动：</p>
+
+<ol>
+<li><strong>未来的现金流有多少</strong>（预期）</li>
+<li><strong>用什么折现率把它换算到今天</strong>（利率 + 风险补偿）</li>
+</ol>
+
+<h4>把第二个输入的威力算给你看</h4>
+
+<p>假设一家公司每年给股东 100 元，而且这个金额每年增长 2%，永远持续下去。这一串无穷无尽的现金流，今天值多少？</p>
+
+<p>金融学里有一个非常简洁的结果（叫「戈登增长模型」）：</p>
+
+<div class="calc">
+<span class="line big">今天的价值 = 明年的现金流 ÷ (折现率 − 增长率)</span>
+</div>
+
+<details>
+<summary>为什么是这个公式？（用算术看直觉，不用背）</summary>
+<p>如果没有增长，每年固定 100 元、折现率 4%，那价值是 100 ÷ 4% = 2,500 元。检验一下：2,500 元按 4% 生息，每年正好产生 100 元利息，本金永远不动。<strong>所以 2,500 元和「每年永远拿 100 元」是等价的。</strong></p>
+<p>现在加上增长。如果现金流每年长 2%，相当于你的「实际负担」只有 4% − 2% = 2%，因为增长帮你抵消了一部分折现。所以分母变成 (4% − 2%)，价值变成 100 ÷ 2% = 5,000 元。</p>
+<p><strong>注意一个陷阱：</strong>如果增长率大于等于折现率，分母就变成零或负数，公式就爆炸了。这在数学上说明「永远以超过折现率的速度增长」是不可能的假设。</p>
+</details>
+
+<p>现在代入数字。假设增长率 2%，看折现率变化的影响：</p>
+
+<div class="calc">
+<span class="line">折现率 6.00%：价值 = 100 ÷ (6.00% − 2%) = 100 ÷ 4.00% = <b>2,500</b></span>
+<span class="line">折现率 7.33%：价值 = 100 ÷ (7.33% − 2%) = 100 ÷ 5.33% = <b>1,876</b></span>
+<span class="line big">价值变化 = 1,876 ÷ 2,500 − 1 = <b>−25.0%</b></span>
+</div>
+
+<p><strong>折现率上升 1.33 个百分点，而未来的现金流一分钱没变——但价值少了四分之一。</strong></p>
+
+<p>（我特意用 1.33 个百分点，是因为它对应今天早上讲的那个真实的数：30 年期国债从 4% 一路到 5.33%。）</p>
+
+<h4>所以完整的答案是这样的</h4>
+
+<div class="note">
+<p><strong>股票不是虚无的</strong>——它背后是真实的现金流，过去 12 个月是 1.685 万亿美元。</p>
+<p><strong>但股价是一个估计值</strong>——而估计值对折现率极度敏感，折现率变一点点，估值就变很多。</p>
+<p><strong>而市值更是一个外推值</strong>——它把 1% 成交的价格，套用到 100% 的股份上。</p>
+<p><strong>所以「市值蒸发了 783 亿」这句话的真实含义是：</strong>市场对同一串未来现金流的估价，下调了 783 亿。<strong>没有人损失了 783 亿现金，因为从来就没有 783 亿现金在那里。</strong></p>
+</div>
+
+<p class="src"><b>这一环的依据：</b>分红与回购数据为<strong>标普道琼斯指数公司官方数据</strong>（一手）；戈登增长模型是金融学的标准结论（任何公司金融教材，如 Berk/DeMarzo《Corporate Finance》第 9 章）；100 元、2% 增长为<strong>示意数字</strong>，用于演示算法；折现率 6% 与 7.33% 为示意，1.33 个百分点的差额对应真实的国债收益率变动。</p>
+
+<hr>
+
+<h3>第 ⑧ 环：我接不上的地方</h3>
+
+<p><strong>我无法把今天的下跌拆成「多少来自折现率、多少来自基本面消息」。</strong></p>
+
+<p>这不是查资料不够仔细的问题。要做这件事，需要把美光的价格变动分解成「所有存储股共有的部分」「所有科技股共有的部分」「所有股票共有的部分」和「美光独有的部分」，然后再看利率那天怎么动的。这是一个需要因子模型和分钟级数据的工作，我今天两样都没有。</p>
+
+<p>而且更根本的问题是：<strong>就算做了这个分解，它也只能告诉你「相关性」，不能告诉你「原因」。</strong>第 ② 环那四种解释，即使做完分解，可能仍然分不出胜负。</p>
+
+<p>另外还有两处我没查到：<strong>美光今天的实际成交量</strong>（我用了日均量估算），以及<strong>机构侧的资金流</strong>（我只有散户那一半）。</p>
+
+<!-- ============ 4 ============ -->
+<h2>4｜对你意味着什么</h2>
+
+<p class="src" style="border-top:none;padding-top:0"><b>先说清楚：</b>下面是教学分析与决策框架，<strong>不是给你的个性化投资建议</strong>。</p>
+
+<h3>4.1 一句可以立刻用起来的话</h3>
+
+<p>以后你再看到「今天美股蒸发 X 万亿」这种标题，请自动在心里做一次翻译：</p>
+
+<div class="note">
+<p>「蒸发 X 万亿」的意思是 <strong>「最后一笔成交的价格 × 全部股份，这个乘积比昨天小了 X 万亿」</strong>。</p>
+<p>它<strong>不</strong>意味着有 X 万亿现金消失了，也<strong>不</strong>意味着有 X 万亿流去了别的地方。</p>
+</div>
+
+<h3>4.2 这件事对你的组合有一个具体含义</h3>
+
+<p>今天早上那一课教你画自己的资产负债表，其中「美股 / 美元 ETF」那一行是按市值记的。</p>
+
+<p>现在你知道了：<strong>那一行的数字，是用少数成交外推出来的估价。</strong>它有两个性质你要记住：</p>
+
+<p><strong>第一，它可以在你什么都没做的情况下大幅变动。</strong>你的净资产今天可能少了几万块，而你连手机都没打开。这不是错觉，但也不是现金损失——除非你在那个价格卖掉了。</p>
+
+<p><strong>第二，也是更重要的：如果所有人同时想变现，那个价格是拿不到的。</strong>美光今天只有 1.17% 的股份换手就跌了 7%。如果 10% 的股份同时要卖，价格会跌到哪里？<strong>没有人知道，但一定远低于现在的报价。</strong></p>
+
+<p>这直接连回今天早上讲的<strong>流动性</strong>：你的资产负债表上「按市价记」的那些资产，市价只在「少数人卖」的前提下成立。</p>
+
+<h3>4.3 三个可以自己做的检查</h3>
+
+<p><strong>检查一：把你持有的东西按「换手率」排一遍。</strong>宽基 ETF（如标普 500）的底层股票每天有大量成交；单一行业 ETF 少一些；个股差异极大。<strong>换手率低的东西，报价的可靠性也低。</strong></p>
+
+<p><strong>检查二：算一算你持有的东西的「股东回报率」。</strong>把分红加回购除以市值，就是公司每年真金白银还给股东的比例。这个数字是「不虚无」的那一部分。标普 500 整体大致是：</p>
+
+<div class="calc">
+<span class="line">16,850 亿 ÷ 标普 500 总市值（约 67 万亿）≈ <b>2.5%</b></span>
+</div>
+
+<p><em>（67 万亿是我用「美股总市值 75.3 万亿 × 前 500 大公司占约 89%」推算的，不是查到的官方数字。这个 2.5% 只能当量级参考。）</em></p>
+
+<p><strong>检查三：下次看到「资金流入/流出某板块」的报道，先问三个问题。</strong>（1）统计的是基金流还是股票成交？（2）分类口径是什么，会不会和别的分类重叠（比如科技 vs 成长）？（3）这个金额，相对于该板块的总市值是多少？<strong>第三个问题通常会让整条新闻的重要性缩水一个数量级。</strong></p>
+
+<h3>4.4 新加坡视角的一个补充</h3>
+
+<p>你的美股资产用美元计价，而你的表用新元记账。所以你的那一行数字受<strong>两个</strong>外推的影响：股价（按少数成交外推到全部股份）和汇率（按外汇市场的成交外推到你的全部持仓）。</p>
+
+<p><strong>两层估计叠在一起，波动自然更大。</strong>这不是新增的风险，是你本来就承担着的风险——今天只是让你看清它由什么组成。</p>
+
+<!-- ============ 5 ============ -->
+<h2>5｜反向倒推</h2>
+
+<p><strong>这一节在干什么：</strong>前面是顺着推。现在倒过来问——市场现在的价格和行为，说明大家心里在赌什么？</p>
+
+<h3>5.1 已经被定价进去的两件事</h3>
+
+<p><strong>第一件：市场认为今天的坏消息是存储行业专属的，不是全市场的。</strong></p>
+
+<p>怎么从价格读出来？如果市场认为这是系统性问题（比如利率、宏观、AI 泡沫破裂），那么科技板块整体应该大跌、其他长久期资产（航天）也应该跌。</p>
+
+<p>实际是：科技板块只跌 0.72%，SpaceX 只跌 0.25%，而存储股跌 7% 到 11%。<strong>市场用价格投票的结果是：这是存储的事。</strong></p>
+
+<p><strong>第二件：市场并没有恐慌。</strong>市场宽度 49% 上涨——差不多一半股票在涨。<strong>真正的恐慌日，宽度通常是个位数或十几个百分点。</strong></p>
+
+<h3>5.2 最脆弱的假设</h3>
+
+<p>本文最脆弱的一环，是<strong>第 ⑤ 环里那个「11.6 倍」</strong>。</p>
+
+<p>它有三个我已经承认的口径问题（时间不一致、流入端只算了 IPO、样本范围不对称）。而它承担的分量很重——我用它推翻了「IPO 抽干市场」的说法，也用它论证了「股票不虚无」。</p>
+
+<p><strong>如果流入端的真实数字比 1,458 亿大得多</strong>（比如加上增发和员工股权发行之后翻了三倍），这个倍数会从 11.6 降到 3.9。<strong>方向不变，但「一个数量级」这个说法就不成立了。</strong></p>
+
+<h3>5.3 如果假设错了，会怎样</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>如果……</th><th>那么可观察的后果</th></tr></thead>
+<tbody>
+<tr><td>公司确实是股票的净买家（回购 &gt; 发行）</td><td>标普 500 的总股数应逐年下降；每股收益的增长应持续快于总利润的增长</td></tr>
+<tr><td>公司其实是净卖家</td><td>总股数上升；「稀释」应在每股收益里体现为拖累</td></tr>
+<tr><td>今天的下跌确实由收益率驱动</td><td>所有高市盈率股票的跌幅应与其市盈率大致成正比；SpaceX 应该跟跌</td></tr>
+<tr><td>今天的下跌由行业消息驱动（我倾向这个）</td><td>跌幅应集中在存储产业链，与市盈率无关；今天的数据更像这一种</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>5.4 未来 1–3 个月的证实/证伪点</h3>
+
+<ul>
+<li><strong>英伟达 8 月 26 日盘后的财报</strong>（多方报道称是本周的焦点）。这是一次干净的自然实验：财报是一个<em>时间精确</em>的信息事件，所以「消息驱动价格」这条链在这里是可以被检验的——而今天美光那种「四种解释」的情况则不行。</li>
+<li><strong>标普道琼斯指数公司下一期的回购与分红统计。</strong>如果回购继续维持在万亿量级，第 ⑤ 环的结论就更稳。</li>
+<li><strong>标普 500 的总股数变化。</strong>这是检验「公司是股票净买家」最直接的数据。</li>
+<li><strong>30 年期国债收益率。</strong>如果它继续上行而高市盈率股票<em>没有</em>普遍下跌，那「收益率驱动」这条解释就该被削弱。</li>
+</ul>
+
+<h3>5.5 用那个检验问一遍</h3>
+
+<p><strong>问题：本节的说法，在事情发生之前能不能用来做预测？</strong></p>
+
+<p><strong>能的部分：</strong>5.3 那张表全是条件预测。而第 ③④ 环的算术更是随时可用的工具——<em>任何一天</em>、<em>任何一只股票</em>，你都可以算「市值变动 ÷ 当日成交额」和「换手股份占总股份的比例」，来判断这个「蒸发」有多少是真实的资金移动、有多少是外推。<strong>这是一把可以反复使用的尺子。</strong></p>
+
+<p><strong>不能的部分：</strong>第 ② 环那四种解释，全部只能事后使用。我在这篇里刻意<strong>没有</strong>写「因为中国存储获批，所以美光跌 7%」——尽管这是最容易写、看起来最专业的一句话。</p>
+
+<!-- ============ 6 ============ -->
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式：存量与流量，第二次出现</h3>
+
+<p>今天早上那一课讲过：<strong>存量</strong>是某个时点上有多少，<strong>流量</strong>是一段时间里进出多少。当时的例子是「净资产是照片，现金流是录像」。</p>
+
+<p><strong>今天这一课，是同一个区分在市场层面的版本，而且更极端：</strong></p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th></th><th>存量</th><th>流量</th></tr></thead>
+<tbody>
+<tr><td>是什么</td><td>市值（价格 × 股数）</td><td>成交额、资金流</td></tr>
+<tr><td>美光今天</td><td class="num">变动 783 亿</td><td class="num">毛成交约 118 亿，<strong>净额 0</strong></td></tr>
+<tr><td>守恒吗</td><td><strong>不守恒</strong>，可以集体消失</td><td><strong>守恒</strong>，买卖必然相等</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>「钱是凭空产生的还是转移的？」这个问题之所以让人困惑，就是因为它把这两栏混在了一起。</strong></p>
+
+<p>正确的答案是分开说：<strong>钱（流量）只会转移，不会凭空产生或消失；财富（存量）既不需要转移也不需要产生，它可以直接被重新估价。</strong></p>
+
+<h4>跨领域例子一：房价</h4>
+
+<p>整条街的房子「涨了 20%」，没有任何一分钱进入这条街。只是最近成交的那一两套定了个新价，其余全部按新价重估。<strong>房东们的账面财富增加了，但社会上的钱一分没多。</strong></p>
+
+<p>这也解释了一件事：为什么房价大涨时人们会「感觉更有钱」并增加消费——存量变了，虽然流量没变。经济学给这个现象起了个名字叫<strong>财富效应</strong>（wealth effect）。而它要真正变成消费，通常需要经过第三道闸门：再融资、抵押贷款——<strong>也就是把存量的变化，转换成流量。</strong></p>
+
+<h4>跨领域例子二：一个国家的「财富」</h4>
+
+<p>今天早上我们看到美国家庭净资产 183 万亿美元。这个数字里，绝大部分是按市价估的股票和房产——<strong>也就是外推值。</strong>它不是 183 万亿的现金，也不可能同时变现。</p>
+
+<p>这就是为什么「家庭净资产创新高」和「家庭现金紧张」可以同时成立。它们说的是不同的栏。</p>
+
+<h3>6.2 顶层视角：这一课在系统里的位置</h3>
+
+<p>今天这一课处理的，是<strong>整个金融体系里最容易被混淆的一组概念</strong>：价格、市值、资金流、现金流。四大板块都要用到它：</p>
+
+<ul>
+<li><strong>与利率：</strong>折现率是价格的第二个输入。利率一动，全部长久期资产同时重估——<strong>不需要任何资金移动。</strong>这是理解「加息为什么会让股市跌」的正确方式。</li>
+<li><strong>与信用：</strong>银行按市价给抵押品估值。市价是外推值，所以抵押品价值可以在没有资金移动的情况下崩塌，引发追加保证金——这是 E14「抵押品折价与去杠杆螺旋」的起点。</li>
+<li><strong>与汇率：</strong>一个国家的对外资产头寸也是按市价估的。汇率和资产价格同时变动，会让一国的「对外财富」在没有任何跨境资金流的情况下改变——这叫<strong>估值效应</strong>（D44）。</li>
+<li><strong>与增长：</strong>真正连接股市和实体经济的，不是市值，而是第 ⑤ 环那三道闸门里流动的现金。<strong>市值涨跌本身不生产任何东西。</strong></li>
+</ul>
+
+<!-- ============ 7 ============ -->
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>术语</th><th>一句话大白话</th><th>今天在哪一环</th></tr></thead>
+<tbody>
+<tr><td>市值<br>market capitalization</td><td>最后一笔成交的价格 × 全部股份。是一个外推值，不是一堆钱。</td><td>③</td></tr>
+<tr><td>市盈率<br>P/E ratio</td><td>股价 ÷ 每股年利润。数字越大，说明你买的价值越靠未来。</td><td>①</td></tr>
+<tr><td>换手率<br>turnover</td><td>一段时间里成交的股数，占总股数的比例。美光今天约 1.17%。</td><td>③</td></tr>
+<tr><td>净资金流<br>net flow</td><td>流入减流出。二级市场买卖的净资金流恒等于零。</td><td>④</td></tr>
+<tr><td>股票回购<br>share buyback</td><td>公司用自己的现金买回并注销自己的股票。是公司付钱给股东的一种方式。</td><td>⑤</td></tr>
+<tr><td>股东回报<br>shareholder return</td><td>分红 + 回购。公司真金白银还给股东的钱。</td><td>⑤⑦</td></tr>
+<tr><td>板块轮动<br>sector rotation</td><td>常被理解成「资金从一个行业流到另一个」。字面上不成立，实际描述的是相对价格变化。</td><td>⑥</td></tr>
+<tr><td>戈登增长模型<br>Gordon growth model</td><td>价值 = 明年现金流 ÷（折现率 − 增长率）。一个把无穷现金流折成一个数的公式。</td><td>⑦</td></tr>
+<tr><td>财富效应<br>wealth effect</td><td>资产价格上涨让人感觉更富有，从而增加消费——即使收入一分没变。</td><td>第 6 节</td></tr>
+<tr><td>事件研究<br>event study</td><td>用消息公布的精确时刻，检验价格是不是真的被这条消息推动的方法。</td><td>②</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============ 8 ============ -->
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<div class="q">
+<span class="tag">第 1 题</span>
+<p>一家公司有 20 亿股，股价从 $50 跌到 $45。当天成交量是 4,000 万股。<br>（a）市值少了多少？<br>（b）当天有百分之多少的股份换了手？<br>（c）当天买卖双方之间总共转移了多少钱（按当天均价 $47.5 估算）？<br>（d）净流出这只股票的钱是多少？<br>（e）用一句话解释 (a) 和 (d) 为什么可以差这么多。</p>
+</div>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<p><strong>(a) 市值变动</strong></p>
+<div class="calc"><span class="line">20 亿股 × $5 = <b>100 亿美元</b></span></div>
+<p><strong>(b) 换手率</strong></p>
+<div class="calc"><span class="line">4,000 万 ÷ 20 亿 = <b>2%</b></span></div>
+<p><strong>(c) 转移的金额</strong></p>
+<div class="calc"><span class="line">4,000 万股 × $47.5 = <b>19 亿美元</b></span></div>
+<p>买方总共付出 19 亿，卖方总共收到 19 亿。</p>
+<p><strong>(d) 净流出</strong></p>
+<div class="calc"><span class="line big">19 亿 − 19 亿 = <b>0</b></span></div>
+<p><strong>(e) 为什么差这么多</strong></p>
+<p>因为市值是用「2% 的股份成交出来的价格」乘以「100% 的股份」算出来的。<strong>98% 的股份没有交易，却全部按新价格重估。</strong>而钱这一侧，每一笔买入都对应一笔等额卖出，所以净额必然是零。</p>
+<p><strong>换个说法：100 亿是「大家对这家公司的估价下调了多少」，0 是「实际有多少钱离开了」。这是两个完全不同的量，不该放在同一句话里比较。</strong></p>
+</details>
+
+<div class="q">
+<span class="tag">第 2 题</span>
+<p>今天早上那一课教过：一年后的 100 元，按 2.5% 折现，今天值 97.56 元。<br>今天这一课教了戈登增长模型：价值 = 明年现金流 ÷（折现率 − 增长率）。<br><strong>请证明这两件事其实是同一件事的两种写法。</strong>提示：把「每年 100 元、永远持续、不增长」拆成一年一年的折现，然后加起来。</p>
+</div>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<p><strong>第一步，把无穷现金流一年一年写出来。</strong>每年 100 元，折现率 4%（先用不增长的情况，g = 0）：</p>
+<div class="calc">
+<span class="line">第 1 年：100 ÷ 1.04 = 96.15</span>
+<span class="line">第 2 年：100 ÷ 1.04² = 92.46</span>
+<span class="line">第 3 年：100 ÷ 1.04³ = 88.90</span>
+<span class="line">……一直加到无穷</span>
+</div>
+<p><strong>第二步，观察规律。</strong>每一项都是前一项的 1÷1.04 = 0.9615 倍。这样的数列叫等比数列，它的无穷项之和有一个简洁的结果：</p>
+<div class="calc">
+<span class="line">总和 = 首项 ÷ (1 − 公比)</span>
+<span class="line">= 96.15 ÷ (1 − 0.9615)</span>
+<span class="line">= 96.15 ÷ 0.03846</span>
+<span class="line big">= <b>2,500</b></span>
+</div>
+<p><strong>第三步，用戈登公式验证。</strong>g = 0：</p>
+<div class="calc"><span class="line big">100 ÷ (4% − 0%) = 100 ÷ 0.04 = <b>2,500</b></span></div>
+<p><strong>完全一致。</strong></p>
+<p><strong>第四步，用常识再验一次。</strong>你有 2,500 元，存在年息 4% 的地方，每年拿 100 元利息，本金永远不动。<strong>所以「2,500 元」和「每年永远拿 100 元」确实是等价的。</strong></p>
+<p><strong>这道题的意义：</strong>戈登公式看起来是一个需要背的公式，其实它只是「一年一年折现然后加起来」的简写。<strong>今天早上那个 97.56 元，和今天这个 2,500 元，是同一台机器算出来的。</strong>你不需要记公式，只需要记住「未来的钱要一年一年地除」。</p>
+</details>
+
+<div class="q">
+<span class="tag">第 3 题</span>
+<p>今天有四篇报道给美光的下跌提供了不同的解释。假设你现在有无限的数据权限——<strong>你会去查哪三样东西，来判断哪个解释更可信？</strong>并说明每一样数据能排除掉哪种解释。</p>
+</div>
+
+<details>
+<summary>参考答案（这题没有标准答案，下面是我会做的）</summary>
+<p><strong>第一样：分钟级的价格数据，加上每条消息的精确发布时间戳。</strong></p>
+<p>能排除什么：如果美光在开盘前十分钟就已经跌了 5%，而「中国存储获批」的消息是开盘后 20 分钟发的，<strong>那这条消息就解释不了主要跌幅</strong>。这是所有检验里最有力的一个，因为它用的是时间顺序——<strong>结果不能早于原因。</strong></p>
+<p><strong>第二样：同一天其他存储股、非存储芯片股、以及高市盈率非科技股的表现。</strong></p>
+<p>能排除什么：<br>
+· 如果只有存储股跌 → 支持「行业消息」，排除「利率」<br>
+· 如果所有高市盈率股票按市盈率高低排序下跌 → 支持「利率」<br>
+· 如果只有美光跌而三星、SK 海力士的美股 ADR 没跌 → 支持「美光独有的消息」（比如专利诉讼）</p>
+<p><strong>今天我们已经有了这个数据的一部分：SpaceX 没跌，科技板块只跌 0.72%。这已经削弱了「利率」这条解释。</strong></p>
+<p><strong>第三样：存储芯片的现货价格数据。</strong></p>
+<p>能排除什么：TradingKey 提到「现货价涨势可能在放缓」。这是一个<strong>可以直接查证的客观事实</strong>，不是解读。如果现货价格确实在最近几周见顶回落，这条解释就有了独立于股价的证据；如果现货价还在涨，这条解释就该被丢掉。</p>
+<p><strong>这道题真正想教你的是：</strong>面对多个互相竞争的解释时，正确的动作不是「挑一个最有道理的」，而是<strong>问「什么样的数据能排除掉其中几个」</strong>。能被排除的解释才是有内容的解释；<strong>那种无论数据怎样都成立的解释，是没有内容的。</strong></p>
+</details>
+
+<h3>今天就能做的一个小动作（10 分钟）</h3>
+
+<p>挑一只你持有或关注的股票，查三个数字，做一道除法：</p>
+
+<ol>
+<li><strong>市值</strong>和<strong>股价</strong> → 相除得到股本</li>
+<li><strong>今天（或最近某天）的涨跌幅</strong> → 算出市值变动了多少</li>
+<li><strong>日均成交量</strong> → 乘以股价，得到日均成交额</li>
+</ol>
+
+<p>然后算：<strong>市值变动 ÷ 日均成交额 = ?</strong> 以及 <strong>日均成交量 ÷ 总股本 = ?</strong></p>
+
+<p>今天的两个参考答案是：美光 6.7 倍 / 1.17%，英伟达（用日均成交额 207 亿算）6.7 倍 / 0.41%。</p>
+
+<p>做完这道除法，「蒸发」这个词对你就永远不一样了。</p>
+
+<h3>延伸阅读</h3>
+
+<ol>
+<li><p><a href="https://www.spglobal.com/spdji/en/documents/index-news-and-announcements/20251218-sp-500-buyback-q3-2025.pdf">标普道琼斯指数公司：S&amp;P 500 回购与分红季度报告</a>（PDF，免费）<br><strong>为什么值得读：</strong>这是今天全文最硬的一块数据，也是「股票不虚无」的全部证据。它是一手统计，不是任何人的观点。<br><strong>难度：</strong>低。前两页就是全部关键数字，后面是明细表。</p></li>
+<li><p><a href="https://www.nber.org/system/files/working_papers/w28967/w28967.pdf">Gabaix &amp; Koijen，《非弹性市场假说》</a>（上一课也推荐过）<br><strong>为什么值得读：</strong>今天讲的是「市值变动不需要资金流」，而这篇讲的是反过来的一半——「当资金流真的发生时，价格会被放大多少倍」。<strong>两课合起来才是完整的图景。</strong><br><strong>难度：</strong>引言可读，模型部分先跳过。</p></li>
+<li><p>任意一本公司金融教材的「股票估值」章节（例如 Berk &amp; DeMarzo《Corporate Finance》第 9 章，或 Brealey/Myers/Allen《Principles of Corporate Finance》第 4 章）<br><strong>为什么值得读：</strong>今天第 ⑦ 环的戈登模型只是入门。教材会告诉你这个模型的假设在什么时候会崩掉——<strong>而知道一个工具什么时候不能用，比知道怎么用更重要。</strong><br><strong>难度：</strong>中等，但这两本都是给本科生写的，有大量算例。</p></li>
+</ol>
+
+<!-- ============ 9 ============ -->
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<h3>9.1 数据清单</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>数据</th><th class="num">数值</th><th>口径与时点</th><th>来源等级</th></tr></thead>
+<tbody>
+<tr><td>美光 MU</td><td class="num">$897.23，−7.19%</td><td><strong>盘中快照</strong>，8/24 11:20 EDT</td><td>行情聚合站（二手）</td></tr>
+<tr><td>英伟达 NVDA</td><td class="num">$209.03，−2.65%</td><td><strong>盘中快照</strong>，8/24 11:21 EDT</td><td>行情聚合站（二手）</td></tr>
+<tr><td>SpaceX SPCX</td><td class="num">$136.63，−0.25%</td><td><strong>盘中快照</strong>，8/24 11:20 EDT</td><td>行情聚合站（二手）</td></tr>
+<tr><td>闪迪 SNDK</td><td class="num">−10.91%</td><td>盘中，无具体价格</td><td>当日报道（二手）</td></tr>
+<tr><td>火箭实验室 RKLB</td><td class="num">$72.57</td><td><strong>这是 8/21 收盘价，不是今天的</strong></td><td>行情聚合站（二手，数据未更新）</td></tr>
+<tr><td>板块 ETF 涨跌</td><td class="num">XLK −0.72% ~ XLRE +0.43%</td><td>8/24，<strong>页面标注为「收盘」但当时市场仍在交易，时点存疑</strong></td><td>第三方站点（二手）</td></tr>
+<tr><td>市场宽度</td><td class="num">49%（1,258/2,568）</td><td>同上，时点存疑</td><td>同上</td></tr>
+<tr><td>30 年期国债收益率</td><td class="num">5.19%–5.31%</td><td>固定期限（CMT）日度，8/14–8/20</td><td>美联储 H.15 经 FRED 转载（准一手）</td></tr>
+<tr><td>「5.33%，2007 年 6 月以来最高」</td><td class="num">5.33%</td><td><strong>疑为盘中高点；文中日期与星期不符</strong>，正文已辨析</td><td>评论文章（二手）</td></tr>
+<tr><td>英伟达 33 倍 / AMD 42 倍市盈率</td><td class="num">33x / 42x（远期）</td><td>8/21 前后</td><td>评论文章（二手）</td></tr>
+<tr><td>基金流</td><td class="num">科技 −46.2 亿，成长 +87.8 亿等</td><td>截至 8/12 那一周</td><td>LSEG Lipper 经转述（二手）</td></tr>
+<tr><td>散户净卖出</td><td class="num">个股 −2.43 亿，ETF +3.88 亿</td><td>7 月底某个周三，<strong>不是今天</strong></td><td>Vanda Research 经转述（二手）</td></tr>
+<tr><td><strong>回购 / 分红 / 合计</strong></td><td class="num">1.020 万亿 / 6,649 亿 / 1.685 万亿</td><td><strong>标普 500 口径</strong>，截至 2025 年 9 月的 12 个月；2025-12-18 发布</td><td><strong>标普道琼斯指数公司官方（一手）</strong></td></tr>
+<tr><td>美国 IPO</td><td class="num">104 家，1,458 亿美元</td><td><strong>2026 年至今</strong>，全美口径</td><td>Renaissance Capital（行业数据商）</td></tr>
+<tr><td>美股总市值</td><td class="num">75.3 万亿美元</td><td>2026-07-01</td><td>Siblis Research（二手数据商）</td></tr>
+<tr><td>美光 8/24 下跌的原因</td><td colspan="2"><strong>四篇报道给出至少五种互相竞争的解释</strong>，正文并列陈述，未采信任何一种</td><td>当日报道（二手）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>9.2 哪几环有出处、哪几环是算术、哪几环是推测</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>环</th><th>内容</th><th>依据类型</th></tr></thead>
+<tbody>
+<tr><td>①</td><td>芯片跌、航天没跌</td><td><strong>实时报价</strong>（二手源，但是直接行情）</td></tr>
+<tr><td>①</td><td>「所以今天不是板块级现象」</td><td><strong>我的判断</strong>，基于上述价格对比</td></tr>
+<tr><td>②</td><td>四种解释并列</td><td><strong>当日报道原文转述</strong>；<strong>「它们互相矛盾」「我不知道原因」是我的结论</strong></td></tr>
+<tr><td>③</td><td>股本、市值蒸发、换手率、6.7 倍</td><td><strong>纯算术</strong>；<strong>6.7 倍用日均量估算，非当日实际成交量</strong></td></tr>
+<tr><td>④</td><td>净资金流恒等于零</td><td><strong>市场机制的定义</strong>（会计恒等式）</td></tr>
+<tr><td>④</td><td>0.31% / 0.032% 的对照</td><td><strong>纯算术</strong>；两个输入的时点不同（散户数据是 7 月底）</td></tr>
+<tr><td>⑤</td><td>三道闸门与 11.6 倍</td><td><strong>一手数据 + 算术</strong>；<strong>三个口径问题已在正文框中写明</strong></td></tr>
+<tr><td>⑤</td><td>回购机制的算例</td><td><strong>示意数字</strong>，已标明</td></tr>
+<tr><td>⑥</td><td>基金流数据本身</td><td><strong>二手转述</strong></td></tr>
+<tr><td>⑥</td><td>「成长基金与科技基金重叠」</td><td><strong>我的判断，未查证持仓重叠度</strong></td></tr>
+<tr><td>⑦</td><td>1.685 万亿是真钱</td><td><strong>一手数据</strong></td></tr>
+<tr><td>⑦</td><td>戈登模型与 −25%</td><td><strong>标准结论 + 纯算术</strong>；现金流与折现率为<strong>示意数字</strong></td></tr>
+<tr><td>⑧</td><td>下跌的归因分解</td><td><strong>做不到，明写不接</strong></td></tr>
+<tr><td>4.3</td><td>股东回报率约 2.5%</td><td><strong>我用两个数字反推的</strong>，非查得，已标明</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>9.3 我没做到的事</h3>
+
+<ul>
+<li><strong>我没有拿到今天的实际成交量。</strong>第 ③ 环的「6.7 倍」用的是日均成交量。大跌日成交量通常放大两三倍，所以真实倍数可能是 2 到 3 倍而不是 6.7 倍。<strong>方向不变，数值不精确。</strong></li>
+<li><strong>板块 ETF 数据的时点存疑。</strong>页面标注为「8 月 24 日收盘」，但我取数时美股仍在交易（美东 11:24）。<strong>这很可能是盘中数据被错误标注为收盘。</strong>我采用了它，但你应该知道这个问题。</li>
+<li><strong>火箭实验室的今日数据我没拿到</strong>，所以「航天没跌」这个结论，实际上只有 SpaceX 一个样本支撑。<strong>一个样本是薄弱的。</strong></li>
+<li><strong>我没有拿到主要指数（标普 500、纳斯达克）的盘中实时点位。</strong>我找到的都是盘前数据或时点不明的数据，所以正文里没有引用指数点位。</li>
+<li><strong>机构侧的资金流我没查到。</strong>「散户在卖」这半句话，没有「谁在买」就是不完整的。</li>
+<li><strong>流入公司的资金我只查到了 IPO。</strong>增发、可转债、员工股权发行都没有查到，这是第 ⑤ 环最大的缺口，也是我在 5.2 节标为「最脆弱假设」的原因。</li>
+<li><strong>我没有查存储芯片的现货价格。</strong>这是第 8 节第 3 题里我自己说「应该查」的东西之一，而我今天没有查。</li>
+<li><strong>美光今天为什么跌，我没有结论。</strong>这是有意为之，不是遗漏。</li>
+</ul>
+
+<div class="footer">
+<p><strong>Day 7 加更二 · 借用 F1 股票的本质：一串未来现金流 · F37 风格轮动 · H4 供求均衡与价格发现</strong></p>
+<p>本文的所有分析为教学用途，不构成投资建议。所有带「今天」的价格均为 2026 年 8 月 24 日美东时间上午 11:20–11:25 的盘中快照，在你阅读时几乎肯定已经变化。数据的口径、时点与来源等级已在第 9 节逐条列出，请以原始来源为准。</p>
+</div>
+
+</div>
+</body>
+</html>
