@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 8 · 机会成本：50% 关税落地，那笔钱本来会去哪</title>
+<style>
+  :root{
+    --bg:#fbfaf7; --fg:#1d1d1f; --muted:#5c5c66; --line:#e0ddd4;
+    --card:#ffffff; --accent:#8a4b1e; --accent-soft:#f6ede3;
+    --guess-bg:#fff8e6; --guess-line:#c9922a; --guess-fg:#5c4210;
+    --calc-bg:#eef4f0; --calc-line:#3f7d5f;
+    --break-bg:#fdeeee; --break-line:#b3413f;
+    --code:#f2f0ea;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#16171a; --fg:#e9e7e2; --muted:#a3a1a0; --line:#33343a;
+      --card:#1e2024; --accent:#e0a06a; --accent-soft:#2a2320;
+      --guess-bg:#2b2410; --guess-line:#c9922a; --guess-fg:#f0d79a;
+      --calc-bg:#182420; --calc-line:#5aa383;
+      --break-bg:#2a1817; --break-line:#d0605e;
+      --code:#232529;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.85; overflow-x:hidden;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:28px 20px 90px}
+  header.top{border-bottom:2px solid var(--line); padding-bottom:22px; margin-bottom:34px}
+  .kicker{font-size:13px; letter-spacing:.16em; color:var(--accent); text-transform:uppercase; margin:0 0 10px}
+  h1{font-size:1.72rem; line-height:1.32; margin:0 0 12px; letter-spacing:-.01em}
+  .sub{color:var(--muted); font-size:15px; margin:0}
+  h2{
+    font-size:1.24rem; margin:52px 0 16px; padding-top:22px;
+    border-top:1px solid var(--line); line-height:1.4;
+  }
+  h3{font-size:1.04rem; margin:34px 0 10px; color:var(--accent); line-height:1.45}
+  h4{font-size:.97rem; margin:22px 0 8px; line-height:1.5}
+  p{margin:0 0 15px}
+  ul,ol{margin:0 0 15px; padding-left:1.4em}
+  li{margin-bottom:9px}
+  a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; word-break:break-word}
+  strong{font-weight:650}
+  .lead{font-size:1.03rem}
+
+  .box{border-radius:10px; padding:16px 18px; margin:20px 0; border:1px solid var(--line); background:var(--card)}
+  .calc{background:var(--calc-bg); border-left:4px solid var(--calc-line)}
+  .calc .tag{color:var(--calc-line)}
+  .guess{background:var(--guess-bg); border:2px dashed var(--guess-line); color:var(--guess-fg)}
+  .guess .tag{color:var(--guess-line)}
+  .brk{background:var(--break-bg); border-left:4px solid var(--break-line)}
+  .brk .tag{color:var(--break-line)}
+  .tag{display:block; font-size:12px; letter-spacing:.1em; font-weight:700; margin-bottom:9px; text-transform:uppercase}
+  .box p:last-child,.box ul:last-child{margin-bottom:0}
+
+  .math{
+    background:var(--code); border-radius:8px; padding:13px 15px; margin:14px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:15px; line-height:2; overflow-x:auto; white-space:nowrap;
+  }
+  .math.wrapok{white-space:normal; line-height:1.9}
+
+  .src{font-size:13.5px; color:var(--muted); border-left:3px solid var(--line); padding:2px 0 2px 12px; margin:14px 0 22px}
+  .src b{color:var(--fg); font-weight:650}
+
+  .figwrap{overflow-x:auto; margin:24px 0; -webkit-overflow-scrolling:touch}
+  svg{display:block; max-width:100%; height:auto; margin:0 auto}
+  figcaption{font-size:13.5px; color:var(--muted); text-align:center; margin-top:10px; line-height:1.7}
+
+  table{width:100%; border-collapse:collapse; font-size:14.5px; margin:18px 0}
+  th,td{border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top}
+  th{background:var(--accent-soft); font-weight:650}
+  .tblwrap{overflow-x:auto; margin:18px 0}
+
+  details{border:1px solid var(--line); border-radius:9px; padding:13px 16px; margin:14px 0; background:var(--card)}
+  summary{cursor:pointer; font-weight:650; font-size:15px}
+  details[open] summary{margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--line)}
+
+  .q{background:var(--accent-soft); border-radius:9px; padding:14px 16px; margin:18px 0; font-size:15.5px}
+  .q b{color:var(--accent)}
+  hr{border:0; border-top:1px solid var(--line); margin:34px 0}
+  .foot{font-size:13.5px; color:var(--muted); margin-top:60px; padding-top:20px; border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Day 8 · 领域 H · 原理、制度与长周期</p>
+  <h1>那笔钱本来会去哪？<br>从美加 50% 关税落地讲「机会成本」</h1>
+  <p class="sub">锚点原理：H1 稀缺、选择与机会成本 ｜ 事件日期：2026 年 8 月 22 日（美东）｜ 撰写日期：2026 年 8 月 25 日（新加坡）</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p class="lead">上周六凌晨，美国对一批加拿大商品加收了 50% 的税。今天我们不追市场涨跌，而是追一笔钱：这笔税大约每年 100 亿美元，它从谁的口袋里出来，又意味着这些人放弃了什么。</p>
+
+<p class="lead">你会学明白一个道理：<strong>任何一件事的真实成本，不是它的价签，而是你为了它放弃掉的那个最好的替代选择。</strong>这个道理听起来像废话，但它是整个经济学的第一块砖，而且现实中几乎所有人都算错。</p>
+
+<p class="lead">读完你能回答一个问题：一项政策说「我保住了一千个工作岗位」，你要追问哪一句话，才能判断它到底划不划算？</p>
+
+<h2>1｜今天的事件</h2>
+
+<p>先把事实摆清楚，只写查到的，不写推的。</p>
+
+<h3>发生了什么</h3>
+
+<p>2026 年 7 月 20 日（周一），美国总统签署了<strong>三份公告（proclamation）</strong>，依据的法律是《1930 年关税法》第 338 条（Section 338 of the Tariff Act of 1930）。这条法律的内容是：如果总统认定某个国家对美国出口商品的待遇比对其他国家更差，总统可以对该国商品加征关税，上限是 50%。</p>
+
+<p>这条法律 1930 年就写进去了，但据 White &amp; Case 律所的分析，<strong>这是历史上第一次有美国总统真正动用它</strong>。</p>
+
+<p>三份公告分别针对加拿大在三个领域的做法：汽车、酒类、乳制品。加税幅度都是<strong>额外 50%</strong>（这是该条法律允许的上限）。</p>
+
+<h3>时间线</h3>
+
+<ul>
+  <li><strong>7 月 20 日（周一）</strong>：三份公告签署。法律规定生效日为签署后 30 天。</li>
+  <li><strong>8 月 19 日（周三）</strong>：原定生效日。当天美方宣布推迟三天，继续谈判。</li>
+  <li><strong>8 月 21 日（周五）深夜</strong>：谈判破裂。</li>
+  <li><strong>8 月 22 日（周六）美东时间凌晨 0:01</strong>：50% 关税正式生效。</li>
+  <li><strong>9 月 8 日（周二，加拿大劳工节之后）</strong>：加拿大宣布的反制关税将生效。</li>
+</ul>
+
+<h3>数字（每一个都标口径）</h3>
+
+<div class="tblwrap">
+<table>
+<tr><th>数字</th><th>含义与口径</th><th>来源</th></tr>
+<tr>
+  <td><b>50%</b></td>
+  <td>额外加征的从价关税税率（在原有关税之上叠加，不是取代）。第 338 条的法定上限就是 50%。</td>
+  <td>白宫事实清单 / Wiley / White &amp; Case</td>
+</tr>
+<tr>
+  <td><b>约 200 亿美元</b></td>
+  <td>受影响商品的<b>年进口额</b>。美国贸易代表办公室（USTR）的说法是「近 200 亿美元的年进口」。White &amp; Case 按 <b>2024 年美国进口值</b>拆分为：汽车类公告 439 个税则子目 = 193 亿美元；酒类公告 63 个子目 = 10 亿美元；乳制品公告 52 个子目 = 0.972 亿美元。三者相加 = 204 亿美元。<br><b>注意</b>：这是「2024 年的进口额」，不是 2026 年的，也不是加税后的实际进口额（加税后进口量一定会下降）。</td>
+  <td>Wiley（引 USTR）/ White &amp; Case</td>
+</tr>
+<tr>
+  <td><b>约 5%</b></td>
+  <td>200 亿美元占美国自加拿大进口总额的比例。<br>核算：美国 2025 年自加拿大<b>货物</b>进口 3819 亿美元（USTR 口径，比 2024 年下降 7.2%）。200 ÷ 3819 = <b>5.24%</b>。</td>
+  <td>USTR 国别页 + 算术</td>
+</tr>
+<tr>
+  <td><b>豁免清单</b></td>
+  <td>能源、钾肥（potash）、鱼类、关键矿产，以及已经被第 232 条关税覆盖的商品（钢、铝、铜）和民用航空品。</td>
+  <td>白宫事实清单 / tariffstool 汇总</td>
+</tr>
+<tr>
+  <td><b>USMCA 不豁免</b></td>
+  <td>即使商品符合《美墨加协定》原产地规则、拿到有效原产地证书，也照样要交这 50%。</td>
+  <td>White &amp; Case / Wiley</td>
+</tr>
+<tr>
+  <td><b>56 亿美元 / −22%</b></td>
+  <td>白宫给出的加税理由之一：美国对加拿大的<b>汽车出口</b>同比下降约 22%，金额约 56 亿美元。（白宫未在该清单中标明是哪个 12 个月区间，这是一个口径缺口。）</td>
+  <td>白宫事实清单</td>
+</tr>
+<tr>
+  <td><b>5.82 亿美元 / −81%</b></td>
+  <td>白宫给出的另一个理由：加拿大对美国<b>酒类</b>的进口下降约 81%，金额约 5.82 亿美元，原因是加拿大各省的酒类专卖局停止采购美国酒。</td>
+  <td>白宫事实清单</td>
+</tr>
+<tr>
+  <td><b>加方反制</b></td>
+  <td>加拿大总理 Carney 称将「dollar for dollar（一美元对一美元）」反制，9 月 8 日生效，目标包括钢铁、乳制品、家电、农业机械、纸浆造纸、电子产品。</td>
+  <td>NPR / ABC7 / Global News</td>
+</tr>
+</table>
+</div>
+
+<h3>加方说谈崩在哪三件事上</h3>
+<p>加拿大总理 Mark Carney 公开列了三条：（1）美方只肯在轿车和 SUV 上给关税减免，不肯扩展到中重型卡车；（2）美方在最后时刻提出限制加拿大与第三国签贸易协定的能力；（3）美方要求放松加拿大对法语和本国文化的保护措施。美国贸易代表 Jamieson Greer 的说法则相反，称是加方「最后一刻提新要求」。<strong>双方各执一词，我无法判断谁对，也不需要判断——这不影响下面这条链。</strong></p>
+
+<div class="src"><b>本节依据：</b>
+<a href="https://www.whitehouse.gov/fact-sheets/2026/07/fact-sheet-president-donald-j-trump-imposes-additional-tariffs-on-canada/">白宫事实清单（2026-07）</a> ·
+<a href="https://www.whitecase.com/insight-alert/trump-administration-imposes-50-tariffs-certain-canadian-products-first-use-section">White &amp; Case 法律提示</a> ·
+<a href="https://www.wiley.law/alert-President-Trump-Imposes-New-50-Tariffs-on-Certain-Canadian-Imports">Wiley 法律提示</a> ·
+<a href="https://www.npr.org/2026/08/22/nx-s1-5941584/us-canada-tariffs">NPR</a> ·
+<a href="https://abc7ny.com/post/us-canada-tariffs-news-imposes-50-20-billion-worth-canadian-products-says-will-retaliate/19718120/">ABC7</a> ·
+<a href="https://globalnews.ca/news/12031459/united-states-canada-trade-talks-issues/">Global News</a> ·
+<a href="https://ustr.gov/countries-regions/americas/canada">USTR 加拿大页</a>
+</div>
+
+<h2>2｜传导链全图</h2>
+
+<div class="figwrap">
+<figure style="margin:0">
+<svg viewBox="0 0 520 1275" width="520" role="img" aria-label="传导链示意图">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <style>
+    .bx{fill:var(--card); stroke:var(--fg); stroke-width:1.6; rx:9}
+    .bxa{fill:var(--accent-soft); stroke:var(--accent); stroke-width:2.4; rx:9}
+    .bxd{fill:none; stroke:var(--guess-line); stroke-width:2; stroke-dasharray:7 5; rx:9}
+    .t{fill:var(--fg); font-size:15px; font-family:inherit}
+    .tb{fill:var(--fg); font-size:15.5px; font-weight:700; font-family:inherit}
+    .ts{fill:var(--muted); font-size:12.5px; font-family:inherit}
+    .ln{stroke:var(--fg); stroke-width:2; fill:none; color:var(--fg)}
+    .lnd{stroke:var(--guess-line); stroke-width:2; stroke-dasharray:7 5; fill:none; color:var(--guess-line)}
+    .num{fill:var(--accent); font-size:12px; font-weight:700; font-family:inherit}
+  </style>
+
+  <!-- 1 -->
+  <rect class="bx" x="20" y="14" width="480" height="66"/>
+  <text class="num" x="34" y="36">环 1</text>
+  <text class="tb" x="34" y="56">8/22 凌晨：50% 关税生效</text>
+  <text class="ts" x="34" y="73">覆盖约 200 亿美元／年的加拿大商品（2024 年进口值）</text>
+  <path class="ln" d="M260,80 L260,110" marker-end="url(#ar)"/>
+
+  <!-- 2 -->
+  <rect class="bx" x="20" y="116" width="480" height="66"/>
+  <text class="num" x="34" y="138">环 2</text>
+  <text class="tb" x="34" y="158">进口商在海关多缴一笔钱</text>
+  <text class="ts" x="34" y="175">若进口量不变：200 亿 × 50% = 每年最多 100 亿美元（算术）</text>
+  <path class="ln" d="M260,182 L260,212" marker-end="url(#ar)"/>
+
+  <!-- 3 -->
+  <rect class="bx" x="20" y="218" width="480" height="66"/>
+  <text class="num" x="34" y="240">环 3</text>
+  <text class="tb" x="34" y="260">这笔钱主要由美国买方承担</text>
+  <text class="ts" x="34" y="277">2018 年关税的实证：进口品国内价格「完全传递」</text>
+  <path class="ln" d="M260,284 L260,314" marker-end="url(#ar)"/>
+
+  <!-- 4 anchor -->
+  <rect class="bxa" x="20" y="320" width="480" height="82"/>
+  <text class="num" x="34" y="342">环 4 · 今日主菜</text>
+  <text class="tb" x="34" y="363">多付的每一元，都是从别处挪来的</text>
+  <text class="ts" x="34" y="381">这个「别处」的价值，就是这项政策的真实成本</text>
+  <text class="ts" x="34" y="396">经济学名字：机会成本 opportunity cost</text>
+  <path class="ln" d="M260,402 L260,432" marker-end="url(#ar)"/>
+
+  <!-- 5 -->
+  <rect class="bx" x="20" y="438" width="480" height="82"/>
+  <text class="num" x="34" y="460">环 5</text>
+  <text class="tb" x="34" y="480">拿这笔成本，去换什么？</text>
+  <text class="ts" x="34" y="498">白宫自己列的目标：找回 56 亿美元汽车出口</text>
+  <text class="ts" x="34" y="514">＋ 5.82 亿美元酒类出口</text>
+  <path class="ln" d="M260,520 L260,550" marker-end="url(#ar)"/>
+
+  <!-- 6 -->
+  <rect class="bx" x="20" y="556" width="480" height="82"/>
+  <text class="num" x="34" y="578">环 6 · 历史量级校准</text>
+  <text class="tb" x="34" y="598">2009 年美国轮胎关税</text>
+  <text class="ts" x="34" y="616">最多保住 1200 个岗位，消费者 2011 年多付约 11 亿美元</text>
+  <text class="ts" x="34" y="632">＝ 每个岗位至少 90 万美元（PIIE, 2012）</text>
+  <path class="ln" d="M260,638 L260,668" marker-end="url(#ar)"/>
+
+  <!-- 7 -->
+  <rect class="bx" x="20" y="674" width="480" height="82"/>
+  <text class="num" x="34" y="696">环 7 · 反方</text>
+  <text class="tb" x="34" y="716">但「资源会自动流向更好的用途」是假设</text>
+  <text class="ts" x="34" y="734">中国冲击研究：进口竞争解释了同期美国制造业</text>
+  <text class="ts" x="34" y="750">就业下降的约四分之一，且调整极慢（AER, 2013）</text>
+
+  <!-- break -->
+  <path class="lnd" d="M260,756 L260,800" marker-end="url(#ar)"/>
+  <text class="ts" x="272" y="783" style="fill:var(--guess-line)">← 这里断了</text>
+
+  <!-- 8 -->
+  <rect class="bxd" x="20" y="806" width="480" height="100"/>
+  <text class="num" x="34" y="828" style="fill:var(--guess-line)">环 8 · 我接不上</text>
+  <text class="tb" x="34" y="848">→ 美股 / 美债价格？</text>
+  <text class="ts" x="34" y="866">100 亿 ÷ 美国名义 GDP 32.5 万亿 = 0.03%</text>
+  <text class="ts" x="34" y="882">且 8/24 当天还有伊朗制裁、英伟达财报预期、</text>
+  <text class="ts" x="34" y="898">Jackson Hole 会议——无法归因</text>
+
+  <path class="lnd" d="M260,906 L260,940" marker-end="url(#ar)"/>
+
+  <!-- 9 -->
+  <rect class="bxd" x="20" y="946" width="480" height="100"/>
+  <text class="num" x="34" y="968" style="fill:var(--guess-line)">环 9 · 只能算「疑似」</text>
+  <text class="tb" x="34" y="988">→ 加元：USDCAD +0.50%（8/24）</text>
+  <text class="ts" x="34" y="1006">但报道该数字的来源自己就列了四个驱动因素：</text>
+  <text class="ts" x="34" y="1022">贸易摩擦、美加利差、美债收益率优势、技术面。</text>
+  <text class="ts" x="34" y="1038">无法把 0.5% 拆给关税。</text>
+
+  <!-- legend -->
+  <rect x="20" y="1080" width="480" height="175" rx="9" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+  <text class="tb" x="36" y="1106">图例</text>
+  <path class="ln" d="M36,1128 L86,1128"/>
+  <text class="t" x="96" y="1133">实线 ＝ 有一手来源，或纯算术推导</text>
+  <path class="lnd" d="M36,1158 L86,1158"/>
+  <text class="t" x="96" y="1163">虚线 ＝ 我接不上／无法归因</text>
+  <rect x="36" y="1180" width="50" height="20" rx="5" class="bxa"/>
+  <text class="t" x="96" y="1195">今日锚点原理所在的一环</text>
+  <text class="ts" x="36" y="1225">注：图上没有一条线是「我猜的因果」。凡是我猜的，</text>
+  <text class="ts" x="36" y="1242">都写成了虚线并注明「接不上」，不当成结论用。</text>
+</svg>
+<figcaption>传导链：从关税落地到「机会成本」，再到我接不上的地方</figcaption>
+</figure>
+</div>
+
+<h4>用人话把这条链读一遍</h4>
+
+<p>上周六凌晨，美国开始对一批加拿大商品在海关多收 50% 的税。这批商品一年大概值 200 亿美元，所以如果买的量不变，一年最多要多缴 100 亿美元。这笔钱，从 2018 年那轮关税的实证证据看，主要落在美国的进口商和消费者头上，而不是加拿大出口商头上。</p>
+
+<p>然后是今天的重点：这多缴的 100 亿美元，不是凭空冒出来的，它是从美国人本来要花在别的地方的钱里挪出来的。<strong>那个「别的地方」，就是这项政策的真实成本。</strong>把它算清楚，才能问下一句：为了这个成本，我们换回来了什么？白宫自己给的答案是——想找回 56 亿美元的汽车出口和 5.82 亿美元的酒类出口。</p>
+
+<p>历史上有一个可以拿来对照量级的案例：2009 年美国对中国轮胎加税，最多保住 1200 个岗位，代价是消费者一年多付约 11 亿美元，折合每个岗位 90 万美元。不过这个「代价太高」的结论也有反方——如果失去工作的人根本换不到新工作，那简单的成本比较就漏掉了很重要的东西。</p>
+
+<p>最后，这条链走到「所以美股应该怎么动」的时候，<strong>我接不上，就在这里停住</strong>。原因写在下面第 3 节的最后一环。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>环 1 ｜ 关税到底是什么东西</h3>
+
+<p>先别管「关税」这两个字。想一件更具体的事。</p>
+
+<p>假设你在新加坡开一家小店，卖加拿大产的枫糖浆。你从加拿大供应商那里进货，一瓶到岸价 10 新元。船靠港之后，货物要过海关。海关说：这类商品要交 7% 的税。于是你除了给供应商的 10 元，还得再给海关 0.7 元，一共 10.7 元，货才能提出来。</p>
+
+<p>这就是关税。<strong>关税是一笔在国境线上收的税，由把货运进来的那个人（进口商）交给本国政府。</strong>英文叫 <em>tariff</em>。</p>
+
+<p>有两点非常容易搞错，现在就纠正：</p>
+
+<p><strong>第一，交税的是本国进口商，不是外国出口商。</strong>钱是从买家手里流进本国国库的。加拿大的枫糖浆厂商并没有直接给美国政府开支票。（至于最终谁「真正」承担这笔钱，是环 3 的事，那是另一个问题。）</p>
+
+<p><strong>第二，「50% 关税」是在原有税率之上叠加。</strong>White &amp; Case 的说明写得很清楚：这次的第 338 条关税是「stack（叠加）」在已有的关税之上的。所以某件商品原来交 2.5%，现在是 52.5%，不是 50%。</p>
+
+<div class="src"><b>这一环的依据：</b><a href="https://www.whitecase.com/insight-alert/trump-administration-imposes-50-tariffs-certain-canadian-products-first-use-section">White &amp; Case</a>（叠加规则、法律机制）＋ 关税的定义（标准教科书内容）</div>
+
+<h3>环 2 ｜ 这笔钱有多大：一次简单的乘法</h3>
+
+<p>现在做一次乘法。请你跟着算。</p>
+
+<div class="math wrapok">
+受影响商品年进口额 &nbsp;=&nbsp; 200 亿美元<br>
+额外税率 &nbsp;=&nbsp; 50%<br>
+额外税款 &nbsp;=&nbsp; 200 亿 × 0.50 &nbsp;=&nbsp; <b>100 亿美元／年</b>
+</div>
+
+<p>这个 100 亿美元，是一个<strong>上限</strong>，不是实际数。为什么是上限？因为它假设了「进口量一点都不变」。</p>
+
+<p>你想想自己：如果一瓶加拿大威士忌从 60 美元涨到 90 美元，你还会买一样多吗？大概率会少买一点，或者换成别国的酒。买的人少了，进口量就下降，收上来的税自然低于 100 亿。</p>
+
+<p>所以真实数字一定小于 100 亿。<strong>但这个「小于」本身也有代价</strong>——那些原本会发生、现在没发生的交易，是买卖双方都想做、结果没做成的生意。这部分损失以后会专门讲（那叫「无谓损失」，deadweight loss，H6 会讲）。今天先记住：100 亿是天花板。</p>
+
+<div class="box calc">
+<span class="tag">依据：纯算术</span>
+<p>这一环没有引用任何人的观点。200 亿这个数字来自 USTR 和 White &amp; Case（口径已在第 1 节说明），50% 来自公告本身，乘法你可以自己验算。</p>
+</div>
+
+<h3>环 3 ｜ 这笔钱最后是谁掏的</h3>
+
+<p>刚才说，钱是进口商交给海关的。但进口商是不是就自己认了这笔钱？不一定。他有三个选择：</p>
+
+<ol>
+  <li><strong>自己扛</strong>——利润少一块。</li>
+  <li><strong>转嫁给下游</strong>——涨价，让美国消费者付。</li>
+  <li><strong>压价给上游</strong>——去找加拿大供应商说：你降价 30%，不然我不进了。这样加拿大出口商就承担了一部分。</li>
+</ol>
+
+<p>这三种情况，实际发生的是哪一种？<strong>这个问题不能靠推理回答，只能靠数据。</strong></p>
+
+<p>幸运的是，2018 年那轮美国关税提供了一次大规模的自然实验，而且有顶级期刊的研究。Amiti、Redding、Weinstein 三位学者在 2019 年《Journal of Economic Perspectives》上发表的论文，结论是：</p>
+
+<blockquote style="border-left:3px solid var(--accent); margin:16px 0; padding:4px 0 4px 16px; color:var(--muted); font-size:15.5px">
+「关税向进口商品的国内价格<strong>完全传递</strong>（complete pass-through）」；「到目前为止，关税的全部归宿落在了国内消费者和进口商身上」；到 2018 年底，美国实际收入每月减少 <strong>14 亿美元</strong>。
+</blockquote>
+
+<p>「完全传递」是什么意思？用数字说：如果关税让某商品的到岸成本上升 10 美元，那这个商品在美国国内的售价就上升了大约 10 美元。<strong>加拿大／中国出口商并没有降价来吸收它。</strong>钱是美国人自己付的。</p>
+
+<p>你可能会想：<em>那这是一条铁律吗？以后所有关税都是本国人付？</em></p>
+
+<p>不是。它取决于双方谁更「离不开谁」——这是我们以后要专门讲的弹性问题（H5）。但对今天这件事，2018 年的证据是我们手上最接近的可比样本：同一个国家、同一套海关体系、相似的政策工具。<strong>所以我把它作为环 3 的依据，但也标明它是「类比证据」，不是对 2026 年这批商品的直接测量。</strong></p>
+
+<div class="src"><b>这一环的依据：</b>Amiti, M., Redding, S. J., &amp; Weinstein, D. E. (2019), "The Impact of the 2018 Tariffs on Prices and Welfare," <i>Journal of Economic Perspectives</i>, 33(4), 187–210. <a href="https://www.aeaweb.org/articles?id=10.1257%2Fjep.33.4.187">AEA 页面</a> ｜ <a href="https://www.nber.org/system/files/working_papers/w25672/w25672.pdf">NBER 工作论文全文（免费）</a></div>
+
+<div class="box brk">
+<span class="tag">这一环什么时候会断</span>
+<p>如果加拿大出口商为了保住美国市场大幅降价，这一环就断了——那样成本就从美国买方转移到了加拿大卖方。判断依据是<b>进口价格数据</b>：美国劳工统计局每月发布进口价格指数（Import Price Index），如果加拿大来源的相关品类<b>不含关税</b>的进口价格明显下跌，就说明加方在让利。这是可以在未来几个月直接验证的。</p>
+</div>
+
+<h3 style="font-size:1.14rem; padding-top:12px; border-top:2px solid var(--accent); margin-top:44px">环 4 ｜【今日主菜】那 100 亿本来会去哪：机会成本</h3>
+
+<p>现在到今天真正要讲透的东西。</p>
+
+<h4>先从一件跟关税毫无关系的事说起</h4>
+
+<p>周六下午两点，你有三个小时空着。你可以：</p>
+
+<ul>
+  <li>A：去打球</li>
+  <li>B：接一个自由职业的活，能赚 300 新元</li>
+  <li>C：在家睡觉</li>
+</ul>
+
+<p>你选了 A，去打球。请问：<strong>打这场球花了你多少钱？</strong></p>
+
+<p>大部分人会说：场地费 20 元，加上车费，大概 30 元。</p>
+
+<p>这个答案是错的，或者说，只答了一半。</p>
+
+<p>因为你为了打球，<strong>放弃</strong>了 B 和 C。在被放弃的选项里，最好的那个是 B（值 300 元）。所以打这场球的真实代价是：</p>
+
+<div class="math wrapok">
+真实代价 &nbsp;=&nbsp; 掏出去的钱 30 元 &nbsp;+&nbsp; 放弃掉的最佳选项 300 元 &nbsp;=&nbsp; <b>330 元</b>
+</div>
+
+<p>那 300 元你没有「花掉」，你只是<strong>没有赚到</strong>。但在做决定的时候，没赚到和花掉是一回事——你的口袋里都少了 300 元。</p>
+
+<p><strong>经济学给「放弃掉的最佳选项的价值」起了个名字，叫「机会成本」（英文：opportunity cost）。</strong></p>
+
+<h4>为什么必须这样算：因为资源是有限的</h4>
+
+<p>你可能会想：<em>为什么非要把没赚到的钱算成成本？听起来像在自寻烦恼。</em></p>
+
+<p>因为如果不这样算，你就没法比较。</p>
+
+<p>假设你只看「掏出去的钱」：打球花 30 元，接活花 0 元。那接活看起来「更便宜」，可这个比较毫无意义——你要的不是省钱，是<strong>用这三个小时换到最多的好处</strong>。</p>
+
+<p>关键在这里：<strong>你只有三个小时，这三个小时用掉就没了。</strong>时间是稀缺的。正因为稀缺，选 A 就必然意味着不选 B。「稀缺」和「机会成本」是同一件事的两面：<strong>如果一样东西无限多，选它就不用放弃任何别的，机会成本就是零。</strong>空气就是这样——你呼吸不需要放弃任何东西，所以呼吸的机会成本是零，我们也从来不觉得需要「算算」呼吸值不值。</p>
+
+<p>反过来，凡是有限的东西——时间、钱、土地、人手、电力——用在这里，就用不到那里。所以经济学的第一句话是：<strong>因为资源稀缺，所以必须选择；因为必须选择，所以每一个选择都有成本，那个成本就是你放弃的东西。</strong></p>
+
+<h4>现在把它套回那 100 亿美元</h4>
+
+<p>关税收上来的这 100 亿美元，从美国进口商和消费者手里出来（环 3 的证据）。这些人本来打算拿这些钱干什么？</p>
+
+<p>我们不知道具体每一笔。但我们知道一件确定的事：<strong>他们不会把这笔钱凭空变出来。</strong>钱花在多付的酒钱、水泥钱、乳制品钱上，就没花在别的地方。</p>
+
+<p>做一个具体的推演。假设一家美国建筑公司，一年买加拿大水泥要花 200 万美元（<em>这是示意数字，只为演示算法，不是真实数据</em>）。加税 50% 之后：</p>
+
+<div class="math wrapok">
+原成本 &nbsp;=&nbsp; 200 万<br>
+新成本 &nbsp;=&nbsp; 200 万 × 1.5 &nbsp;=&nbsp; 300 万<br>
+多出的支出 &nbsp;=&nbsp; <b>100 万美元</b>
+</div>
+
+<p>这 100 万从哪来？这家公司只有几条路：<strong>提高报价</strong>（成本转给业主）、<strong>少招两个工人</strong>、<strong>推迟买那台新设备</strong>、或者<strong>老板少赚 100 万</strong>。</p>
+
+<p>不管走哪条路，都有一件本来会发生的事没发生了：某个业主的项目更贵了、两个人没被雇、一台设备没被买、或者一笔利润没有变成分红或再投资。</p>
+
+<p><strong>这些「没发生的事」，就是这项关税的机会成本。</strong>它们不会出现在任何一份财政报表上——国库那边只会记录「关税收入 +100 亿」，看起来还是笔进项。<strong>机会成本的特点就是它不留痕迹。</strong>这也正是它最容易被政策讨论忽略的原因。</p>
+
+<div class="box calc">
+<span class="tag">依据：定义 + 算术</span>
+<p>「机会成本 = 放弃的最佳替代选项的价值」是经济学的标准定义（任何一本入门教材第一章，如 Mankiw《经济学原理》第一章「人们面临权衡取舍」/「某种东西的成本是为了得到它所放弃的东西」）。上面的水泥算例数字是<b>示意数字</b>，已明确标注；它演示的是算法，不是对现实的测量。</p>
+</div>
+
+<h4>一个必须澄清的误解</h4>
+
+<p>你可能会想：<em>可是那 100 亿并没有消失啊，它进了美国政府的口袋，政府也会花掉它。这不就等于钱换了个人花吗？为什么算成本？</em></p>
+
+<p>这是一个好问题，而且部分正确。<strong>那 100 亿的绝大部分确实只是转移</strong>——从进口商／消费者手里转到国库手里。转移本身不是「烧掉」。</p>
+
+<p>但有两件事让它不等于「零成本」：</p>
+
+<p><strong>第一，转移不是中性的。</strong>谁付、谁收，是一个分配问题，不是可以忽略的细节。买加拿大水泥的建筑公司和收税的国库，不是同一批人。</p>
+
+<p><strong>第二，也是更根本的：真正被烧掉的不是那 100 亿，而是那些「本来会发生、现在不发生」的交易。</strong>回到刚才的算术——关税让进口量下降。那些原本双方都愿意做、现在因为多了一层税而做不成的买卖，创造的价值就凭空消失了，没有进任何人的口袋。这一块才是真正的净损失。它的规模需要弹性数据才能估算，我今天没有针对这批商品的弹性估计，<strong>所以我不给这个数字。</strong></p>
+
+<h4>这条原理的学界分歧在哪</h4>
+
+<p>机会成本这个<strong>定义</strong>本身没有争议——它是定义，不是可以对错的经验命题。真正有争议的是<strong>怎么度量它</strong>，尤其是：</p>
+
+<p><strong>争议点：被释放出来的资源，真的会流向下一个最佳用途吗？</strong></p>
+
+<p>「机会成本」这个框架隐含一个假设：如果水泥项目黄了，那些工人和资本会去干别的、同样有价值的事。如果这个假设成立，那么关税的成本就是可以用金钱清晰衡量的。</p>
+
+<p>如果这个假设不成立——工人失业了三年找不到新工作，工厂闲置了——那么真实的成本比账面算出来的<strong>大得多</strong>，而且反过来，保护措施的收益也可能比账面算出来的<strong>大</strong>（因为它避免了那种痛苦的调整）。</p>
+
+<p>这就是环 7 要讲的那派证据。我把它单独列出来，是因为如果只讲机会成本、不讲这个反驳，就是给你一家之言。</p>
+
+<h3>环 5 ｜ 拿这个成本，换回来什么</h3>
+
+<p>机会成本框架的真正用处，是逼你把问题问成这个形状：<strong>「为了得到 X，我放弃了 Y。X 比 Y 大吗？」</strong></p>
+
+<p>这次的 X 是什么？白宫自己在事实清单里写了。加税的理由是加拿大歧视美国出口，具体损失是：</p>
+
+<ul>
+  <li>汽车：美国对加汽车出口同比下降约 <strong>22%</strong>，约 <strong>56 亿美元</strong></li>
+  <li>酒类：加拿大对美酒类进口下降约 <strong>81%</strong>，约 <strong>5.82 亿美元</strong></li>
+  <li>乳制品：加拿大给美国奶酪的关税配额比给欧盟的更严（白宫未给出金额）</li>
+</ul>
+
+<p>把能量化的加起来：56 + 5.82 = <strong>61.8 亿美元</strong>的美国出口损失，是这项政策想挽回的目标。</p>
+
+<p>现在做那个比较：</p>
+
+<div class="math wrapok">
+成本上限（美国买方多付的税） &nbsp;=&nbsp; 100 亿美元／年<br>
+目标收益上限（挽回的出口） &nbsp;≈&nbsp; 61.8 亿美元／年<br>
+比值 &nbsp;=&nbsp; 100 ÷ 61.8 &nbsp;=&nbsp; <b>1.62</b>
+</div>
+
+<p><strong>请注意这个数字该怎么读，也请注意它不能怎么读。</strong></p>
+
+<p>它<strong>不是</strong>「这项政策亏了 1.62 倍」。这个比较是不严谨的，原因至少有三个，我必须写出来：</p>
+
+<ol>
+  <li><strong>两边的性质不同。</strong>100 亿是美国人多付的税（大部分是转移，不是烧掉）；61.8 亿是出口销售额，不是利润，也不是净福利。拿它们直接相除，等于拿苹果比橘子。</li>
+  <li><strong>时间维度不同。</strong>100 亿是每年持续付的；61.8 亿的出口如果真能挽回，也是每年持续的——但只有在加拿大真的让步的情况下才会发生。而截至我写这一段，加拿大的公开回应是「dollar for dollar 反制」，不是让步。</li>
+  <li><strong>威慑的价值无法量化。</strong>支持这类政策的人会说：真正的收益不是这 61.8 亿，而是让所有贸易伙伴知道「歧视美国出口是有代价的」。这个威慑价值可能远超账面。我无法证实也无法证伪它。</li>
+</ol>
+
+<p><strong>那这个 1.62 有什么用？</strong>它的用处不是给出答案，而是<strong>给出问题的形状</strong>。它告诉你：任何声称这项政策划算的人，必须论证「威慑价值 + 挽回的出口的净利润」超过「美国买方每年多付的钱 + 那些没做成的生意」。<strong>只要有人只讲前半句不讲后半句，你就知道他漏了什么。</strong></p>
+
+<div class="box calc">
+<span class="tag">依据：白宫事实清单的数字 + 算术</span>
+<p>56 亿、5.82 亿、22%、81% 全部来自<a href="https://www.whitehouse.gov/fact-sheets/2026/07/fact-sheet-president-donald-j-trump-imposes-additional-tariffs-on-canada/">白宫事实清单</a>；100 亿来自环 2 的乘法。相除是算术。<b>但「1.62 意味着什么」不是算术能回答的，所以我上面写了三条限制而不是给结论。</b></p>
+</div>
+
+<h3>环 6 ｜ 历史上，一个岗位到底值多少钱</h3>
+
+<p>上面的比较是粗的。有没有更精细的、真正做过的研究？有。</p>
+
+<p>2009 年 9 月，美国对从中国进口的轮胎加征了关税。三年后，Peterson 国际经济研究所（PIIE，一家华盛顿的贸易研究机构）的 Gary Hufbauer 和 Sean Lowry 做了一份测算，编号 Policy Brief 12-9。</p>
+
+<p>他们的结论（原文口径）：</p>
+
+<ul>
+  <li>这项关税<strong>最多</strong>保住了 <strong>1,200 个</strong>美国轮胎业岗位；</li>
+  <li>美国轮胎买家在 <strong>2011 年</strong>为此多付了约 <strong>11 亿美元</strong>；</li>
+  <li>折合<strong>每保住一个岗位，至少花掉 90 万美元</strong>（口径：2011 年当年的消费者成本 ÷ 岗位数）；</li>
+  <li>而且这 11 亿里的绝大部分<strong>没有进到轮胎工人的口袋</strong>，而是进了轮胎公司（包括外国公司）的口袋。</li>
+</ul>
+
+<p>你自己验算一下：</p>
+
+<div class="math wrapok">
+11 亿美元 ÷ 1,200 个岗位 &nbsp;=&nbsp; <b>约 91.7 万美元／岗位</b>
+</div>
+
+<p>这就是机会成本框架在真实政策上的一次应用。它没有说「保住这 1,200 个岗位不重要」——那 1,200 个家庭的生计当然重要。<strong>它说的是：如果目标是帮这些人，用 11 亿美元还有没有别的花法，能帮到更多人？</strong>比如直接给每人 90 万美元的转职补贴和再培训，效果会不会更好？</p>
+
+<p>这才是机会成本真正的力量：<strong>它不评判目标，它只逼你把「还有什么别的花法」摆到桌面上。</strong></p>
+
+<div class="src"><b>这一环的依据：</b>Hufbauer, G. C., &amp; Lowry, S. (2012), "US Tire Tariffs: Saving Few Jobs at High Cost," PIIE Policy Brief 12-9. <a href="https://ideas.repec.org/p/iie/pbrief/pb12-9.html">RePEc 摘要页</a>。<b>口径注意</b>：1,200 是「最多」（作者自己的上限估计）；11 亿是 2011 年一年的消费者成本；90 万是这两个数相除，因此也是一个下限（「至少 90 万」）。</div>
+
+<div class="box brk">
+<span class="tag">这一环什么时候不适用</span>
+<p>轮胎案是<b>一个</b>案例，不是普遍规律。它的每岗位成本之所以这么高，一个重要原因是轮胎是标准化的大宗消费品，消费者面很广、就业面很窄。如果换成一个就业密集、消费面窄的行业，比值会完全不同。<b>所以这个 90 万美元是量级参考，不是可以套用到美加关税上的常数。</b>我没有找到针对本次 200 亿美元清单的同类测算，也不打算自己编一个。</p>
+</div>
+
+<h3>环 7 ｜ 反方：机会成本框架最容易错在哪</h3>
+
+<p>上面的推理链里有一个假设，一直藏着没说破。现在说破它。</p>
+
+<p><strong>假设：当保护措施取消（或者从来就没有）时，被进口冲击掉的工人和资本，会转移到其他更有生产力的用途上去。</strong></p>
+
+<p>这个假设如果成立，那么「保护的成本很高」这个结论就成立——因为你花大钱保住的岗位，本来可以被更好的岗位替代。</p>
+
+<p>但如果这个假设不成立呢？</p>
+
+<p>Autor、Dorn、Hanson 三位学者 2013 年发表在《American Economic Review》上的论文（业内叫「China Syndrome」，中国综合症），研究了 1990–2007 年中国进口竞争对美国地方劳动力市场的影响。他们的发现是：</p>
+
+<blockquote style="border-left:3px solid var(--accent); margin:16px 0; padding:4px 0 4px 16px; color:var(--muted); font-size:15.5px">
+进口竞争加剧导致更高的失业率、更低的劳动参与率和更低的工资；进口竞争解释了同期美国制造业就业下降的<strong>约四分之一</strong>；在受贸易冲击更大的地区，失业、伤残、退休和医保方面的<strong>转移支付大幅上升</strong>。
+</blockquote>
+
+<p>请注意最后那一句的分量。<strong>「转移支付大幅上升」的意思是：那些人没有顺利转去更好的工作，而是转去领救济了。</strong></p>
+
+<p>这直接打在上面那个假设上。如果调整是缓慢的、痛苦的、地理上集中的，那么：</p>
+
+<ul>
+  <li>贸易开放的<strong>真实成本</strong>比传统计算的高（要加上多年的失业和社会成本）；</li>
+  <li>相应地，保护措施的<strong>真实收益</strong>也比传统计算的高。</li>
+</ul>
+
+<p>你可能会想：<em>那到底哪一派对？</em></p>
+
+<p>两派都对，只是在回答不同的问题。ADH 的研究并没有说「贸易是坏的」——它说的是<strong>调整成本是真实的、巨大的、而且集中落在特定人群和特定地区身上</strong>。而机会成本框架说的是<strong>总账</strong>。总账为正、局部为负，两件事可以同时成立。</p>
+
+<p><strong>真正的争论不是「贸易好不好」，而是「补偿输家的机制够不够」。</strong>而这一条，是关税解决不了的——关税把成本摊给了全体消费者，把收益给了受保护行业的股东（回想轮胎案：11 亿里大部分进了公司而不是工人）。要帮到具体的人，需要的是别的工具。</p>
+
+<div class="src"><b>这一环的依据：</b>Autor, D. H., Dorn, D., &amp; Hanson, G. H. (2013), "The China Syndrome: Local Labor Market Effects of Import Competition in the United States," <i>American Economic Review</i>, 103(6), 2121–68. <a href="https://www.aeaweb.org/articles?id=10.1257%2Faer.103.6.2121">AEA 页面</a> ｜ <a href="https://www.nber.org/system/files/working_papers/w18054/w18054.pdf">NBER 全文（免费）</a></div>
+
+<h3 style="color:var(--break-line)">环 8 ｜ 到市场价格这里，我接不上</h3>
+
+<p>正常的写法到这里应该接一句「所以美股跌了 / 涨了」。<strong>我不写，因为我接不上，而且我认为任何人今天都接不上。</strong></p>
+
+<p>三个理由：</p>
+
+<p><strong>理由一：规模太小了。</strong>做个除法：</p>
+
+<div class="math wrapok">
+关税上限 &nbsp;=&nbsp; 100 亿美元 &nbsp;=&nbsp; 0.01 万亿美元<br>
+美国名义 GDP &nbsp;=&nbsp; 32.475 万亿美元（2026 年 Q2，季调折年率）<br>
+0.01 ÷ 32.475 &nbsp;=&nbsp; 0.000308 &nbsp;=&nbsp; <b>0.031%</b>
+</div>
+
+<p>万分之三。这个量级的冲击，在指数层面根本无法从噪音里分辨出来。</p>
+
+<p><strong>理由二：当天有多个更大的事在同时发生。</strong>据 TheStreet 的当日报道，8 月 24 日市场关注的至少还有：财政部长即将公布对伊朗的新制裁细节、英伟达本周财报、以及周四开始的 Jackson Hole 央行年会（美联储主席 Kevin Warsh 周五发表主旨演讲）。<strong>把当天的指数变动归给关税，是无法证伪的说法。</strong></p>
+
+<p><strong>理由三：我连当天的收盘价都没能确认。</strong>我拿到的是 8 月 24 日美东时间 11:37 的盘中数据，不是收盘数据。我把它标出来而不是含糊过去：</p>
+
+<div class="tblwrap">
+<table>
+<tr><th>标的</th><th>8/21（五）收盘</th><th>8/24（一）11:37 ET 盘中</th><th>口径备注</th></tr>
+<tr><td>标普 500</td><td>7,674.37（+0.4%）</td><td>7,656.50（−0.23%）</td><td>价格指数，不含股息</td></tr>
+<tr><td>纳斯达克综合</td><td>26,180.46（+0.4%）</td><td>26,066.56（−0.44%）</td><td>价格指数</td></tr>
+<tr><td>道琼斯工业</td><td>53,277.01（+1%）</td><td>53,419.17（+0.27%）</td><td>价格加权指数</td></tr>
+<tr><td>10 年期美债收益率</td><td>4.734%</td><td>4.69%</td><td>下行约 4 个基点</td></tr>
+<tr><td>VIX</td><td>15.13（−5.5%）</td><td>—</td><td>标普 500 期权隐含波动率</td></tr>
+</table>
+</div>
+
+<p>顺带教两个东西，因为它们就藏在上面这张表里：</p>
+
+<p><strong>（一）「基点」是什么。</strong>收益率从 4.734% 变成 4.69%，差是 0.044。这个 0.044 是<strong>百分点</strong>，不是「百分之 0.044」。为了避免这种混淆，债券世界用「基点」（basis point，简写 bp）：<strong>1 个基点 = 0.01 个百分点</strong>。所以 0.044 个百分点 = <strong>4.4 个基点</strong>，通常说「跌了约 4 个基点」。</p>
+
+<p><strong>（二）VIX 15.13 是什么意思。</strong>VIX 是从标普 500 期权价格里倒推出来的、市场对未来 30 天波动幅度的预期，<strong>换算成年化的百分比</strong>。要把它翻译成「每天大概会动多少」，除以一年交易日数的平方根：</p>
+
+<div class="math wrapok">
+一年约 252 个交易日，√252 ≈ 15.87<br>
+15.13 ÷ 15.87 &nbsp;=&nbsp; <b>约 0.95%／天</b>
+</div>
+
+<p>也就是说，8 月 21 日收盘时，期权市场认为未来一个月标普 500 平均每天上下动不到 1%。<strong>这不是一个「市场很紧张」的数字。</strong></p>
+
+<div class="box brk">
+<span class="tag">我在这里停住</span>
+<p>我没有找到任何可靠来源把 8 月 24 日的股票或债券价格变动归因于美加关税。<b>我也不会自己编一个。</b>这条链在环 7 之后，对美国资产价格就断了。<br><br>一条断在半路但每一环都有出处的链，比一条完整但有两环是编的链有用得多。今天这条链就停在这里。</p>
+</div>
+
+<h3>环 9 ｜ 唯一勉强能连上的：加元，但也只是「疑似」</h3>
+
+<p>如果关税真的对某个价格有可见影响，最可能是<strong>加拿大元</strong>——因为受损的是加拿大经济，不是美国经济。</p>
+
+<p>确实有一个数字：8 月 24 日，USDCAD（一美元换多少加元）升到 <strong>1.38334，当日上涨 0.50%</strong>。USDCAD 上涨 = 一美元能换更多加元 = <strong>加元贬值</strong>。</p>
+
+<p>（顺带说清一个新手常踩的坑：汇率报价永远是「一单位前面的货币，换多少后面的货币」。USDCAD 从 1.38 涨到 1.39，是美元变强、加元变弱。数字变大，后面那个货币变弱。这一条我们以后在 D1 会专门讲。）</p>
+
+<p><strong>但我不能说「关税让加元跌了 0.5%」，因为报这个数字的来源自己就列了四个驱动因素</strong>：</p>
+
+<ol>
+  <li>美加贸易摩擦</li>
+  <li>美加政策利率差：美联储 3.50–3.75%（2026 年 7 月 29 日 FOMC），加拿大央行 2.25%（2026 年 7 月 15 日）</li>
+  <li>美债收益率优势</li>
+  <li>技术面信号</li>
+</ol>
+
+<p>第 2 条本身就是个大得多的力量：<strong>两国政策利率差 1.25–1.5 个百分点</strong>，这是持续存在的压力。把当天 0.5% 的变动拆给这四个因素，需要的工具（事件研究法、日内高频数据）我今天没有。<strong>所以这一环在图上是虚线。</strong></p>
+
+<div class="src"><b>这一环的依据：</b>USDCAD 数值来自 <a href="https://www.tradingkey.com/news/market-movers/262127148-market-movers-usdcad-20260824">tradingkey 行情报道</a>（<b>这是一个自动化行情聚合站，来源质量弱于前面的一手材料，我在此明确标注</b>）。政策利率来自一手来源：<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">美联储 2026-07-29 FOMC 声明</a>（3-1/2 至 3-3/4 percent）、<a href="https://www.bankofcanada.ca/2026/07/fad-press-release-2026-07-15/">加拿大央行 2026-07-15 公告</a>（维持 2.25%）。</div>
+
+<h2>4｜对你意味着什么</h2>
+
+<p><strong>先说最诚实的一句：这件事对你的直接影响，接近于零。</strong></p>
+
+<p>新加坡不是这场关税的任何一方。你的收入是新元，你的投资是美元资产。这批 200 亿美元的商品清单（枫糖浆、冰球杆、水泥、乳制品、酒）里，没有一样是你的组合里的重要成分。</p>
+
+<p><strong>我不会假装它有影响。</strong>今天这一课对你的价值，全部在于那个思维工具，不在于这条新闻。</p>
+
+<h3>把机会成本用在你自己的决定上</h3>
+
+<p>下面三个例子里的数字全部是<strong>示意数字，只为演示算法</strong>，不是对你情况的估计，也不是投资建议。</p>
+
+<h4>例一：躺在储蓄账户里的钱</h4>
+
+<p>假设你有 5 万新元放在活期账户，年利率 0.05%。你觉得它「没有成本，就放在那儿」。</p>
+
+<p>但如果同期新加坡的短期国债或定存能拿到 2.5%（<em>示意数字</em>），那么：</p>
+
+<div class="math wrapok">
+活期一年利息 &nbsp;=&nbsp; 50,000 × 0.0005 &nbsp;=&nbsp; 25 新元<br>
+定存一年利息 &nbsp;=&nbsp; 50,000 × 0.025 &nbsp;=&nbsp; 1,250 新元<br>
+放活期的机会成本 &nbsp;=&nbsp; 1,250 − 25 &nbsp;=&nbsp; <b>1,225 新元／年</b>
+</div>
+
+<p>你没有「亏」1,225 元，你的账户余额还在增加。<strong>但你确实少拿了 1,225 元，而少拿和花掉在决策上是一回事。</strong>这就是机会成本不留痕迹的特性——它不会出现在任何一份对账单上。</p>
+
+<p><strong>但这不等于「不该放活期」。</strong>活期换来的是流动性——随时能取。如果你真的可能随时要用这笔钱，那 1,225 元就是买这份灵活性的价格。<strong>机会成本框架不告诉你该怎么做，它只告诉你这份灵活性标价多少，然后由你判断值不值。</strong></p>
+
+<h4>例二：提前还房贷 vs 拿去投资</h4>
+
+<p>假设房贷利率 3.5%，你手上多出 10 万新元（<em>示意数字</em>）。</p>
+
+<p>提前还贷，等于确定性地「赚」到 3.5%（省下的利息）。拿去投资，期望回报可能更高，但不确定。</p>
+
+<p>机会成本框架告诉你：<strong>还贷的机会成本，是那笔投资的期望回报；投资的机会成本，是确定省下的 3.5%。</strong>两边都有成本，没有「免费」的那一边。这是很多人搞不清的地方——他们觉得还贷是「安全的、没成本的」选择。<strong>不存在没成本的选择，只存在你没算的成本。</strong></p>
+
+<h4>例三：你自己的时间</h4>
+
+<p>这可能是最重要的一条。你正在做的这件事——每天花时间学宏观金融——机会成本是什么？是这些时间能用来做的最有价值的别的事。</p>
+
+<p>这不是让你别学。<strong>这是让你意识到：既然已经付了这个代价，就值得追问「学得对不对、有没有更高效的路径」。</strong>因为代价已经付了，剩下的问题只是收益够不够大。</p>
+
+<div class="box guess">
+<span class="tag">这一步是我的推测，不是定论</span>
+<p><b>推测内容</b>：我猜测如果美加贸易冲突从这批 200 亿美元的清单扩大到整个汽车产业链，对全球风险资产的影响会开始变得可见（而不是像现在这样淹没在噪音里）。<br><br>
+<b>为什么这是推测</b>：我没有做任何测算，也没有找到针对本次事件的定量研究。我只是从「200 亿 = GDP 的 0.03%」推想「如果变成 2,000 亿会怎样」，这是外推，不是证据。<br><br>
+<b>反对的看法</b>：反方会说，市场早就学会了「关税宣布→谈判→部分撤回」这个剧本，因此即使规模扩大，价格反应也可能很小，直到真正的产业链断裂发生。这个看法同样没有被证明。<br><br>
+<b>需要什么材料才能判断</b>：（1）历史上大规模关税事件的<b>事件研究</b>（event study），用日内数据分离出关税消息本身的价格影响；（2）汽车产业链跨境流量的具体数据；（3）标普 500 成分股中对加拿大产业链的暴露度分布。这三样我今天都没有。</p>
+</div>
+
+<p style="margin-top:24px"><strong>关于建议的边界：</strong>以上全部是教学分析和决策框架，<strong>不是针对你个人情况的投资建议</strong>。我不知道你的现金流、税务安排、CPF 状况和风险承受能力，也不应该在不知道这些的情况下给出具体建议。框架是给你自己用的工具。</p>
+
+<h2>5｜反向倒推</h2>
+
+<p>先说清楚这一节在干什么。</p>
+
+<p>前面三节都是<strong>顺着推</strong>：发生了 A，所以会有 B，所以会有 C。现在<strong>倒过来问</strong>：市场此刻的价格摆在那里，这些价格说明大家心里在赌什么？如果大家赌错了，价格会往哪个方向修正？</p>
+
+<h3>市场现在把什么假设定价进去了</h3>
+
+<p><strong>假设：这件事会被控制在小范围内，不会失控。</strong></p>
+
+<p>凭什么这么说？两个数据：</p>
+
+<p><strong>证据一：VIX = 15.13（8 月 21 日收盘）。</strong>上面算过，这换算成对每天约 0.95% 的波动预期。为什么这能反映「不担心失控」？因为 VIX 是从<strong>真金白银</strong>的期权价格倒推出来的——如果有人认为未来一个月会出大事，他会去买保护性期权，把期权价格推高，VIX 就会上去。VIX 停在 15 出头，意味着<strong>愿意为「未来一个月出大事」付钱的人不够多</strong>。</p>
+
+<p><strong>证据二：8 月 24 日盘中标普只跌 0.23%，道指反而涨 0.27%。</strong>关税在周六生效，周一是第一个交易日。如果市场认为这是重大事件，周一应该看到明显的方向性反应。<strong>道指和标普方向相反，本身就说明当天的主导因素不是一个共同的宏观冲击，而是行业层面的分化</strong>（Motley Fool 的报道提到当天是半导体拖累纳指、蓝筹支撑道指）。</p>
+
+<h3>哪个假设最脆弱</h3>
+
+<p>我认为最脆弱的一环是：<strong>「范围会被控制住」</strong>。</p>
+
+<p>理由不是猜的，是三条已经发生的事实：</p>
+
+<ol>
+  <li><strong>加拿大已经公开承诺「dollar for dollar」反制，9 月 8 日生效。</strong>反制本身就是一次扩大。</li>
+  <li><strong>Carney 列出的三个分歧点里，有两个不是关于关税的</strong>——限制加方与第三国签协议的能力、语言文化保护。这类涉及主权表述的分歧，比纯粹的税率数字更难通过讨价还价解决。</li>
+  <li><strong>第 338 条被首次动用了。</strong>一个 96 年没用过的法律工具刚被证明可用，<b>而且它明确凌驾于 USMCA 之上</b>——符合原产地规则的商品照样加税。这意味着现有贸易协定对未来的类似行动没有保护作用。</li>
+</ol>
+
+<h3>如果这个假设错了，价格该怎么走</h3>
+
+<p>我把这写成<strong>方向</strong>而不是<strong>幅度</strong>，因为我没有幅度的依据：</p>
+
+<ul>
+  <li>加元：进一步走弱（USDCAD 上行）——加拿大对美出口占其经济的比重远高于反向</li>
+  <li>美国相关行业成本：建材、食品饮料、零售的投入成本上升</li>
+  <li>美国通胀数据：受影响品类的进口价格与 CPI 分项上行</li>
+</ul>
+
+<p><strong>但请注意这三条的性质：它们是「如果冲突扩大，会怎样」的机械推论，不是预测。</strong>我不知道冲突会不会扩大。</p>
+
+<h3>未来 1–3 个月，什么能证实或证伪</h3>
+
+<div class="tblwrap">
+<table>
+<tr><th>时点</th><th>要看什么</th><th>怎么读</th></tr>
+<tr>
+  <td><b>9 月 8 日</b></td>
+  <td>加拿大反制关税的<b>正式清单</b>（覆盖金额、税率、商品范围）</td>
+  <td>如果金额显著大于 200 亿美元，或覆盖汽车整车，是升级信号；如果象征性、留有大量豁免，是降温信号</td>
+</tr>
+<tr>
+  <td><b>接下来数周</b></td>
+  <td>美方有没有签署<b>新的第 338 条公告</b>，或把汽车整车纳入</td>
+  <td>这是判断「范围是否被控制」最直接的证据</td>
+</tr>
+<tr>
+  <td><b>每月</b></td>
+  <td>美国劳工统计局<b>进口价格指数</b>（Import Price Index）中加拿大来源的相关品类</td>
+  <td>验证环 3：如果<b>不含关税</b>的进口价格下跌，说明加方在让利，成本没有全落在美国买方身上</td>
+</tr>
+<tr>
+  <td><b>每月</b></td>
+  <td>美国 CPI 的酒精饮料、乳制品、建材分项（<b>注意口径</b>：季调 vs 未季调，环比 vs 同比）</td>
+  <td>如果这些分项在 9–11 月出现异常上行，是成本传导到零售端的证据</td>
+</tr>
+<tr>
+  <td><b>下次议息</b></td>
+  <td>加拿大央行的声明措辞（7 月已提到「US trade policy」是风险）</td>
+  <td>如果加拿大央行开始把关税列为降息理由，说明它认为经济损害是实质性的</td>
+</tr>
+</table>
+</div>
+
+<h3>我对自己这一节做的检验</h3>
+
+<div class="box calc">
+<span class="tag">事后叙事检验</span>
+<p>问题：<b>这套说法在事情发生之前，能不能用来做预测？</b></p>
+<p><b>能通过的部分</b>：上面那张表里的每一条，都是<b>事前就能写下来的、可被证伪的观察项</b>。9 月 8 日加方清单的金额是多少，我现在不知道，写下来之后可以对照。这是预测，不是叙事。</p>
+<p><b>不能通过的部分</b>：「VIX 15.13 说明市场不担心」——这一句有事后叙事的风险。VIX 低可能只是因为八月本来就是低成交量月份，跟关税毫无关系。<b>我保留这句话，但降低它的分量：它只能说明「期权市场没有为大事定价」，不能说明「期权市场看过关税之后决定不担心」。</b>这两句话差别很大，我不该把前者写成后者。</p>
+</div>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>底层思维：永远追问「另一半的账」</h3>
+
+<p>今天这条链的思维内核只有一句话：<strong>任何一个「我们得到了 X」的说法，都必然对应一个「我们放弃了 Y」，而 Y 通常没人报道，因为它不留痕迹。</strong></p>
+
+<p>为什么 Y 不留痕迹？因为 Y 是<strong>没有发生的事</strong>。没被雇的工人不会上新闻——他们只是没接到那个电话。没买的设备不会有开箱视频。这就是法国经济学家 Bastiat 在 1850 年说的「看得见的与看不见的」。</p>
+
+<p><strong>这个思维在别的场合怎么用：</strong></p>
+
+<p><strong>跨领域例子一：医疗资源。</strong>一个国家决定把 10 亿元投入某种罕见病的特效药。看得见的是被治好的病人，很动人。看不见的是：这 10 亿如果投在基层筛查上，本来能早期发现多少癌症？<strong>机会成本框架不是要否定治疗罕见病，而是要求把这个比较摆到桌面上，而不是让它悄悄发生。</strong></p>
+
+<p><strong>跨领域例子二：你的注意力。</strong>你今天读了这篇东西，看得见的是学到了机会成本。看不见的是这段时间本来能做什么。<strong>这就是为什么「免费」的内容其实从来不免费</strong>——一个免费的短视频信息流，价签是零，但它消耗的是你唯一真正不可再生的资源。任何声称自己「免费」的东西，都值得你问一句：那我付的是什么？</p>
+
+<h3>顶层视角：这一环在整个系统的什么位置</h3>
+
+<p>H1（稀缺、选择、机会成本）不是四大板块中的一块，<strong>它是四块下面的地基</strong>。具体怎么咬合：</p>
+
+<ul>
+  <li><strong>接利率</strong>：利率<b>就是</b>「现在用钱」相对于「以后用钱」的机会成本。当央行把政策利率定在 3.50–3.75%（美联储当前区间），它实际上是在给整个经济体的「等待」标价。所有折现、所有估值，根子都在这里。</li>
+  <li><strong>接信用</strong>：银行决定把钱贷给谁，本质是在比较不同用途的机会成本。信用利差就是市场对「借给这家公司 vs 借给政府」这个取舍的定价。</li>
+  <li><strong>接汇率</strong>：把钱放在美元资产还是新元资产，机会成本是两边的收益差（加上汇率变动）。今天环 9 提到的美加利差 1.25–1.5 个百分点，正是这个逻辑在货币上的直接表现。</li>
+  <li><strong>接增长</strong>：一个经济体的长期增长，取决于它把稀缺资源配置到高生产率用途的效率。<strong>贸易政策之所以重要，正是因为它在改变这个配置。</strong>而 ADH 的研究提醒我们：配置的调整不是瞬间完成的，中间那段过渡期的痛苦，本身就是成本的一部分。</li>
+</ul>
+
+<p>所以你可以这样记：<strong>整个宏观金融，就是研究一个社会如何在稀缺条件下做选择，以及价格如何把这些选择协调起来。</strong>后面 360 天讲的每一样工具——利率、汇率、估值、信用——都是在给某种取舍标价。</p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tblwrap">
+<table>
+<tr><th>术语（中／英）</th><th>一句话大白话</th><th>出现在哪一环</th></tr>
+<tr><td><b>机会成本</b><br>opportunity cost</td><td>你为了做这件事而放弃掉的、最好的那个别的选择，它的价值就是这件事的真实成本。</td><td>环 4（主菜）</td></tr>
+<tr><td><b>稀缺</b><br>scarcity</td><td>东西不够用，所以必须选；如果无限多，就没有选择问题，也没有机会成本。</td><td>环 4</td></tr>
+<tr><td><b>关税</b><br>tariff</td><td>在国境线上收的一笔税，由把货运进来的人交给本国政府。</td><td>环 1</td></tr>
+<tr><td><b>叠加</b><br>tariff stacking</td><td>新关税加在旧关税之上，不是取代旧的。原来 2.5% 加 50%，变成 52.5%。</td><td>环 1</td></tr>
+<tr><td><b>完全传递</b><br>complete pass-through</td><td>关税涨多少，商品在国内的售价就涨多少，外国卖家没有降价来吸收。</td><td>环 3</td></tr>
+<tr><td><b>归宿</b><br>incidence</td><td>税「名义上」谁交，和「实际上」谁承担，是两件不同的事。归宿说的是后者。</td><td>环 3</td></tr>
+<tr><td><b>无谓损失</b><br>deadweight loss</td><td>因为多了一道税，那些买卖双方本来都愿意做、现在做不成的生意，凭空消失的价值。</td><td>环 2、环 4（今天只点名，H6 会讲透）</td></tr>
+<tr><td><b>基点</b><br>basis point, bp</td><td>0.01 个百分点。收益率从 4.73% 到 4.69%，是跌了 4 个基点。</td><td>环 8</td></tr>
+<tr><td><b>VIX</b><br>波动率指数</td><td>从标普 500 期权价格倒推出来的、市场对未来 30 天波动幅度的预期，年化表示。</td><td>环 8、第 5 节</td></tr>
+<tr><td><b>事后叙事</b><br>post-hoc narrative</td><td>先看到结果，再找一个听起来合理的原因。它永远能自圆其说，所以永远没用。</td><td>环 8、第 5 节</td></tr>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<div class="q"><b>题 1。</b>一个朋友对你说：「关税是外国人付的，等于外国给我们交钱。」根据今天学的内容，你要用哪两步来回应他？（提示：一步是澄清概念，一步是引用证据。）</div>
+
+<details>
+<summary>参考答案（点开）</summary>
+<p><b>第一步：澄清「谁交」和「谁承担」是两回事。</b></p>
+<p>关税在法律上是由<b>本国进口商</b>在海关缴纳的。加拿大的酒厂并没有给美国政府开支票——是美国的酒类进口商开的支票。这一点是制度事实，没有争议。</p>
+<p>但这只回答了「谁交」。「谁最终承担」是另一个问题，因为进口商可能有三条路：自己扛（利润下降）、涨价（消费者承担）、压价给上游（外国出口商承担）。<b>只有第三种情况才勉强算「外国人付」。</b></p>
+<p><b>第二步：引用证据说明实际发生的是哪一种。</b></p>
+<p>Amiti、Redding、Weinstein 在 2019 年《Journal of Economic Perspectives》上对 2018 年美国关税的研究发现：关税向进口商品的国内价格<b>完全传递</b>，「关税的全部归宿落在了国内消费者和进口商身上」，到 2018 年底美国实际收入每月减少 14 亿美元。</p>
+<p><b>需要补充的诚实说明</b>：这是 2018 年的证据，不是对 2026 年这批加拿大商品的直接测量。它是目前最可比的证据，但结论要随新数据更新。验证方法是看美国劳工统计局的进口价格指数——如果加拿大来源商品的<b>不含关税</b>价格下跌，说明加方在让利。</p>
+</details>
+
+<div class="q"><b>题 2。</b>你有 20 万新元现金和一笔 20 万新元、利率 3.5% 的房贷。你决定提前还掉房贷，理由是「这样最安全，没有成本」。请指出这句话在机会成本框架下错在哪里，并给出一个具体的算术例子。</div>
+
+<details>
+<summary>参考答案（点开）</summary>
+<p><b>错在「没有成本」四个字。不存在没有成本的选择。</b></p>
+<p>提前还贷的收益是确定的：省下每年的利息。</p>
+<div class="math wrapok">省下的利息 = 200,000 × 3.5% = <b>7,000 新元／年</b>（确定）</div>
+<p>但提前还贷同时意味着放弃了这 20 万的其他用途。假设另一个可选用途是买短期国债，收益率 2.5%（<i>示意数字</i>）：</p>
+<div class="math wrapok">放弃的利息收入 = 200,000 × 2.5% = <b>5,000 新元／年</b></div>
+<p>所以：</p>
+<div class="math wrapok">提前还贷的净收益 = 7,000 − 5,000 = <b>2,000 新元／年</b></div>
+<p>不是 7,000，是 2,000。<b>那 5,000 就是提前还贷的机会成本。</b></p>
+<p><b>但答案不止于此，还有两件不能用算术算的事：</b></p>
+<p><b>（一）流动性。</b>还进房贷的 20 万，取不回来了（除非再申请贷款，且不保证批）。买国债的 20 万，随时可以卖。如果你三个月后失业或家人生病，这个差别是决定性的。<b>流动性的价值不体现在利率上，但它是真实的。</b></p>
+<p><b>（二）风险性质不同。</b>省下的 3.5% 是无风险的确定收益；国债的 2.5% 也接近无风险（所以这个比较是干净的）。但如果换成「投资股票预期 7%」，那 7% 是<b>期望值</b>，不是保证。拿确定的 3.5% 和不确定的 7% 直接比大小，是一个常见错误——两者的风险不同，不能直接比。</p>
+<p><b>结论</b>：正确的说法不是「提前还贷没有成本」，而是「提前还贷的机会成本是 5,000 元／年，换来的是确定性和无需管理；这份确定性对我值不值 5,000 元，由我自己判断」。</p>
+</details>
+
+<div class="q"><b>题 3。</b>假设明年有人写一份报告说：「这次美加关税成功了——美国对加拿大的汽车出口回升了 40 亿美元。」根据今天学的框架，你要问哪三个问题，才能判断这份报告有没有说完整？</div>
+
+<details>
+<summary>参考答案（点开）</summary>
+<p><b>问题一：另一半的账在哪里？（机会成本）</b></p>
+<p>报告只算了收益（+40 亿出口），没算成本。要问：这一年美国进口商和消费者为受影响的 200 亿美元商品多付了多少？那笔钱本来会花在哪里？有多少笔交易因为价格上升而根本没发生（无谓损失）？</p>
+<p>做个粗算：如果关税实际征收了 60 亿美元（因为进口量下降，低于 100 亿上限），那么用 60 亿的成本换回 40 亿的出口<b>销售额</b>——而且 40 亿销售额里的<b>利润</b>可能只有几亿。这个账未必划算。</p>
+<p><b>问题二：因果还是巧合？（事后叙事检验）</b></p>
+<p>汽车出口回升，一定是关税造成的吗？还有别的可能：加元贬值让加拿大人买美国车更贵——等等，这方向是反的；或者加拿大经济复苏、汽车换购周期到了、某款车型恰好受欢迎。<b>要问：有没有对照组？</b>比如美国对<b>其他</b>没被加税国家的汽车出口，同期变化如何？如果对所有国家的出口都涨了 40 亿量级，那关税就解释不了什么。</p>
+<p><b>问题三：钱到了谁手里？（分配问题）</b></p>
+<p>回想轮胎案：11 亿美元的消费者成本里，<b>大部分进了轮胎公司而不是轮胎工人</b>。所以要问：这 40 亿的出口回升，创造了多少个就业岗位？折算下来每个岗位的成本是多少？和 PIIE 算出的 90 万美元／岗位相比如何？</p>
+<p><b>加分项</b>：还可以问第四个——<b>加拿大的反制造成了多少美国出口损失？</b>关税是双向的，只算自己收的税、不算对方收的税，是不完整的账。</p>
+</details>
+
+<h3>今天就能做的一个小动作（10 分钟）</h3>
+
+<p>打开你的银行 App，看一眼你现在放在<strong>活期/储蓄账户</strong>里的余额。然后查一下新加坡目前 6 个月定存或短期国债（T-bill）的利率是多少（MAS 和各家银行网站都有）。</p>
+
+<p>用今天学的方法算一次：</p>
+
+<div class="math wrapok">你的活期余额 × (定存利率 − 活期利率) = 你每年的机会成本</div>
+
+<p>算出来之后，<strong>不要立刻去做任何操作</strong>。只做一件事：问自己「这个数字，是我为流动性付的合理价格吗？」</p>
+
+<p>这个动作的意义不在于挪钱，在于<strong>让你第一次亲手把一个看不见的成本变成一个具体数字</strong>。这是今天这一课唯一需要你形成的习惯。</p>
+
+<h3>延伸阅读</h3>
+
+<ol>
+  <li>
+    <p><b>Bastiat, F. (1850), 《看得见的与看不见的》（Ce qu'on voit et ce qu'on ne voit pas / That Which Is Seen, and That Which Is Not Seen）</b></p>
+    <p><b>难度：★☆☆</b>（很短，一个下午能读完，没有任何数学）<br>
+    <b>为什么值得读</b>：这是「机会成本」这个思维方式最早、也仍然是最好的一次表达。开篇的「破窗谬误」（有人打破窗户，玻璃匠有生意做，所以打破窗户促进经济？）是每个学经济学的人的第一课。它写于 1850 年，但你今天在新闻里看到的一半经济论证，都还在犯它指出的那个错误。<br>
+    <a href="https://www.econlib.org/library/Bastiat/basEss1.html">Econlib 免费英文全文</a></p>
+  </li>
+  <li>
+    <p><b>Hufbauer, G. C., &amp; Lowry, S. (2012), "US Tire Tariffs: Saving Few Jobs at High Cost," PIIE Policy Brief 12-9</b></p>
+    <p><b>难度：★★☆</b>（约 10 页，有少量表格，无高等数学）<br>
+    <b>为什么值得读</b>：这是今天环 6 的来源。它是一份「机会成本框架应用于具体政策」的完整示范——你可以看到研究者是怎么从「保住 1,200 个岗位」这个说法出发，一步步把成本算出来的。特别注意他们怎么处理「11 亿里有多少进了工人口袋」这个问题，这是最见功力的地方。<br>
+    <a href="https://ideas.repec.org/p/iie/pbrief/pb12-9.html">RePEc 摘要与下载页</a></p>
+  </li>
+  <li>
+    <p><b>Autor, D. H., Dorn, D., &amp; Hanson, G. H. (2013), "The China Syndrome," <i>American Economic Review</i> 103(6)</b></p>
+    <p><b>难度：★★★</b>（正式的实证论文，有计量方法。<b>建议只读摘要 + 引言 + 结论，跳过第 3–5 节的计量部分</b>）<br>
+    <b>为什么值得读</b>：这是过去二十年最有影响力的贸易实证论文之一，也是今天环 7 反方的来源。它改变了整个学界对「贸易调整成本」的看法。即使你完全看不懂计量方法，读引言和结论也能理解它在争什么。<b>读它的价值在于：让你亲眼看到，一个被认为是常识的结论（贸易总体有利）如何被数据修正为一个更复杂的结论。</b><br>
+    <a href="https://www.nber.org/system/files/working_papers/w18054/w18054.pdf">NBER 工作论文全文（免费 PDF）</a></p>
+  </li>
+</ol>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p><strong>这不是免责声明，是给你的可信度地图。</strong>下面这张表告诉你：这篇材料的哪些部分你可以直接相信，哪些部分你应该自己再查一遍，哪些部分是我明说了接不上的。</p>
+
+<h3>A. 有一手／权威来源的部分</h3>
+
+<div class="tblwrap">
+<table>
+<tr><th>内容</th><th>来源</th><th>口径</th></tr>
+<tr><td>第 338 条法律依据、50% 上限、首次动用</td><td>白宫事实清单、White &amp; Case、Wiley</td><td>法律文本描述</td></tr>
+<tr><td>公告签署日 2026-07-20、生效 2026-08-22 0:01 ET、原定 08-19 后推迟三天</td><td>Wiley、tariffstool、ABC7、Axios</td><td>美东时间</td></tr>
+<tr><td>覆盖约 200 亿美元；分项 193 亿 + 10 亿 + 0.972 亿</td><td>Wiley（引 USTR「近 200 亿年进口」）、White &amp; Case（分项）</td><td><b>2024 年美国进口值</b>，非 2026 年，非加税后实际值。分项加总 = 204 亿，与 USTR 的「近 200 亿」略有出入，我保留两个数字未强行统一</td></tr>
+<tr><td>豁免：能源、钾肥、鱼、关键矿产、232 条商品、民用航空</td><td>白宫事实清单、tariffstool</td><td>—</td></tr>
+<tr><td>USMCA 原产地不豁免</td><td>White &amp; Case、Wiley</td><td>—</td></tr>
+<tr><td>56 亿美元汽车出口下降 22%；5.82 亿酒类下降 81%</td><td>白宫事实清单</td><td><b>口径缺口</b>：白宫未标明是哪个 12 个月区间的同比，我未能补全</td></tr>
+<tr><td>加方 9 月 8 日「dollar for dollar」反制及商品范围</td><td>NPR、ABC7、Global News（引 Carney 讲话）</td><td>声明，非已公布的正式清单</td></tr>
+<tr><td>Carney 列出的三个分歧点</td><td>Global News</td><td>加方单方面说法；美方（Greer）说法相反</td></tr>
+<tr><td>美国 2025 年自加货物进口 3,819 亿；对加出口 3,336 亿</td><td>USTR 国别页</td><td>货物贸易，2025 全年</td></tr>
+<tr><td>美国名义 GDP 32,475.2 十亿美元</td><td>BEA / FRED 系列 GDP</td><td><b>2026 年 Q2，季调折年率</b></td></tr>
+<tr><td>美联储目标区间 3.50–3.75%</td><td>美联储 2026-07-29 FOMC 声明（一手）</td><td>联邦基金利率目标区间</td></tr>
+<tr><td>加拿大央行 2.25%</td><td>加拿大央行 2026-07-15 公告（一手）</td><td>隔夜利率目标</td></tr>
+<tr><td>2018 年关税完全传递、每月 14 亿美元实际收入损失</td><td>Amiti/Redding/Weinstein, JEP 33(4), 2019</td><td>2018 年美国关税，非本次事件</td></tr>
+<tr><td>轮胎关税：≤1,200 岗位、2011 年约 11 亿消费者成本、≥90 万／岗位</td><td>Hufbauer &amp; Lowry, PIIE PB12-9, 2012</td><td>2009 年关税，2011 年成本口径；1,200 是上限估计</td></tr>
+<tr><td>进口竞争解释约 1/4 制造业就业下降；转移支付上升</td><td>Autor/Dorn/Hanson, AER 103(6), 2013</td><td>1990–2007 年美国地方劳动力市场</td></tr>
+<tr><td>8/21 收盘与 8/24 11:37 ET 盘中股指、10Y、VIX</td><td>Yahoo Finance（8/21 收盘）、Motley Fool（8/24 盘中）</td><td>价格指数，不含股息；<b>8/24 是盘中不是收盘</b></td></tr>
+</table>
+</div>
+
+<h3>B. 纯算术推导的部分（你可以自己验算）</h3>
+
+<ul>
+  <li>200 亿 × 50% = 100 亿（环 2）</li>
+  <li>200 ÷ 3,819 = 5.24%（受影响商品占自加进口比重）</li>
+  <li>100 亿 ÷ 32.475 万亿 = 0.031%（占 GDP 比重，环 8）</li>
+  <li>100 ÷ 61.8 = 1.62（成本上限 ÷ 目标收益，环 5）</li>
+  <li>11 亿 ÷ 1,200 = 约 91.7 万（环 6）</li>
+  <li>4.734% − 4.69% = 0.044 个百分点 = 4.4 个基点（环 8）</li>
+  <li>15.13 ÷ √252 = 约 0.95%／天（环 8）</li>
+  <li>第 4 节和第 8 节的所有算例（<b>数字均已标注为示意数字</b>）</li>
+</ul>
+
+<h3>C. 我明确没查实 / 接不上的部分</h3>
+
+<div class="box brk">
+<span class="tag">诚实清单</span>
+<ol>
+  <li><b>8 月 24 日的收盘数据，我没拿到。</b>只有 11:37 ET 的盘中数据。所有涉及 8/24 的股指描述都应按「盘中」理解。</li>
+  <li><b>黄金和原油的当日数据，我查到的两个来源互相矛盾</b>（Yahoo 报 8/21 黄金 4,731.80，Motley Fool 报 8/24 盘中 4,671.09 且标「+1.20%」——若前者是收盘，后者应为下跌）。<b>原因可能是现货与期货、不同合约月份的口径差异，我未能确认。因此本文完全没有使用黄金和原油数据。</b></li>
+  <li><b>关税对美股／美债价格的影响，我接不上。</b>规模仅为 GDP 的 0.03%，且当日有伊朗制裁、英伟达财报预期、Jackson Hole 会议等多个因素。我没有找到任何可靠来源做过归因，也没有自己编一个。</li>
+  <li><b>USDCAD 的 0.50% 变动无法拆解。</b>数值来自自动化行情聚合站（来源质量弱于本文其他材料），且该来源自己列了四个驱动因素。政策利率部分我另行用一手来源核实过。</li>
+  <li><b>无谓损失的规模，我没有给数字。</b>需要本批商品的需求弹性估计，我没有找到，不编。</li>
+  <li><b>我没有读到三份公告的《联邦公报》原文</b>，第 1 节的法律细节全部依赖白宫事实清单和三家律所的解读。这些是高质量的二手来源，但不是原始文本。</li>
+  <li><b>白宫「56 亿 / 22%」和「5.82 亿 / 81%」的具体时间区间未标明</b>，我未能从公开材料中补全。引用时请留意这个口径缺口。</li>
+  <li><b>本次关税对具体上市公司的影响，我没有查。</b>因此第 4 节没有提任何个股或行业配置。</li>
+  <li><b>第 4 节末尾的「若冲突扩大到整个汽车产业链」是我的推测</b>，已放在带虚线边框的推测框内，并写明了反方看法和需要什么材料才能判断。</li>
+  <li><b>第 5 节的「VIX 低说明市场不担心关税」这句，我在文内自我降级了。</b>VIX 低可能有与关税无关的原因（如八月低成交量）。我保留了这个观察，但明确写了它只能支持较弱的结论。</li>
+</ol>
+</div>
+
+<h3>D. 一句方法论上的说明</h3>
+
+<p>今天这条链有 9 环，其中 <strong>7 环有出处或纯算术，2 环是虚线（接不上）</strong>。我本来可以在环 8 写一句「关税加剧了避险情绪，推动资金流入美债，10 年期收益率下行 4 个基点」——这句话听起来完全成立，甚至有数据支持（收益率确实跌了 4 个基点）。</p>
+
+<p><strong>但它是编的。</strong>我没有任何证据表明那 4 个基点和关税有关。这就是「事后叙事」最危险的地方：它用真数据包装假因果，读起来和真的一模一样。</p>
+
+<p>所以我没写。这条链就停在环 7。</p>
+
+<div class="foot">
+<p>Day 8 ｜ 领域 H（原理、制度与长周期）｜ 锚点原理 H1：稀缺、选择与机会成本</p>
+<p>本材料为教学分析，不构成任何投资建议。所有引用来源与口径见第 9 节。若你发现任何数字或引述有误，那是我的错误，请指出——知识的正确性优先于一切。</p>
+</div>
+
+</div>
+</body>
+</html>
