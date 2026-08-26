@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 9 · 隔夜利率是怎么被摁住的</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1c1b18; --muted:#5f5c55; --line:#e0dcd2;
+  --card:#ffffff; --accent:#8a5a00; --accent-bg:#fff7e8;
+  --guess-line:#c2410c; --guess-bg:#fff3ed; --guess-fg:#7c2d12;
+  --calc-line:#1e6f5c; --calc-bg:#eefaf5; --calc-fg:#0f4f40;
+  --src-line:#2b5f9e; --src-bg:#eef4fb; --src-fg:#1b4372;
+  --break-line:#6b21a8; --break-bg:#f6efff; --break-fg:#4c1d95;
+  --code:#f1efe9;
+  --svg-ink:#1c1b18; --svg-soft:#6f6b62; --svg-fill:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+:root{
+  --bg:#16151a; --fg:#e9e6df; --muted:#a5a096; --line:#33313a;
+  --card:#1e1d23; --accent:#f0b45e; --accent-bg:#2a2318;
+  --guess-line:#f97316; --guess-bg:#2c1a11; --guess-fg:#fdba74;
+  --calc-line:#34d399; --calc-bg:#10241f; --calc-fg:#6ee7b7;
+  --src-line:#60a5fa; --src-bg:#121e2e; --src-fg:#93c5fd;
+  --break-line:#c084fc; --break-bg:#231a2e; --break-fg:#d8b4fe;
+  --code:#26252c;
+  --svg-ink:#e9e6df; --svg-soft:#a5a096; --svg-fill:#1e1d23;
+}
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:"Noto Serif SC","Songti SC","Source Han Serif SC",Georgia,"PingFang SC","Microsoft YaHei",serif;
+  font-size:17.5px; line-height:1.95; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:32px 20px 96px}
+h1{font-size:1.72em;line-height:1.4;margin:.2em 0 .1em;letter-spacing:-.01em}
+h2{font-size:1.28em;margin:2.6em 0 .7em;padding-bottom:.35em;border-bottom:2px solid var(--line);letter-spacing:-.005em}
+h3{font-size:1.08em;margin:2em 0 .5em;color:var(--fg)}
+h4{font-size:1em;margin:1.5em 0 .4em;color:var(--muted);font-weight:600}
+p{margin:.85em 0}
+a{color:var(--src-line);text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+.kicker{color:var(--muted);font-size:.85em;letter-spacing:.08em;text-transform:uppercase;margin:0}
+.sub{color:var(--muted);font-size:.95em;margin:.4em 0 0}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+code,.num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:var(--code);padding:1px 5px;border-radius:4px}
+.box{border-radius:10px;padding:14px 18px;margin:1.4em 0;border:1px solid var(--line);background:var(--card)}
+.box p:first-child{margin-top:0}
+.box p:last-child{margin-bottom:0}
+.tag{display:inline-block;font-size:.72em;letter-spacing:.06em;font-weight:700;padding:2px 9px;border-radius:99px;margin-bottom:.5em;font-family:system-ui,sans-serif}
+.guess{border:2px dashed var(--guess-line);background:var(--guess-bg);color:var(--guess-fg)}
+.guess .tag{background:var(--guess-line);color:#fff}
+.guess a{color:var(--guess-fg)}
+.calc{border-left:4px solid var(--calc-line);background:var(--calc-bg)}
+.calc .tag{background:var(--calc-line);color:#04231b}
+.brk{border-left:4px solid var(--break-line);background:var(--break-bg)}
+.brk .tag{background:var(--break-line);color:#fff}
+.src{font-size:.86em;color:var(--muted);border-left:3px solid var(--src-line);background:var(--src-bg);padding:8px 14px;margin:1em 0;border-radius:0 6px 6px 0}
+.src b{color:var(--src-fg)}
+.math{background:var(--code);border-radius:8px;padding:12px 16px;margin:1em 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em;line-height:2;overflow-x:auto}
+.math .r{color:var(--accent);font-weight:700}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.3em 0;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.9em;font-family:system-ui,-apple-system,sans-serif;min-width:460px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--card);font-weight:700;font-size:.9em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.fig{margin:1.8em 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.fig-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;height:auto;max-width:100%}
+.cap{font-size:.85em;color:var(--muted);margin-top:.8em;line-height:1.7}
+details{border:1px solid var(--line);border-radius:8px;padding:10px 16px;margin:.9em 0;background:var(--card)}
+summary{cursor:pointer;font-weight:600;font-size:.95em}
+details[open] summary{margin-bottom:.6em;padding-bottom:.5em;border-bottom:1px solid var(--line)}
+blockquote{margin:1.2em 0;padding:.6em 0 .6em 18px;border-left:3px solid var(--line);color:var(--muted);font-size:.95em}
+ul,ol{padding-left:1.4em}
+li{margin:.4em 0}
+.lead{font-size:1.05em}
+.ring{display:inline-block;font-family:system-ui,sans-serif;font-size:.75em;font-weight:700;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent);padding:2px 10px;border-radius:99px;margin-right:.5em;vertical-align:middle}
+.anchor-badge{background:var(--accent);color:var(--bg)}
+.tiny{font-size:.85em;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="kicker">Day 9 · 领域 A 货币政策与利率体系 · 锚点原理 A2</p>
+<h1>隔夜利率是怎么被摁住的：准备金与利率走廊</h1>
+<p class="sub">起点事件：2026 年 8 月 25 日下午两点，美联储公布 7 月 20 日与 7 月 29 日贴现率会议纪要</p>
+
+<hr>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p class="lead">今天从一份刚刚公布的会议纪要出发。这份纪要只说了一件很小的事：美联储把一个叫「贴现率」的东西维持在 3.75%。看起来无聊，但它正好是一整套价格控制装置的最上面那一格。</p>
+
+<p>今天要讲明白的道理是：<strong>央行其实不能直接规定利率。</strong>它只能宣布一个区间，然后在区间的上下两端各摆一个「无限量接单」的柜台，逼着市场价格自己落进区间里。这套装置能不能奏效，取决于一个跟利率毫无关系的东西——银行系统里躺着多少现金。</p>
+
+<p>读完你能回答：为什么 8 月 24 日美国的隔夜拆借利率恰好是 3.63%，不是 3.50%、不是 3.75%、也不是 3.65%？以及，什么情况下这个数会突然失控。</p>
+
+<hr>
+
+<h2>1｜今天的事件</h2>
+
+<h3>1.1 事件本身</h3>
+
+<p>美国东部时间 2026 年 8 月 25 日下午 2:00，美联储理事会发布新闻稿，公布了 7 月 20 日和 7 月 29 日两次「贴现率会议」的纪要。</p>
+
+<p>先解释一下这是什么会。美联储不是一家机构，是一个体系：华盛顿有一个七人的理事会（Board of Governors），全国还有 12 家地区性的联邦储备银行（纽约、克利夫兰、达拉斯……）。这 12 家各有自己的董事会。<strong>贴现率</strong>——也就是银行直接找美联储借钱要付的利率——的定价程序是：各地区联储的董事会先各自投票提一个数，报给华盛顿的理事会，理事会拍板。</p>
+
+<p>这跟定「联邦基金利率目标区间」是两套程序。新闻稿自己就写了这句话：</p>
+
+<blockquote>The Board's process for setting the discount rate is distinct from the process the Federal Open Market Committee follows in setting the target range for the federal funds rate.<br>
+<span class="tiny">（理事会设定贴现率的程序，与联邦公开市场委员会设定联邦基金利率目标区间的程序，是不同的。）</span></blockquote>
+
+<h4>纪要里的投票记录</h4>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>会议</th><th>投给 3.75%（维持）</th><th>投给 4.00%（加息）</th><th>理事会决定</th></tr>
+<tr><td>7 月 20 日</td><td>纽约、里士满、亚特兰大、堪萨斯城、达拉斯、波士顿、费城、芝加哥、圣路易斯、旧金山（10 家）</td><td>克利夫兰、明尼阿波利斯（2 家）</td><td>维持 3.75%</td></tr>
+<tr><td>7 月 29 日</td><td>纽约、里士满、亚特兰大（3 家）</td><td>克利夫兰、明尼阿波利斯、堪萨斯城、达拉斯（4 家）</td><td>维持 3.75%，<br>自 7 月 30 日起生效</td></tr>
+</table>
+</div>
+
+<p class="tiny">注：7 月 29 日那次记录在案的只有 7 家联储的投票（各家董事会的投票日期不同，纪要按投票日期归档），不是 12 家全投了。这一点纪要原文写得很清楚，我按原文列，不做补齐。</p>
+
+<p>纪要对两次会议都写了同一句话：</p>
+
+<blockquote>No sentiment was expressed by the Board at today's meeting for changing the primary credit rate at this time.<br>
+<span class="tiny">（理事会在今天的会议上，没有表达出此时改变一级信贷利率的意向。）</span></blockquote>
+
+<p>还有一段关于经济状况的描述：</p>
+
+<blockquote>Employment levels remained steady across most Districts, though several directors noted hiring challenges for certain skilled positions... several directors commented on elevated inflation and noted that consumers were becoming increasingly price conscious.<br>
+<span class="tiny">（多数辖区就业稳定，但数位董事提到某些技术岗位招人困难……数位董事谈到通胀偏高，并指出消费者对价格越来越敏感。）</span></blockquote>
+
+<div class="src"><b>出处</b>　美联储理事会新闻稿与纪要 PDF，2026-08-25：<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260825a.htm">新闻稿</a>｜<a href="https://www.federalreserve.gov/newsevents/pressreleases/files/monetary20260825a1.pdf">纪要全文 PDF</a></div>
+
+<h3>1.2 需要摆在旁边的几组数字</h3>
+
+<p>光有纪要没法讲清楚。下面这些数字是我今天一并查到的，全部标明口径。<strong>请注意「生效日」和「数据日」不是一回事</strong>：政策利率是一个决定，它一直有效到下次改；市场利率是每天新出的一个观测值。</p>
+
+<h4>A. 美联储自己定的四个利率（都是年化，都是当前有效值）</h4>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>名称</th><th>数值</th><th>是什么</th><th>出处</th></tr>
+<tr><td>联邦基金利率目标区间</td><td>3.50%–3.75%</td><td>FOMC 想让市场隔夜拆借利率落在的区间</td><td>7/29 FOMC 声明</td></tr>
+<tr><td>准备金利息（IORB）</td><td>3.65%</td><td>银行把钱存在美联储账户能拿到的利息，7/30 起生效</td><td>7/29 实施说明</td></tr>
+<tr><td>隔夜逆回购报价（ON RRP）</td><td>3.50%</td><td>美联储向一批机构开出的「我按这个价收你的钱」，每家每天上限 1600 亿美元</td><td>7/29 实施说明</td></tr>
+<tr><td>一级信贷利率（贴现率）</td><td>3.75%</td><td>银行直接找美联储借钱要付的利息</td><td>今天这份纪要</td></tr>
+</table>
+</div>
+
+<p class="tiny">另：二级信贷利率 4.25%，季节性信贷 3.75%（贴现窗口官网）。这两个今天用不上，列出来只是让你知道贴现窗口不止一个价。</p>
+
+<div class="src"><b>出处</b>　<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">FOMC 实施说明 2026-07-29</a>（IORB 3.65%、ON RRP 3.50% 及 1600 亿上限、一级信贷 3.75%，均自 7 月 30 日生效）；<a href="https://www.frbdiscountwindow.org/">贴现窗口官网当前利率</a>；<a href="https://fred.stlouisfed.org/series/IORB">FRED: IORB</a></div>
+
+<h4>B. 市场当天实际成交出来的隔夜利率（数据日 2026-08-24，纽约联储 8 月 25 日上午发布）</h4>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>利率</th><th>中位数</th><th>第 25 百分位</th><th>第 75 百分位</th><th>成交量</th><th>是什么市场</th></tr>
+<tr><td>EFFR 有效联邦基金利率</td><td>3.63%</td><td>3.62%</td><td>3.63%</td><td>990 亿美元</td><td>无抵押隔夜拆借</td></tr>
+<tr><td>OBFR 隔夜银行融资利率</td><td>3.63%</td><td>3.62%</td><td>3.63%</td><td>2,230 亿美元</td><td>无抵押，范围更广</td></tr>
+<tr><td>SOFR 担保隔夜融资利率</td><td>3.65%</td><td>3.63%</td><td><strong>3.71%</strong></td><td><strong>29,190 亿美元</strong></td><td>拿国债作抵押的隔夜回购</td></tr>
+<tr><td>TGCR / BGCR</td><td>3.63% / 3.63%</td><td>3.63%</td><td>3.64%</td><td>11,800 / 12,140 亿</td><td>回购市场的两个子集</td></tr>
+</table>
+</div>
+
+<p>三个数字请先记住，后面全靠它们：<strong>EFFR = 3.63%，比 IORB 低 2 个基点。SOFR 中位数 = 3.65%，正好等于 IORB。SOFR 的第 75 百分位 = 3.71%，比 IORB 高 6 个基点。</strong></p>
+
+<p class="tiny">「基点」（basis point，bp）就是万分之一，也就是 0.01 个百分点。3.65% 减 3.63% = 0.02 个百分点 = 2 个基点。这个词今天会反复出现，它没有别的含义，纯粹是为了避免「百分之零点零二个百分点」这种绕口的说法。</p>
+
+<div class="src"><b>出处</b>　<a href="https://markets.newyorkfed.org/api/rates/all/latest.json">纽约联储参考利率 API（最新）</a>；SOFR 30 天历史见 <a href="https://markets.newyorkfed.org/api/rates/secured/sofr/last/30.json">此处</a></div>
+
+<h4>C. 「柜台」今天接了多少单</h4>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>日期</th><th>隔夜逆回购（ON RRP，美联储收钱）</th><th>常备回购便利（SRF，美联储放钱）</th></tr>
+<tr><td>2026-08-25</td><td>4.05 亿美元 @ 3.50%</td><td>0</td></tr>
+<tr><td>2026-08-24</td><td>3.80 亿美元 @ 3.50%</td><td>0</td></tr>
+<tr><td>2026-08-21</td><td>2.00 亿美元 @ 3.50%</td><td>—</td></tr>
+<tr><td>2026-08-20</td><td>2.25 亿美元 @ 3.50%</td><td>—</td></tr>
+</table>
+</div>
+
+<p>请注意这个量级：几亿美元。而 SOFR 那个市场一天成交 2.9 万亿。也就是说，美联储的「收钱柜台」今天基本上是空的——排队的人几乎没有。这一点后面很关键。</p>
+
+<div class="src"><b>出处</b>　<a href="https://markets.newyorkfed.org/api/rp/all/all/results/last/10.json">纽约联储回购操作结果 API</a></div>
+
+<h4>D. 银行系统里到底躺着多少钱（H.4.1，周报，截至 2026-08-19 当周）</h4>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>项目</th><th>金额</th><th>周变化</th></tr>
+<tr><td>准备金余额（银行存在美联储的钱）</td><td>29,352.87 亿美元（约 2.94 万亿）</td><td>−87.72 亿</td></tr>
+<tr><td>美联储总资产</td><td>67,456.99 亿美元（约 6.75 万亿）</td><td>—</td></tr>
+<tr><td>财政部一般账户（TGA）</td><td>9,536.12 亿美元</td><td>−103.38 亿</td></tr>
+<tr><td>逆回购合计（含外国官方账户）</td><td>3,736.86 亿美元</td><td>+139.77 亿</td></tr>
+</table>
+</div>
+
+<div class="src"><b>出处</b>　<a href="https://www.federalreserve.gov/releases/h41/current/">美联储 H.4.1 周报</a></div>
+
+<h4>E. 纽约联储的买债计划（8 月 14 日–9 月 14 日这一档）</h4>
+
+<blockquote>The Desk plans to conduct approximately $17.0 billion in reinvestment purchases and no reserve management purchases over the noted monthly period.<br>
+<span class="tiny">（交易台计划在该月度期间进行约 170 亿美元的再投资购买，不进行准备金管理购买。）</span></blockquote>
+
+<p>「不进行准备金管理购买」——这句话今天很重要，第 3 节环 5 会讲透它。</p>
+
+<div class="src"><b>出处</b>　<a href="https://www.newyorkfed.org/markets/domestic-market-operations/monetary-policy-implementation/treasury-securities/treasury-securities-operational-details">纽约联储国债操作明细页</a></div>
+
+<h4>F. 当天的市场落点（用来给链条找终点）</h4>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>指标</th><th>数值</th><th>口径与日期</th></tr>
+<tr><td>1 个月 / 3 个月国债收益率</td><td>3.80% / 3.88%</td><td>财政部票面收益率曲线，2026-08-21</td></tr>
+<tr><td>1 年 / 2 年</td><td>4.03% / 4.24%</td><td>同上</td></tr>
+<tr><td>10 年 / 30 年</td><td>4.74% / 5.27%</td><td>同上</td></tr>
+<tr><td>标普 500 收盘</td><td>7,652.86（前一交易日 7,674.37）</td><td>2026-08-24，FRED</td></tr>
+<tr><td>纳斯达克综合</td><td>25,980.19，跌 0.8%</td><td>2026-08-24，媒体汇总</td></tr>
+<tr><td>10 年 / 30 年国债（8-24 盘中报价）</td><td>4.704% / 5.234%</td><td>媒体汇总，非官方口径</td></tr>
+<tr><td>原油</td><td>82.74，跌 2.67%</td><td>媒体汇总，未注明 WTI 还是布伦特</td></tr>
+<tr><td>黄金</td><td>4,679.90，跌 0.38%</td><td>媒体汇总</td></tr>
+<tr><td>美元广义名义指数</td><td>118.06（2006 年 1 月 = 100）</td><td>2026-08-21，FRED DTWEXBGS</td></tr>
+<tr><td>USDSGD</td><td>1.2783</td><td>2026-08-14 纽约午盘牌价，FRED DEXSIUS（这是我能拿到的最新官方观测，已经滞后 10 天）</td></tr>
+</table>
+</div>
+
+<div class="src"><b>出处</b>　<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202608">美国财政部收益率曲线</a>；<a href="https://fred.stlouisfed.org/series/SP500">FRED SP500</a>；<a href="https://fred.stlouisfed.org/series/DTWEXBGS">FRED 广义美元指数</a>；<a href="https://fred.stlouisfed.org/series/DEXSIUS">FRED USDSGD</a>；<a href="https://finance.yahoo.com/markets/stocks/articles/stock-market-news-aug-25-132700491.html">当日市场汇总报道</a></div>
+
+<div class="box guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>我没有查到 VIX 当天的读数，也没有查到联邦基金期货隐含的加息路径概率。</strong>CME FedWatch 的数字我尝试过但没能取到。所以第 5 节里所有关于「市场在赌什么」的推算，我用的是国债收益率曲线做算术，不是期货概率。这两者结论通常接近，但不等价——国债收益率里混了期限溢价，期货隐含概率里没有（准确说是少得多）。这个区别我会在第 5 节里明确处理，不会当成同一个东西用。</p>
+</div>
+
+<hr>
+
+<h2>2｜传导链全图</h2>
+
+<div class="fig">
+<div class="fig-scroll">
+<svg viewBox="0 0 680 800" width="680" role="img" aria-label="今天的传导链示意图" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+<path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--svg-soft)"/>
+</marker>
+<marker id="ahd" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+<path d="M0,0 L7,3.2 L0,6.4 z" fill="#c2410c"/>
+</marker>
+</defs>
+<style>
+.bx{fill:var(--svg-fill);stroke:var(--svg-ink);stroke-width:1.6;rx:8}
+.bxd{fill:var(--svg-fill);stroke:#c2410c;stroke-width:1.8;stroke-dasharray:7 5;rx:8}
+.bxa{fill:var(--accent-bg);stroke:var(--accent);stroke-width:2.4;rx:8}
+.t{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;fill:var(--svg-ink);font-size:13.5px}
+.tb{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;fill:var(--svg-ink);font-size:14px;font-weight:700}
+.ts{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;fill:var(--svg-soft);font-size:11.5px}
+.td{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;fill:#c2410c;font-size:13px;font-weight:700}
+.ln{stroke:var(--svg-soft);stroke-width:1.8;fill:none}
+.lnd{stroke:#c2410c;stroke-width:1.8;fill:none;stroke-dasharray:7 5}
+</style>
+
+<rect class="bx" x="120" y="8" width="440" height="52"/>
+<text class="tb" x="340" y="30" text-anchor="middle">8 月 25 日事件：贴现率会议纪要公布</text>
+<text class="ts" x="340" y="49" text-anchor="middle">一级信贷利率维持 3.75%；4 家地区联储董事会想要 4.00%</text>
+<line class="ln" x1="340" y1="60" x2="340" y2="82" marker-end="url(#ah)"/>
+
+<rect class="bx" x="90" y="86" width="500" height="50"/>
+<text class="tb" x="340" y="107" text-anchor="middle">环 1｜央行没法直接规定市场利率，只能宣布一个区间</text>
+<text class="ts" x="340" y="126" text-anchor="middle">目标区间 3.50% – 3.75%（7/29 FOMC，9 票对 3 票）</text>
+<line class="ln" x1="340" y1="136" x2="340" y2="160"/>
+<line class="ln" x1="110" y1="160" x2="570" y2="160"/>
+<line class="ln" x1="110" y1="160" x2="110" y2="178" marker-end="url(#ah)"/>
+<line class="ln" x1="340" y1="160" x2="340" y2="178" marker-end="url(#ah)"/>
+<line class="ln" x1="570" y1="160" x2="570" y2="178" marker-end="url(#ah)"/>
+
+<rect class="bx" x="8" y="182" width="204" height="84"/>
+<text class="tb" x="110" y="204" text-anchor="middle">环 2｜地板</text>
+<text class="t" x="110" y="226" text-anchor="middle">ON RRP　3.50%</text>
+<text class="ts" x="110" y="245" text-anchor="middle">美联储无限量收钱</text>
+<text class="ts" x="110" y="259" text-anchor="middle">（每家每天上限 1600 亿）</text>
+
+<rect class="bx" x="238" y="182" width="204" height="84"/>
+<text class="tb" x="340" y="204" text-anchor="middle">环 3｜中枢</text>
+<text class="t" x="340" y="226" text-anchor="middle">IORB　3.65%</text>
+<text class="ts" x="340" y="245" text-anchor="middle">银行存在美联储的钱</text>
+<text class="ts" x="340" y="259" text-anchor="middle">拿到的利息</text>
+
+<rect class="bx" x="468" y="182" width="204" height="84"/>
+<text class="tb" x="570" y="204" text-anchor="middle">环 4｜天花板</text>
+<text class="t" x="570" y="226" text-anchor="middle">贴现率　3.75%</text>
+<text class="ts" x="570" y="245" text-anchor="middle">＋ 常备回购便利 SRF</text>
+<text class="ts" x="570" y="259" text-anchor="middle">美联储无限量放钱</text>
+
+<line class="ln" x1="110" y1="266" x2="110" y2="292"/>
+<line class="ln" x1="340" y1="266" x2="340" y2="292"/>
+<line class="ln" x1="570" y1="266" x2="570" y2="292"/>
+<line class="ln" x1="110" y1="292" x2="570" y2="292"/>
+<line class="ln" x1="340" y1="292" x2="340" y2="316" marker-end="url(#ah)"/>
+
+<rect class="bx" x="120" y="320" width="440" height="76"/>
+<text class="tb" x="340" y="343" text-anchor="middle">市场当天实际成交出来的隔夜利率</text>
+<text class="t" x="340" y="365" text-anchor="middle">EFFR 3.63%（比 IORB 低 2bp）　｜　SOFR 3.65%</text>
+<text class="ts" x="340" y="385" text-anchor="middle">但 SOFR 有四分之一的量成交在 3.71% 以上</text>
+<line class="ln" x1="340" y1="396" x2="340" y2="424" marker-end="url(#ah)"/>
+
+<rect class="bxa" x="40" y="428" width="600" height="118"/>
+<text class="tb" x="340" y="454" text-anchor="middle">环 5｜今日锚点原理：这套夹子成不成立，取决于准备金的数量</text>
+<text class="t" x="340" y="479" text-anchor="middle">准备金 2.94 万亿（周环比 −87.7 亿）</text>
+<text class="t" x="340" y="500" text-anchor="middle">美联储「收钱柜台」余额只剩 4 亿 —— 缓冲垫基本用完</text>
+<text class="t" x="340" y="521" text-anchor="middle">8/14–9/14 准备金管理购买 = 0，交易台判断暂时不用补</text>
+<text class="ts" x="340" y="538" text-anchor="middle">价格能不能被摁住，是一个关于数量的问题</text>
+
+<line class="lnd" x1="340" y1="546" x2="340" y2="588" marker-end="url(#ahd)"/>
+<text class="td" x="352" y="572">？</text>
+
+<rect class="bxd" x="60" y="592" width="560" height="90"/>
+<text class="td" x="340" y="617" text-anchor="middle">环 6｜从隔夜 3.63% 到 2 年期 4.24% —— 这一环我接不上</text>
+<text class="t" x="340" y="641" text-anchor="middle">2 年期国债 4.24%，比隔夜高 61bp；1 年期 4.03%</text>
+<text class="ts" x="340" y="662" text-anchor="middle">这个价差里混了「预期加息」和「期限溢价」两样东西，</text>
+<text class="ts" x="340" y="676" text-anchor="middle">今天我拿到的材料拆不开它们（见第 5 节的算术与第 9 节）</text>
+
+<rect x="8" y="702" width="664" height="90" rx="8" fill="none" stroke="var(--svg-soft)" stroke-width="1" stroke-dasharray="3 3"/>
+<text class="tb" x="24" y="724">图例</text>
+<line class="ln" x1="24" y1="742" x2="74" y2="742" marker-end="url(#ah)"/>
+<text class="ts" x="84" y="747">实线 = 这一环有一手来源，或是可以自己验算的算术</text>
+<line class="lnd" x1="24" y1="768" x2="74" y2="768" marker-end="url(#ahd)"/>
+<text class="ts" x="84" y="773">橙色虚线 = 我接不上，或只是我的推测</text>
+</svg>
+</div>
+<p class="cap"><strong>这条链用人话读一遍：</strong>今天公布的纪要给出了这套装置最上面那一格的价格（贴现率 3.75%）。把它和另外三个价格摆在一起，你会看到美联储其实是在做一件很朴素的事——它在市场的上下两端各开了一个「无限量接单」的柜台，下面那个说「你的钱我按 3.50% 全收」，上面那个说「你要借钱我按 3.75% 全放」。于是任何人都不会在 3.50% 以下把钱借出去，也不会在 3.75% 以上把钱借进来，市场价格只能落在这两格之间。当天它落在了 3.63%（无抵押）和 3.65%（有抵押）。<br><br>但这套夹子有一个前提：银行系统里得有足够多的现金，多到没人因为缺钱而急着抢。这个前提今天是成立的（SRF 一分钱没人借），可是缓冲垫已经很薄了（收钱柜台只剩 4 亿），而美联储这个月刚好决定不补。链条走到这里是扎实的。再往下——从隔夜利率走到 2 年期国债 4.24%——我今天拿到的材料拆不开，所以我把它画成虚线，不假装能走通。</p>
+</div>
+
+<hr>
+
+<h2>3｜逐环拆解</h2>
+
+<h3><span class="ring">环 0</span>先把「利率」这个词拆开</h3>
+
+<p>在开始之前必须先做一件事，否则后面全是黑箱：<strong>「利率」不是一个数，是一大堆数。</strong>今天出现的每一个百分数，都对应一个具体的、不同的交易。</p>
+
+<p>想象你有一笔钱要放一晚上，明天早上要拿回来。你可以：</p>
+
+<ul>
+<li>存进银行的活期账户 → 你拿到的是存款利率</li>
+<li>如果你自己是一家银行，可以把钱存在<strong>央行</strong>的账户里 → 你拿到的是准备金利息（IORB）</li>
+<li>借给另一家银行，对方不给任何抵押品，凭信用 → 这叫<strong>无抵押拆借</strong>，价格就是联邦基金利率</li>
+<li>借给别人，但要求对方拿国债押给你 → 这叫<strong>回购</strong>，价格就是 SOFR 那一类</li>
+</ul>
+
+<p>这四种交易，期限都是一晚上，但对手方不同、有没有抵押品不同，所以价格不同。今天全篇讲的都是「一晚上」这个期限，别的期限（1 年、2 年、10 年）留到第 5 节才碰。</p>
+
+<p>还有一个词今天要先说清：<strong>准备金</strong>（reserves）。它不是「银行金库里的现钞」。美国的每一家银行在美联储都开有一个账户，就像你在银行开的账户一样；这个账户里的余额，就叫准备金。银行之间转账，实质就是这些账户之间划来划去。<strong>整个系统的准备金总量，只有美联储能改变</strong>——银行之间互相转，总量不变，就像你把左口袋的钱塞进右口袋，你身上的钱没变。今天的数字是 2.94 万亿美元。</p>
+
+<div class="src"><b>依据</b>　准备金定义与 IORB 定义：<a href="https://www.federalreserve.gov/monetarypolicy/iorb-faqs.htm">美联储 IORB 常见问答</a>；准备金余额数据：H.4.1 周报。</div>
+
+<h3><span class="ring">环 1</span>为什么央行只能定一个「区间」，不能直接定价格</h3>
+
+<p>先说一件生活里的事。假设政府希望本市的西瓜卖 5 块钱一斤。它有两种做法。</p>
+
+<p><strong>做法一：下命令。</strong>贴一张告示：「本市西瓜一律 5 元」。问题是，卖西瓜的有几千家，市场管理处管不过来；而且真到了缺瓜的时候，买家愿意出 8 块，卖家愿意收 8 块，两个人躲进巷子里就成交了。命令管不住自愿交易。</p>
+
+<p><strong>做法二：自己开一个摊。</strong>政府在市场中央开一个摊位，挂两块牌子：「本摊按 4.5 元收购，你有多少我收多少」和「本摊按 5.5 元卖出，你要多少我卖多少」。注意「有多少收多少 / 要多少卖多少」这七个字是全部力量的来源。</p>
+
+<p>结果会怎样？</p>
+
+<p>假设有个瓜农想以 4 元卖给零售商。他为什么要这么干？政府摊位摆在那里，4.5 元照单全收。他只要多走五十米就多赚 0.5 元。<strong>所以没有任何理性的卖家会接受低于 4.5 元的价格。</strong>这就是地板。</p>
+
+<p>反过来，假设某个零售商想出 6 元抢货。他为什么要这么干？政府摊位 5.5 元要多少给多少。他多花的每一分钱都是白扔。<strong>所以没有任何理性的买家会付出高于 5.5 元的价格。</strong>这就是天花板。</p>
+
+<p>于是市场价格自己就落进了 4.5 到 5.5 这个区间。政府一道命令都没下，也没派一个人去执法。</p>
+
+<p><strong>这里要特别注意一件事，它是今天整篇的骨架：</strong>这套办法能奏效，靠的不是「政府说了算」，而是<strong>政府愿意在那个价格上无限量地接单</strong>。如果政府摊位只带了 100 斤瓜的收购预算，收完就关门，那么第 101 个瓜农就还是得接受 4 元。<strong>地板的硬度，等于柜台后面钱和货的充足程度。</strong>这句话请记住，环 5 整节都在讲它。</p>
+
+<p>央行做的就是做法二。它不能规定两家银行之间私下拆借的利率——那是自愿交易，管不了。它能做的是自己开两个柜台，然后宣布一个区间：<strong>3.50% 到 3.75%</strong>。</p>
+
+<div class="src"><b>依据</b>　目标区间 3.50%–3.75% 与 9:3 表决、三位反对者（Hammack、Kashkari、Logan）主张加息 25bp：<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">FOMC 声明 2026-07-29</a>。上面的西瓜摊是我编的教学例子，不是数据。</div>
+
+<h3><span class="ring">环 2</span>地板：ON RRP 3.50%</h3>
+
+<p>先看下面这张图，它把今天所有的数字放在了一根尺子上。</p>
+
+<div class="fig">
+<div class="fig-scroll">
+<svg viewBox="0 0 660 428" width="660" role="img" aria-label="利率阶梯图" xmlns="http://www.w3.org/2000/svg">
+<style>
+.ax{stroke:var(--svg-soft);stroke-width:1.4}
+.gl{stroke:var(--svg-soft);stroke-width:.8;stroke-dasharray:3 4}
+.adm{stroke:var(--svg-ink);stroke-width:2.6}
+.mkt{stroke:var(--accent);stroke-width:3}
+.lab{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:13px;fill:var(--svg-ink)}
+.labs{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:11.5px;fill:var(--svg-soft)}
+.labb{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:13px;font-weight:700;fill:var(--svg-ink)}
+.laba{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:13px;font-weight:700;fill:var(--accent)}
+</style>
+<rect x="150" y="40" width="330" height="240" fill="var(--accent-bg)" opacity=".55"/>
+
+
+<line class="ax" x1="150" y1="20" x2="150" y2="330"/>
+<text class="labs" x="140" y="45" text-anchor="end">3.75%</text>
+<text class="labs" x="140" y="125" text-anchor="end">3.68%</text>
+<text class="labs" x="140" y="165" text-anchor="end">3.65%</text>
+<text class="labs" x="140" y="205" text-anchor="end">3.62%</text>
+<text class="labs" x="140" y="285" text-anchor="end">3.50%</text>
+
+<line class="gl" x1="150" y1="40" x2="620" y2="40"/>
+<line class="gl" x1="150" y1="160" x2="620" y2="160"/>
+<line class="gl" x1="150" y1="280" x2="620" y2="280"/>
+
+<line class="adm" x1="150" y1="40" x2="380" y2="40"/>
+<text class="labb" x="388" y="36">贴现率 3.75%　天花板</text>
+<text class="labs" x="388" y="52">＝目标区间上沿。今天公布的就是它</text>
+
+<line class="adm" x1="150" y1="160" x2="380" y2="160"/>
+<text class="labb" x="388" y="156">IORB 3.65%　中枢</text>
+<text class="labs" x="388" y="172">银行存款在美联储拿到的利息</text>
+
+<line class="mkt" x1="150" y1="160" x2="330" y2="160"/>
+<circle cx="300" cy="160" r="5" fill="var(--accent)"/>
+<text class="laba" x="292" y="152" text-anchor="end">SOFR 3.65%</text>
+
+<line class="mkt" x1="150" y1="184" x2="330" y2="184"/>
+<circle cx="300" cy="184" r="5" fill="var(--accent)"/>
+<text class="laba" x="292" y="203" text-anchor="end">EFFR 3.63%</text>
+
+<line class="mkt" x1="150" y1="112" x2="255" y2="112" stroke-dasharray="5 4"/>
+<circle cx="240" cy="112" r="4" fill="var(--accent)"/>
+<text class="laba" x="264" y="110">SOFR 第 75 百分位 3.71%</text>
+<text class="labs" x="264" y="126">当天有四分之一的回购成交在这条线以上</text>
+
+<line class="adm" x1="150" y1="280" x2="380" y2="280"/>
+<text class="labb" x="388" y="276">ON RRP 3.50%　地板</text>
+<text class="labs" x="388" y="292">＝目标区间下沿。今天只有 4 亿人来排队</text>
+
+<line class="ax" x1="150" y1="330" x2="620" y2="330"/>
+<rect x="70" y="342" width="180" height="14" fill="var(--accent-bg)" opacity=".55"/>
+<text class="labs" x="258" y="353">＝FOMC 宣布的目标区间 3.50%–3.75%</text>
+<line class="adm" x1="70" y1="371" x2="250" y2="371"/>
+<text class="labs" x="258" y="376">深色横杠＝美联储自己挂出来的牌价</text>
+<line class="mkt" x1="70" y1="389" x2="250" y2="389"/>
+<text class="labs" x="258" y="394">橙色＝市场自己成交出来的价格（数据日 2026-08-24）</text>
+<text class="labs" x="70" y="414">纵轴不等距，仅为看清相对位置。</text>
+</svg>
+</div>
+<p class="cap">四条深色横杠是美联储挂出来的牌价，三个橙色圆点是市场当天真实成交出来的价格。注意橙色都落在浅色区间内，而且都贴着上半部分——它们没有落在中间，也没有贴着地板。为什么会这样，就是环 3 要回答的问题。</p>
+</div>
+
+<p>现在讲地板这一格。</p>
+
+<p><strong>ON RRP</strong> 的全称是 overnight reverse repurchase agreement，隔夜逆回购。名字很吓人，实际动作只有一句话：<strong>你把钱给美联储放一晚上，美联储给你一张国债作抵押，第二天还你本金加利息，利息按 3.50% 年化算。</strong></p>
+
+<p>为什么要叫「逆」回购？因为「回购」这个词是站在央行角度定义的：央行买进证券再卖回去，叫回购（放钱出去）；央行卖出证券再买回来，叫逆回购（收钱进来）。你只要记住方向：<strong>ON RRP = 美联储从市场上收钱</strong>。</p>
+
+<p>关键在于，美联储对这个柜台的承诺是：<strong>每家合格机构，每天最多 1600 亿美元，按 3.50% 照单全收。</strong>1600 亿是一个大到几乎等于「无限」的数字——今天全天实际来排队的只有 4.05 亿。</p>
+
+<h4>现在做一遍算术，看这个地板是怎么起作用的</h4>
+
+<p>假设你管理着一只货币市场基金，手上有 10 亿美元现金要放一晚上。有人来找你借，出价 3.40%。你接不接？</p>
+
+<div class="math">
+接受这笔 3.40% 的交易：<br>
+　10 亿 × 3.40% × (1÷360) = <span class="r">94,444 美元</span><br><br>
+放进美联储的 ON RRP，3.50%：<br>
+　10 亿 × 3.50% × (1÷360) = <span class="r">97,222 美元</span><br><br>
+差额：97,222 − 94,444 = <span class="r">2,778 美元</span>，一晚上白拿
+</div>
+
+<p class="tiny">（除以 360 是因为美国货币市场按一年 360 天计息，这是行业惯例，不是我编的。用 365 算结果只差一点点，不影响结论。）</p>
+
+<p>不但多赚 2,778 美元，而且对手方从一个可能违约的私人机构，换成了美联储——世界上最不可能赖账的对手。<strong>更高的收益，更低的风险，同样的期限。</strong>没有任何理由接受那笔 3.40%。</p>
+
+<p>把这个推理放大到所有合格机构身上，结论就是：<strong>只要你是 ON RRP 的合格对手方，你永远不会以低于 3.50% 的价格把隔夜资金借出去。</strong>这就是地板的全部机制。它不靠命令，靠的是每个人的自利。</p>
+
+<h4>这一环什么情况下会断</h4>
+
+<p>注意上面那句话里的限定词：<strong>「只要你是合格对手方」</strong>。ON RRP 不是对所有人开放的，只有美联储认可的一批机构（主要是货币市场基金、政府支持企业、一级交易商、银行）能用。<strong>不在名单上的人，没有这个 3.50% 的保底选项，他们可以、也确实会以更低的价格出借。</strong></p>
+
+<p>所以准确的说法不是「利率不会低于 3.50%」，而是「利率不会大幅、持续地低于 3.50%」。这类地板在业内被叫做<strong>「漏水的地板」（leaky floor）</strong>——它拦得住大部分水，但边缘会渗。这不是一个瑕疵，是这个设计的固有属性。</p>
+
+<div class="src"><b>这一环的依据</b>　ON RRP 报价 3.50%、每家每天上限 1600 亿：<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">FOMC 实施说明 2026-07-29</a>。当日实际用量 4.05 亿：<a href="https://markets.newyorkfed.org/api/rp/all/all/results/last/10.json">纽约联储操作结果</a>。「ON RRP 利率对 EFFR 起地板作用」：纽约联储 <a href="https://libertystreeteconomics.newyorkfed.org/2022/01/how-the-fed-adjusts-the-fed-funds-rate-within-its-target-range/">Liberty Street Economics, 2022-01</a>，原文 <em>"the ON RRP rate serves as a floor for the EFFR"</em>。上面 10 亿美元的例子是<strong>示意数字，只为演示算法</strong>，利率 3.40%/3.50% 中 3.50% 是真实牌价，3.40% 是我假设的报价。</div>
+
+<h3><span class="ring">环 3</span>为什么 EFFR 是 3.63%，恰好比 IORB 低 2 个基点</h3>
+
+<p>这一环是全篇最反直觉的地方，也是最能说明「机制」和「命令」区别的地方。</p>
+
+<p>先摆出这个怪事：<strong>银行把钱存在美联储能拿 3.65%（IORB）。那为什么市场上还有人愿意以 3.63% 把钱借出去？他们为什么不直接存美联储？</strong></p>
+
+<p>答案是：<strong>因为借出去的那个人，没有资格拿 IORB。</strong></p>
+
+<h4>谁在借出，谁在借入</h4>
+
+<p>纽约联储自己做过统计，联邦基金市场今天的参与者结构是这样的：</p>
+
+<ul>
+<li><strong>出借方：联邦住房贷款银行（FHLB）</strong>——一批由国会设立、为住房金融服务的机构。它们占了这个市场日成交量的九成以上。<strong>关键点：FHLB 在美联储有账户，但按法律规定，它们的账户余额不计息。</strong>钱放在那里，利息是零。</li>
+<li><strong>借入方：外国银行在美国的分支机构</strong>——它们占日成交量的 65%–95%。这些机构是能拿 IORB 的。</li>
+</ul>
+
+<p>现在这笔交易的逻辑就清楚了。</p>
+
+<h4>算术：出借方的账</h4>
+
+<p>FHLB 手上有 10 亿美元（示意数字）。它的选项是：</p>
+
+<div class="math">
+放在美联储账户里　　→　利息 <span class="r">0</span><br>
+放进 ON RRP（它有资格）→　3.50%，一晚上 97,222 美元<br>
+拆借给外国银行分支　→　对方出价 3.63%，一晚上 100,833 美元
+</div>
+
+<p>它当然选最后一个。<strong>但它的底线不是零，是 3.50%</strong>——因为 ON RRP 这个柜台它也能用。所以 FHLB 会接受任何高于 3.50% 的报价。</p>
+
+<h4>算术：借入方的账</h4>
+
+<p>外国银行分支借来 10 亿，转手存进自己的美联储账户吃 IORB：</p>
+
+<div class="math">
+付出去（借钱成本 3.63%）：<br>
+　10 亿 × 3.63% × (1÷360) = <span class="r">100,833 美元</span><br><br>
+收回来（IORB 3.65%）：<br>
+　10 亿 × 3.65% × (1÷360) = <span class="r">101,389 美元</span><br><br>
+一晚上净赚：101,389 − 100,833 = <span class="r">556 美元</span><br>
+折算成年化，就是 10 亿 × 0.02% = <span class="r">20 万美元／年</span>
+</div>
+
+<p>556 美元听起来很少。但这笔交易：没有价格风险（今天借今天还）、没有信用风险（钱存在美联储）、不占多少资本。<strong>它是一笔近乎白捡的钱。</strong>所以只要 EFFR 低于 3.65%，就会有人做这笔交易，做的人越多，抢着借钱的人越多，EFFR 就被推得越高，越贴近 3.65%。</p>
+
+<p>你可能会想：<strong>那为什么不干脆推到 3.65%，把这 556 美元全吃光？</strong></p>
+
+<p>因为这笔交易对外国银行分支来说不是完全免费的。它要占用资产负债表空间（这会影响一些监管比率的计算），还有操作成本。所以它们不会为了赚 0.1 个基点去做这笔交易，得留下一点利润才划算。这留下的一点，就是那 2 个基点。</p>
+
+<h4>把两边合起来</h4>
+
+<div class="math">
+出借方的底线（ON RRP）　　　　3.50%<br>
+借入方的上限（IORB）　　　　　3.65%<br>
+　　　　　　　　　　　　　　　─────<br>
+可成交的区间　　　　　　　　　<span class="r">3.50% ～ 3.65%</span><br>
+当天实际成交（EFFR 中位数）　　<span class="r">3.63%</span>
+</div>
+
+<p><strong>这 15 个基点宽的带子，是算术推出来的，你可以自己验一遍。</strong>但成交价为什么落在带子的顶部（3.63）而不是底部（3.52），算术推不出来——那取决于双方的议价能力，而议价能力又取决于「钱多不多」。</p>
+
+<p>纽约联储对这一点有一个已发表的经验规律：<strong>准备金越充裕，EFFR 相对 IORB 的负价差就越大（也就是越往带子底部走）；准备金减少时，这个价差收窄（往顶部走）。</strong>今天 EFFR 只低于 IORB 2 个基点，按这个规律读，属于价差已经很窄的状态。</p>
+
+<div class="box guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>我很想说「2bp 的窄价差说明准备金已经不宽裕了」，但今天我不能这么说。</strong>因为我没有查到这个价差的历史分布——我不知道 2bp 在过去两年里算窄还是算常态。纽约联储那条规律是定性的（「越充裕越负」），我手上没有把它变成定量判断的材料。</p>
+<p><strong>反对的看法是什么：</strong>价差也可能只是因为参与者结构、监管比率的季节性、或者外资行的资产负债表约束在变，跟准备金总量关系不大。</p>
+<p><strong>要判断需要什么材料：</strong>EFFR−IORB 价差的两年逐日序列，以及同期准备金／银行总资产的比值。这两个我今天没取到。</p>
+</div>
+
+<h4>这一环什么情况下会断</h4>
+
+<p>如果 FHLB 突然被允许拿 IORB，这个市场会立刻萎缩——因为出借方不再有「宁可 3.63% 也比 0 强」的动机。这不是假想：这个市场之所以还活着，很大程度上是一个法律细节的产物。<strong>一个每天成交 990 亿美元、被全世界当作基准的利率，它的存在依赖于一条关于哪些机构可以拿利息的规定。</strong></p>
+
+<div class="src"><b>这一环的依据</b>　FHLB 占联邦基金市场日成交量九成以上、因其在央行的余额不计息而愿意以低于 IORB 的价格出借；外国银行分支占日成交量 65%–95%：纽约联储 <a href="https://libertystreeteconomics.newyorkfed.org/2023/10/whos-borrowing-and-lending-in-the-fed-funds-market-today">Liberty Street Economics, 2023-10</a>。EFFR–IORB 价差随准备金充裕度变化：<a href="https://libertystreeteconomics.newyorkfed.org/2022/01/how-the-fed-adjusts-the-fed-funds-rate-within-its-target-range/">同上 2022-01 篇</a>。EFFR 3.63%、成交量 990 亿：纽约联储参考利率。上面的 10 亿美元是<strong>示意数字</strong>；3.50%、3.63%、3.65% 三个利率是真实数据。「占用资产负债表空间所以留 2bp 利润」这个具体归因是我的解释，不是原文，严格说属于推测——我把它写在这里是因为它是纯逻辑（做一笔有成本的交易需要留利润），但它解释不了「为什么恰好是 2bp 而不是 3bp」。</div>
+
+<h3><span class="ring">环 4</span>天花板：今天公布的那个 3.75%</h3>
+
+<p>现在回到今天的事件本身。</p>
+
+<p><strong>贴现率</strong>（美联储现在的正式叫法是「一级信贷利率」，primary credit rate）就是：一家银行缺钱了，可以直接找美联储借，拿合格的证券作抵押，付 3.75% 的利息。这个柜台叫<strong>贴现窗口</strong>（discount window）。</p>
+
+<p>逻辑跟地板完全对称：如果市场上借钱要付 3.90%，而银行找美联储只要付 3.75%，那就没人会去市场上借。所以 3.75% 应该是一个天花板。</p>
+
+<p><strong>但这个天花板，是四格里最不结实的一格。</strong>原因是一个跟利率无关的东西：<strong>污名</strong>（stigma）。</p>
+
+<p>用生活的例子来说：假设公司里有一项福利，员工遇到困难可以向 HR 申请一笔低息应急贷款，利率比外面低。听起来很好。但如果全公司都知道「谁去申请了，说明谁快撑不住了」，那么大多数人宁可去外面借贵的，也不去申请。<strong>这笔贷款便宜，但它附带一个信号：我有麻烦了。</strong></p>
+
+<p>银行去贴现窗口借钱面临同样的问题。历史上，一家银行被发现在用贴现窗口，市场往往解读为「它借不到别的钱了」，于是储户和交易对手会开始撤离——那才是真正的灾难。所以银行宁可在市场上多付几十个基点。<strong>结果是：贴现率名义上是天花板，实际上市场利率可以短暂地穿过它，因为没人真的去用。</strong></p>
+
+<h4>美联储为此加了第二个天花板</h4>
+
+<p>为了解决这个问题，美联储另设了一个柜台叫<strong>常备回购便利</strong>（Standing Repo Facility，SRF）。它的动作跟贴现窗口类似（放钱出去，收国债作抵押），但设计成一个例行的市场操作而不是「救助」，污名小得多。美联储自己对它的功能描述是：</p>
+
+<blockquote>SRP operations limit upward pressures in overnight funding markets that could spill over to the federal funds markets.<br>
+<span class="tiny">（常备回购操作会限制隔夜融资市场的上行压力，防止其外溢到联邦基金市场。）</span></blockquote>
+
+<p><strong>今天 SRF 的用量是 0。</strong>8 月 24 日 0，8 月 25 日 0。这是一个好消息：说明当前没有任何机构缺钱缺到需要来敲美联储的门。它同时也是一个信息——第 5 节会用到它。</p>
+
+<h4>这一环什么情况下会断</h4>
+
+<p>SRF 只对一批合格对手方开放（一级交易商和部分存款机构）。<strong>如果缺钱的是不在名单上的人——比如某个对冲基金——它没法直接来敲门。</strong>它只能去回购市场上抢钱，把 SOFR 推高。天花板对它不生效。</p>
+
+<p>这正好解释了今天 SOFR 的形状：中位数 3.65%，但第 75 百分位是 3.71%，第 99 百分位是 3.73%。<strong>也就是说，当天有四分之一的回购成交价格在 3.71% 以上——高于 IORB，正在往天花板爬。</strong>成交量最大的那一群人（拿到 3.63% 的）很舒服，边缘上的那一群人在付更高的价。</p>
+
+<div class="src"><b>这一环的依据</b>　一级信贷利率 3.75%：<a href="https://www.federalreserve.gov/newsevents/pressreleases/files/monetary20260825a1.pdf">今日贴现率纪要</a>。SRF 功能与引文：<a href="https://www.federalreserve.gov/monetarypolicy/standing-overnight-repurchase-agreements.htm">美联储常备回购操作说明页</a>。SRF 当日用量 0、SOFR 分位数：纽约联储 API。<strong>「污名」这个机制我今天没有找到一手来源</strong>——它是文献里的标准结论（贴现窗口污名是几十年的老问题），但我今天没读到具体那篇。所以严格按规则，这一段的机制描述属于「我读过的公认结论但今天没核对来源」，我把它标在这里，请你按七折信任，别当作我今天验证过的东西。</div>
+
+<h3><span class="anchor-badge ring">环 5 · 今日锚点原理</span>价格能不能被摁住，是一个关于数量的问题</h3>
+
+<p>前面四环讲完了，你手上有一套完整的价格控制装置。现在问一个问题，这个问题就是今天的主菜：</p>
+
+<p class="lead"><strong>这套装置需要什么前提才成立？</strong></p>
+
+<p>回到西瓜摊。政府摊位说「你有多少我收多少」，这句话要兑现，摊位后面得有钱。如果预算是无限的，那地板永远硬。但天花板不一样：政府说「你要多少我卖多少」，这要兑现，摊位后面得有<strong>瓜</strong>。而瓜是有限的。</p>
+
+<p>央行的情况恰好是<strong>反过来的</strong>，而且这个反转是理解整件事的关键。</p>
+
+<ul>
+<li><strong>地板（收钱）</strong>：央行收钱是无限的，因为它收进来的是自己的负债——它给你记一笔账就行。所以地板从技术上说，硬度是无限的。</li>
+<li><strong>天花板（放钱）</strong>：央行放钱在技术上也是无限的（它可以凭空创造准备金）。但<strong>去用这个柜台的人是有限的</strong>，因为有污名、有资格限制、有抵押品要求。</li>
+</ul>
+
+<p>所以真正的问题不在柜台，在<strong>柜台之外的那片海</strong>：银行系统里本来就躺着多少钱。</p>
+
+<h4>先用生活的例子建立直觉</h4>
+
+<p>想象一个城市有 100 个人，每个人每天都可能临时需要用车。</p>
+
+<p><strong>情形一：城里有 500 辆共享单车。</strong>你随时能找到一辆。这时候如果有人想租你的单车，你会说「你给我多少都行，反正我不缺，路边就有」。单车的租金几乎为零，而且很稳定——今天少 20 辆、明天多 20 辆，你完全感觉不到。</p>
+
+<p><strong>情形二：城里只有 95 辆单车，但有 100 个人要用。</strong>现在每天有 5 个人找不到车。租金会立刻飙升，而且极不稳定：今天少 2 辆，租金翻倍；明天多 2 辆，租金腰斩。<strong>同样是「少 2 辆」，在情形一里毫无感觉，在情形二里天翻地覆。</strong></p>
+
+<p>准备金就是这个城市的单车。它的需求曲线长这样：</p>
+
+<div class="fig">
+<div class="fig-scroll">
+<svg viewBox="0 0 640 400" width="640" role="img" aria-label="准备金需求曲线示意图" xmlns="http://www.w3.org/2000/svg">
+<style>
+.axl{stroke:var(--svg-soft);stroke-width:1.6}
+.crv{stroke:var(--svg-ink);stroke-width:2.6;fill:none}
+.sup{stroke:var(--accent);stroke-width:2.4;stroke-dasharray:6 4}
+.zl{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:12.5px;fill:var(--svg-soft)}
+.zb{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:13px;font-weight:700;fill:var(--svg-ink)}
+.za{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:12.5px;font-weight:700;fill:var(--accent)}
+</style>
+<line class="axl" x1="70" y1="330" x2="600" y2="330"/>
+<line class="axl" x1="70" y1="30" x2="70" y2="330"/>
+<text class="zb" x="335" y="368" text-anchor="middle">准备金总量（越往右越多）→</text>
+<text class="zb" x="20" y="180" transform="rotate(-90 20 180)" text-anchor="middle">市场隔夜利率</text>
+
+<path class="crv" d="M110,50 C150,55 175,90 195,150 C215,205 240,238 285,248 C340,258 430,258 580,258"/>
+
+<line class="axl" x1="70" y1="258" x2="600" y2="258" stroke-dasharray="2 4" stroke-width=".9"/>
+<text class="zl" x="605" y="262" text-anchor="end" opacity="0">.</text>
+
+<rect x="100" y="30" width="105" height="300" fill="#c2410c" opacity=".08"/>
+<text class="zb" x="152" y="392" text-anchor="middle" fill="#c2410c">稀缺区</text>
+<text class="zl" x="152" y="228" text-anchor="middle">曲线很陡：</text>
+<text class="zl" x="152" y="246" text-anchor="middle">准备金少一点点，</text>
+<text class="zl" x="152" y="264" text-anchor="middle">利率就跳很多</text>
+
+<rect x="205" y="30" width="115" height="300" fill="var(--accent)" opacity=".10"/>
+<text class="zb" x="262" y="392" text-anchor="middle">弯折区</text>
+<text class="zl" x="258" y="100" text-anchor="middle">没人知道</text>
+<text class="zl" x="258" y="118" text-anchor="middle">拐点在哪</text>
+
+<rect x="320" y="30" width="270" height="300" fill="#1e6f5c" opacity=".07"/>
+<text class="zb" x="455" y="392" text-anchor="middle">充裕区（ample）</text>
+<text class="zl" x="458" y="208" text-anchor="middle">曲线几乎是平的：准备金多几百亿少几百亿，利率纹丝不动</text>
+<text class="zl" x="458" y="186" text-anchor="middle">利率由 IORB 之类的牌价决定，不由数量决定</text>
+
+<line class="sup" x1="420" y1="30" x2="420" y2="330"/>
+<circle cx="420" cy="258" r="6" fill="var(--accent)"/>
+<text class="za" x="428" y="52">今天大致在这里？</text>
+<text class="za" x="428" y="70">准备金 2.94 万亿</text>
+<text class="zl" x="428" y="88">（横轴位置是示意，不是测量值）</text>
+
+<path d="M420,300 L360,300" stroke="var(--accent)" stroke-width="1.6" marker-end="none" fill="none"/>
+<path d="M366,296 L358,300 L366,304" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+<text class="za" x="352" y="304" text-anchor="end">准备金正在往左走</text>
+</svg>
+</div>
+<p class="cap">纵轴是市场隔夜利率，横轴是准备金总量。<strong>这条曲线的形状是全篇最重要的一张图。</strong>右边平坦区：利率对数量不敏感，央行靠挂牌价（IORB、ON RRP）就能精确控制利率。左边陡峭区：利率对数量极度敏感，挂牌价说了不算，谁缺钱谁出高价。中间那段没人知道确切位置——这正是本节要讲的核心难题。橙色竖线的位置是<strong>示意</strong>，我没有任何材料能告诉我今天的 2.94 万亿在这条曲线上的确切位置。</p>
+</div>
+
+<h4>这两个区域，央行的处境完全不同</h4>
+
+<p>在<strong>充裕区</strong>（图右边平坦那段），央行不需要每天调节数量。它只要把 IORB 挂在 3.65%，市场利率就自己贴着走。它今天买 100 亿国债还是卖 100 亿国债，对利率没有可测量的影响。<strong>这就是「利率由牌价决定」的世界。</strong>今天美国就在这个世界里。</p>
+
+<p>在<strong>稀缺区</strong>（图左边陡峭那段），一切都变了。牌价还是那个牌价，但没人理会——因为缺钱的人愿意付更高的价，而且必须付。这时候央行要控制利率，只剩一条路：每天下场调节数量。这是 2008 年以前全世界央行的日常工作，非常费力。</p>
+
+<h4>这不是理论。2019 年 9 月真的发生过</h4>
+
+<p>2019 年，美联储当时正在缩表，准备金一路下降。9 月 16 日星期一，两件早就在日历上、谁都知道的事同时发生：企业季度缴税，以及国债发行结算。这两件事都把钱从银行体系抽进财政部账户。</p>
+
+<div class="math">
+9 月 16 日单日：准备金减少 <span class="r">650 亿美元</span>，降至 2011 年以来最低<br>
+第二天 9 月 17 日：<br>
+　SOFR 中位数冲到 <span class="r">5% 以上</span><br>
+　SOFR 第 99 百分位冲到 <span class="r">9%</span><br>
+　EFFR 冲破了 FOMC 目标区间的上沿
+</div>
+
+<p>当时的目标区间是 2.00%–2.25%。也就是说，<strong>有抵押的隔夜借钱成本，一夜之间变成了政策利率的两倍多。</strong>纽约联储的事后复盘特别强调了一句话：</p>
+
+<blockquote>[These shocks] were well anticipated and were not exceptionally large.<br>
+<span class="tiny">（这些冲击是被充分预期到的，规模也并不特别大。）</span></blockquote>
+
+<p><strong>这句话是整件事的要害。</strong>不是发生了什么惊天动地的事，就是两笔日历上写着的常规操作。但因为准备金已经滑到了曲线陡峭的那一段，一个平时毫无感觉的扰动，被放大成了一场事故。</p>
+
+<p>回到共享单车：城里有 500 辆的时候，少 20 辆没人察觉；只有 95 辆的时候，少 2 辆就是灾难。<strong>「冲击不大」和「后果很大」之间不矛盾——决定后果的不是冲击的大小，是你站在曲线的哪一段。</strong></p>
+
+<h4>那么，「充裕」到底是多少？</h4>
+
+<p>这就是这个领域最难、也最诚实的问题：<strong>没有人知道那个弯折点在哪里。</strong></p>
+
+<p>为什么不知道？因为你只能通过<strong>撞上去</strong>才能发现它。曲线在平坦区的时候，你减少准备金，什么都不会发生——所以你得不到任何信号。等你终于得到信号（利率跳了），你已经在陡峭区了。<strong>这是一个只能事后确认的边界。</strong></p>
+
+<p>现有的估计彼此差得非常远：</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>来源</th><th>对「最低充裕水平」的估计</th><th>口径</th></tr>
+<tr><td>银行自报调查（"lowest comfortable level of reserves"）</td><td>9,000 亿 – 1.5 万亿美元</td><td>各银行自己填的舒适下限加总，克利夫兰联储 2025 年综述引用</td></tr>
+<tr><td>里士满联储 2023 年研究</td><td>约 2.3 万亿美元</td><td>其基准测算，同时预测资产负债表低点约 6 万亿</td></tr>
+<tr><td>今天的实际水平</td><td>2.94 万亿美元</td><td>H.4.1，截至 2026-08-19 当周</td></tr>
+</table>
+</div>
+
+<p>请注意这三个数字的关系：<strong>银行自己说 9,000 亿就够了，联储的研究说 2.3 万亿，实际有 2.94 万亿。</strong>最高估计和最低估计差了三倍多。这不是谁算错了——这是一个真的测不准的量。</p>
+
+<h4>学界在这件事上的分歧（这一段必须给两边）</h4>
+
+<p><strong>一派主张：留厚一点的垫子。</strong>Gagnon 与 Sack（2019）的论点是，最低准备金水平「在概念上就是模糊的、不可能估计的、而且会随时间变化」，既然如此，就应该保持一个更高的准备金水平作为缓冲。这一派的逻辑是：测不准的东西，用余量来对冲。</p>
+
+<p><strong>另一派主张：不要留多余的。</strong>FOMC 自己的表述是，持有的证券「不应超过高效有效实施政策所必需的量」。这一派的理由是实打实的成本：</p>
+
+<ul>
+<li>准备金是要付利息的（今天 2.94 万亿 × 3.65% ≈ 一年 1,072 亿美元的利息支出，这是我用两个真实数字做的算术）。这笔钱最终减少了美联储上缴财政部的收入。</li>
+<li>美联储持有大量国债和抵押贷款证券，会「吸走稀缺而宝贵的抵押品」，影响其他市场的运转。</li>
+<li>央行的资产负债表越大，它在金融体系里的脚印越大，对私人市场的挤出越明显。</li>
+</ul>
+
+<p><strong>我的评价：这不是一个能靠数据裁决的分歧</strong>，因为它本质上是在权衡「利率控制的稳定性」和「资产负债表的成本」，而这两样东西没有共同的单位。克利夫兰联储的综述把它总结为「对规模与波动性的不同偏好导致了不同的政策结论」——我认为这个概括是准确的。你在读任何一方的论证时，可以直接问：<strong>他把哪一个成本看得更重？</strong>答案通常就是他的结论。</p>
+
+<h4>回到今天：美联储现在站在哪里</h4>
+
+<p>现在我们可以读懂今天那几个不起眼的数字了。</p>
+
+<p><strong>1）美联储已经在主动往里加钱，而且加了大半年。</strong>2025 年 12 月，FOMC 判断准备金已经降到「充裕」水平，指示纽约联储开始买入国债——这个操作有个专门的名字叫<strong>准备金管理购买</strong>（Reserve Management Purchases，RMP）。纽约联储自己的说明写得很直白：如果不动手，「那些资金流动极有可能在四月把准备金推到充裕区间以下」。起步节奏是<strong>每月 400 亿美元</strong>，全部买国库券。</p>
+
+<p><strong>这件事非常重要，值得停下来想一想：</strong>美联储在买国债，但这不是量化宽松。QE 的目的是压低长期利率、刺激经济；RMP 的目的只是<strong>把银行系统里的现金水位维持住，好让那套挂牌价的装置继续有效</strong>。同样的动作（买国债），完全不同的意图。这是判断一条新闻时最容易搞混的地方之一。</p>
+
+<p><strong>2）但这个月，加钱停了。</strong>8 月 14 日到 9 月 14 日这一档，纽约联储的计划是：约 170 亿美元的再投资购买（这只是把到期的钱滚回去，不增加总量），<strong>准备金管理购买为零</strong>。</p>
+
+<p><strong>3）缓冲垫几乎用完了。</strong>ON RRP 这个柜台，过去几年里曾经装着上万亿美元的闲钱——那是一个巨大的缓冲：准备金减少时，这些钱可以流回银行体系顶上。今天它只剩 4 亿美元。<strong>缓冲垫没有了，意味着从今往后，任何抽水都会直接抽在准备金上。</strong></p>
+
+<p><strong>4）交易台盯的是什么。</strong>纽约联储公开说明了它判断「够不够」看哪几个信号：回购利率相对牌价的位置和波动、SRF 的使用频率和规模、以及联邦基金利率的行为。按这三个信号读今天：</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>信号</th><th>今天的读数</th><th>怎么读</th></tr>
+<tr><td>SRF 使用</td><td>0</td><td>没有人缺钱到要敲门。<strong>这是最有说服力的「还够」的证据</strong></td></tr>
+<tr><td>EFFR 位置</td><td>3.63%，稳定在区间中上部</td><td>无抵押市场很平静</td></tr>
+<tr><td>SOFR 中位数</td><td>3.65%，等于 IORB</td><td>不算异常</td></tr>
+<tr><td>SOFR 第 75 百分位</td><td>3.71%，高于 IORB 6bp</td><td>边缘上有人在付更高的价</td></tr>
+<tr><td>ON RRP 余额</td><td>4 亿</td><td>缓冲垫已经用完</td></tr>
+</table>
+</div>
+
+<div class="box guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>我很想把上面这张表读成一个故事：「缓冲垫用完了，RMP 又停了，所以九月底之前会出现资金紧张。」这个故事听起来很顺，但我不能写进正文，因为它经不起下面三个反驳：</strong></p>
+<ul>
+<li><strong>反驳一：交易台自己不这么看。</strong>把 RMP 定为零，是纽约联储在读了同样的数据之后做的判断。他们的信息比我多得多——他们能看到每家机构的日内头寸。我凭三个公开数字推翻他们的结论，是没有依据的。</li>
+<li><strong>反驳二：SOFR 的第 75 百分位高于 IORB 可能是常态。</strong>我查了近 30 个交易日，这个分位数一直在 3.66–3.72 之间，7 月中旬也是如此。<strong>它不是最近才抬起来的。</strong>如果它一直这样，那它就不是一个「正在恶化」的信号，只是这个市场的正常形状。我没有更长的历史来判断哪一种对。</li>
+<li><strong>反驳三：ON RRP 归零并不新鲜。</strong>它已经接近零很久了（我查到的最早一天 8 月 20 日就只有 2.25 亿）。「缓冲垫用完」是一个早就完成的状态，不是今天的新变化。拿它当今天的论据，是把旧事实当新消息。</li>
+</ul>
+<p><strong>需要什么材料才能判断：</strong>（a）SOFR−IORB 价差、SRF 用量、准备金／银行总资产比值的两年逐日序列；（b）九月的国债发行与缴税日历，以判断接下来的抽水规模；（c）纽约联储 9 月 9 日左右公布的下一档 RMP 决定——<strong>那一条会直接告诉你交易台的判断变了没有。</strong></p>
+<p><strong>我能确定的只有一句：这套价格机制的可靠性，取决于一个正在被主动管理、但没人知道确切边界的数量。这句话有出处，也不需要预测。</strong></p>
+</div>
+
+<h4>这一环什么情况下会断</h4>
+
+<p>整条链的第一个断点就在这里：<strong>如果准备金滑进陡峭区，前面环 2、环 3、环 4 讲的全部算术都还成立，但它们不再决定价格。</strong>2019 年 9 月那天，ON RRP 的地板还在（当时还没有 ON RRP，但 IORB 在），贴现窗口也开着，可 SOFR 照样冲到 5%。因为在缺钱的时刻，「我少赚 2 个基点」这种精细计算完全让位于「我今晚必须借到钱」。</p>
+
+<p><strong>换句话说：套利机制只在没人着急的时候有效。</strong>这是一个非常普遍的道理，第 6 节会展开。</p>
+
+<div class="src"><b>这一环的依据</b>　准备金需求曲线的形状与「无法实时观测拐点」：<a href="https://www.richmondfed.org/publications/research/economic_brief/2023/eb_23-07">里士满联储 Economic Brief 23-07</a>。银行自报舒适下限 9,000 亿–1.5 万亿、Gagnon-Sack 观点、FOMC「不超过必需」、利息成本与抵押品挤出：<a href="https://www.clevelandfed.org/publications/economic-commentary/2025/ec-202505-qt-ample-reserves-changing-fed-balance-sheet">克利夫兰联储 Economic Commentary 2025-05</a>。2019 年 9 月事件数据（准备金单日减少 650 亿、SOFR 中位数超 5%、99 百分位 9%、EFFR 突破区间上沿、「冲击被充分预期且规模不大」）：<a href="https://www.newyorkfed.org/medialibrary/media/research/epr/2021/epr_2021_market-events_afonso.pdf">纽约联储 Economic Policy Review 2021, Afonso 等</a>。RMP 的缘起、起步节奏 400 亿／月、判断信号：<a href="https://tellerwindow.newyorkfed.org/2026/03/31/the-implementation-of-reserve-management-purchases-to-maintain-ample-reserves/">纽约联储 Teller Window, 2026-03-31</a>；RMP 定义与操作细节：<a href="https://www.newyorkfed.org/markets/reserve-management-reinvestment-purchases-faq">纽约联储 RMP 常见问答</a>。本档 RMP＝0：<a href="https://www.newyorkfed.org/markets/domestic-market-operations/monetary-policy-implementation/treasury-securities/treasury-securities-operational-details">纽约联储国债操作明细</a>。利息支出 1,072 亿是我用 2.94 万亿 × 3.65% 做的<strong>算术推导</strong>（真实数字相乘），它是一个粗略的量级，不是美联储的实际会计数字——实际数字要考虑日均余额变动和其他负债的付息。共享单车是我编的教学例子。</div>
+
+<h3><span class="ring">环 6</span>从隔夜到 2 年 —— 这一环我接不上</h3>
+
+<p>诚实地说明一下我今天走到哪里停下了。</p>
+
+<p>前面五环讲的全部是<strong>一晚上</strong>这个期限。而你真正关心的东西——房贷、股票估值、你的美元资产——挂钩的是更长的期限。今天的数字是：</p>
+
+<div class="math">
+隔夜（EFFR）　　3.63%<br>
+1 个月　　　　　3.80%<br>
+3 个月　　　　　3.88%<br>
+1 年　　　　　　4.03%<br>
+2 年　　　　　　<span class="r">4.24%</span>　←　比隔夜高 61 个基点
+</div>
+
+<p>为什么 2 年期比隔夜高 61 个基点？教科书的答案是这个差值里混了两样东西：<strong>（一）市场预期未来两年隔夜利率的平均水平会更高；（二）期限溢价——投资者因为把钱锁久了、承担了利率变动风险，要求的额外补偿。</strong></p>
+
+<p>问题是，<strong>这两样东西没法从收益率本身拆开</strong>。它们加起来等于 61 个基点，但各占多少，需要一个模型（比如 ACM 期限溢价模型），而模型本身有很大的估计误差。我今天没有取到期限溢价的估计值，也没有取到联邦基金期货的隐含路径。</p>
+
+<div class="box brk">
+<span class="tag">这里我接不上</span>
+<p>所以这一环我只能给你一个<strong>算术上界</strong>：<strong>如果</strong>期限溢价恰好是零，<strong>那么</strong>61 个基点全部是加息预期。这是一个不成立的假设（期限溢价通常不是零），但它给了你一个边界——真实的加息预期不会比这个更多。第 5 节我会把这个算术做完，同时把这个限制写在旁边。</p>
+<p>把这一环画成虚线，不是因为它不重要，而是因为把它画成实线需要我编一个我今天没有的数字。这条链断在这里，比接一个假接头强。</p>
+</div>
+
+<hr>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="lead">先说清楚这一节是什么、不是什么：<strong>下面是教学分析和判断框架，不是给你的个性化投资建议。</strong>我不知道你的全部财务状况、税务身份和风险承受力，也不应该在这种情况下给出针对个人的操作建议。你要做的是学会自己判断。</p>
+
+<h3>4.1 今天这把尺子，直接给了你一个可以用一辈子的检验工具</h3>
+
+<p>你的收入是新币，资产主要在美元。所以你手上大概率有一笔美元现金，可能放在券商的现金账户、货币市场基金、或者某个「美元活期理财」里。</p>
+
+<p><strong>今天你学到了这笔钱在这个世界上能拿到多少利息的完整菜单：</strong></p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>你的钱如果最终躺在这里</th><th>能拿到的年化</th><th>风险</th></tr>
+<tr><td>美联储 ON RRP</td><td>3.50%</td><td>基本无风险（对手方是美联储）</td></tr>
+<tr><td>隔夜回购市场（SOFR 一类）</td><td>3.65% 上下</td><td>有国债抵押</td></tr>
+<tr><td>1 个月美国国库券</td><td>3.80%</td><td>美国政府信用</td></tr>
+<tr><td>3 个月美国国库券</td><td>3.88%</td><td>同上，但锁 3 个月</td></tr>
+<tr><td>1 年期美国国债</td><td>4.03%</td><td>同上，锁 1 年，中途卖有价格波动</td></tr>
+</table>
+</div>
+
+<p>一只美国政府货币市场基金，它的资产基本就是上面前四项的组合。<strong>所以它的毛收益率必然落在 3.50%–3.90% 这个带子里，再扣掉管理费。</strong>这不是我的估计，这是它能买的东西的价格决定的。</p>
+
+<p><strong>现在这个工具怎么用：</strong>如果有人向你推销一个「美元现金产品，随时可取，年化 5.5%」，你现在有能力立刻问出正确的问题——<strong>它买的是什么？</strong>因为这个世界上真正的隔夜无风险美元只值 3.5%–3.65%。多出来的 1.9 个百分点，一定是从某个地方来的：更长的期限、更差的信用、某种衍生品的卖出、或者杠杆。<strong>不是「有没有风险」的问题，是「风险具体在哪一格」的问题。</strong></p>
+
+<p>这个提问方式对第 G46 讲（庞氏结构识别）是完全通用的：<strong>先算出无风险基准，再问超额收益的来源。</strong>回答不上来这个问题的产品，无论包装多好，你都还没弄懂它。</p>
+
+<h3>4.2 一个你现在还不能下结论、但应该开始注意的问题</h3>
+
+<p>你的收入是新币，资产是美元。<strong>这意味着你事实上持有一个「美元兑新币」的头寸，即使你从来没有主动做过外汇交易。</strong>这个错配本身值得单独一讲（轮值表 G29），今天不展开。</p>
+
+<p>但今天这条链跟它有一个连接点：<strong>美元的隔夜利率，是全球美元资金的价格。</strong>今天讲的整套装置，管的不只是美国国内——离岸美元（新加坡银行手里的美元）的定价，最终也要参照这条基准。当美国的准备金变紧、SOFR 往上爬的时候，压力是会外溢的。</p>
+
+<div class="box guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>关于新加坡这一侧，我今天没有做任何核对，所以下面这几句请当作「待验证的线索」，不要当结论：</strong></p>
+<ul>
+<li>据我所知，新加坡金管局（MAS）的货币政策框架是以<strong>汇率</strong>为中心的，不像美联储那样设定一个政策利率。如果这是对的，那么新币的短期利率在很大程度上是「被决定的」而不是「被设定的」——它跟美元利率和市场对新币升贬值的预期挂钩。<strong>但我今天没有去 MAS 官网核对这个框架的现行表述，也没有查任何新币利率的数字。</strong></li>
+<li>CPF 的利率是行政规定的，不随美联储变动。<strong>具体数字我今天没查，不引用。</strong></li>
+</ul>
+<p><strong>要判断需要什么：</strong>MAS 最近一次货币政策声明原文、新币 SORA 的当前水平、以及 USDSGD 的远期点。这三样我留到轮值表 D25、D26、G29 那几天做。今天硬接会犯我最想避免的错误——为了链条完整而编一环。</p>
+</div>
+
+<h3>4.3 今天这一课对你的资产组合，直接含义其实很有限</h3>
+
+<p>这句话我要说清楚，因为它本身就是一个重要的判断：<strong>隔夜利率的技术性管道，几乎不会改变你的长期配置决策。</strong></p>
+
+<p>你持有的美股，它的估值挂钩的是长期折现率（轮值表 F4、F6），不是隔夜利率。今天这条链讲的是隔夜这一格，它离你的资产还隔着好几环——而那几环我今天恰恰接不上（环 6）。</p>
+
+<p><strong>所以正确的态度是：今天学的是一套地基知识，不是一个交易信号。</strong>它的价值在于，将来你读到「回购市场紧张」「SOFR 飙升」「美联储紧急注入流动性」这类新闻时，你能立刻知道它在说什么、严重程度怎么判断、以及该去看哪三个数据（SRF 用量、EFFR 相对 IORB 的位置、准备金余额）。<strong>那一天可能一年只有一次，但那一次通常很重要。</strong></p>
+
+<hr>
+
+<h2>5｜反向倒推</h2>
+
+<p><strong>先说这一节在干什么。</strong>前面几节是顺着推的：发生了 A，所以会有 B。现在把方向倒过来问一个不同的问题——<strong>市场此刻的价格，说明大家心里在赌什么？</strong></p>
+
+<p>为什么要这样问？因为价格不是对过去的记录，是对未来的下注。当你知道市场已经赌了什么，你就知道了两件事：第一，什么消息出来是「已经在价格里了」（所以不会有反应）；第二，什么消息出来会让人措手不及。<strong>后一件事才是钱的来源，也是风险的来源。</strong></p>
+
+<h3>5.1 市场已经把什么定进价格里了</h3>
+
+<p>我今天没有拿到联邦基金期货的隐含概率（见第 1 节的推测框）。所以我用国债收益率做算术，并且把这个方法的局限一起写出来。</p>
+
+<h4>第一步：先算「如果什么都不变」应该是多少</h4>
+
+<p>一张 1 年期国债，你今天买入持有一年。它的收益应该跟另一个策略大致相当：每天在隔夜市场滚存，滚一年。<strong>如果市场认为未来一年隔夜利率一直是今天这个 3.63%，那么滚存一年的收益就是 3.63%，1 年期国债的收益率也该在 3.63% 附近。</strong></p>
+
+<h4>第二步：看实际是多少</h4>
+
+<div class="math">
+1 年期国债实际收益率　　　　<span class="r">4.03%</span>（2026-08-21，财政部）<br>
+「什么都不变」的基准　　　　3.63%<br>
+　　　　　　　　　　　　　　─────<br>
+差额　　　　　　　　　　　　<span class="r">+0.40 个百分点 = 40 个基点</span>
+</div>
+
+<h4>第三步：把 40 个基点翻译成「几次加息」</h4>
+
+<p>这里要小心一个容易搞错的地方。<strong>加息一次 25 个基点，不等于一年的平均利率上升 25 个基点。</strong>因为加息发生在年中的某个时点，之前的那段时间利率还是低的。</p>
+
+<p>具体算法：一次 25 个基点的加息，如果发生在从现在起的第 m 个月，那么它对「未来 12 个月平均利率」的贡献是：</p>
+
+<div class="math">
+25 基点 × (12 − m) ÷ 12
+</div>
+
+<p>翻译成中文：25 个基点，乘以「这次加息之后还剩几个月」占全年的比例。加得越早，影响整年平均的时间越长，贡献越大。</p>
+
+<p>现在代入一组具体的时间试试。下一次 FOMC 会议在 9 月 16 日，大约是 1 个月后；再往后的会议大致在 11 月和 12 月。假设市场赌的是「9 月加一次、12 月再加一次」：</p>
+
+<div class="math">
+9 月那次（m ≈ 1）：25 × (12−1) ÷ 12 = 25 × 0.917 = <span class="r">22.9 基点</span><br>
+12 月那次（m ≈ 4）：25 × (12−4) ÷ 12 = 25 × 0.667 = <span class="r">16.7 基点</span><br>
+　　　　　　　　　　　　　　　　　　　　　　　　　　　─────<br>
+合计对 12 个月平均的贡献　　　　　　　　　　　　　　　<span class="r">39.6 基点</span>
+</div>
+
+<p><strong>39.6 vs 实际观测到的 40。几乎正中。</strong></p>
+
+<p>所以结论是：<strong>1 年期国债的价格，与「未来一年加息两次、每次 25 个基点，第一次很快就来」这个剧本高度吻合。</strong></p>
+
+<h4>第四步：把这个结论的限制也说清楚</h4>
+
+<p>上面这个算术有一个未说出口的假设：<strong>期限溢价等于零。</strong>就是环 6 里讲的那件事——1 年期国债的收益率里，除了「预期的平均隔夜利率」，还包含一份「你把钱锁一年，我补偿你」的溢价。</p>
+
+<p>如果期限溢价是正的（通常是），那么 40 个基点里有一部分是溢价，剩下给加息预期的就不到 40 个基点，对应的加息次数就少于两次。<strong>所以准确的说法是：市场定价的加息幅度，最多相当于两次 25 个基点，实际可能更少。</strong>这是一个上界，不是一个点估计。</p>
+
+<p class="tiny">另一个技术性提示：国债收益率是按票息等价口径报的，隔夜利率是按实际天数／360 口径报的，两者严格比较需要做换算。这个差异在 40 个基点面前很小（几个基点以内），不改变结论，但你要知道它存在。另外我注意到 3 个月国债 3.88% 比隔夜高 25 个基点，按同样算法反推出来的加息节奏比上面更快——但短期国库券的价格还受财政部发行量、月末资金需求等因素影响，我不打算过度解读这一点。</p>
+
+<h3>5.2 交叉验证：这个赌注跟别的地方对得上吗</h3>
+
+<p>一个好习惯是：<strong>不要只靠一个数据说话。</strong>如果市场真的在赌加息，那么别的地方应该也能看到同一个信号。</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>证据</th><th>读数</th><th>是否支持「市场在赌加息」</th></tr>
+<tr><td>1 年期国债 vs 隔夜</td><td>+40bp</td><td>支持（上面的算术）</td></tr>
+<tr><td>2 年期国债 vs 隔夜</td><td>+61bp</td><td>方向一致，但拆不开期限溢价，只能当旁证</td></tr>
+<tr><td>FOMC 7/29 表决</td><td>9 票对 3 票，三位反对者都主张<strong>加息</strong> 25bp</td><td>强力支持：委员会内部已有三票要加</td></tr>
+<tr><td>今天公布的贴现率纪要</td><td>7/29 那次，4 家地区联储董事会投 4.00%（7/20 只有 2 家）</td><td>支持：想加息的地区联储在增加</td></tr>
+</table>
+</div>
+
+<p>这几条彼此独立，指向同一个方向。<strong>这比只有一条证据强得多。</strong>特别是最后一条——今天这份纪要的真正信息量在这里：不是「贴现率维持 3.75%」（这个大家早就知道），而是<strong>「主张加息的地区联储董事会从 2 家变成了 4 家」</strong>。这是一个关于分歧方向的计数，而计数是硬的。</p>
+
+<div class="box brk">
+<span class="tag">这里我接不上</span>
+<p><strong>我要明确说一句：我没有任何证据表明今天这份纪要推动了任何市场价格。</strong></p>
+<p>为什么不能这么写？因为（一）纪要覆盖的是 7 月的会议，那次 FOMC 的三票反对早在 7 月 29 日就公开了，纪要没有提供方向上的新信息；（二）纪要下午 2 点才发布，而我引用的市场数据是 8 月 24 日的收盘和 8 月 21 日的收益率——<strong>时间顺序上根本对不上</strong>；（三）8 月 24 日标普跌 0.28%、纳指跌 0.8%，媒体归因于芯片股抛售，跟利率没关系。</p>
+<p><strong>把一条早就在日历上的常规文件发布，说成某个市场波动的原因，正是这门课要避免的那种「事后叙事」。</strong>今天这份纪要的价值在于它提供了链条上的一个数字（贴现率 3.75%）和一个计数（4 家 vs 2 家），不在于它「引发」了什么。</p>
+</div>
+
+<h3>5.3 哪个假设最脆弱</h3>
+
+<p>市场赌加息，赌的根据是什么？只能是「通胀太高，得摁下去」。<strong>那就去看通胀数据本身，看看这个根据有多结实。</strong></p>
+
+<div class="math">
+2026 年 7 月 CPI（美国劳工统计局 8 月 12 日发布）<br><br>
+整体 CPI，未季调，比一年前同月：　　<span class="r">+3.4%</span><br>
+核心 CPI（剔除食品与能源），同上：　<span class="r">+2.5%</span>（6 月是 2.6%）<br>
+整体 CPI，季调后，比上个月：　　　　<span class="r">+0.1%</span><br>
+　　　　　　　　　　　　　　　　　　─────<br>
+整体与核心的缺口：　3.4% − 2.5% = <span class="r">0.9 个百分点</span>
+</div>
+
+<p><strong>这 0.9 个百分点，就是这个赌注最脆弱的地方。</strong></p>
+
+<p>为什么？因为「整体减核心」这个缺口，按定义就是食品和能源贡献的那部分。缺口有 0.9 个百分点，意味着<strong>美国当前的通胀里，接近三分之一来自食品和能源，而不是来自经济过热。</strong></p>
+
+<p>而 FOMC 自己在 7 月 29 日的声明里就是这么说的——通胀偏高「部分反映了供给冲击」，并点名了能源。今天原油报 82.74，当天跌了 2.67%。</p>
+
+<p><strong>现在把这个逻辑走完，注意每一步：</strong></p>
+
+<ol>
+<li>加息能压住的是<strong>需求</strong>：利率高 → 借钱贵 → 企业少投资、家庭少消费 → 需求下降 → 价格压力下降。</li>
+<li>但食品和能源涨价，很多时候不是需求太旺，是<strong>供给出了问题</strong>（产油国减产、航道受阻、天气）。</li>
+<li>加息对供给问题基本无效。<strong>你把利率提到 10%，也不会让中东多出一桶油。</strong>它只会通过压垮需求来降价——代价是经济衰退。</li>
+<li>所以如果通胀主要是供给性的，加息的理由就弱得多。核心通胀 2.5%，已经离通常的 2% 目标不远了。</li>
+<li>那么，市场赌的两次加息，实际上是在赌：<strong>整体通胀不会自己降下来</strong>——要么能源价格继续高，要么它会渗进核心（这个渗透机制在轮值表 C6、B33 里）。</li>
+</ol>
+
+<h4>如果这个假设错了，价格该怎么走</h4>
+
+<p>假设接下来两个月油价继续跌，整体 CPI 向核心的 2.5% 靠拢。那么：</p>
+
+<div class="math">
+加息理由减弱　→　市场把定价的两次加息拿掉<br>
+　→　1 年期国债收益率从 4.03% 往 3.63%~3.75% 回落（<span class="r">下行 30~40bp</span>）<br>
+　→　2 年期跟随下行，收益率曲线短端下移<br>
+　→　对利率最敏感的长久期资产（成长股）受益（机制见轮值表 F6、A33）
+</div>
+
+<p><strong>反过来，如果油价反弹、整体 CPI 继续往上，那么现在定价的两次加息可能还不够，短端收益率会继续往上走。</strong></p>
+
+<h4>用那个检验问一遍：这套说法能用来做预测吗</h4>
+
+<p>能。它给出的是一个<strong>条件预测</strong>，而且事前就能写下来：</p>
+
+<ul>
+<li>「如果 8 月和 9 月的整体 CPI 同比回落、且缺口收窄，那么 1 年期国债收益率相对隔夜利率的价差应该压缩。」</li>
+<li>「如果下一次贴现率纪要里投 4.00% 的地区联储少于 4 家，那是紧缩倾向减弱的信号。」</li>
+</ul>
+
+<p>这两句话在事情发生之前就能写，事后可以核对对错。<strong>这是机制，不是叙事。</strong>反过来，「今天股市跌了，是因为担心加息」这种句子，无论发生什么都能说，所以它什么也没说。</p>
+
+<h3>5.4 未来 1–3 个月，盯这几件事</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>什么时候</th><th>看什么</th><th>能证实／证伪哪个假设</th></tr>
+<tr><td>9 月上旬（约第 9 个工作日）</td><td>纽约联储公布下一档 RMP 金额</td><td>如果从 0 变回正数 → 交易台认为准备金不够了（环 5）</td></tr>
+<tr><td>9 月中旬</td><td>8 月 CPI 发布</td><td>整体与核心的缺口是收窄还是扩大（5.3 节的核心假设）</td></tr>
+<tr><td>9 月 16 日</td><td>FOMC 会议决议与点阵图</td><td>直接检验「两次加息」的定价对不对</td></tr>
+<tr><td>每天</td><td>SRF 用量是否从 0 变成正数</td><td>环 5 最硬的那个信号。<strong>这一条我认为最值得每天扫一眼</strong></td></tr>
+<tr><td>9 月 30 日前后</td><td>季度末的回购利率</td><td>季末银行收缩资产负债表，是压力测试点</td></tr>
+<tr><td>下一份贴现率纪要</td><td>投 4.00% 的地区联储数量</td><td>紧缩倾向在扩散还是在消退</td></tr>
+</table>
+</div>
+
+<div class="src"><b>本节依据</b>　1 年／2 年／3 个月国债收益率：<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202608">美国财政部 2026-08-21</a>。加息次数换算：<strong>算术推导</strong>，你可以自己验算。7 月 CPI 数据与口径：<a href="https://www.bls.gov/news.release/cpi.nr0.htm">美国劳工统计局 2026-08-12 发布</a>。FOMC 表决与「部分反映供给冲击」：<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">FOMC 声明 2026-07-29</a>。地区联储投票计数：<a href="https://www.federalreserve.gov/newsevents/pressreleases/files/monetary20260825a1.pdf">今日纪要</a>。原油与股指读数：媒体汇总，非一手。9 月 16 日 FOMC 日期来自公开日程页，我没有在美联储官网核对；11 月／12 月的会议日期我<strong>没有核对</strong>，上面算式里的「第 4 个月」是我按季度节奏假设的示意时点，不是确定日期——如果实际日期不同，39.6 这个数会小幅变化，但「大约两次」的结论不受影响。</div>
+
+<hr>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式</h3>
+
+<h4>第一条：一个承诺的力量，等于兑现它的能力，不等于措辞</h4>
+
+<p>今天整套装置的核心，不是「美联储宣布利率是 3.65%」，而是「美联储在 3.50% 无限量收钱、在 3.75% 无限量放钱」。<strong>力量来自那个「无限量」，不来自宣布。</strong></p>
+
+<p>这个思维方式的通用形式是：<strong>读到任何一个承诺时，不要读它说了什么，去问它拿什么兑现、能兑现多少、什么时候会兑现不了。</strong></p>
+
+<p>几个跨领域的例子：</p>
+
+<ul>
+<li><strong>央行的口头指引。</strong>「我们将在较长时间内保持利率不变」——这句话值多少，取决于它违背这句话的代价有多大，而不取决于说得多坚决。（轮值表 A11、A42 会展开）</li>
+<li><strong>固定汇率制度。</strong>一个国家承诺把汇率钉在某个价位，机制跟今天完全同构：在某个价位无限量买本币，在另一个价位无限量卖。区别在于，卖外汇是要动用外汇储备的，<strong>而储备是有限的</strong>——所以固定汇率的地板是会被打穿的，历史上被打穿过很多次。今天讲的准备金地板不会被打穿，因为央行创造本币的能力没有上限。<strong>同样的设计，一边有限一边无限，命运完全不同。</strong>（这条结构类比我今天没有核对任何具体国家的现行制度参数，所以不引用数字，只讲结构。轮值表 D9 会正式处理。）</li>
+<li><strong>公司的信用担保。</strong>母公司说「我为子公司的债务提供支持」。这句话值多少？取决于母公司自己有多少现金、这笔担保有没有法律约束力、以及母公司出问题的时候会不会正好也是子公司出问题的时候。</li>
+<li><strong>平台的「假一赔十」。</strong>同样的问法：赔付上限是多少？谁来认定？</li>
+</ul>
+
+<h4>第二条：一个机制在宽松期完美运行，不构成它在紧张期有效的证据</h4>
+
+<p>环 3 里那套精妙的套利算术——借 3.63% 存 3.65%，一晚上赚 556 美元——在今天完美成立。但 2019 年 9 月 17 日那天，它形同虚设。<strong>不是算术错了，是前提没了：套利者在缺钱的时候不会去做套利，他们自己就是缺钱的人。</strong></p>
+
+<p>这个道理的通用形式：<strong>任何依赖「有人愿意接单」的机制，都会在最需要它的时候消失。</strong></p>
+
+<ul>
+<li><strong>市场流动性。</strong>「这只股票每天成交几十亿，我随时能卖」——在所有人都想卖的那一天，成交量不会救你。（轮值表 G6、E30）</li>
+<li><strong>分散化。</strong>「我买了六个不相关的资产」——危机中相关性会趋近于 1，因为逼所有人卖的是同一个理由。（轮值表 G6）</li>
+<li><strong>止损单。</strong>它假设你想卖的时候有人买。</li>
+<li>更一般地：<strong>凡是用平静时期的数据校准出来的风险模型，都系统性地低估了紧张时期的风险。</strong>（轮值表 G38、E45）</li>
+</ul>
+
+<p><strong>这条思维方式的实践含义是：评估一个系统，不要看它平时的表现，要去找它的相变点在哪里。</strong>今天的相变点是准备金需求曲线的那个弯折。而今天最诚实的结论是：<strong>没有人知道弯折在哪里，包括美联储自己。</strong></p>
+
+<h4>第三条：分清「测不准」和「不知道」</h4>
+
+<p>环 5 里那个准备金拐点，是一个特别的东西：它不是因为大家不够努力才测不准，而是<strong>它在被撞上之前不发出任何信号</strong>。曲线平坦的时候，你减少准备金，什么都不会发生——所以你收不到任何数据。等你收到数据，你已经越界了。</p>
+
+<p>这类问题在别处也有：一座桥能承受多少重量（不压塌就不知道）、一个人的健康边界（不出事就不知道）、一个组织能扛多少压力。<strong>对这类问题，正确的做法不是「继续研究，等研究清楚了再决定」，而是「承认它测不准，然后决定要留多大的余量」。</strong>Gagnon-Sack 那一派讲的就是这个：既然测不准，就留厚一点。而反对的一派回答：留厚是要付成本的。<strong>这个争论没有数据能解决，因为它不是一个事实问题，是一个偏好问题。</strong>能识别出「这是偏好之争不是事实之争」，本身就是一种判断力。</p>
+
+<h3>6.2 这条链在整个系统里的位置</h3>
+
+<p>今天讲的东西，位置非常特殊：<strong>它是整条传导链的第 0 环。</strong></p>
+
+<p>你可以这样看整个宏观金融系统：</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>板块</th><th>它依赖今天这一环的什么</th></tr>
+<tr><td><strong>利率</strong>（A3–A5、A15、A16）</td><td>房贷利率、收益率曲线、远期利率，全部是从「隔夜利率的预期路径」搭起来的。如果隔夜利率不可控，上面那一整栋楼的地基就没了</td></tr>
+<tr><td><strong>信用</strong>（E13、E14、E40）</td><td>回购市场是现代金融的融资心脏。今天讲的 SOFR，就是几乎所有杠杆头寸的融资成本。它一跳，去杠杆就开始</td></tr>
+<tr><td><strong>汇率</strong>（D3、D14、D15）</td><td>套息交易的收益，是两个国家隔夜利率之差。离岸美元的价格，参照的是今天这条基准</td></tr>
+<tr><td><strong>增长与估值</strong>（F1–F6）</td><td>股票是一串未来现金流的折现，折现率的最底层就是无风险利率。而无风险利率的最底层，是今天这一格</td></tr>
+</table>
+</div>
+
+<p><strong>所以今天这一课的地位是：它本身几乎不影响任何资产价格，但它一旦失效，所有资产价格同时失去锚。</strong>这就是为什么美联储会为了一个 2 个基点的价差专门发布月度购债计划，为什么会有一整个交易台每天盯着这几个数字。它像地基——你住在楼里从来不会想到它，但它出问题的时候，楼上装修得多好都不重要。</p>
+
+<p>再往上一层看：今天讲的这套「充裕准备金 + 挂牌利率」框架，只有不到 20 年历史。2008 年之前，全世界央行用的是完全不同的办法（稀缺准备金 + 每天公开市场操作微调）。<strong>你今天学的不是一条自然规律，是一个具体的、可以被改掉的制度选择</strong>——而且它现在正处在被重新评估的过程里（环 5 那场分歧就是）。<strong>这种「区分自然规律和制度安排」的意识，是这门课后面 H 板块的主线。</strong></p>
+
+<hr>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>术语（中文／English）</th><th>一句话大白话</th><th>出现在哪一环</th></tr>
+<tr><td>基点 / basis point (bp)</td><td>万分之一，也就是 0.01 个百分点。纯粹为了少说几个字</td><td>全篇</td></tr>
+<tr><td>准备金 / reserves</td><td>银行开在央行的账户里的余额。不是金库里的现钞，总量只有央行能改</td><td>环 0、环 5</td></tr>
+<tr><td>联邦基金利率目标区间 / federal funds target range</td><td>美联储希望银行之间隔夜互相借钱的利率落在的那个区间。今天是 3.50%–3.75%</td><td>环 1</td></tr>
+<tr><td>准备金利息 / IORB</td><td>银行把钱存在央行账户能拿到的利息。今天 3.65%。这是这套装置的中枢</td><td>环 2、环 3</td></tr>
+<tr><td>隔夜逆回购 / ON RRP</td><td>央行开的「收钱柜台」：你把钱放我这一晚上，我按 3.50% 给你利息，你要放多少我收多少（每家每天上限 1600 亿）</td><td>环 2</td></tr>
+<tr><td>贴现窗口 / discount window，一级信贷利率 / primary credit rate</td><td>央行开的「放钱柜台」：银行缺钱可以直接来借，付 3.75%。今天的事件讲的就是它</td><td>环 4</td></tr>
+<tr><td>常备回购便利 / SRF</td><td>第二个放钱柜台，专门设计成「不丢人」的版本，因为贴现窗口有污名</td><td>环 4</td></tr>
+<tr><td>污名 / stigma</td><td>用了某个救济渠道会被外界解读成「你不行了」，于是大家宁可付更贵的价也不用它</td><td>环 4</td></tr>
+<tr><td>EFFR 有效联邦基金利率</td><td>银行之间无抵押隔夜拆借的实际成交利率中位数。今天 3.63%</td><td>环 3</td></tr>
+<tr><td>SOFR 担保隔夜融资利率</td><td>拿国债作抵押的隔夜借钱利率。市场规模巨大（今天成交 2.9 万亿），是美元世界的实际基准</td><td>环 4、环 5</td></tr>
+<tr><td>回购 / repo</td><td>「我把国债卖给你，明天按约定价买回来」——本质是拿国债作抵押的短期借钱</td><td>环 0、环 4</td></tr>
+<tr><td>套利 / arbitrage</td><td>同一样东西两个地方价格不同，低买高卖赚差价。它是今天所有地板和天花板起作用的唯一动力</td><td>环 2、环 3</td></tr>
+<tr><td>漏水的地板 / leaky floor</td><td>地板只对有资格用柜台的人有效，名单外的人可以在地板下面成交。所以地板拦得住大部分但会渗</td><td>环 2</td></tr>
+<tr><td>充裕准备金 / ample reserves</td><td>银行系统里的钱多到「多一点少一点没人在乎」的状态。这时候央行靠挂牌价就能控制利率</td><td>环 5</td></tr>
+<tr><td>准备金管理购买 / RMP</td><td>央行买国债，但目的只是把银行系统的现金水位维持住，不是为了刺激经济。跟 QE 动作一样、意图不同</td><td>环 5</td></tr>
+<tr><td>期限溢价 / term premium</td><td>你把钱锁久了要承担风险，所以要求的额外补偿。它混在长期收益率里，拆不开</td><td>环 6、第 5 节</td></tr>
+<tr><td>核心通胀 / core inflation</td><td>剔除食品和能源之后的通胀。因为这两样波动大且往往跟需求无关</td><td>第 5 节</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>第 1 题（检查你懂不懂地板的机制）：假设明天美联储把 ON RRP 的报价从 3.50% 提高到 3.60%，其他都不动。EFFR 会怎么变？请说出推理，不要只给答案。</summary>
+<p><strong>完整推导：</strong></p>
+<p>第一步，回忆 EFFR 的成交区间是怎么来的。出借方（FHLB）的底线是 ON RRP 的 3.50%，因为那是它不用谈判就能拿到的收益。借入方（外国银行分支）的上限是 IORB 的 3.65%，因为它借来的钱只能拿到这个收益，付更多就亏。所以可成交区间是 3.50%–3.65%。</p>
+<p>第二步，ON RRP 提到 3.60% 之后，出借方的底线抬高了 10 个基点。任何低于 3.60% 的报价它都不会接受了。<strong>新的可成交区间变成 3.60%–3.65%，宽度从 15 个基点压缩到 5 个基点。</strong></p>
+<p>第三步，当前 EFFR 是 3.63%，它已经在新区间之内（3.60 &lt; 3.63 &lt; 3.65）。所以从纯粹的边界约束看，<strong>EFFR 不一定非动不可。</strong></p>
+<p><strong>这道题的陷阱在这里：</strong>很多人会直觉地答「EFFR 会跟着涨 10 个基点」。但地板只是一个下限，不是一个吸铁石。当前价格离地板还有 13 个基点的距离，抬高地板 10 个基点之后还剩 3 个基点，约束仍未咬住。</p>
+<p><strong>但要补一句：</strong>出借方的谈判地位变强了（它的备选方案变好了），所以边际上 EFFR 有小幅上行压力。我无法定量说会涨几个基点——这需要环 3 里那个我承认接不上的东西（成交价在区间里的位置由什么决定）。<strong>答「小幅上行，但幅度小于 10 个基点，且可能接近于零」是正确的；答「涨 10 个基点」是错的；答「不动」也不够准确。</strong></p>
+</details>
+
+<details>
+<summary>第 2 题（检查你懂不懂环 5 的核心）：一位分析师说「美联储的资产负债表还有 6.75 万亿，是危机前的好几倍，所以流动性极其充裕，不可能出现资金紧张。」请指出这句话哪里有问题。</summary>
+<p><strong>它把两件不同的事混成了一件。</strong></p>
+<p>第一，<strong>资产负债表规模不等于准备金。</strong>美联储的总资产 6.75 万亿是它持有的证券等等，而这些资产对应的负债有很多种：准备金 2.94 万亿、流通中的现钞、财政部账户 TGA 9,536 亿、逆回购 3,737 亿……<strong>只有准备金是银行体系可以用来支付的钱。</strong>其他几项都是「被锁在别处」的。TGA 涨 1,000 亿，准备金就少 1,000 亿，而总资产纹丝不动。所以拿总资产推断银行手上的钱，方向就错了。</p>
+<p>第二，<strong>「绝对量大」不等于「充裕」。</strong>充裕是一个相对概念——相对于银行系统的规模、支付流量、监管要求。过去十几年银行的资产规模、日间支付量、流动性监管要求都在增长，所以需要的准备金也在增长。2011 年的 1.6 万亿可能很宽裕，2026 年的 2.94 万亿可能只是刚够。<strong>拿绝对数字跨十几年比较，等于用十年前的物价谈今天的工资。</strong></p>
+<p>第三，也是最要命的一点：<strong>2019 年 9 月就是反例。</strong>当时美联储的资产负债表也远大于 2008 年以前，照样出了事。这句话在 2019 年就已经被证伪过一次了。</p>
+<p><strong>正确的问法是：准备金相对于银行系统的需求处在需求曲线的哪一段？</strong>而这个问题的诚实答案是「没人确切知道」，只能看几个代理信号（SRF 用量、SOFR 相对 IORB 的位置、EFFR 的波动）。</p>
+</details>
+
+<details>
+<summary>第 3 题（检查你会不会区分机制与叙事）：假设明天出现这样一条新闻：「美债收益率全线上涨，因投资者担忧通胀。」请说出：这句话是机制还是叙事？如果要把它改造成一个可检验的说法，需要补什么？</summary>
+<p><strong>它是叙事。</strong>判断依据是那个检验：这句话在事情发生之前能不能用来做预测？不能。「担忧通胀」是一个永远存在的解释，无论收益率涨还是跌，都能找到人这么说。它无法被证伪，所以它没有信息量。</p>
+<p><strong>要把它改造成机制，需要补三样东西：</strong></p>
+<p><strong>（一）一个可观测的原因，带时间戳。</strong>不是「担忧」，而是「今天上午 8:30 发布的 CPI，整体同比 3.7%，市场预期 3.4%，超出 0.3 个百分点」。担忧不可观测，数据可观测。</p>
+<p><strong>（二）时间顺序对得上。</strong>如果收益率是在数据发布后的几分钟内跳的，因果链才站得住。如果它是从前一天就在涨，那这个解释就是硬套上去的。<strong>本讲第 5.3 节我自己就做了这个检查，结论是今天的纪要跟当天的行情时间顺序对不上，所以我没有把它们连起来。</strong></p>
+<p><strong>（三）一个分环节的定量说法。</strong>「CPI 超预期 0.3 个百分点 → 市场把年内加息定价从两次改成三次 → 1 年期国债收益率应上行约 20 个基点（用第 5 节那个算法：25 × (12−m)/12）→ 实际观测到上行 18 个基点，量级吻合。」<strong>这样每一步都能单独被驳倒。</strong></p>
+<p><strong>补充一个更狠的检验：</strong>如果收益率上涨真是因为通胀担忧，那么<strong>通胀保值债券（TIPS）隐含的盈亏平衡通胀率也应该同时上涨</strong>。如果名义收益率涨了而盈亏平衡通胀率没动，那么上涨的是实际利率，原因就不是通胀预期——可能是期限溢价，可能是供给。（这个工具在轮值表 A6、A37 会正式讲。）<strong>找一个「如果这个解释成立，那么另一个独立的东西也必须同时变」的检验点，是拆穿叙事最有效的办法。</strong></p>
+</details>
+
+<h3>今天就能做的一个小动作（十分钟）</h3>
+
+<p>把这个网址存进书签，命名为「美元隔夜利率体检」：</p>
+
+<p><code>https://markets.newyorkfed.org/api/rates/all/latest.json</code></p>
+
+<p>它是纽约联储的公开接口，每个工作日早上更新，不需要注册、没有付费墙、没有任何评论员的解读。<strong>打开它，你看到的是原始数字本身。</strong></p>
+
+<p>每次打开，做三个减法（都是心算，十秒钟）：</p>
+
+<ol>
+<li><strong>SOFR 减 3.65</strong>（IORB）。今天是 0。如果哪天变成 +0.10 以上并持续几天，说明回购市场在变紧。</li>
+<li><strong>EFFR 减 3.65</strong>。今天是 −0.02。这个数往 0 靠或者变正，是准备金变紧的信号。</li>
+<li><strong>SOFR 的 percentPercentile75 减 3.65</strong>。今天是 +0.06。这个数看的是边缘上的人在付多少。</li>
+</ol>
+
+<p class="tiny">（注意：IORB 会随 FOMC 决议变动。如果哪天 FOMC 调整了目标区间，把上面三个式子里的 3.65 换成新的 IORB。当前值随时可在 <a href="https://fred.stlouisfed.org/series/IORB">FRED IORB</a> 查到。）</p>
+
+<p>再加一个：打开 <code>https://markets.newyorkfed.org/api/rp/all/all/results/last/10.json</code>，看 <code>"operationType": "Repo"</code> 的 <code>totalAmtAccepted</code> 是不是 0。<strong>它从 0 变成一个大数字的那一天，就是环 5 讲的那件事开始发生的那一天。</strong></p>
+
+<p>坚持一个月，你会对这几个数字的正常波动范围形成手感——<strong>而「知道什么是正常」是判断「什么不正常」的唯一办法，这个东西读多少文章都换不来。</strong></p>
+
+<h3>延伸阅读（三篇，按难度排序）</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>材料</th><th>为什么值得读</th><th>难度</th></tr>
+<tr><td><a href="https://libertystreeteconomics.newyorkfed.org/2023/10/whos-borrowing-and-lending-in-the-fed-funds-market-today">Who's Borrowing and Lending in the Fed Funds Market Today?</a><br>纽约联储 Liberty Street Economics, 2023-10</td><td>今天环 3 那个最反直觉的问题（为什么有人愿意以低于 IORB 的价格借出去），答案全在这篇里。两千字，有图，写给非专业读者。<strong>读完你会明白，一个全球基准利率的存在，取决于一条关于谁能拿利息的法律细节</strong></td><td>入门。英文，但句子短</td></tr>
+<tr><td><a href="https://tellerwindow.newyorkfed.org/2026/03/31/the-implementation-of-reserve-management-purchases-to-maintain-ample-reserves/">The Implementation of Reserve Management Purchases to Maintain Ample Reserves</a><br>纽约联储 Teller Window, 2026-03-31</td><td>这是今天环 5 的一手材料，而且是当事人自己写的：他们看哪些信号、为什么在 2025 年 12 月动手、节奏怎么定。<strong>读一手材料和读转述的差别，在这篇上体现得特别明显</strong>——媒体转述通常只写「美联储又开始买债了」，而原文写的是为什么这不是 QE</td><td>中等。需要今天这一课打底</td></tr>
+<tr><td><a href="https://www.clevelandfed.org/publications/economic-commentary/2025/ec-202505-qt-ample-reserves-changing-fed-balance-sheet">QT, Ample Reserves, and the Changing Fed Balance Sheet</a><br>克利夫兰联储 Economic Commentary, 2025-05</td><td>今天环 5 那场学界分歧的正式综述，两边的论证都给了。<strong>推荐的读法：不要试图判断谁对，而是找出双方各自把哪个成本看得更重。</strong>训练「识别偏好之争」这个能力，比记住结论有用一百倍</td><td>偏难。有一些没解释的术语，可以跳着读结论段</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p class="lead">这不是免责声明，是给你的可信度地图。<strong>你应该用不同的力度去相信这篇文章的不同部分。</strong></p>
+
+<h3>9.1 数据清单：出处与口径</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>数据</th><th>口径</th><th>出处</th><th>可信度</th></tr>
+<tr><td>一级信贷利率 3.75%，地区联储投票记录</td><td>2026-08-25 发布的 7/20 与 7/29 会议纪要；7/29 决定自 7/30 生效</td><td><a href="https://www.federalreserve.gov/newsevents/pressreleases/files/monetary20260825a1.pdf">美联储纪要 PDF</a></td><td>一手</td></tr>
+<tr><td>目标区间 3.50%–3.75%，9:3 表决，三位反对者主张加息</td><td>FOMC 声明，2026-07-29</td><td><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">美联储</a></td><td>一手</td></tr>
+<tr><td>IORB 3.65%，ON RRP 3.50%＋每家每日 1600 亿上限</td><td>FOMC 实施说明，自 2026-07-30 生效</td><td><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">美联储</a>、<a href="https://fred.stlouisfed.org/series/IORB">FRED</a></td><td>一手</td></tr>
+<tr><td>EFFR 3.63%（量 990 亿）、SOFR 3.65%（量 2.919 万亿，p75 = 3.71%）、OBFR/TGCR/BGCR</td><td>数据日 2026-08-24，纽约联储 8-25 上午发布；均为当日成交量加权中位数</td><td><a href="https://markets.newyorkfed.org/api/rates/all/latest.json">纽约联储 API</a></td><td>一手</td></tr>
+<tr><td>ON RRP 用量 4.05 亿（8-25）、SRF 用量 0（8-24、8-25）</td><td>操作结果，非季调，单位美元</td><td><a href="https://markets.newyorkfed.org/api/rp/all/all/results/last/10.json">纽约联储 API</a></td><td>一手</td></tr>
+<tr><td>准备金 2.94 万亿、总资产 6.75 万亿、TGA 9,536 亿</td><td>H.4.1，周均值口径，截至 2026-08-19 当周</td><td><a href="https://www.federalreserve.gov/releases/h41/current/">美联储</a></td><td>一手</td></tr>
+<tr><td>8/14–9/14 档：再投资购买约 170 亿、RMP＝0</td><td>纽约联储交易台计划，月度期间</td><td><a href="https://www.newyorkfed.org/markets/domestic-market-operations/monetary-policy-implementation/treasury-securities/treasury-securities-operational-details">纽约联储</a></td><td>一手</td></tr>
+<tr><td>国债收益率（1M 3.80 / 3M 3.88 / 1Y 4.03 / 2Y 4.24 / 10Y 4.74 / 30Y 5.27）</td><td>财政部票面收益率曲线（CMT），2026-08-21 收盘</td><td><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202608">美国财政部</a></td><td>一手</td></tr>
+<tr><td>7 月 CPI：整体同比 +3.4%（未季调）、核心同比 +2.5%、整体环比 +0.1%（季调）</td><td>参考月 2026 年 7 月，发布日 2026-08-12，美国劳工统计局</td><td><a href="https://www.bls.gov/news.release/cpi.nr0.htm">BLS</a></td><td>一手</td></tr>
+<tr><td>2019 年 9 月：准备金单日 −650 亿、SOFR 中位数 &gt;5%、99 分位 9%、EFFR 突破区间上沿</td><td>事后复盘论文</td><td><a href="https://www.newyorkfed.org/medialibrary/media/research/epr/2021/epr_2021_market-events_afonso.pdf">纽约联储 EPR 2021</a></td><td>一手</td></tr>
+<tr><td>准备金最低充裕水平估计：银行自报 9,000 亿–1.5 万亿；里士满联储约 2.3 万亿</td><td>调查加总 / 研究测算，均非官方目标</td><td><a href="https://www.clevelandfed.org/publications/economic-commentary/2025/ec-202505-qt-ample-reserves-changing-fed-balance-sheet">克利夫兰联储</a>、<a href="https://www.richmondfed.org/publications/research/economic_brief/2023/eb_23-07">里士满联储</a></td><td>一手（研究）</td></tr>
+<tr><td>FHLB 占联邦基金市场九成以上、外资行分支占 65%–95%</td><td>2023 年 10 月时点的市场结构</td><td><a href="https://libertystreeteconomics.newyorkfed.org/2023/10/whos-borrowing-and-lending-in-the-fed-funds-market-today">纽约联储</a></td><td>一手，但<strong>数据是 2023 年的，可能已变</strong></td></tr>
+<tr><td>RMP 起步 400 亿／月、缘起 2025 年 12 月</td><td>纽约联储自述</td><td><a href="https://tellerwindow.newyorkfed.org/2026/03/31/the-implementation-of-reserve-management-purchases-to-maintain-ample-reserves/">Teller Window</a></td><td>一手</td></tr>
+<tr><td>贴现窗口二级信贷 4.25%、季节性 3.75%</td><td>当前有效值</td><td><a href="https://www.frbdiscountwindow.org/">贴现窗口官网</a></td><td>一手，但页面未标生效日</td></tr>
+<tr><td>标普 7,652.86（8-24）、7,674.37（8-21）</td><td>收盘价</td><td><a href="https://fred.stlouisfed.org/series/SP500">FRED</a></td><td>一手</td></tr>
+<tr><td>广义美元指数 118.06（8-21）</td><td>名义广义美元指数，2006 年 1 月 = 100，非季调</td><td><a href="https://fred.stlouisfed.org/series/DTWEXBGS">FRED</a></td><td>一手</td></tr>
+<tr><td>USDSGD 1.2783</td><td>纽约午盘牌价，<strong>数据日 2026-08-14，已滞后 10 天</strong></td><td><a href="https://fred.stlouisfed.org/series/DEXSIUS">FRED</a></td><td>一手但过时</td></tr>
+<tr><td>纳指 25,980.19（−0.8%）、道指 53,417.16、原油 82.74（−2.67%）、黄金 4,679.90（−0.38%）、10Y 4.704% / 30Y 5.234%</td><td>8-24 收盘，媒体汇总</td><td><a href="https://finance.yahoo.com/markets/stocks/articles/stock-market-news-aug-25-132700491.html">财经媒体</a></td><td><strong>二手。</strong>原油未注明是 WTI 还是布伦特；10Y/30Y 与财政部官方 CMT 口径可能有差异</td></tr>
+</table>
+</div>
+
+<h3>9.2 每一环的依据类型</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>环</th><th>依据</th><th>结论</th></tr>
+<tr><td>环 0　利率不是一个数 / 准备金定义</td><td>一手来源</td><td>扎实</td></tr>
+<tr><td>环 1　央行只能定区间</td><td>一手（目标区间数字）＋ 纯逻辑（西瓜摊是我编的教学例子）</td><td>扎实</td></tr>
+<tr><td>环 2　ON RRP 地板</td><td>一手（牌价、上限、用量）＋ 算术推导（可自行验算）＋ 一手（纽约联储明文说它是 floor）</td><td>扎实</td></tr>
+<tr><td>环 3　EFFR 低于 IORB 2bp</td><td>可成交区间 3.50–3.65 是<strong>算术推导</strong>；FHLB／外资行的角色有一手来源；<strong>但「为什么恰好落在 3.63 而不是 3.55」我给不出机制</strong>，只给了纽约联储的定性规律</td><td>大部分扎实，<strong>最后一步是缺口</strong></td></tr>
+<tr><td>环 4　贴现率／SRF 天花板</td><td>数字全部一手；<strong>「污名」这个机制我今天没核对来源</strong>，是我从既有知识写的</td><td><strong>有一处未核对</strong></td></tr>
+<tr><td>环 5　准备金数量决定一切（锚点）</td><td>需求曲线形状、2019 事件、估计区间、学界分歧、RMP —— <strong>全部有一手来源</strong>；利息支出 1,072 亿是算术推导；<strong>「今天在曲线上的哪个位置」我明确说了不知道</strong></td><td>扎实，且已标明不知道的部分</td></tr>
+<tr><td>环 6　隔夜到 2 年</td><td><strong>接不上。</strong>缺期限溢价估计与联邦基金期货隐含路径</td><td><strong>断链，已画成虚线</strong></td></tr>
+<tr><td>第 5 节　加息定价的算术</td><td>输入数字全部一手；换算是<strong>算术推导</strong>；但<strong>依赖「期限溢价为零」这个已知不成立的假设</strong>，所以只是上界；FOMC 11 月／12 月会议日期未核对</td><td>方法可验，<strong>结论是上界不是点估计</strong></td></tr>
+<tr><td>第 5 节　「今天的纪要推动了市场」</td><td><strong>我明确拒绝写这个结论</strong>，并给出了三条理由（时间顺序、无新信息、媒体归因于芯片股）</td><td>主动排除的伪链条</td></tr>
+</table>
+</div>
+
+<h3>9.3 我今天没查到、因而没写的东西</h3>
+
+<ul>
+<li><strong>VIX 当日读数</strong>——没取到，所以第 1 节的市场落点里没有波动率这一项。</li>
+<li><strong>联邦基金期货隐含的加息概率（CME FedWatch）</strong>——尝试过，没取到。第 5 节因此改用国债收益率做算术，并说明了两者不等价。</li>
+<li><strong>EFFR−IORB 与 SOFR−IORB 价差的长期历史序列</strong>——只取到近 30 个交易日的 SOFR。这直接导致环 3 和环 5 的两个推测框里我无法下判断。<strong>这是今天最大的材料缺口。</strong></li>
+<li><strong>新加坡这一侧的任何东西</strong>——MAS 政策框架、SORA、CPF 利率，一个都没查。第 4.2 节里凡是涉及新加坡的都进了推测框，没有数字。</li>
+<li><strong>贴现窗口污名的具体文献</strong>——没读到原文，已在环 4 标注。</li>
+<li><strong>2026 年 11 月／12 月 FOMC 会议的确切日期</strong>——没核对，第 5 节的算式用了示意时点，并已说明这不影响「大约两次」的结论。</li>
+</ul>
+
+<h3>9.4 一句总结</h3>
+
+<p><strong>今天这条链，从事件（贴现率 3.75%）走到了「隔夜利率被四个牌价夹住，而夹子的有效性取决于准备金的数量」，这一段是扎实的——数字全部一手，机制要么有出处要么是你可以自己验算的算术。</strong></p>
+
+<p><strong>链条在两个地方断了：一是环 3 的最后一步（成交价为什么落在区间的这个位置而不是那个位置），二是环 6（隔夜利率到 2 年期国债）。我都画成了虚线，没有用推理搭桥。</strong></p>
+
+<p><strong>而我最想让你记住的，恰恰是那个我没法回答的问题：准备金要多少才算够？</strong>美联储不知道，学界分歧三倍，而整套利率控制体系的可靠性挂在这个答案上。<strong>今天这一课真正的内容不是那四个数字，是「一个如此重要的系统，它的关键参数是测不准的」这件事本身。</strong></p>
+
+<p class="tiny" style="margin-top:2.5em">Day 9 · 2026 年 8 月 26 日（新加坡时间）· 领域 A 货币政策与利率体系 · 锚点原理 A2「隔夜利率如何被锚定：准备金与利率走廊」</p>
+
+</div>
+</body>
+</html>
