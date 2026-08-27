@@ -1,0 +1,1616 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 10｜核心通胀 vs 整体通胀：7月 PCE 与 CPI 的裂口</title>
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#1c1b19; --muted:#5f5c56; --line:#e0ddd6;
+  --card:#ffffff; --accent:#8a5a1f; --accent-soft:#f5ecdf;
+  --guess-bg:#fff4f0; --guess-line:#c4562f; --guess-fg:#7a2d12;
+  --fact-bg:#eef4ee; --fact-line:#3f7a4a;
+  --code:#f2efe9;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16151a; --fg:#e9e6e0; --muted:#a5a09a; --line:#33313a;
+    --card:#1e1d23; --accent:#e0aa62; --accent-soft:#2c2519;
+    --guess-bg:#2e1a14; --guess-line:#e07a4f; --guess-fg:#f4c4ac;
+    --fact-bg:#182219; --fact-line:#6aa87a;
+    --code:#25242b;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  font-size:17px; line-height:1.85; overflow-x:hidden;
+}
+.wrap{max-width:760px; margin:0 auto; padding:32px 20px 96px}
+header.top{border-bottom:2px solid var(--fg); padding-bottom:18px; margin-bottom:34px}
+.kicker{font-size:13px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase}
+h1{font-size:1.62rem; line-height:1.35; margin:.35em 0 .3em; font-weight:700}
+.sub{color:var(--muted); font-size:.94rem; line-height:1.7}
+h2{
+  font-size:1.22rem; margin:3.1em 0 .7em; padding-top:.7em;
+  border-top:1px solid var(--line); font-weight:700;
+}
+h2 .num{color:var(--accent); font-variant-numeric:tabular-nums; margin-right:.45em}
+h3{font-size:1.03rem; margin:2.1em 0 .5em; font-weight:700}
+h4{font-size:.97rem; margin:1.5em 0 .4em; font-weight:700; color:var(--muted)}
+p{margin:0 0 1.05em}
+ul,ol{margin:0 0 1.05em; padding-left:1.4em}
+li{margin:.35em 0}
+strong{font-weight:700}
+a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; overflow-wrap:anywhere}
+code{background:var(--code); padding:.1em .35em; border-radius:3px; font-size:.9em}
+
+.calc{
+  background:var(--code); border-left:3px solid var(--accent);
+  padding:14px 16px; margin:1.1em 0; border-radius:0 5px 5px 0;
+  font-variant-numeric:tabular-nums; line-height:2.05; font-size:.97em;
+  overflow-x:auto;
+}
+.calc .big{font-weight:700; color:var(--accent)}
+
+.guess{
+  background:var(--guess-bg); border:2px dashed var(--guess-line);
+  border-radius:7px; padding:16px 18px; margin:1.5em 0;
+}
+.guess::before{
+  content:"⚠︎ 这一步是我的推测，不是定论";
+  display:block; font-weight:700; color:var(--guess-line);
+  font-size:.86rem; letter-spacing:.04em; margin-bottom:.6em;
+}
+.guess p:last-child{margin-bottom:0}
+
+.src{
+  font-size:.82rem; color:var(--muted); border-left:2px solid var(--line);
+  padding:.35em 0 .35em .8em; margin:.7em 0 1.3em; line-height:1.65;
+}
+.src b{color:var(--fg); font-weight:600}
+
+.card{
+  background:var(--card); border:1px solid var(--line);
+  border-radius:8px; padding:16px 18px; margin:1.4em 0;
+}
+.card > :last-child{margin-bottom:0}
+
+.q{color:var(--accent); font-weight:600}
+
+figure{margin:1.8em 0; padding:0}
+figure svg{display:block; width:100%; height:auto}
+figcaption{font-size:.85rem; color:var(--muted); margin-top:.7em; line-height:1.7}
+
+.tablewrap{overflow-x:auto; margin:1.3em 0; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; font-size:.9rem; min-width:440px}
+th,td{border-bottom:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top}
+th{background:var(--accent-soft); font-weight:700; font-size:.84rem}
+td.n{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+details{
+  border:1px solid var(--line); border-radius:7px; padding:12px 16px;
+  margin:.9em 0; background:var(--card);
+}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer; font-weight:600; font-size:.94rem; color:var(--accent)}
+details > :not(summary){margin-top:.9em}
+
+.tag{
+  display:inline-block; font-size:.72rem; padding:.15em .5em; border-radius:3px;
+  font-weight:700; letter-spacing:.03em; vertical-align:.12em;
+}
+.tag.f{background:var(--fact-bg); color:var(--fact-line); border:1px solid var(--fact-line)}
+.tag.a{background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent)}
+.tag.g{background:var(--guess-bg); color:var(--guess-line); border:1px dashed var(--guess-line)}
+
+hr.soft{border:0; border-top:1px solid var(--line); margin:2.4em 0}
+.lead{font-size:1.02rem}
+.foot{font-size:.85rem; color:var(--muted); margin-top:3.5em; border-top:1px solid var(--line); padding-top:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 10 · 领域 B：通胀、增长与宏观数据</div>
+  <h1>核心通胀 vs 整体通胀：为什么要把食品和能源扔掉，以及扔掉之后会漏掉什么</h1>
+  <p class="sub">
+    锚点原理 <strong>B2</strong>｜事件：美国经济分析局 2026 年 8 月 26 日发布 7 月 PCE 物价指数<br>
+    写作日期：2026 年 8 月 27 日（新加坡时间）
+  </p>
+</header>
+
+<h2><span class="num">0</span>今天你会学到什么</h2>
+
+<p class="lead">
+昨天（8 月 26 日）美国公布了 7 月份的物价数据。同一个月的物价，官方给出了两个数：一个是 <strong>3.7%</strong>，一个是 <strong>3.3%</strong>；如果换一套统计口径，还能给出 <strong>3.4%</strong> 和 <strong>2.5%</strong>。四个数都是真的，都在描述同一个 7 月。
+</p>
+
+<p>
+今天要讲明白的道理是：<strong>为什么统计局要把「食品」和「能源」从物价里剔掉，剔掉之后剩下的那个数叫「核心通胀」，以及这么做在什么时候是对的、什么时候会骗你。</strong>
+</p>
+
+<p>
+读完这一课，你应该能回答这个问题：<span class="q">当有人告诉你「通胀 3.7%」的时候，你要追问哪三件事，才知道这个数到底意味着什么？</span>——以及一个更实际的问题：美联储现在到底是「紧」还是「松」？你会发现这个问题的答案，完全取决于你用上面四个数里的哪一个。
+</p>
+
+<h2><span class="num">1</span>今天的事件（只写事实）</h2>
+
+<h3>1.1 昨天发布的：7 月 PCE 物价指数</h3>
+
+<p>
+2026 年 8 月 26 日美东时间上午 8:30，美国商务部下属的<strong>经济分析局（Bureau of Economic Analysis，简称 BEA）</strong>发布了 7 月份的《个人收入与支出》报告。里面有这几个数字：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>指标</th><th>环比（比上个月）</th><th>同比（比一年前的同一个月）</th></tr>
+<tr><td>PCE 物价指数 · <strong>整体</strong></td><td class="n">+0.2%</td><td class="n">+3.7%</td></tr>
+<tr><td>PCE 物价指数 · <strong>剔除食品与能源</strong></td><td class="n">+0.2%</td><td class="n">+3.3%</td></tr>
+<tr><td>个人收入</td><td class="n">+0.4%（+1151 亿美元）</td><td class="n">—</td></tr>
+<tr><td>个人消费支出（名义）</td><td class="n">+0.2%（+363 亿美元）</td><td class="n">—</td></tr>
+<tr><td>个人消费支出（<strong>实际</strong>，即扣掉涨价后）</td><td class="n">+&lt;0.1%</td><td class="n">—</td></tr>
+<tr><td>储蓄率</td><td class="n" colspan="2">3.0%</td></tr>
+</table>
+</div>
+
+<p><strong>口径必须说清楚，否则这些数字没有意义：</strong></p>
+<ul>
+<li><strong>谁发的</strong>：美国经济分析局（BEA），不是劳工统计局。这是两个不同的机构，做两套不同的物价指数，后面 1.2 会讲。</li>
+<li><strong>哪个月</strong>：2026 年 7 月的数据，2026 年 8 月 26 日发布——数据发布永远滞后于它描述的月份，这次滞后了将近一个月。</li>
+<li><strong>季调还是未季调</strong>：环比数字是<strong>季节调整后</strong>的。同比数字不需要季调（后面 7.2 会解释为什么）。</li>
+<li><strong>「核心」在这里的定义</strong>：BEA 的核心 PCE = 剔除「食品」和「能源」两大类之后的物价指数。注意——「核心」这个词在不同国家指的东西不一样，第 4 节会讲新加坡的版本。</li>
+<li><strong>环比有没有年化</strong>：这里的 +0.2% 是<strong>没有年化的月度变化</strong>。BEA 报告里另有一些「季调年率」的口径，那是给支出的美元金额用的，不是给这个 0.2% 用的。</li>
+<li><strong>「实际」的意思</strong>：名义支出 +0.2%，物价也 +0.2%，所以实际（扣掉涨价后的真实消费量）几乎为零。这是同一份报告里两个数字相减的结果。</li>
+</ul>
+
+<div class="src">
+<b>出处</b>：<a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA, Personal Income and Outlays, July 2026</a>（2026-08-26 发布）。核心 3.3%、整体 3.7% 另经
+<a href="https://www.cnbc.com/2026/08/26/feds-preferred-inflation-gauge-shows-core-prices-rose-3point3percent-annually-in-july.html">CNBC</a>、
+<a href="https://www.aljazeera.com/economy/2026/8/26/us-inflation-remains-sticky-in-july">Al Jazeera</a>、
+<a href="https://finance.yahoo.com/economy/policy/articles/july-2026-pce-inflation-data-124921061.html">Yahoo Finance</a> 三家独立复核一致。
+</div>
+
+<h3>1.2 两周前发布的：同一个 7 月的 CPI</h3>
+
+<p>
+在讲传导链之前，必须先把另一套数字摆上来，因为今天的整个故事就藏在两套数字的差异里。
+</p>
+
+<p>
+2026 年 8 月 12 日，另一个机构——<strong>劳工统计局（Bureau of Labor Statistics，简称 BLS）</strong>——发布了同样是 7 月份的 <strong>CPI（消费者价格指数）</strong>。数字是这样的：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>CPI 分项（2026 年 7 月，未季调，比一年前）</th><th>同比涨幅</th></tr>
+<tr><td><strong>整体（All items）</strong></td><td class="n"><strong>+3.4%</strong></td></tr>
+<tr><td>食品</td><td class="n">+3.0%</td></tr>
+<tr><td>　└ 家里吃（食品杂货）</td><td class="n">+2.7%</td></tr>
+<tr><td>　└ 外面吃（餐饮）</td><td class="n">+3.4%</td></tr>
+<tr><td><strong>能源</strong></td><td class="n"><strong>+14.7%</strong></td></tr>
+<tr><td>　└ 汽油（各标号）</td><td class="n">+24.6%</td></tr>
+<tr><td>　└ 天然气</td><td class="n">+4.3%</td></tr>
+<tr><td>　└ 电力</td><td class="n">+4.2%</td></tr>
+<tr><td><strong>整体剔除食品与能源（＝核心 CPI）</strong></td><td class="n"><strong>+2.5%</strong></td></tr>
+<tr><td>　└ 住房（shelter）</td><td class="n">+3.2%</td></tr>
+<tr><td>　└ 交通服务</td><td class="n">+2.9%</td></tr>
+<tr><td>　└ 医疗服务</td><td class="n">+2.7%</td></tr>
+<tr><td>　└ 剔除食品能源的商品</td><td class="n">+0.8%</td></tr>
+<tr><td>　　　└ 二手车</td><td class="n">−1.9%</td></tr>
+<tr><td>　　　└ 服装</td><td class="n">+3.9%</td></tr>
+</table>
+</div>
+
+<p>
+月度（季调后）：整体 CPI 7 月 +0.1%（6 月是 −0.4%），核心 CPI +0.2%（6 月持平）；能源分项当月 −1.5%，其中汽油 −2.9%。
+</p>
+
+<div class="src">
+<b>出处</b>：<a href="https://www.bls.gov/news.release/archives/cpi_08122026.htm">BLS, Consumer Price Index — July 2026</a>（2026-08-12 发布）；分项同比见 <a href="https://www.bls.gov/opub/ted/2026/consumer-prices-up-3-4-over-the-year-in-july-2026.htm">BLS TED, "Consumer prices up 3.4 percent over the year in July 2026"</a>。<b>口径</b>：上表所有同比数字均为<strong>未季调</strong>；月度数字为<strong>季调后</strong>。
+</div>
+
+<h3>1.3 把四个数字摆在一起</h3>
+
+<div class="card">
+<div class="tablewrap">
+<table>
+<tr><th>2026 年 7 月，同比</th><th>整体</th><th>核心（剔食品能源）</th><th>裂口</th></tr>
+<tr><td><strong>CPI</strong>（BLS，未季调）</td><td class="n">3.4%</td><td class="n">2.5%</td><td class="n">0.9 pp</td></tr>
+<tr><td><strong>PCE</strong>（BEA）</td><td class="n">3.7%</td><td class="n">3.3%</td><td class="n">0.4 pp</td></tr>
+</table>
+</div>
+<p style="margin-top:.9em; font-size:.9rem; color:var(--muted)">
+pp = percentage point（百分点）。「3.4% 和 2.5% 相差 0.9 个百分点」，不能说「相差 0.9%」——后面 7.1 会讲这个区别。
+</p>
+</div>
+
+<p>
+这张表里有<strong>两件反直觉的事</strong>，今天全程围绕它们展开：
+</p>
+<ol>
+<li><strong>在 CPI 里，整体比核心高了 0.9 个百分点</strong>——这个裂口从哪来？（第 3 节环 1–环 3，纯算术，可以自己验算）</li>
+<li><strong>核心 PCE（3.3%）居然比核心 CPI（2.5%）还高</strong>——两个都叫「核心」，都剔了食品能源，差了 0.8 个百分点。这件事本身是事实；<strong>为什么</strong>差这么多，我今天只查到了机构的解释，没查到官方的分项分解。这一环我会明写「接不上」。</li>
+</ol>
+
+<h3>1.4 政策背景（这条链的落点）</h3>
+
+<ul>
+<li><strong>联邦基金利率目标区间：3.50%–3.75%</strong>，自 2025 年 12 月 11 日降息 25 个基点后未变。准备金余额利率（IORB）3.65%，贴现窗口一级信贷利率 3.75%，2026 年 7 月 30 日起生效。</li>
+<li><strong>7 月 28–29 日的 FOMC 会议决定按兵不动，但投票是 9 比 3</strong>。三位反对者 Beth Hammack、Neel Kashkari、Lorie Logan <strong>主张加息 25 个基点</strong>。</li>
+<li>会议声明的原话：通胀「相对于委员会 2% 的目标仍然偏高，部分反映了推高特定部门价格的供给冲击」（"Inflation remains elevated relative to the Committee's 2 percent goal, in part reflecting supply shocks that have driven price increases in certain sectors."）</li>
+</ul>
+
+<div class="src">
+<b>出处</b>：<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">Federal Reserve, Implementation Note, July 29, 2026</a>（利率数字）；<a href="https://www.federalreserve.gov/monetarypolicy/openmarket.htm">Fed, Open Market Operations</a>（2025-12-11 的降息记录）；声明措辞与 9–3 投票见 <a href="https://www.mnimarkets.com/articles/fomc-july-2026-statement-1785348008523">MNI, FOMC July 2026 Statement</a>。
+</div>
+
+<h3>1.5 昨天的市场读数</h3>
+
+<div class="tablewrap">
+<table>
+<tr><th>市场</th><th>8/26 读数</th><th>对照</th></tr>
+<tr><td>美债 3 个月（CMT）</td><td class="n">3.85%</td><td class="n">8/25：3.86%</td></tr>
+<tr><td>美债 <strong>2 年</strong>（CMT）</td><td class="n">4.19%</td><td class="n">8/25：4.17%（+2bp）</td></tr>
+<tr><td>美债 5 年</td><td class="n">4.37%</td><td class="n">8/25：4.35%</td></tr>
+<tr><td>美债 <strong>10 年</strong>（CMT）</td><td class="n">4.66%</td><td class="n">8/25：4.64%（+2bp）</td></tr>
+<tr><td>美债 30 年</td><td class="n">5.18%</td><td class="n">8/25：5.17%</td></tr>
+<tr><td>标普 500</td><td class="n">收盘 −0.01%</td><td class="n">盘中一度 7,677（+0.32%）</td></tr>
+<tr><td>纳斯达克综合</td><td class="n">收盘 −0.16%</td><td class="n">盘中一度 26,151（+0.66%）</td></tr>
+<tr><td>美元指数（DXY）</td><td class="n">99.07（+0.17%）</td><td class="n">—</td></tr>
+<tr><td>VIX</td><td class="n">15.70</td><td class="n">—</td></tr>
+<tr><td>布伦特原油</td><td class="n">$86（−2.91%）</td><td class="n">WTI $80.2（−2.6%）</td></tr>
+<tr><td>黄金</td><td class="n">$4,673.6/盎司（−0.45%）</td><td class="n">—</td></tr>
+<tr><td>USD/SGD</td><td class="n">1.2695（+0.02%）</td><td class="n">近一月 SGD 走强 1.68%</td></tr>
+</table>
+</div>
+
+<p style="font-size:.9rem;color:var(--muted)">
+注意标普与纳指有两组数：盘中（早盘）为涨，收盘转为微跌。我把两组都列出来，是因为「PCE 公布后市场怎么走」这个说法，取决于你截取哪个时点——这本身就是一个容易被叙事利用的地方。<strong>唯一确定的事实是：全天振幅极小，没有大动。</strong>
+</p>
+
+<div class="src">
+<b>出处</b>：国债收益率来自美国财政部 <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value=2026">Daily Treasury Par Yield Curve Rates</a>（一手数据，CMT＝固定期限国债收益率）；盘中股指、DXY、VIX、WTI 来自 <a href="https://www.schwab.com/learn/story/stock-market-update-open">Schwab Market Update, Aug 26 2026</a>；收盘涨跌、黄金、布伦特来自 <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-aug-26-2026">TheStreet, Aug 26 2026</a>；USD/SGD 来自 <a href="https://tradingeconomics.com/singapore/currency">Trading Economics</a>（非一手，标注为次级来源）。
+</div>
+
+<style>
+.chain .box{fill:var(--card); stroke:var(--fg); stroke-width:1.6}
+.chain .box.calcbox{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.6}
+.chain .box.guessbox{fill:var(--guess-bg); stroke:var(--guess-line); stroke-width:1.8; stroke-dasharray:7 5}
+.chain .box.endbox{fill:var(--fact-bg); stroke:var(--fact-line); stroke-width:1.8}
+.chain text{fill:var(--fg); font-family:inherit}
+.chain .t{font-size:14.5px; font-weight:700}
+.chain .s{font-size:12.5px; fill:var(--muted)}
+.chain .lbl{font-size:11.5px; fill:var(--muted)}
+.chain .arw{stroke:var(--fg); stroke-width:2; fill:none}
+.chain .arw.dash{stroke:var(--guess-line); stroke-width:2; stroke-dasharray:7 5}
+.chain .hd{fill:var(--fg)}
+.chain .hd.g{fill:var(--guess-line)}
+.chain .gt{fill:var(--guess-fg)}
+.chain .gs{fill:var(--guess-line); font-weight:700}
+.chain .em{fill:var(--fg); font-weight:700}
+.chain .sep{stroke:var(--line)}
+</style>
+
+<h2><span class="num">2</span>传导链全图</h2>
+
+<figure>
+<svg class="chain" viewBox="0 0 640 1180" role="img" aria-label="从汽油价格到美联储政策与市场定价的传导链">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="hd"/>
+    </marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="hd g"/>
+    </marker>
+  </defs>
+
+  <!-- 环1 -->
+  <rect class="box" x="20" y="10" width="600" height="64" rx="7"/>
+  <text class="t" x="38" y="36">环 1　美国加油站的汽油零售价，一年内涨了三成</text>
+  <text class="s" x="38" y="58">EIA 周度全国均价：2025/8 每加仑 $3.147 → 2026/8/24 每加仑 $4.085</text>
+
+  <line class="arw" x1="320" y1="74" x2="320" y2="106" marker-end="url(#ah)"/>
+  <text class="lbl" x="332" y="95">同一件事的两种测量</text>
+
+  <!-- 环2 -->
+  <rect class="box" x="20" y="112" width="600" height="64" rx="7"/>
+  <text class="t" x="38" y="138">环 2　CPI 的「能源」分项同比 +14.7%（汽油 +24.6%）</text>
+  <text class="s" x="38" y="160">BLS 2026 年 7 月 CPI，未季调同比</text>
+
+  <line class="arw" x1="320" y1="176" x2="320" y2="208" marker-end="url(#ah)"/>
+  <text class="lbl" x="332" y="197">乘以它在篮子里的权重</text>
+
+  <!-- 环3 -->
+  <rect class="box calcbox" x="20" y="214" width="600" height="80" rx="7"/>
+  <text class="t" x="38" y="240">环 3　能源权重 7.432% × 14.7% ≈ 拉高整体 CPI 1.09 个百分点</text>
+  <text class="s" x="38" y="262">这一步是纯算术：权重来自 BLS 相对重要性表（2026 年 6 月），</text>
+  <text class="s" x="38" y="280">涨幅来自 BLS 发布，两者相乘，你可以自己按计算器验证</text>
+
+  <line class="arw" x1="320" y1="294" x2="320" y2="326" marker-end="url(#ah)"/>
+
+  <!-- 环4 -->
+  <rect class="box calcbox" x="20" y="332" width="600" height="80" rx="7"/>
+  <text class="t" x="38" y="358">环 4　整体 CPI 3.4% ── 核心 CPI 2.5% ＝ 裂口 0.9 个百分点</text>
+  <text class="s" x="38" y="380">把裂口拆开：能源贡献 0.91pp，食品贡献 0.07pp</text>
+  <text class="s" x="38" y="398">→ 这个裂口的 93% 是能源一项造成的（算术推导，见第 3 节）</text>
+
+  <line class="arw" x1="320" y1="412" x2="320" y2="444" marker-end="url(#ah)"/>
+  <text class="lbl" x="332" y="433">但美联储盯的不是 CPI</text>
+
+  <!-- 环5 -->
+  <rect class="box" x="20" y="450" width="600" height="82" rx="7"/>
+  <text class="t" x="38" y="476">环 5　换成 PCE 口径：整体 3.7%、核心 3.3%（核心与 6 月持平）</text>
+  <text class="s" x="38" y="498">裂口只有 0.4pp，比 CPI 的 0.9pp 小一半；</text>
+  <text class="s" x="38" y="516">而核心 PCE（3.3%）反而<tspan class="em">高于</tspan>核心 CPI（2.5%）——这是事实，不是笔误</text>
+
+  <!-- 分叉：虚线支路 -->
+  <path class="arw dash" d="M 120 532 L 120 566" marker-end="url(#ahg)"/>
+  <line class="arw" x1="420" y1="532" x2="420" y2="700" marker-end="url(#ah)"/>
+
+  <rect class="box guessbox" x="20" y="572" width="330" height="106" rx="7"/>
+  <text class="t gt" x="36" y="596">环 5a　为什么核心 PCE 更高？</text>
+  <text class="s" x="36" y="617">机构解释：CPI 里住房权重约 34%、PCE 里</text>
+  <text class="s" x="36" y="635">只有约 16%，而住房正在降温；软件、医疗</text>
+  <text class="s" x="36" y="653">在 PCE 里权重更大且在加速。</text>
+  <text class="s gs" x="36" y="671">我没有复核过分项贡献，这一环是虚线。</text>
+
+  <!-- 环6 -->
+  <rect class="box" x="20" y="706" width="600" height="82" rx="7"/>
+  <text class="t" x="38" y="732">环 6　美联储 7 月按兵不动，但投票 9 比 3</text>
+  <text class="s" x="38" y="754">三位委员主张加息 25bp；声明称通胀偏高「部分反映了</text>
+  <text class="s" x="38" y="772">推高特定部门价格的供给冲击」</text>
+
+  <line class="arw" x1="320" y1="788" x2="320" y2="820" marker-end="url(#ah)"/>
+
+  <!-- 环7 -->
+  <rect class="box" x="20" y="826" width="600" height="100" rx="7"/>
+  <text class="t" x="38" y="852">环 7　市场把「未来会加息」写进了价格</text>
+  <text class="s" x="38" y="874">2 年期国债 4.19%，比准备金利率 3.65% 高 54bp；</text>
+  <text class="s" x="38" y="892">3 个月国债 3.85%，已高出目标区间上沿 3.75%；</text>
+  <text class="s" x="38" y="910">预测市场：9 月加息概率约 38%，年内加息概率约 73%</text>
+
+  <line class="arw" x1="320" y1="926" x2="320" y2="958" marker-end="url(#ah)"/>
+  <text class="lbl" x="332" y="947">可是再往远看……</text>
+
+  <!-- 环8 -->
+  <rect class="box endbox" x="20" y="964" width="600" height="100" rx="7"/>
+  <text class="t" x="38" y="990">环 8　5 年期盈亏平衡通胀率只有 2.31%</text>
+  <text class="s" x="38" y="1012">5 年名义国债 4.35% ── 5 年抗通胀国债 2.04% ＝ 2.31%（8/25）</text>
+  <text class="s" x="38" y="1030">10 年同样算法 ＝ 2.32%。纯减法，可自行验算。</text>
+  <text class="s" x="38" y="1048" font-weight="700">→ 债券市场认为：眼下的高通胀是暂时的</text>
+
+  <!-- 图例 -->
+  <line class="sep" x1="20" y1="1090" x2="620" y2="1090" stroke-width="1"/>
+  <text class="lbl" x="20" y="1112" font-weight="700">图例：</text>
+  <rect class="box" x="72" y="1100" width="26" height="15" rx="3"/>
+  <text class="lbl" x="104" y="1112">有一手出处</text>
+  <rect class="box calcbox" x="192" y="1100" width="26" height="15" rx="3"/>
+  <text class="lbl" x="224" y="1112">算术推导（可自验）</text>
+  <rect class="box guessbox" x="360" y="1100" width="26" height="15" rx="3"/>
+  <text class="lbl" x="392" y="1112">我的推测 / 未复核</text>
+  <rect class="box endbox" x="516" y="1100" width="26" height="15" rx="3"/>
+  <text class="lbl" x="548" y="1112">链条终点</text>
+  <text class="lbl" x="20" y="1140">实线箭头＝有出处或纯算术；虚线箭头＝我接不上、只有二手解释的地方。</text>
+  <text class="lbl" x="20" y="1160">链条只画到我今天查得动的地方为止；第 9 节列出全部出处与缺口。</text>
+</svg>
+<figcaption>
+从加油站到国债市场：Day 10 传导链。注意这条链<strong>没有画「油价上涨 → 核心通胀上涨」这一环</strong>——那一环今天我查不实，见第 3 节环 4 的「什么情况下这一环会断」。
+</figcaption>
+</figure>
+
+<h3>用人话把这条链读一遍</h3>
+
+<p>
+过去一年，美国加油站的汽油从每加仑 3.15 美元涨到 4.09 美元。统计局把这件事记进 CPI 的「能源」栏，那一栏同比涨了 14.7%。能源在美国人的消费篮子里占 7.4% 的分量，所以光是这一栏，就把整体物价指数往上推了大约 1.1 个百分点。
+</p>
+
+<p>
+把食品和能源两栏都拿掉，剩下的部分（占篮子 79%）只涨了 2.5%。于是同一个 7 月，「整体 3.4%」和「核心 2.5%」并存，中间 0.9 个百分点的差，九成来自能源。
+</p>
+
+<p>
+但美联储不看 CPI，它盯的是 BEA 编的 PCE。换到 PCE 口径，整体 3.7%、核心 3.3%，裂口缩到 0.4 个百分点——而且更奇怪的是，PCE 的「核心」比 CPI 的「核心」还高出 0.8 个百分点。<strong>这两个「核心」都剔掉了食品和能源，结果却差这么多，说明「剔掉食品能源」远不是全部故事。</strong>
+</p>
+
+<p>
+美联储 7 月开会时看到的就是这幅图景：核心 PCE 稳在 3.3% 没再往上走，所以多数人主张继续等；但整体通胀 3.7%、已经在 2% 目标之上待了很久，所以三位委员投了加息票。
+</p>
+
+<p>
+市场把这个僵局定了价：3 个月国债 3.85%，比政策利率上沿还高；2 年期 4.19%，比准备金利率高出半个多百分点——这些数字只有在「未来一段时间平均利率会比现在高」的假设下才说得通。可是同一个债券市场，对未来 5 年的通胀报价只有 2.31%。<strong>翻译过来就是：市场认为美联储可能还要再加一点，但加完之后通胀会回到 2% 附近——现在这波高通胀是暂时的。</strong>
+</p>
+
+<p>
+第 5 节会把这个「暂时的」假设拆开，看它到底脆在哪里。
+</p>
+
+<h2><span class="num">3</span>逐环拆解</h2>
+
+<h3>环 1 → 环 2：加油站的价格，怎么变成「能源同比 +14.7%」</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>
+这一环其实不是「导致」，而是<strong>同一件事的两种测量</strong>，但正因为如此，它是全篇最适合用来搞清楚「同比」到底是什么意思的地方。
+</p>
+
+<p>
+美国能源信息署（EIA）每周会去全国的加油站抄价格，算一个全国平均值。它给出的两个数是：
+</p>
+
+<div class="calc">
+2025 年 8 月这一周：每加仑 <b>$3.147</b><br>
+2026 年 8 月 24 日这一周：每加仑 <b>$4.085</b>
+</div>
+
+<p>
+「涨了多少」怎么算？把新价格除以旧价格，再减 1：
+</p>
+
+<div class="calc">
+4.085 ÷ 3.147 = 1.2981<br>
+1.2981 − 1 = 0.2981 = <span class="big">+29.8%</span>
+</div>
+
+<p>
+这个「拿今天的价格跟<strong>一年前同一时点</strong>比」的算法，经济学里叫<strong>同比</strong>（英文：year-over-year，缩写 YoY）。
+</p>
+
+<p>
+<span class="q">你可能会想：为什么不干脆跟上个月比？</span>因为很多东西有季节性。美国夏天开车多，汽油需求高，价格天然就比冬天贵。如果你拿 7 月跟 1 月比，你分不清涨价是「真的变贵了」还是「本来夏天就贵」。跟<strong>去年同月</strong>比，季节因素在分子分母上同时出现，就被抵消掉了。
+</p>
+
+<p>
+（跟上个月比的算法叫<strong>环比</strong>，英文 month-over-month，MoM。环比要能用，必须先做<strong>季节调整</strong>——统计局用历史数据估出「7 月本来该比 6 月贵多少」，再把这部分扣掉。所以你会看到：同比数字通常是未季调的，环比数字通常是季调后的。第 1 节表格里我特意把这两个口径都标了出来，就是这个原因。）
+</p>
+
+<p>
+现在回到 CPI。BLS 给出的 7 月汽油同比是 <strong>+24.6%</strong>，EIA 给出的 8 月 24 日当周同比是 <strong>+29.8%</strong>。两个数不一样，但不矛盾——它们是<strong>不同时点</strong>的同比：一个是「7 月整月平均 vs 去年 7 月整月平均」，一个是「8 月下旬那一周 vs 去年同期那一周」。
+</p>
+
+<p>
+这个细节值得记住：<strong>EIA 的 8 月读数比 CPI 的 7 月读数还要高。</strong>这意味着 8 月的 CPI 能源分项大概率不会明显降下来。这是一个可以事先做的、可以被证伪的预测——9 月中旬公布 8 月 CPI 时就能验证。
+</p>
+
+<h4>这个影响有多大</h4>
+<p>汽油从 $3.147 涨到 $4.085，每加仑多花 93.8 美分。这是 EIA 表格里直接给出的数字。</p>
+
+<h4>什么情况下这一环会断</h4>
+<p>
+CPI 的汽油分项和 EIA 的零售均价并非同一套采样：BLS 有自己的采价点和加权方法。两者<strong>方向</strong>一致是常态，<strong>数值</strong>不会完全相等。如果哪天两者方向都分岔了，那说明其中一套的采样出了问题——这时候不该硬套。
+</p>
+
+<div class="src"><b>这一环的依据</b>：<a href="https://www.eia.gov/petroleum/gasdiesel/">EIA, Weekly Retail Gasoline Prices</a>（一手）＋ <a href="https://www.bls.gov/opub/ted/2026/consumer-prices-up-3-4-over-the-year-in-july-2026.htm">BLS TED</a>（一手）＋ 除法算术。</div>
+
+<hr class="soft">
+
+<h3>环 3：为什么「能源涨 14.7%」只把整体物价推高 1.1 个百分点</h3>
+
+<h4>先说一件生活里的事</h4>
+
+<p>
+假设你一个月花 1000 新币，其中：房租 400、吃饭 300、交通 100、其他 200。
+</p>
+
+<p>
+现在交通费涨了 50%。你这个月要多花多少？很多人第一反应是「涨 50% 啊，那我多花 500」。不对。交通只占你 100 块，涨 50% 是多花 <strong>50 块</strong>。相对于你 1000 块的总开销，这是多花了 5%。
+</p>
+
+<div class="calc">
+交通涨幅 50% × 交通占比 10% = <span class="big">总开销涨 5%</span>
+</div>
+
+<p>
+这就是<strong>加权平均</strong>的全部内容：一个分项对总体的影响，等于「它自己涨了多少」乘以「它在总体里占多大分量」。经济学和统计学里，这个「占多大分量」叫<strong>权重</strong>（英文：weight）。
+</p>
+
+<p>
+CPI 就是这么算的。BLS 每个月去全国采集几万个价格，分成几百个类别，每个类别有一个权重——这个权重来自消费者支出调查，反映「一个典型美国城市家庭的钱，有多大比例花在这一类上」。
+</p>
+
+<h4>把真实数字代进去</h4>
+
+<p>BLS 公布的 2026 年 6 月相对重要性（用于 7 月 CPI 表）：</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>大类</th><th>权重（%）</th><th>7 月同比（%）</th><th>贡献 = 权重 × 涨幅</th></tr>
+<tr><td>食品</td><td class="n">13.522</td><td class="n">+3.0</td><td class="n">0.406 pp</td></tr>
+<tr><td>能源</td><td class="n">7.432</td><td class="n">+14.7</td><td class="n">1.093 pp</td></tr>
+<tr><td>其余一切（＝核心）</td><td class="n">79.047</td><td class="n">+2.5</td><td class="n">1.976 pp</td></tr>
+<tr><th>合计</th><th class="n">100.001</th><th></th><th class="n">3.47 pp</th></tr>
+</table>
+</div>
+
+<p>你可以自己按一遍：</p>
+
+<div class="calc">
+食品：0.13522 × 3.0 = 0.406<br>
+能源：0.07432 × 14.7 = 1.093<br>
+核心：0.79047 × 2.5 = 1.976<br>
+── 相加 ──────────<br>
+合计 = <span class="big">3.47</span>　　官方公布的整体 CPI = <b>3.4</b>
+</div>
+
+<p>
+<span class="q">你可能会想：3.47 和 3.4 对不上啊？</span>对得上。因为我手上的三个涨幅数字（3.0、14.7、2.5）都是<strong>四舍五入到一位小数</strong>之后的。真实的核心涨幅可能是 2.45%，也可能是 2.54%，都会显示成「2.5」。把核心换成 2.45 再算一遍：
+</p>
+
+<div class="calc">
+0.79047 × 2.45 = 1.937<br>
+1.937 + 0.406 + 1.093 = <span class="big">3.44</span>　→ 四舍五入正是 3.4
+</div>
+
+<p>
+<strong>这就是我说「可以自己验算」的意思</strong>：这不是我告诉你的结论，是你拿三个公开数字加权平均得到的。误差落在四舍五入能解释的范围内，说明我没有搞错权重口径。
+</p>
+
+<h4>做一个反事实：如果能源一年没涨</h4>
+
+<p>
+把能源那一栏的涨幅换成 0，其它不动：
+</p>
+
+<div class="calc">
+0.79047 × 2.5 + 0.13522 × 3.0 + 0.07432 × <b>0</b><br>
+= 1.976 + 0.406 + 0 = <span class="big">2.38%</span>
+</div>
+
+<p>
+也就是说：<strong>如果汽油这一年没涨，美国的整体 CPI 会是 2.4% 而不是 3.4%。</strong>一个占篮子 7.4% 的分项，一个人就把整体通胀抬高了一个百分点。
+</p>
+
+<h4>这一环的核心结论：裂口的 93% 来自能源</h4>
+
+<p>
+「整体 3.4%、核心 2.5%」，中间差 0.9 个百分点。这 0.9 是怎么来的？食品和能源各贡献了多少？
+</p>
+
+<p>
+算法是这样的：整体 = 核心的加权 + 食品的加权 + 能源的加权。而「核心 2.5%」这个数，等价于假设食品和能源也涨 2.5%。所以：<strong>裂口 = 食品和能源「比核心多涨的部分」乘以它们的权重。</strong>
+</p>
+
+<div class="calc">
+食品：(3.0 − 2.5) × 0.13522 = 0.5 × 0.13522 = <b>0.068 pp</b><br>
+能源：(14.7 − 2.5) × 0.07432 = 12.2 × 0.07432 = <b>0.907 pp</b><br>
+── 相加 ──────────<br>
+合计 = <span class="big">0.975 pp</span>　　实际裂口 3.4 − 2.5 = <b>0.9 pp</b>（同样是四舍五入范围内）
+</div>
+
+<div class="calc">
+能源占裂口的比例：0.907 ÷ 0.975 = <span class="big">93.1%</span>
+</div>
+
+<p>
+<strong>所以：「整体和核心为什么差这么多」这个问题，93% 的答案就是一个字——油。</strong>食品其实几乎没有参与这次的裂口（只有 0.07pp），尽管它的权重比能源大将近一倍。原因很简单：食品这一年只涨了 3.0%，跟核心的 2.5% 差不多，没什么可分岔的。
+</p>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>权重会变。</strong> BLS 每年更新一次相对重要性，反映消费习惯的变化。用旧权重去算新数据会有偏差。我这里用的是官方随 7 月 CPI 表一起公布的 2026 年 6 月权重，所以是配套的。</li>
+<li><strong>加权平均只对「变化率的加权」近似成立。</strong> 严格来说 CPI 是指数的加权，不是变化率的加权；在涨幅不大时两者几乎一样，在恶性通胀那种量级会分岔。这次的误差落在四舍五入范围内，说明近似在这里是够用的。</li>
+<li><strong>这个分解不解释因果，只做会计。</strong> 它告诉你「裂口的 93% 来自能源」，<strong>不</strong>告诉你「能源涨价没有影响核心」——后面环 4 会专门讲这个陷阱。</li>
+</ul>
+
+<div class="src"><b>这一环的依据</b>：权重来自 <a href="https://www.bls.gov/news.release/cpi.t01.htm">BLS CPI Table 1（Relative importance, June 2026）</a>（一手）；涨幅来自 BLS 7 月 CPI 发布（一手）；<b>加权平均与分解全部是算术推导，读者可自行验算。</b></div>
+
+<hr class="soft">
+
+<h3 id="anchor">环 4（今天的主菜）：为什么统计局要把食品和能源扔掉</h3>
+
+<p style="color:var(--muted); font-size:.92rem">
+这是今天的<strong>锚点原理 B2</strong>。这一节最长，因为这件事在学界有真实的分歧，我会把主张和反对两边都摆出来。
+</p>
+
+<h4>先说一件生活里的事：你怎么判断自己是不是在变胖</h4>
+
+<p>
+假设你每天早上称体重。这一周的数字是：68.2、69.5、68.0、70.1、68.4、69.8、68.6 公斤。
+</p>
+
+<p>
+你变胖了吗？看不出来。因为每天上下差一两公斤——喝了多少水、有没有出汗、前一天吃了什么，全都会影响。这些波动是<strong>真实发生的</strong>（秤没坏，你那天确实是 70.1 公斤），但它们<strong>不告诉你趋势</strong>。
+</p>
+
+<p>
+所以健身的人会做两件事：一是看七天平均，二是<strong>把明显异常的那天剔掉再平均</strong>。比如你知道昨天吃了火锅，今天那个 70.1 就先不算。
+</p>
+
+<p>
+<span class="q">注意这里有个重要的逻辑：剔掉 70.1，不是因为你觉得那天不算数，而是因为你要回答的问题是「我的长期趋势往哪走」，而不是「我今天多重」。</span>换一个问题，答案就变了——如果你问的是「我今天穿这条裤子会不会紧」，那 70.1 才是唯一相关的数字，七天平均反而没用。
+</p>
+
+<p>
+<strong>核心通胀就是物价版本的「剔掉火锅那天」。</strong>
+</p>
+
+<h4>把它翻译成经济学</h4>
+
+<p>
+经济学给这件事起了个名字：
+</p>
+<ul>
+<li>你实际付的、包含所有东西的物价涨幅，叫<strong>整体通胀</strong>（英文：headline inflation）。</li>
+<li>剔掉波动最凶的几类之后剩下的，叫<strong>核心通胀</strong>（英文：core inflation）。</li>
+</ul>
+
+<p>
+「核心」这个词是经济学家 Robert Gordon 在 1975 年提出来的，指的是「潜在的通胀率，与暂时性的通胀波动相对」。这个说法本身就已经把它的目的写清楚了：<strong>核心通胀不是「更真实的物价」，它是「对趋势的一个估计」。</strong>
+</p>
+
+<div class="src"><b>出处</b>：Gordon (1975) 提出 core 概念一事，见 Andrew Detmeister, <a href="https://www.federalreserve.gov/pubs/feds/2012/201243/index.html">"What Should Core Inflation Exclude?"</a>, Federal Reserve FEDS Working Paper 2012-43，该文明确将 core 概念的提出归于 Gordon (1975)。Gordon 原文为 <a href="https://www.brookings.edu/wp-content/uploads/1975/01/1975a_bpea_gordon.pdf">"Alternative Responses of Policy to External Supply Shocks," Brookings Papers on Economic Activity, 1975</a>。</div>
+
+<h4>为什么央行需要一个「趋势估计」而不是「今天多重」</h4>
+
+<p>
+这一步不能跳，因为它是整个概念存在的理由。
+</p>
+
+<p>
+央行手上的工具是利率。<strong>加息要经过多久才影响到物价？</strong>不是当天，也不是当月。加息先影响到借钱的成本，借钱成本影响到企业招不招人、家庭买不买房，招人和买房影响到需求，需求再影响到价格。这一串下来要几个季度。
+</p>
+
+<p>
+所以央行今天做的决定，作用点在一年以后。这意味着它必须回答的问题是：<strong>「一年后物价大概在什么水平」</strong>，而不是「上个月物价多少」。
+</p>
+
+<p>
+现在把这个问题跟油价放在一起看。用今天的真实数字：
+</p>
+
+<div class="calc">
+7 月 CPI 汽油同比：<b>+24.6%</b>
+</div>
+
+<p>
+央行加息，能让汽油便宜吗？加息可以压需求，需求少了油价确实会松一点。但这一年汽油涨 24.6%，主要原因写在美联储自己的会议声明里：「<strong>推高特定部门价格的供给冲击</strong>」。一场供给端的冲击——航道、产能、地缘——不是靠美国的利率能修复的。你把美国经济砸出一个衰退，中东的航道也不会因此重开。
+</p>
+
+<p>
+所以逻辑链是这样的：
+</p>
+<ol>
+<li>央行的工具只对<strong>需求</strong>起作用；</li>
+<li>油价这一年的涨幅主要来自<strong>供给</strong>；</li>
+<li>所以央行对着油价加息，付出的是压垮需求的代价，换来的却是它管不了的那部分价格；</li>
+<li>而且等到加息见效的时候（一年后），这次的供给冲击很可能已经过去了——那时候央行反而变成在给一个已经消失的问题下猛药。</li>
+</ol>
+
+<p>
+<strong>这就是「剔掉食品和能源」的完整理由</strong>：不是因为它们不重要（对普通人来说它们重要得要命），而是因为<strong>央行对它们既无能为力、又来不及反应</strong>。
+</p>
+
+<h4>用算术看「不剔掉会有多糟」</h4>
+
+<p>
+下面这组数字是<strong>示意数字，只为演示算法，不是真实数据</strong>。
+</p>
+
+<p>
+假设一个经济体只有两样东西：能源（权重 10%）和其他（权重 90%）。「其他」每年稳稳涨 2%。能源的价格在两年间来回震荡：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>年份</th><th>能源同比</th><th>其他同比</th><th>整体通胀 = 0.1×能源 + 0.9×其他</th></tr>
+<tr><td>第 1 年</td><td class="n">+40%</td><td class="n">+2%</td><td class="n">0.1×40 + 0.9×2 = <strong>5.8%</strong></td></tr>
+<tr><td>第 2 年</td><td class="n">−25%</td><td class="n">+2%</td><td class="n">0.1×(−25) + 0.9×2 = <strong>−0.7%</strong></td></tr>
+</table>
+</div>
+
+<p>
+一个只盯整体通胀的央行会怎么做？第 1 年看到 5.8%，惊慌加息；第 2 年看到 −0.7%（通缩！），惊慌降息。两年之内政策做了一个 180 度的大转弯。
+</p>
+
+<p>
+而这两年里，<strong>真正的趋势通胀一直是 2%，一动没动。</strong>央行的两次大动作，全是被能源那一栏的来回摆动骗出来的——而且因为政策有一年的时滞，第 1 年的加息刚好在第 2 年的通缩里发力，第 2 年的降息又会在第 3 年火上浇油。<strong>它每一步都踩在拍子的反面。</strong>
+</p>
+
+<p>
+一个盯核心通胀的央行会看到 2%、2%，什么都不做，结果反而是对的。
+</p>
+
+<h4>今天的数据支持这个说法吗？——支持，但只支持一半</h4>
+
+<p>
+上面那个例子是我编的示意数字。现在看真实的：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>2026 年 7 月，同比，CPI 口径</th><th>读数</th><th>它在说什么</th></tr>
+<tr><td>整体 CPI</td><td class="n">3.4%</td><td>你实际付的钱</td></tr>
+<tr><td>核心 CPI（剔食品能源）</td><td class="n">2.5%</td><td>扔掉两个大类之后</td></tr>
+<tr><td><strong>中位数 CPI</strong>（克利夫兰联储）</td><td class="n">2.7%</td><td>把所有分项按涨幅排队，取正中间那个</td></tr>
+<tr><td><strong>16% 削尾均值 CPI</strong>（克利夫兰联储）</td><td class="n">2.6%</td><td>掐头去尾各 8%，剩下的求平均</td></tr>
+</table>
+</div>
+
+<p>
+四个数：3.4、2.5、2.7、2.6。<strong>三个「去掉极端值」的方法互相接近（2.5–2.7），只有整体 CPI 一个人跑在 3.4。</strong>
+</p>
+
+<p>
+这是一个有分量的证据。因为中位数和削尾均值<strong>并不预先指定要扔掉谁</strong>——它们每个月重新排队，哪个分项这个月最疯就扔哪个。如果 7 月的高通胀是全面性的，那么中位数也该很高（因为正中间那个分项也在涨）。中位数只有 2.7%，说明<strong>7 月大部分分项的涨幅都在 2%–3% 一带，只有少数几个（主要是能源）跑得很远。</strong>
+</p>
+
+<div class="src"><b>出处</b>：<a href="https://www.clevelandfed.org/indicators-and-data/median-cpi">Cleveland Fed, Median CPI and 16% Trimmed-Mean CPI</a>（2026 年 7 月：中位数同比 2.7%、削尾均值同比 2.6%；月度分别 +0.3%、+0.2%）。</div>
+
+<p>
+但注意我说的是「只支持一半」。因为在 <strong>PCE</strong> 口径下，核心是 3.3%——离 2% 目标远得多。核心 CPI 说 2.5，核心 PCE 说 3.3。<strong>同一个「核心」概念，两套指数给出的答案相差 0.8 个百分点，而美联储的目标是按 PCE 定的。</strong>这就是为什么「核心通胀已经接近目标了」这句话，在今天的数据上并不成立。
+</p>
+
+<h4 style="color:var(--accent)">现在讲反对意见：核心通胀被批评了三十年</h4>
+
+<p>
+如果我只讲到这里，就是给了你一家之言。这个概念有很实在的批评，而且批评者不是外行，是各家央行自己的研究部门。
+</p>
+
+<p><strong>批评一：「食品和能源」这个名单是拍脑袋定的，不是算出来的。</strong></p>
+
+<p>
+Bryan 和 Cecchetti（1994）提出的问题很简单：如果你的目的是「扔掉噪音大的分项」，那你为什么每个月扔的都是同样两个？<strong>哪一类最吵，是会变的。</strong>他们主张换一种做法：每个月把所有分项按涨幅排队，掐掉两头的极端值，剩下的求平均——这就是<strong>削尾均值</strong>（trimmed mean）；掐到只剩正中间一个，就是<strong>中位数通胀</strong>（weighted median）。
+</p>
+
+<p><strong>批评二：疫情期间，「剔除食品能源」几乎完全失效了。</strong></p>
+
+<p>
+Ball、Leigh、Mishra、Spilimbergo 四人在 2021 年的论文里给了很硬的证据：2020–2021 年，<strong>绝大多数的极端价格变动发生在食品和能源之外</strong>——交通、住宿、二手车、服装。这些都不在剔除名单上。结果是：剔食品能源之后的通胀，标准差 3.9（CPI 口径），而整体是 4.7——<strong>几乎一样吵</strong>，等于白剔了。同期，克利夫兰联储的中位数通胀标准差只有 1.51。
+</p>
+
+<p>
+他们还给了第二个证据：中位数通胀与失业率缺口之间维持着稳定的负相关（也就是经济过热时物价涨、经济疲软时物价跌），而剔食品能源的那个指标在这段时间的表现「不规律、不符合标准理论」。
+</p>
+
+<p><strong>批评三（也是对批评的回击）：换掉它并没有明显更好。</strong></p>
+
+<p>
+2018 年美联储给 FOMC 的一份内部备忘录，把「剔食品能源的 PCE」和「削尾均值 PCE」做了正面对比，用三个标准打分：波动性、预测未来整体通胀的能力、数据修订的稳定性。结论是：
+</p>
+<ul>
+<li><strong>预测能力上，两者谁也没有稳定地赢过谁。</strong>2012 年之前剔食品能源略好，之后削尾均值略好，但统计检验显示<strong>差异不显著</strong>。</li>
+<li>削尾均值在<strong>数据修订</strong>上更稳（平均绝对修订 12 个基点 vs 19 个基点）。</li>
+<li>但削尾均值有个麻烦：自 1990 年代中期以来，它平均比整体通胀<strong>高约 0.25 个百分点</strong>。而央行的目标是「整体 PCE 2%」，这就没法直接拿削尾均值去对 2% 这条线。剔食品能源的版本在 1977–2009 年间与整体 PCE 均值完全一致，没有这个问题。</li>
+</ul>
+<p>该备忘录的结论是：<strong>把两者当作互补工具，而不是选一个更优的。</strong></p>
+
+<p><strong>批评四（最诚实的一条）：事后能找到更好的名单，事前找不到。</strong></p>
+
+<p>
+Detmeister（2012）用一个明确的数学标准去搜索「到底该剔掉哪些项」，结果是：<strong>样本内</strong>，优化出来的剔除名单确实比「剔食品能源」表现更好；但<strong>样本外</strong>（也就是拿去预测它没见过的数据时），优化出来的名单<strong>并不比剔食品能源更好</strong>。他的原话大意是：在看到数据之前就知道该剔掉什么，这件事本身是有问题的，而「剔食品能源」不算一个坏的事前猜测。
+</p>
+
+<div class="card">
+<p><strong>这四条批评合起来告诉你什么：</strong></p>
+<p>
+核心通胀不是「更准的通胀」，也不是「统计局认为你不该在乎油价」。它是一个<strong>为特定问题设计的、有已知缺陷的趋势估计工具</strong>。它在「异常波动集中在食品能源」的年代很好用，在「异常波动散落在各处」的年代就会失灵。而判断你现在处在哪种年代，恰恰需要你去看中位数、削尾均值这些不预设名单的指标——<strong>今天它们说的是 2.6–2.7，跟核心 CPI 的 2.5 相近，说明在 CPI 口径下，「剔食品能源」这个名单目前还没有失效。</strong>
+</p>
+</div>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>供给冲击持续得够久，就会渗进核心。</strong> 油价影响的不只是加油站——运费、化肥、塑料、机票都用能源。如果油价高位维持一两年，这些成本会陆续进入核心分项。到那时「剔掉能源」就等于把一个已经变成趋势的东西当噪音扔了。今天 CPI 里的「交通服务」+2.9%、机票单月 +2.2%，是可以盯的观察点，但<strong>我没有查到把这些涨幅归因到油价的分解，所以我不把这一环画进链条图。</strong></li>
+<li><strong>通胀预期脱锚，核心就失去意义。</strong> 如果老百姓和企业因为天天看到 3.4% 的加油站价格而开始要求更高的工资、更早地提价，那高通胀就会从能源自己扩散到全篮子。这时核心通胀会<strong>滞后地</strong>追上来——等你看到的时候已经晚了。第 5 节会给出一个可以用来监测这件事的市场数据。</li>
+<li><strong>名单本身可能失效。</strong> 见上面批评二。判断方法：比较核心与中位数/削尾均值。如果核心明显低于中位数，说明有一堆极端项躲在核心里面没被剔掉。</li>
+</ul>
+
+<div class="src">
+<b>这一环的依据</b>：
+Bryan &amp; Cecchetti, <a href="https://www.nber.org/papers/w4303">"Measuring Core Inflation," NBER WP 4303 (1993)</a>；
+Ball, Leigh, Mishra &amp; Spilimbergo, <a href="https://www.nber.org/system/files/working_papers/w29609/w29609.pdf">"Measuring U.S. Core Inflation: The Stress Test of COVID-19," NBER WP 29609 (2021)</a>；
+<a href="https://www.federalreserve.gov/monetarypolicy/files/FOMC20180914memo02.pdf">Federal Reserve, "Comparing Two Measures of Core Inflation," FOMC memo, Sept 14 2018</a>；
+Detmeister, <a href="https://www.federalreserve.gov/pubs/feds/2012/201243/index.html">FEDS 2012-43</a>；
+克利夫兰联储中位数/削尾均值数据同上。示意算例已标明为示意。
+</div>
+
+<hr class="soft">
+
+<h3>环 5：为什么美联储看 PCE 不看 CPI，以及一个我接不上的地方</h3>
+
+<h4>两个机构，两个篮子</h4>
+
+<p>
+CPI 和 PCE 都在测「物价涨了多少」，但它们测的不是同一件事：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th></th><th>CPI</th><th>PCE</th></tr>
+<tr><td>谁编的</td><td>劳工统计局（BLS）</td><td>经济分析局（BEA）</td></tr>
+<tr><td>测什么</td><td>城市消费者<strong>自己掏钱</strong>付的价格</td><td>为消费者<strong>消费掉</strong>的东西所付的价格，<strong>不管钱是谁出的</strong></td></tr>
+<tr><td>医保举例</td><td>只算你自付的部分</td><td>雇主和政府替你付的部分也算进去</td></tr>
+<tr><td>权重多久更新</td><td>一年一次</td><td>每次发布都调整</td></tr>
+<tr><td>美联储的 2% 目标</td><td>不是按这个定的</td><td><strong>是按这个定的</strong>（整体 PCE）</td></tr>
+</table>
+</div>
+
+<p>
+最后一行是关键。<strong>美联储的 2% 通胀目标，官方定义是「整体 PCE 同比 2%」</strong>——不是核心 PCE，也不是 CPI。核心 PCE 是它用来判断趋势的<strong>工具</strong>，2% 那条线画在整体 PCE 上。这个区分在第 5 节还会用到。
+</p>
+
+<h4>今天数据里那件反常的事</h4>
+
+<div class="calc">
+核心 CPI（7 月，同比）：<b>2.5%</b><br>
+核心 PCE（7 月，同比）：<b>3.3%</b><br>
+差距：<span class="big">0.8 个百分点</span>
+</div>
+
+<p>
+两个都叫「核心」，都剔掉了食品和能源，测的是同一个月的美国物价，却差了 0.8 个百分点。<strong>这个差距的存在是事实，来自两份官方发布，没有争议。</strong>
+</p>
+
+<div class="guess">
+<p>
+<strong>为什么会差这么多，我今天没有查实。</strong>
+</p>
+<p>
+我查到两家机构给出的解释，方向一致：<strong>住房</strong>在 CPI 里权重约 34%，在 PCE 里只有约 16%；而住房正在降温（7 月 CPI 住房分项同比 +3.2%，月度只有 +0.1%）。同时软件、医疗、金融服务在 PCE 里权重更大，其中软件价格因为 AI 相关需求在加速。两个方向叠加，就可能让核心 PCE 跑到核心 CPI 上面去。PIMCO 的评论称这个反转是「1985 年以来最大的反转之一」。
+</p>
+<p>
+<strong>为什么这只是推测：</strong>我没有拿到任何一份把这 0.8 个百分点<strong>按分项分解开</strong>的官方或独立计算。我看到的是两篇卖方/机构评论的定性说法，它们本身可能只是彼此转述同一套叙事。要判断这件事需要的材料是：BEA 的 PCE 分项权重表 + 分项价格变化，跟 BLS 的同类数据做一次逐项对照，把 0.8pp 拆成各分项的贡献相加。这个我今天没做。
+</p>
+<p>
+<strong>反对的看法可能是什么：</strong>如果住房权重差异真是主因，那这个裂口应该在住房降温开始的时候就出现、并随住房通胀回落而扩大——这是可以查历史序列验证的。如果历史上住房降温期并没有出现同样的裂口，那这套解释就站不住，真正的原因可能在别处（比如 PCE 的实时权重调整方式，或者医疗价格的口径差异）。<strong>在我做完这个对照之前，请不要把上面那段解释当成结论。</strong>
+</p>
+</div>
+
+<div class="src"><b>这一环的依据</b>：CPI/PCE 口径差异见 <a href="https://www.kbc.com/en/economics/publications/why-us-cpi-and-pce-inflation-figures-diverge.html">KBC Economics, "Why US CPI and PCE inflation figures diverge"</a>（次级来源）；2026 年裂口的解释见 <a href="https://www.advisorperspectives.com/commentaries/2026/05/08/u-s-inflation-measures-tell-two-different-stories">PIMCO, "U.S. Inflation Measures Tell Two Different Stories"（2026-05-08）</a>（次级来源，卖方评论）。<b>3.3% 与 2.5% 两个数字本身是一手数据；对差距的解释是二手且未复核。</b></div>
+
+<hr class="soft">
+
+<h3>环 6：美联储看到这堆数字之后做了什么</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>
+把美联储面对的东西完整列出来（全部是 7 月 29 日开会时能看到或即将看到的信息）：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>它看到的</th><th>指向</th></tr>
+<tr><td>整体 PCE 3.7%，是目标 2% 的将近两倍</td><td>该收紧</td></tr>
+<tr><td>核心 PCE 3.3%，与上月持平、没有继续上行</td><td>可以等</td></tr>
+<tr><td>核心 CPI 2.5%、中位数 CPI 2.7%</td><td>可以等</td></tr>
+<tr><td>汽油同比 +24.6%，是供给端的事</td><td>加息治不了</td></tr>
+<tr><td>目标区间 3.50%–3.75% 已维持 8 个月未动</td><td>—</td></tr>
+</table>
+</div>
+
+<p>
+结果是：<strong>按兵不动，但投票 9 比 3。</strong>Hammack、Kashkari、Logan 三人主张立刻加息 25 个基点。
+</p>
+
+<p>
+<span class="q">这里必须先解释一个单位。</span>「25 个基点」是什么意思？<strong>基点</strong>（英文：basis point，简写 bp）＝ <strong>万分之一</strong>＝ 0.01 个百分点。
+</p>
+
+<div class="calc">
+25 个基点 = 25 × 0.01 个百分点 = <span class="big">0.25 个百分点</span><br>
+所以「加息 25bp」＝ 目标区间从 3.50–3.75% 抬到 3.75–4.00%
+</div>
+
+<p>
+<span class="q">为什么要发明「基点」这么个单位？</span>因为「利率从 3% 涨到 4%」有两种读法：涨了 1 个百分点，还是涨了 33%（4÷3−1）？两种说法都对，但意思完全不同。用「基点」就没有歧义——它永远指绝对差，不指相对变化。金融里凡是谈利率、利差、收益率的变化，一律用基点。
+</p>
+
+<h4>这三票反对代表什么</h4>
+
+<p>
+FOMC 有投票权的委员通常是 12 人。三张反对票在美联储的历史上不算平常——这是一个可观测的、有出处的事实，说明<strong>「该不该对着一次能源冲击加息」这件事，在委员会内部本身就没有共识。</strong>今天这一课讲的那个理论问题（核心还是整体），此刻正在美联储的会议室里被真人吵着。
+</p>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>7 月会议之后又来了新信息。</strong>投票发生在 7 月 29 日，昨天的 PCE 是 7 月的数据、8 月 26 日才公布。委员们的想法可能已经变了。这一环告诉你 7 月底的状态，不告诉你 9 月会怎么投。</li>
+<li><strong>我不知道另外九票的理由。</strong>我只有声明措辞和投票结果，没有看会议纪要的完整论证。上面那张「它看到的 → 指向」表，是我把公开数据和公开声明对应起来的整理，<strong>不是从任何一位委员的发言里摘的</strong>。</li>
+</ul>
+
+<div class="src"><b>这一环的依据</b>：<a href="https://www.mnimarkets.com/articles/fomc-july-2026-statement-1785348008523">MNI, FOMC July 2026 Statement</a>（投票与措辞，次级来源但直接引述声明原文）；<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">Fed Implementation Note, 2026-07-29</a>（利率，一手）。「基点」的换算是定义与算术。</div>
+
+<hr class="soft">
+
+<h3>环 7：市场怎么把「以后会加息」写进今天的价格</h3>
+
+<h4>先说一件生活里的事</h4>
+
+<p>
+银行给你两个选择：
+</p>
+<ul>
+<li><strong>A</strong>：存活期，利率随时跟着央行变。今天是 3.65%。</li>
+<li><strong>B</strong>：存两年定期，锁死一个利率。</li>
+</ul>
+
+<p>
+银行给 B 报多少，你才会觉得公平？如果你认为未来两年利率会一直是 3.65%，那 B 报 3.65% 就刚刚好。如果你认为央行明年会加息、活期会涨到 4.2%，那你显然不肯用 3.65% 锁两年——你要求 B 报得更高。
+</p>
+
+<p>
+<strong>反过来看：如果市场上两年定期的报价明显高于活期，那就说明大家普遍认为活期以后会涨。</strong>
+</p>
+
+<h4>把真实数字代进去</h4>
+
+<div class="calc">
+准备金余额利率（IORB，可以粗略当作「今天的隔夜利率」）：<b>3.65%</b><br>
+2 年期国债收益率（8/26）：<b>4.19%</b><br>
+差 = 4.19 − 3.65 = <span class="big">54 个基点</span>
+</div>
+
+<div class="calc">
+3 个月国债收益率：<b>3.85%</b><br>
+联邦基金目标区间上沿：<b>3.75%</b><br>
+3 个月的报价<b>已经高出目标区间的天花板 10 个基点</b>
+</div>
+
+<p>
+第二个数字尤其说明问题。3 个月国债的持有期只有三个月。如果市场确信这三个月内利率不动，它的收益率应该落在目标区间里面（3.50–3.75%），而不是外面。它报 3.85%，意味着<strong>市场给「三个月内加息」赋予了不小的概率</strong>。
+</p>
+
+<p>
+预测市场的报价与此一致：<strong>9 月 15–16 日会议加息的概率约 38%，年内某次会议加息的概率约 73%。</strong>
+</p>
+
+<div class="card">
+<p><strong>但这里必须打一个折扣，否则我就是在过度解读。</strong></p>
+<p>
+长期利率不完全等于「未来短期利率的平均预期」。它还包含一块补偿：你把钱锁死两年，中间万一利率大涨、债券价格下跌，你就亏了；为了让你愿意承担这个风险，市场会多给你一点收益。这块多出来的部分，经济学里叫<strong>期限溢价</strong>（英文：term premium）。
+</p>
+<p>
+所以那 54 个基点里，有多少是「预期加息」、有多少是「期限溢价」，<strong>我今天没有查到分解</strong>。我能确定的只有方向：如果市场预期降息，2 年期不太可能高出隔夜利率这么多。至于「高出 54bp」精确对应几次加息，我不下这个结论。（期限溢价的拆解是原理表里的 A15，以后会专门讲。）
+</p>
+</div>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>期限溢价可以自己乱跑。</strong>财政部发债多了、外国央行买少了，都会推高长端收益率，而这跟利率预期毫无关系。30 年期 5.18%、比 2 年期高出 99 个基点，这个陡峭程度里有多少是财政供给因素，我今天没查。</li>
+<li><strong>预测市场的概率有截止时点问题。</strong>「9 月约 38%、年内约 73%」这组数字来自 8 月 26 日 PCE 公布后的引述。另一个来源（8 月 22 日、PCE 公布之前）给出的是 9 月加息 25bp 概率 32.5%、加息 50bp 以上 4.5%、按兵不动 67.2%——三项相加超过 100%，说明那个聚合口径本身有瑕疵。<strong>我把两组都列出来，但都不当作精确数字用，只用它们的方向。</strong></li>
+</ul>
+
+<div class="src"><b>这一环的依据</b>：收益率为<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value=2026">美国财政部一手数据</a>，IORB 为 <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">Fed Implementation Note</a> 一手数据，两者相减为算术。加息概率来自 <a href="https://www.schwab.com/learn/story/stock-market-update-open">Schwab（8/26）</a> 与 <a href="https://defirate.com/prediction-markets/fed-decision-odds/">DeFiRate 聚合预测市场（8/22）</a>，均为次级来源。「2 年期高于隔夜利率＝预期加息」的推理已明确标注被期限溢价污染。</div>
+
+<hr class="soft">
+
+<h3>环 8：同一个债券市场，对未来五年的通胀只报 2.31%</h3>
+
+<h4>为什么 A 会导致 B</h4>
+
+<p>
+美国财政部发两种国债：
+</p>
+<ul>
+<li><strong>普通国债</strong>：借你 100 块，两年后还你 100 块加固定利息。<strong>如果这期间通胀很凶，你拿回来的钱不值钱了，那是你的损失。</strong></li>
+<li><strong>抗通胀国债（TIPS）</strong>：本金会跟着 CPI 一起长。如果五年里物价涨了 15%，你的本金也涨 15%。<strong>通胀风险由财政部承担。</strong></li>
+</ul>
+
+<p>
+现在做一个思想实验。假设你是投资者，两种五年期国债摆在你面前：
+</p>
+<ul>
+<li>普通的报 4.35%</li>
+<li>抗通胀的报 2.04%（这个 2.04% 是<strong>扣掉通胀之后</strong>的收益，因为本金已经被通胀补偿过了）</li>
+</ul>
+
+<p>
+你选哪个？取决于你认为未来五年通胀是多少。
+</p>
+
+<div class="calc">
+如果通胀是 <b>1%</b>：普通国债的真实回报 ≈ 4.35 − 1 = 3.35% ＞ 2.04%　→ 买普通的<br>
+如果通胀是 <b>4%</b>：普通国债的真实回报 ≈ 4.35 − 4 = 0.35% ＜ 2.04%　→ 买抗通胀的<br>
+如果通胀是 <b>2.31%</b>：4.35 − 2.31 = 2.04%　→ <span class="big">两者一样，无所谓</span>
+</div>
+
+<p>
+所以 <strong>2.31% 就是那个「让两种债券一样划算」的通胀水平</strong>。低于它，普通国债赢；高于它，抗通胀国债赢。
+</p>
+
+<p>
+<span class="q">关键的一步来了：</span>为什么这个数字能反映「市场怎么想」？因为如果市场普遍认为未来五年通胀会到 4%，那所有人都会去抢抗通胀国债、抛售普通国债。抢的结果是抗通胀国债价格上涨、收益率下跌；抛的结果是普通国债收益率上涨。两边一动，两者的差就会自动扩大，直到扩到 4% 附近为止。<strong>这个差之所以停在 2.31%，是因为在 2.31% 这个水平上，买卖双方的力量打平了。</strong>
+</p>
+
+<p>
+经济学给这个差起了个名字：<strong>盈亏平衡通胀率</strong>（英文：breakeven inflation rate）。算法就是一句话——<strong>同期限的名义收益率减去实际收益率</strong>。
+</p>
+
+<div class="calc">
+5 年（8/25）：4.35% − 2.04% = <span class="big">2.31%</span><br>
+10 年（8/25）：4.64% − 2.32% = <span class="big">2.32%</span>
+</div>
+
+<p>
+（用 8 月 25 日的数据，因为财政部的实际收益率序列在我查阅时 8 月 26 日尚未更新。名义与实际取的是同一天，所以相减仍然有效。）
+</p>
+
+<h4>这个数字有多大分量</h4>
+
+<p>
+把它跟眼前的通胀放在一起：
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>指标</th><th>读数</th><th>说的是</th></tr>
+<tr><td>整体 PCE 同比</td><td class="n">3.7%</td><td>过去 12 个月<strong>已经发生</strong>的</td></tr>
+<tr><td>整体 CPI 同比</td><td class="n">3.4%</td><td>过去 12 个月已经发生的</td></tr>
+<tr><td><strong>5 年盈亏平衡通胀</strong></td><td class="n"><strong>2.31%</strong></td><td>未来 5 年<strong>平均</strong>，市场用真金白银下的注</td></tr>
+</table>
+</div>
+
+<p>
+<strong>这是今天全篇最重要的一个对比。</strong>过去一年通胀 3.4–3.7%，市场却愿意按 2.31% 的价格承担未来五年的通胀风险。翻过来说：<strong>债券市场认为，眼下这波高通胀主要是暂时的，不会变成新的常态。</strong>
+</p>
+
+<p>
+而这，恰恰就是「核心通胀」这个概念背后的那个赌注——只不过这次下注的不是统计局，是每天几千亿美元真金白银的债券交易。
+</p>
+
+<h4>什么情况下这一环会断</h4>
+<ul>
+<li><strong>盈亏平衡通胀不等于纯粹的通胀预期。</strong>它里面还混了两样东西：一是投资者为规避通胀风险愿意多付的溢价，二是 TIPS 比普通国债流动性差、所以要多给一点补偿。这两样的正负号相反，会部分抵消，但净效应是多少<strong>我今天没查</strong>。所以 2.31% 应该读作「市场定价」，不是「市场的中位数预期就是 2.31%」。</li>
+<li><strong>它是 CPI 口径，不是 PCE 口径。</strong>TIPS 的本金挂钩的是 CPI。而美联储的 2% 目标画在 PCE 上。历史上 CPI 通常略高于 PCE，所以「2.31% 的 CPI 盈亏平衡」对应的 PCE 水平应该更低一点——<strong>但今天核心 PCE 反而高于核心 CPI（见环 5），这个历史关系正在反常，所以我不给出具体的换算。</strong>这是本文另一个明确接不上的地方。</li>
+<li><strong>它是五年的平均，不是五年后的水平。</strong>「五年平均 2.31%」可以是「第一年 3.5%、后四年 2.0%」，也可以是「五年都是 2.31%」。要区分这两种，需要看远期盈亏平衡（比如 5 年后的 5 年），那是原理表 A5 的内容。</li>
+</ul>
+
+<div class="src"><b>这一环的依据</b>：名义收益率与 TIPS 实际收益率均来自美国财政部一手数据（<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value=2026">名义</a>、<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve&amp;field_tdr_date_value=2026">实际</a>）；盈亏平衡通胀率＝两者相减，<b>纯算术，读者可自行验算</b>。溢价成分未拆解，已在上文标明。</div>
+
+<h2><span class="num">4</span>对你意味着什么</h2>
+
+<div class="card" style="border-color:var(--accent)">
+<p style="margin:0"><strong>先说清楚：这一节是教学分析和判断框架，不是投资建议。</strong>我不知道你的收入结构、负债、时间跨度和风险承受能力，也不做个性化推荐。下面每一条都是「这个概念在你的处境里怎么用」，不是「你该买什么」。</p>
+</div>
+
+<h3>4.1 第一件事：新加坡的「核心」不是美国的「核心」</h3>
+
+<p>
+这是今天最直接、最容易踩的坑。
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th></th><th>美国（BLS / BEA）</th><th>新加坡（MAS）</th></tr>
+<tr><td>「核心」剔掉什么</td><td><strong>食品</strong>与<strong>能源</strong></td><td><strong>住宿（accommodation）</strong>与<strong>私人陆路交通</strong></td></tr>
+<tr><td>剔掉的理由</td><td>波动大、且央行的利率工具管不了供给冲击</td><td>MAS 的说法：这两项「很大程度上受供给侧的行政政策影响，且波动大」</td></tr>
+<tr><td>2026 年 7 月读数</td><td>核心 CPI 2.5% / 核心 PCE 3.3%</td><td><strong>MAS 核心 2.0%</strong></td></tr>
+<tr><td>整体读数</td><td>CPI 3.4% / PCE 3.7%</td><td><strong>CPI-All Items 2.2%</strong></td></tr>
+</table>
+</div>
+
+<p>
+<strong>新加坡的核心通胀把食品和能源留在里面，却把住房和车拿掉了。</strong>为什么？因为 MAS 给的理由是这两项由行政政策主导——组屋和私宅的供应节奏、以及买车必须先竞标的拥车证（COE）制度。COE 的价格是拍出来的，一次拍卖就能跳几万块，而这跟宏观需求冷热基本无关。
+</p>
+
+<p>
+<span class="q">你可能会想：那到底哪个国家的做法是对的？</span><strong>两个都对，因为它们回答的是同一个问题的两个版本。</strong>今天环 4 讲过，剔除的判断标准是：「哪些分项波动大、且我的政策工具管不了」。在美国，答案是食品和能源；在新加坡，答案是住宿和私人交通。<strong>名单不同，是因为两个经济体的噪音源不同，不是因为其中一方搞错了。</strong>
+</p>
+
+<p>
+这个认识的实际用途很直接：<strong>下次你看到「新加坡核心通胀 2.0%」和「美国核心通胀 3.3%」，不要直接相减说「新加坡低 1.3 个百分点」。</strong>这两个数不是同一个东西。要比较，得先统一口径——比如都用整体：新加坡 2.2% vs 美国 3.7%（PCE 口径）或 3.4%（CPI 口径），这个比较才成立，而且要注明用的是哪一套。
+</p>
+
+<div class="src"><b>出处</b>：MAS 核心定义与理由见 <a href="https://www.mas.gov.sg/monetary-policy/economics-edu-inflation/inflation/how-do-we-measure-inflation">MAS, "How do we measure inflation?"</a>（一手）；7 月读数见 <a href="https://www.mti.gov.sg/newsroom/consumer-price-developments-in-july-2026/">MTI, Consumer Price Developments in July 2026</a>（一手，MAS 核心 2.0%、CPI-All Items 2.2%，均高于 6 月的 1.6% 与 1.9%）。</div>
+
+<h3>4.2 第二件事：「利率高不高」这个问题，答案取决于你用哪个通胀数</h3>
+
+<p>
+这是今天这堂课能给你的最有实操价值的一个工具。
+</p>
+
+<h4>先说一件生活里的事</h4>
+
+<p>
+你把 10,000 块存进银行，一年后拿到 10,400 块，利率 4%。这一年你赚了吗？
+</p>
+
+<p>
+如果这一年物价涨了 1%，那你原来能买的东西现在要 10,100 块，你手上有 10,400，<strong>真实购买力多了约 3%</strong>。你赚了。
+</p>
+
+<p>
+如果这一年物价涨了 5%，同样的东西现在要 10,500 块，而你只有 10,400。<strong>你的钱变多了，能买的东西却变少了。</strong>你亏了。
+</p>
+
+<div class="calc">
+真实回报 ≈ 名义利率 − 通胀率<br>
+情况一：4% − 1% = <b>+3%</b>　（真的赚了）<br>
+情况二：4% − 5% = <b>−1%</b>　（数字上赚，购买力上亏）
+</div>
+
+<p>
+经济学给这两个数起了名字：银行牌子上写的那个叫<strong>名义利率</strong>（nominal interest rate），扣掉通胀之后的那个叫<strong>实际利率</strong>（real interest rate）。（这个关系的严格版本叫费雪方程，是原理表 A6，以后会专门讲；今天用减法的近似就够了。）
+</p>
+
+<h4>现在把美联储的政策利率代进去</h4>
+
+<p>
+联邦基金目标区间 3.50–3.75%，取中点 3.625%。用哪个通胀数去减？
+</p>
+
+<div class="calc">
+减 <b>整体 PCE 3.7%</b>：　3.625 − 3.7 = <span class="big">−0.08%</span>　→ 实际利率约等于零，<b>政策看起来一点都不紧</b><br>
+减 <b>核心 PCE 3.3%</b>：　3.625 − 3.3 = <span class="big">+0.33%</span>　→ 略微为正，<b>勉强算中性</b><br>
+减 <b>5 年盈亏平衡 2.31%</b>：3.625 − 2.31 = <span class="big">+1.31%</span>　→ <b>明显偏紧</b>
+</div>
+
+<p>
+<strong>三个答案，一个说松、一个说中性、一个说紧。三个都是用真实数据算出来的，一步没跳。</strong>
+</p>
+
+<p>
+<span class="q">哪个才对？</span>取决于你在回答什么问题：
+</p>
+<ul>
+<li>如果你问「<strong>现在存钱的人是不是在被通胀吃掉</strong>」——用已经发生的通胀，也就是 3.7%。答案是：几乎打平，没赚。</li>
+<li>如果你问「<strong>今天做一个五年期的借贷决策，成本高不高</strong>」——用未来五年的预期通胀，也就是 2.31%。答案是：真实成本 1.3%，不便宜。</li>
+<li>如果你问「<strong>美联储自己认为政策紧不紧</strong>」——它盯的是核心 PCE 的趋势，那个数是 0.33%，也就是「几乎没在踩刹车」。三位委员想加息，跟这个数字是自洽的。</li>
+</ul>
+
+<p>
+<strong>这就是今天这堂课的实用输出：以后任何人跟你说「实际利率是多少多少」，你要追问的第一句话永远是——「你减的是哪个通胀？」</strong>不同的减数会给出完全不同的结论，而这个选择通常是<strong>没被说出来</strong>的。
+</p>
+
+<h3>4.3 第三件事：SGD 收入 + USD 资产，通胀该怎么看</h3>
+
+<p>
+你的处境有一个结构性特点：<strong>花钱用新币，投资用美元。</strong>这意味着「通胀」对你来说要拆成两半，而这两半用的是完全不同的数字。
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>问题</th><th>该用哪个数</th><th>今天的读数</th></tr>
+<tr><td>我的生活成本涨了多少？</td><td>新加坡 CPI-All Items（<strong>整体</strong>，因为你三餐、交通、房租都要真付钱）</td><td class="n">2.2%</td></tr>
+<tr><td>我的美元资产的<strong>真实</strong>回报是多少？</td><td>需要先想清楚：你最终要用这笔钱在<strong>哪里</strong>消费</td><td class="n">见下</td></tr>
+<tr><td>美联储接下来会怎么动？</td><td>美国核心 PCE 的趋势 + 整体 PCE 离 2% 有多远</td><td class="n">3.3% / 3.7%</td></tr>
+</table>
+</div>
+
+<p>
+中间那一行值得展开。<strong>如果你的钱最终是在新加坡花掉的，那么衡量美元资产真实回报时，扣掉的应该是新加坡的通胀，而且要先把汇率变动算进去。</strong>
+</p>
+
+<p>
+举一个示意算例（<strong>以下数字为示意，只为演示算法，不是任何预测</strong>）：
+</p>
+
+<div class="calc">
+假设你持有的美元资产一年涨 8%（以美元计）<br>
+假设这一年 SGD 对 USD 升值 3%（也就是同样的美元换回更少的新币）<br>
+假设新加坡这一年通胀 2.2%<br><br>
+换回新币后的名义回报 ≈ 8% − 3% = <b>5%</b><br>
+再扣掉新加坡通胀 ≈ 5% − 2.2% = <span class="big">2.8%</span>　← 这才是你购买力的真实增长
+</div>
+
+<p>
+注意这个链条里，<strong>美国的通胀数字一次都没直接出现</strong>。美国通胀对你的作用是<strong>间接</strong>的：它影响美联储的利率决定，利率影响资产价格和汇率，汇率和资产价格才影响你。<strong>把「美国通胀 3.7%」直接从你的美股回报里减掉，是一个常见但错误的做法</strong>——除非你打算把这笔钱在美国花掉。
+</p>
+
+<p>
+顺带一个今天的事实：<strong>USD/SGD 昨天报 1.2695，过去一个月新币对美元走强了 1.68%。</strong>如果这个幅度维持一年，光是汇率这一项就会吃掉你美元资产回报的相当一块。这不是预测，是提醒你上面那个减法里的第二项不是小数。
+</p>
+
+<div class="src"><b>出处</b>：新加坡 CPI 见上 4.1；USD/SGD 1.2695 及近一月变动来自 <a href="https://tradingeconomics.com/singapore/currency">Trading Economics</a>（次级来源）。上面的三步减法是<b>算术示意</b>，数字已标明为示意值。汇率与真实回报的严格处理是原理表 D22–D23、G29，以后会专门讲。</div>
+
+<h3>4.4 第四件事：CPI 不是你的通胀</h3>
+
+<p>
+最后一个直接可用的认识。CPI 的权重来自「一个典型城市家庭」。你不是那个家庭。
+</p>
+
+<p>
+用今天美国的权重做个对照就很清楚：能源在 CPI 篮子里占 7.432%。<strong>但如果你在新加坡不开车、坐地铁上班，你的个人「能源权重」接近于电费那一块，远低于 7.4%。</strong>那么汽油涨 24.6% 这件事，对官方 CPI 的影响是 0.95 个百分点（0.03852 × 24.6），对你个人的影响接近零。
+</p>
+
+<div class="calc">
+汽油对官方 CPI 的贡献：0.03852 × 24.6 = <span class="big">0.95 个百分点</span><br>
+（权重 3.852% 来自 BLS 相对重要性表；涨幅 24.6% 来自 BLS 7 月发布）
+</div>
+
+<p>
+反过来也成立：如果你的开销里房租占了 40%，而 CPI 里住房只占 34%（美国口径），那么房租的变化对你的冲击就比 CPI 显示的更大。
+</p>
+
+<p>
+<strong>今天可以带走的方法</strong>：把你自己的月度开销按大类分一分，算出你自己的权重，然后拿官方的分项涨幅去加权——这就是「你的个人通胀率」。算法跟环 3 一模一样，只是把 BLS 的权重换成你的。第 8 节的「今天就能做的小动作」就是这个。
+</p>
+
+<h2><span class="num">5</span>反向倒推</h2>
+
+<h3>这一节在干什么</h3>
+
+<p>
+前面第 3 节是<strong>顺着推</strong>：油涨了 → 能源分项涨 → 整体 CPI 被推高 → 美联储怎么看 → 市场怎么反应。
+</p>
+
+<p>
+现在<strong>倒过来问</strong>：市场此刻的价格，说明大家心里在赌什么？
+</p>
+
+<p>
+这个方向更有用，原因是：<strong>顺推永远能自圆其说，倒推可以被证伪。</strong>「因为油涨了所以通胀高」这句话，不管市场怎么走你都能说得通。但「市场正在赌通胀五年平均 2.31%」这句话是有价格支撑的、可以被后来的数据打脸的。<strong>这一节全程只用那些「能指出具体价格、并说明这个价格为什么只有在某个假设下才成立」的推断。</strong>
+</p>
+
+<h3>5.1 市场已经把哪四件事定价进去了</h3>
+
+<div class="tablewrap">
+<table>
+<tr><th>市场在赌</th><th>证据（价格）</th><th>为什么这个价格能反映这个假设</th></tr>
+<tr><td><strong>① 通胀会回到 2% 附近</strong></td><td>5 年盈亏平衡 2.31%<br>10 年盈亏平衡 2.32%</td><td>见环 8：这是让普通国债和抗通胀国债同样划算的通胀水平。如果市场认为未来五年通胀会像过去一年那样 3.4%，抗通胀国债会被抢到这个差扩大为止。它停在 2.31%，说明多空在这里打平。</td></tr>
+<tr><td><strong>② 但在回去之前，还要再紧一点</strong></td><td>3 个月国债 3.85%，高于目标区间上沿 3.75%<br>2 年 4.19%，高于 IORB 3.65% 达 54bp<br>预测市场：年内加息概率约 73%</td><td>见环 7：3 个月的持有期只有三个月，如果确信这三个月不动，它的报价该落在区间内。它跑到区间外面，只有在「三个月内可能加息」的假设下才说得通。</td></tr>
+<tr><td><strong>③ 不会衰退，也不会有信用事故</strong></td><td>VIX 15.70（低位）<br>10 年 − 2 年 = +47bp（正斜率，没有倒挂）<br>标普全天振幅极小</td><td>VIX 是期权价格反推出来的未来 30 天波动预期，低意味着市场没在买保险。收益率曲线正斜率意味着市场不预期近期大幅降息——而大幅降息通常只在衰退时发生。</td></tr>
+<tr><td><strong>④ 这次的能源冲击是暂时的、不会渗进核心</strong></td><td>这一条<strong>没有单独的价格</strong>，它是 ① 和 ② 同时成立的必要条件</td><td>如果市场认为油价会持续高位并推高工资和服务价格，那 ① 里的 2.31% 就撑不住。① 和 ④ 是同一个赌注的两面。</td></tr>
+</table>
+</div>
+
+<h3>5.2 哪个假设最脆弱：④，而且我能说出它脆在哪</h3>
+
+<p>
+第 ④ 条是全部的承重墙，因为 ① 和 ② 都靠它。而它今天已经有一个不利的数据点：
+</p>
+
+<div class="calc">
+CPI 汽油同比（<b>7 月</b>，BLS）：+24.6%<br>
+EIA 零售汽油同比（<b>8 月 24 日当周</b>）：4.085 ÷ 3.147 − 1 = <span class="big">+29.8%</span>
+</div>
+
+<p>
+<strong>8 月的读数比 7 月还高。</strong>「能源冲击正在消退」这个说法，在最新的一手数据上并不成立——至少到 8 月下旬为止不成立。
+</p>
+
+<p>
+<span class="q">那为什么市场还敢按 2.31% 定价？</span>因为「同比高」和「还在涨」是两回事。同比是拿今天跟一年前比。如果油价从现在起<strong>横盘不动</strong>，那么等到明年这个时候，分子分母就都是高价，同比自动归零——这个效应叫<strong>基数效应</strong>（base effect）。市场很可能在赌这个。
+</p>
+
+<p>
+所以更精确地说，最脆弱的假设是：<strong>「油价从现在起不再继续大涨，并且这一年的高油价不会通过运费、机票、工资渗透到核心分项里去。」</strong>前半句是关于油价路径的，后半句是关于传导的。两句都可能出问题，而且是独立的两条风险。
+</p>
+
+<h3>5.3 如果这个假设错了，价格该怎么走</h3>
+
+<p>
+这一节我只写<strong>方向和机制</strong>，不写幅度——因为幅度我算不出来，写出来就是编的。
+</p>
+
+<div class="tablewrap">
+<table>
+<tr><th>如果……</th><th>先动的是</th><th>机制</th></tr>
+<tr><td>核心 PCE 从 3.3% 往上走</td><td>短端利率、盈亏平衡通胀</td><td>核心是美联储判断趋势的依据（环 6）。核心上行意味着「可以等」的理由消失，加息概率上升 → 2 年期收益率上行；同时「暂时论」被削弱 → 盈亏平衡通胀上行</td></tr>
+<tr><td>盈亏平衡通胀明显上行</td><td>美联储的反应函数</td><td>央行最怕的不是高通胀本身，是<strong>通胀预期脱锚</strong>——一旦大家开始按高通胀做计划（要求涨薪、提前提价），通胀就会自我实现。这时候央行会不惜代价收紧（这个机制是原理表 A38，以后专讲）</td></tr>
+<tr><td>油价继续大涨</td><td>整体通胀，然后是核心</td><td>整体是机械的（环 3 的加权算术，立刻见效）；核心是滞后的、需要通过成本传导，且<strong>我今天查不到这个传导的量级</strong></td></tr>
+<tr><td>反过来：油价回落且核心继续持平</td><td>整体通胀会自己掉下来</td><td>纯基数效应。用环 3 的反事实算过：能源涨幅归零，整体 CPI 从 3.4% 降到 2.4%，核心不用动一分</td></tr>
+</table>
+</div>
+
+<h3>5.4 未来 1–3 个月，哪些具体数据能证实或证伪</h3>
+
+<p>
+下面每一条都是<strong>有具体发布方、有明确读数、能给出「什么数值算证伪」</strong>的。这是这一节能不能算「机制」而不是「叙事」的检验标准。
+</p>
+
+<ol>
+<li>
+<strong>8 月 CPI（BLS，9 月中旬发布）</strong>
+<ul>
+<li>看<strong>能源分项同比</strong>：如果仍在 14% 以上甚至更高（EIA 的 8 月数据指向这个方向），说明冲击没有消退。</li>
+<li>看<strong>核心 CPI</strong>：7 月是 2.5%。如果连续两个月往 3% 走，那就是渗透的第一个证据 → 对假设 ④ 不利。</li>
+</ul>
+</li>
+<li>
+<strong>克利夫兰联储中位数 CPI 与削尾均值（与 CPI 同步发布）</strong>
+<ul>
+<li>7 月是 2.7% / 2.6%。<strong>这是本文里最好的「渗透」探测器</strong>：中位数不预设剔除名单，如果高通胀真的在扩散，中位数会比核心先动。中位数明显上行 = 假设 ④ 出问题。</li>
+</ul>
+</li>
+<li>
+<strong>9 月 15–16 日 FOMC 会议</strong>
+<ul>
+<li>看是否加息（当前预测市场约 38%），更重要的是看<strong>反对票的方向和数量</strong>。7 月是 9–3 且反对者主张加息；如果 9 月变成 8–4 或出现主张降息的反对票，说明委员会的重心在移动。</li>
+</ul>
+</li>
+<li>
+<strong>5 年与 10 年盈亏平衡通胀（财政部每日更新，自己减就有）</strong>
+<ul>
+<li>今天是 2.31% / 2.32%。<strong>这是最直接的假设 ① 监测器。</strong>如果它开始持续上行并明显脱离 2.3% 一带，说明市场正在放弃「暂时论」。</li>
+<li>反过来，如果它在能源数据继续走高的同时<strong>纹丝不动</strong>，那反而是「暂时论」被验证的证据。</li>
+</ul>
+</li>
+<li>
+<strong>EIA 每周汽油零售价（每周一更新）</strong>
+<ul>
+<li>这是频率最高、最早的信号。今天 $4.085。它是所有能源相关传导的输入端。</li>
+</ul>
+</li>
+</ol>
+
+<div class="card">
+<p><strong>用检验问一遍：这套说法在事情发生之前能不能用来做预测？</strong></p>
+<p>
+能。上面五条每一条都写明了「看什么数、什么数值算证伪」，而且都是<strong>还没发生</strong>的发布。如果 9 月中旬 8 月 CPI 出来，能源同比掉到 5%、核心 CPI 掉到 2.2%、中位数 CPI 也跟着掉——那就是本文的判断被证实；如果核心 CPI 冲到 3.0%、中位数 CPI 跳到 3.2% 而盈亏平衡通胀却还在 2.3%，那就是我上面对市场定价的解读出了问题，需要重写。
+</p>
+<p style="margin-bottom:0">
+<strong>我明确没有做的事：</strong>我没有说市场昨天为什么「几乎没动」。标普收盘 −0.01%、10 年期 +2bp，这种幅度跟随机波动分不开。给一个几乎没动的市场配一套解释，正是这门课要避免的那类事后叙事——<strong>所以这里我什么都不说。</strong>
+</p>
+</div>
+
+<h2><span class="num">6</span>底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式：信号与噪音的分离，以及它的代价</h3>
+
+<p>
+把今天做的事抽象一层，其实只有一句话：<strong>当你要从一堆抖动的数据里读出趋势时，你必须扔掉一部分数据；而「扔掉哪一部分」这个决定，本身就是一个可能出错的假设。</strong>
+</p>
+
+<p>
+这个结构有三个固定部件，值得记住，因为它到处都是：
+</p>
+<ol>
+<li><strong>你要回答的问题决定了什么算噪音。</strong>问「趋势往哪走」，火锅那天就是噪音；问「今天穿不穿得下裤子」，火锅那天就是唯一相关的数据。<strong>没有脱离问题的「噪音」。</strong></li>
+<li><strong>扔的方法有两种：按类别扔（核心通胀），按极端程度扔（中位数、削尾均值）。</strong>前者简单、稳定、可解释，但名单是事前定死的，会在噪音换地方时失灵；后者自适应，但你说不清这个月到底扔了谁，也没法直接对着一条政策目标线比。</li>
+<li><strong>扔错的代价是不对称的。</strong>把噪音当趋势，你会过度反应；把趋势当噪音，你会反应太晚——而通胀这件事上，反应太晚的代价更大，因为一旦预期脱锚，收拾起来要付出衰退的代价。<strong>这就是为什么那三位委员宁可早加也不肯等。</strong></li>
+</ol>
+
+<h4>换个领域看同一个结构</h4>
+
+<p>
+<strong>例子一：你现在做的 AI Infra 工作。</strong>线上服务的延迟监控从来不看平均值，看的是 p50、p95、p99。为什么？因为平均值会被少数几个超长请求拉爆——那几个请求是真实发生的，但它们不告诉你「典型用户的体验」。<strong>看 p50 就是中位数通胀，看平均值就是整体通胀。</strong>而当你要判断「系统是不是快挂了」的时候，你反而必须看 p99——因为那时候你的问题变了，尾部才是你要的信号。<strong>同一套数据，问题一换，该扔的和该留的就对调。</strong></p>
+
+<p>
+<strong>例子二：面试评估。</strong>一个候选人五轮面试，四轮好一轮很差。你是该平均，还是该把那轮差的当噪音扔掉？取决于你在赌什么：如果你认为那轮差是因为面试官问了个偏题（噪音），扔掉合理；如果那轮差暴露的恰恰是这个岗位的核心能力（趋势），扔掉就是灾难。<strong>而你事前是分不清的——这正是 Detmeister 那篇论文说的「在看到数据之前就知道该剔掉什么，这件事本身有问题」。</strong>
+</p>
+
+<h3>6.2 顶层视角：这条链在整个系统里的位置</h3>
+
+<p>
+今天讲的东西坐落在<strong>「宏观数据 → 央行反应函数」</strong>这个接口上。它是四大板块咬合的地方：
+</p>
+
+<ul>
+<li><strong>咬合利率</strong>：核心通胀是央行判断趋势的输入，而央行的输出是政策利率。今天 4.2 节那三个实际利率算式（−0.08%、+0.33%、+1.31%）就是这个咬合点最直接的体现——<strong>「政策是紧是松」这个问题的答案，取决于你选哪个通胀数，而这个选择是理论问题，不是数据问题。</strong></li>
+<li><strong>咬合信用</strong>：实际利率决定借钱的真实成本。实际利率接近零（用整体 PCE 算）意味着借钱几乎不花钱，这会鼓励加杠杆；实际利率 1.3%（用盈亏平衡算）意味着有真实成本。<strong>信用周期的松紧，取决于借款人心里用的是哪个数。</strong>（这是 E 板块的内容。）</li>
+<li><strong>咬合汇率</strong>：两国的实际利率差是汇率的驱动之一。而「实际利率差」需要两个国家的通胀数——如果一国用核心、一国用整体，这个差就没意义。<strong>4.1 节讲的美新「核心」定义不同，正是这个问题的一个具体版本。</strong>（D 板块。）</li>
+<li><strong>咬合增长</strong>：今天 BEA 报告里那个「实际个人消费支出环比 &lt;0.1%」，是名义支出 0.2% 减去物价 0.2% 得来的。<strong>物价指数不只是物价指数——它是把所有名义量换算成实际量的那个除数。</strong>你用哪个通胀指标去平减，就决定了你算出来的实际增长是多少。GDP、实际工资、实际回报，全都建立在这个除数上。（B11–B12。）</li>
+</ul>
+
+<p>
+换句话说：<strong>通胀指标的选择不是一个统计学细节，它是整个宏观体系的计量单位。</strong>单位选错，后面每一步都错，而且错得看不出来——因为每一步的算术都是对的。
+</p>
+
+<h2><span class="num">7</span>今日新术语卡片</h2>
+
+<div class="tablewrap">
+<table>
+<tr><th>术语（中文 / 英文）</th><th>一句话大白话</th><th>出现在哪一环</th></tr>
+<tr><td><strong>同比</strong> / year-over-year, YoY</td><td>拿今天跟去年同一时点比。这样比是为了让季节因素在分子分母上抵消掉。</td><td>环 1</td></tr>
+<tr><td><strong>环比</strong> / month-over-month, MoM</td><td>拿这个月跟上个月比。因为有季节性，用之前必须先做季节调整。</td><td>环 1</td></tr>
+<tr><td><strong>季节调整</strong> / seasonal adjustment</td><td>用历史数据估出「这个月本来就该涨多少」，再把这部分扣掉，剩下的才是真变化。</td><td>环 1</td></tr>
+<tr><td><strong>权重</strong> / weight</td><td>一样东西在你总开销里占多大分量。它涨多少 × 它占多少 = 它对总物价的贡献。</td><td>环 3</td></tr>
+<tr><td><strong>百分点</strong> / percentage point, pp</td><td>两个百分数相减得到的差。3.4% 减 2.5% 是「差 0.9 个百分点」，不是「差 0.9%」。</td><td>环 3、环 4</td></tr>
+<tr><td><strong>整体通胀</strong> / headline inflation</td><td>包含所有东西的物价涨幅，也就是你实际付的。</td><td>环 4</td></tr>
+<tr><td><strong>核心通胀</strong> / core inflation</td><td>剔掉波动最凶的几类之后剩下的。它不是「更真实的物价」，是「对趋势的一个估计」。</td><td>环 4（<strong>今日锚点</strong>）</td></tr>
+<tr><td><strong>供给冲击</strong> / supply shock</td><td>因为东西变少了而不是因为大家更想买了，导致的涨价。央行的利率工具对它基本无效。</td><td>环 4、环 6</td></tr>
+<tr><td><strong>中位数通胀</strong> / weighted median inflation</td><td>把所有分项按涨幅排队，取正中间那个。不预先指定扔谁，每个月重新排。</td><td>环 4</td></tr>
+<tr><td><strong>削尾均值</strong> / trimmed mean</td><td>掐掉涨得最凶和跌得最凶的两头，剩下的求平均。中位数是掐到只剩一个的极端版本。</td><td>环 4</td></tr>
+<tr><td><strong>CPI</strong> / Consumer Price Index</td><td>劳工统计局编的物价指数，测「消费者自己掏钱付的价格」。</td><td>环 2、环 5</td></tr>
+<tr><td><strong>PCE 物价指数</strong> / PCE Price Index</td><td>经济分析局编的物价指数，测「为消费者消费掉的东西所付的价格」，不管钱是谁出的。美联储的 2% 目标画在它的整体版本上。</td><td>环 5</td></tr>
+<tr><td><strong>基点</strong> / basis point, bp</td><td>万分之一，也就是 0.01 个百分点。谈利率变化时用它，是为了避免「涨了 1 个百分点」和「涨了 33%」的歧义。</td><td>环 6、环 7</td></tr>
+<tr><td><strong>期限溢价</strong> / term premium</td><td>你把钱锁死更久所要求的额外补偿。它让「长期利率 = 未来短期利率的平均预期」这个说法只是近似。</td><td>环 7</td></tr>
+<tr><td><strong>抗通胀国债</strong> / TIPS</td><td>本金跟着 CPI 一起长的国债，通胀风险由财政部承担。</td><td>环 8</td></tr>
+<tr><td><strong>盈亏平衡通胀率</strong> / breakeven inflation rate</td><td>让普通国债和抗通胀国债一样划算的那个通胀水平。算法：同期限名义收益率减实际收益率。</td><td>环 8</td></tr>
+<tr><td><strong>名义 / 实际利率</strong> / nominal &amp; real interest rate</td><td>牌子上写的那个是名义，扣掉通胀之后的才是实际。实际利率才决定你的购买力变化。</td><td>第 4 节</td></tr>
+<tr><td><strong>基数效应</strong> / base effect</td><td>同比是跟一年前比。如果价格从现在起横盘不动，一年后分子分母都是高价，同比会自动归零。</td><td>第 5 节</td></tr>
+<tr><td><strong>MAS 核心通胀</strong> / MAS Core Inflation</td><td>新加坡版本的核心：剔掉的是<strong>住宿和私人陆路交通</strong>，不是食品和能源。</td><td>第 4 节</td></tr>
+</table>
+</div>
+
+<h2><span class="num">8</span>自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>第 1 题｜假设 8 月份能源分项同比从 14.7% 掉到 6%，食品和核心都不变。整体 CPI 会是多少？（用 7 月的权重）</summary>
+<p>用环 3 的加权算术，把能源那一项换掉：</p>
+<div class="calc">
+核心：0.79047 × 2.5 = 1.976<br>
+食品：0.13522 × 3.0 = 0.406<br>
+能源：0.07432 × <b>6.0</b> = 0.446<br>
+── 相加 ──────────<br>
+= <span class="big">2.83%</span>
+</div>
+<p>
+对比原来的 3.47（四舍五入后是 3.4）。<strong>整体 CPI 会从 3.4% 掉到大约 2.8%，而核心一动没动。</strong></p>
+<p>
+这道题的意义在于：它让你看清「整体通胀下降」这个新闻标题<strong>完全可以在核心通胀毫无改善的情况下发生</strong>。到时候如果有人说「通胀正在回落，美联储可以降息了」，你要立刻反问：回落的是哪个？是能源基数效应，还是核心真的在降？
+</p>
+<p style="color:var(--muted);font-size:.9rem">
+（严格地说，权重每年会更新一次，用 7 月权重算 8 月是一个近似。但一个月内权重变化极小，这个近似在这里够用。）
+</p>
+</details>
+
+<details>
+<summary>第 2 题｜有人跟你说：「美联储的实际政策利率是 0.3%，几乎没在踩刹车。」这句话本身没错。你该追问哪两个问题？</summary>
+<p><strong>问题一：你减的是哪个通胀？</strong></p>
+<p>0.3% 这个数是 3.625% 减核心 PCE 3.3% 来的。但同样一个 3.625%：</p>
+<div class="calc">
+减整体 PCE 3.7% → <b>−0.08%</b>（更松）<br>
+减核心 PCE 3.3% → <b>+0.33%</b>（中性）<br>
+减 5 年盈亏平衡 2.31% → <b>+1.31%</b>（偏紧）
+</div>
+<p>三个都是真数据算的，结论从「松」到「紧」全覆盖。<strong>对方选了哪一个，通常不会主动说。</strong></p>
+
+<p><strong>问题二：你用的是过去的通胀还是未来的通胀？</strong></p>
+<p>
+这是更深的一层。利率决策影响的是<strong>未来</strong>。用过去 12 个月已经发生的通胀（3.7% 或 3.3%）去衡量今天的政策松紧，逻辑上是错位的——真正该用的是「借款期内的预期通胀」。这正是盈亏平衡通胀那个 2.31% 存在的意义。
+</p>
+<p>
+（严格版本还有第三个问题：应该跟<strong>中性利率</strong>比，而不是跟零比——「实际利率 0.3% 算不算紧」取决于中性水平是多少。那是原理表 A7，以后专讲。今天先掌握前两问。）
+</p>
+</details>
+
+<details>
+<summary>第 3 题｜为什么克利夫兰联储的中位数 CPI，比核心 CPI 更适合用来判断「通胀是不是正在扩散」？</summary>
+<p>因为两者<strong>回答的问题不同</strong>。</p>
+<p>
+<strong>核心 CPI 的名单是事前定死的</strong>：永远剔食品和能源。所以它只能告诉你「食品能源之外的东西涨了多少」。如果高通胀跑到了别的地方——比如机票、保险、服务——核心 CPI 会<strong>照单全收</strong>，它没有能力把这些新的极端值剔掉。
+</p>
+<p>
+<strong>中位数 CPI 每个月重新排队</strong>，取正中间那一项。它的读数高，只可能是因为<strong>连正中间那一项都在涨</strong>——也就是说涨价是普遍的，而不是集中在少数几项。
+</p>
+<p>所以两者的<strong>差</strong>就是一个探测器：</p>
+<ul>
+<li>中位数 ≈ 核心（今天：2.7% vs 2.5%）→ 核心里面没有藏着大量极端值，「剔食品能源」这个名单目前还管用。</li>
+<li>中位数 <strong>明显高于</strong> 核心 → 核心里面藏着一堆极端上涨项，名单失效了，通胀正在扩散。</li>
+</ul>
+<p>
+这正是 Ball 等人（2021）在疫情期间发现的事：那段时间的极端价格变动几乎全在食品能源之外，导致「剔食品能源」的波动率（标准差 3.9）跟整体（4.7）几乎一样，等于白剔；而中位数的标准差只有 1.51。
+</p>
+</details>
+
+<h3>今天就能做的一个小动作（15 分钟）</h3>
+
+<div class="card">
+<p><strong>算出你自己的通胀率。</strong></p>
+<ol>
+<li>翻出上个月的银行卡/信用卡账单，把开销粗分成 5–6 类：住（房租或房贷）、吃（分开「在家」和「外食」）、交通、水电网、其他。</li>
+<li>算出每一类占你总开销的比例——<strong>这就是你自己的权重</strong>，一定加起来等于 100%。</li>
+<li>去 <a href="https://www.mti.gov.sg/newsroom/consumer-price-developments-in-july-2026/">MTI 的月度 Consumer Price Developments</a> 里抄下对应大类的新加坡同比涨幅。</li>
+<li>按环 3 的方法加权：把每一类的「权重 × 涨幅」加起来。</li>
+</ol>
+<p style="margin-bottom:0">
+然后拿你算出来的数，跟官方的 CPI-All Items 2.2% 比一比。<strong>差多少？差在哪一类？</strong>——这个差就是「官方通胀」和「你的通胀」之间的距离，也是以后每次看到通胀新闻时你需要在心里做的那个换算。这个动作做一次，环 3 那套加权算术就永远忘不掉了。
+</p>
+</div>
+
+<h3>延伸阅读（三篇，按难度排序）</h3>
+
+<ol>
+<li>
+<p>
+<strong><a href="https://www.mas.gov.sg/monetary-policy/economics-edu-inflation/inflation/how-do-we-measure-inflation">MAS｜How do we measure inflation?</a></strong>　<span style="color:var(--muted)">难度：入门，20 分钟</span>
+</p>
+<p>
+<strong>为什么值得读</strong>：这是 MAS 自己写的科普页，把新加坡版「核心」为什么剔住宿和私人交通讲得很清楚。读它的价值不在于新加坡本身，而在于——<strong>你会亲眼看到同一个词在两个国家指两样东西，而且两边都给得出理由。</strong>这个体验比读十篇讲美国 CPI 的文章更能让你记住「口径」这件事。
+</p>
+</li>
+<li>
+<p>
+<strong><a href="https://www.federalreserve.gov/monetarypolicy/files/FOMC20180914memo02.pdf">Federal Reserve｜Comparing Two Measures of Core Inflation（FOMC 内部备忘录，2018）</a></strong>　<span style="color:var(--muted)">难度：中等，需要一点统计概念，40 分钟</span>
+</p>
+<p>
+<strong>为什么值得读</strong>：这是美联储的研究人员<strong>写给 FOMC 委员看的内部文件</strong>，不是对外宣传。你会看到他们如何用三个明确标准去评判一个指标，以及如何诚实地写下「两者的差异在统计上不显著」。<strong>读这种文件是学习「什么叫有出处的判断」的最好方式</strong>——它每一个结论后面都挂着一个可复现的检验。跳过统计检验的细节也不影响读懂主线。
+</p>
+</li>
+<li>
+<p>
+<strong><a href="https://www.nber.org/system/files/working_papers/w29609/w29609.pdf">Ball, Leigh, Mishra &amp; Spilimbergo｜Measuring U.S. Core Inflation: The Stress Test of COVID-19（NBER WP 29609, 2021）</a></strong>　<span style="color:var(--muted)">难度：偏难，是正式论文，但引言和图表可以单独读，60 分钟</span>
+</p>
+<p>
+<strong>为什么值得读</strong>：这是今天环 4 里「批评二」的原文。它的价值在于示范了<strong>怎么把一个概念放进压力测试</strong>——不是争论「核心通胀好不好」，而是问「在什么条件下它会失效，我怎么用数据证明它失效了」。建议先读 Introduction 和图 1–3，看懂「极端价格变动跑到了食品能源之外」这一个事实，就已经拿到了这篇论文八成的价值。
+</p>
+</li>
+</ol>
+
+<h2><span class="num">9</span>今天查实了什么 / 没查实什么</h2>
+
+<p style="color:var(--muted)">
+这不是免责声明，是给你的<strong>可信度地图</strong>。哪些话你可以直接用，哪些话你得自己再查一遍，这一节说清楚。
+</p>
+
+<h3>9.1 全部数据的出处与口径清单</h3>
+
+<div class="tablewrap">
+<table>
+<tr><th>数据</th><th>口径</th><th>来源</th><th>级别</th></tr>
+<tr><td>PCE 整体 +3.7% 同比、+0.2% 环比</td><td>2026 年 7 月；环比季调；8/26 发布</td><td><a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>核心 PCE +3.3% 同比、+0.2% 环比</td><td>同上；剔除食品与能源</td><td>BEA，另经 CNBC / Al Jazeera / Yahoo 三家复核</td><td><span class="tag f">一手</span></td></tr>
+<tr><td>个人收入 +0.4%、支出 +0.2%、实际支出 &lt;0.1%、储蓄率 3.0%</td><td>2026 年 7 月，环比，季调</td><td>BEA</td><td><span class="tag f">一手</span></td></tr>
+<tr><td>CPI 整体 +3.4%、核心 +2.5%、能源 +14.7%、汽油 +24.6%、食品 +3.0%、住房 +3.2% 等全部分项</td><td>2026 年 7 月；<strong>同比均为未季调</strong>；8/12 发布</td><td><a href="https://www.bls.gov/news.release/archives/cpi_08122026.htm">BLS 发布</a> / <a href="https://www.bls.gov/opub/ted/2026/consumer-prices-up-3-4-over-the-year-in-july-2026.htm">BLS TED</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>CPI 月度：整体 +0.1%、核心 +0.2%、能源 −1.5%、汽油 −2.9%</td><td>2026 年 7 月；<strong>季调后</strong></td><td>BLS 发布</td><td><span class="tag f">一手</span></td></tr>
+<tr><td>CPI 权重：食品 13.522、能源 7.432、汽油 3.852、核心 79.047</td><td>相对重要性，2026 年 6 月基准</td><td><a href="https://www.bls.gov/news.release/cpi.t01.htm">BLS CPI Table 1</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>中位数 CPI 2.7%、16% 削尾均值 2.6%（同比）；月度 +0.3% / +0.2%</td><td>2026 年 7 月</td><td><a href="https://www.clevelandfed.org/indicators-and-data/median-cpi">克利夫兰联储</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>汽油零售 $4.085/加仑（8/24 当周）、$3.147（一年前）</td><td>全国周度均价，普通标号</td><td><a href="https://www.eia.gov/petroleum/gasdiesel/">EIA</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>联邦基金目标区间 3.50–3.75%、IORB 3.65%、贴现率 3.75%</td><td>2026 年 7 月 30 日起生效</td><td><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">Fed Implementation Note</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>上一次利率变动：2025-12-11 降息 25bp 至 3.50–3.75%</td><td>—</td><td><a href="https://www.federalreserve.gov/monetarypolicy/openmarket.htm">Fed Open Market Operations</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>国债收益率 3M 3.85 / 2Y 4.19 / 5Y 4.37 / 10Y 4.66 / 30Y 5.18</td><td>2026-08-26，CMT（固定期限），par yield</td><td><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value=2026">美国财政部</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>TIPS 实际收益率 5Y 2.04 / 10Y 2.32</td><td><strong>2026-08-25</strong>（8/26 当时尚未更新）</td><td><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve&amp;field_tdr_date_value=2026">美国财政部</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>FOMC 7/29 投票 9–3，三位委员主张加息；声明关于「供给冲击」的措辞</td><td>2026 年 7 月 28–29 日会议</td><td><a href="https://www.mnimarkets.com/articles/fomc-july-2026-statement-1785348008523">MNI</a>（直接引述声明原文）</td><td><span class="tag a">次级但直引</span></td></tr>
+<tr><td>新加坡 MAS 核心 2.0%、CPI-All Items 2.2%（6 月分别 1.6%、1.9%）</td><td>2026 年 7 月，同比</td><td><a href="https://www.mti.gov.sg/newsroom/consumer-price-developments-in-july-2026/">MTI</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>MAS 核心定义：剔除住宿与私人陆路交通</td><td>—</td><td><a href="https://www.mas.gov.sg/monetary-policy/economics-edu-inflation/inflation/how-do-we-measure-inflation">MAS</a></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>股指收盘 −0.01% / −0.16%、黄金 $4,673.6、布伦特 $86</td><td>2026-08-26</td><td><a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-aug-26-2026">TheStreet</a></td><td><span class="tag a">次级</span></td></tr>
+<tr><td>盘中股指、DXY 99.07、VIX 15.70、WTI $80.26、加息概率 9 月约 38% / 年内约 73%</td><td>2026-08-26 盘中</td><td><a href="https://www.schwab.com/learn/story/stock-market-update-open">Schwab</a></td><td><span class="tag a">次级</span></td></tr>
+<tr><td>预测市场聚合：9 月按兵不动 67.2% / 加息 25bp 32.5% / 加息 ≥50bp 4.5%</td><td>2026-08-22，<strong>PCE 公布之前</strong>；三项相加 &gt;100%，口径本身有瑕疵</td><td><a href="https://defirate.com/prediction-markets/fed-decision-odds/">DeFiRate</a></td><td><span class="tag a">次级 / 存疑</span></td></tr>
+<tr><td>USD/SGD 1.2695，近一月 SGD +1.68%</td><td>2026-08-26</td><td><a href="https://tradingeconomics.com/singapore/currency">Trading Economics</a></td><td><span class="tag a">次级</span></td></tr>
+<tr><td>CPI 住房权重约 34% vs PCE 约 16%；软件/医疗在 PCE 权重更大</td><td>—</td><td><a href="https://www.advisorperspectives.com/commentaries/2026/05/08/u-s-inflation-measures-tell-two-different-stories">PIMCO 评论</a>、<a href="https://www.kbc.com/en/economics/publications/why-us-cpi-and-pce-inflation-figures-diverge.html">KBC</a></td><td><span class="tag g">次级 · 未复核</span></td></tr>
+</table>
+</div>
+
+<h3>9.2 逐环的证据级别</h3>
+
+<div class="tablewrap">
+<table>
+<tr><th>环</th><th>内容</th><th>级别</th></tr>
+<tr><td>环 1</td><td>汽油零售价同比 +29.8%</td><td><span class="tag f">一手 + 除法</span></td></tr>
+<tr><td>环 2</td><td>CPI 能源 +14.7%、汽油 +24.6%</td><td><span class="tag f">一手</span></td></tr>
+<tr><td>环 3</td><td>能源权重 × 涨幅 = 贡献 1.09pp；反事实 2.38%</td><td><span class="tag a">算术推导，可自验</span></td></tr>
+<tr><td>环 4</td><td>裂口 0.9pp 中 93% 来自能源</td><td><span class="tag a">算术推导，可自验</span></td></tr>
+<tr><td>环 4</td><td>核心通胀的理论依据、Gordon 1975 的出处、四条批评</td><td><span class="tag f">一手论文与央行文件</span></td></tr>
+<tr><td>环 5</td><td>核心 PCE 3.3% ＞ 核心 CPI 2.5% 这个<strong>事实</strong></td><td><span class="tag f">一手</span></td></tr>
+<tr><td>环 5a</td><td>这个差距的<strong>原因</strong></td><td><span class="tag g">我的推测 · 未复核</span></td></tr>
+<tr><td>环 6</td><td>FOMC 决定、投票、声明措辞</td><td><span class="tag f">一手 / 直引</span></td></tr>
+<tr><td>环 6</td><td>「它看到的 → 指向」那张对应表</td><td><span class="tag g">我的整理，非委员发言</span></td></tr>
+<tr><td>环 7</td><td>2Y 高于 IORB 54bp、3M 高于区间上沿</td><td><span class="tag a">一手数据 + 减法</span></td></tr>
+<tr><td>环 7</td><td>「54bp 对应几次加息」</td><td><span class="tag g">没做，被期限溢价污染</span></td></tr>
+<tr><td>环 8</td><td>盈亏平衡通胀 2.31% / 2.32%</td><td><span class="tag a">一手数据 + 减法，可自验</span></td></tr>
+<tr><td>环 8</td><td>它等于「市场的通胀预期」</td><td><span class="tag g">没这么说，溢价成分未拆</span></td></tr>
+<tr><td>第 4 节</td><td>三个实际利率算式</td><td><span class="tag a">算术推导，可自验</span></td></tr>
+<tr><td>第 4 节</td><td>汇率与真实回报的三步减法</td><td><span class="tag a">示意数字，已标明</span></td></tr>
+<tr><td>第 5 节</td><td>四个被定价的假设及其证据</td><td><span class="tag a">一手价格 + 推理，机制已写明</span></td></tr>
+</table>
+</div>
+
+<h3>9.3 今天明确接不上的地方（三处）</h3>
+
+<ol>
+<li>
+<p><strong>核心 PCE 为什么比核心 CPI 高 0.8 个百分点。</strong></p>
+<p>
+我只有两家机构的定性解释（住房权重差异 + 软件/医疗），没有任何一份把这 0.8pp 按分项分解的计算。<strong>需要的材料</strong>：BEA 的 PCE 分项权重与分项价格变化，跟 BLS 同类数据做逐项对照。这个我今天没做，所以整个 5a 环画成虚线。
+</p>
+</li>
+<li>
+<p><strong>油价上涨会不会、以及多大程度上会渗进核心通胀。</strong></p>
+<p>
+这是这条链上最重要的一环，也是我完全没画的一环。我看到 CPI 里「交通服务 +2.9%」「机票单月 +2.2%」，但<strong>没有任何一份把这些涨幅归因到能源成本的分解</strong>。市面上有大量「油价上涨 X% 会推高核心通胀 Y%」的说法，我一条都没采用——因为我没查到能支持具体数量级的一手材料。<strong>这一环宁可断在这里。</strong>
+</p>
+</li>
+<li>
+<p><strong>期限溢价与通胀风险溢价的大小。</strong></p>
+<p>
+环 7 的 54 个基点里有多少是加息预期、多少是期限溢价；环 8 的 2.31% 里有多少是通胀预期、多少是风险溢价与 TIPS 流动性折价。这两个拆解我都没做，所以两处都只用了方向，没用数量级。
+</p>
+</li>
+</ol>
+
+<h3>9.4 我特意<strong>没有</strong>做的一件事</h3>
+
+<p>
+昨天标普 500 收盘 −0.01%、10 年期国债 +2bp。<strong>我没有为这个「几乎没动」编任何解释。</strong>
+</p>
+
+<p>
+这个决定值得说明，因为它是这门课的核心纪律。给一个当天的价格波动配一套听起来合理的当日新闻，是最容易做、最难自查、也最没有价值的一种写作——它永远说得通，永远无法证伪，而且会让你误以为自己理解了市场。<strong>一个 0.01% 的波动跟随机噪音无法区分，所以正确的做法是什么都不说。</strong>
+</p>
+
+<p class="foot">
+Day 10 · 领域 B（通胀、增长与宏观数据）· 锚点原理 B2：核心通胀 vs 整体通胀<br>
+撰写日期 2026 年 8 月 27 日（新加坡时间）｜事件日期 2026 年 8 月 26 日<br>
+全部链接为公开来源。本文为教学材料，不构成投资建议。
+</p>
+
+</div>
+</body>
+</html>
