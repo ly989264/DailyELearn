@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 11 · 霍尔木兹与 OPEC+ 的卡特尔困境</title>
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#1c1c1a; --muted:#5f5d58; --card:#ffffff; --border:#e2ded6;
+  --accent:#8a4b12; --accent-soft:#f6ede2;
+  --sp-bg:#fff4e0; --sp-border:#d98b1f; --sp-fg:#6b3d00;
+  --num-bg:#eef3f7; --num-border:#9fb8cc;
+  --break-bg:#fdecec; --break-border:#c94a4a; --break-fg:#7a1f1f;
+  --code:#f0eee9;
+  --line:#3f6b8a; --line2:#a06a1f;
+}
+@media (prefers-color-scheme: dark){
+:root{
+  --bg:#15161a; --fg:#e8e6e1; --muted:#a3a099; --card:#1d1f24; --border:#33363d;
+  --accent:#e0a566; --accent-soft:#2a2119;
+  --sp-bg:#33260f; --sp-border:#d99b3f; --sp-fg:#f2d7a4;
+  --num-bg:#1b242c; --num-border:#3f5f78;
+  --break-bg:#341c1c; --break-border:#c9605f; --break-fg:#f0b9b8;
+  --code:#24262b;
+  --line:#7fb0d0; --line2:#d2a45e;
+}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  font-size:17px; line-height:1.85; overflow-x:hidden;
+}
+.wrap{max-width:760px; margin:0 auto; padding:28px 20px 90px}
+header.top{border-bottom:2px solid var(--border); padding-bottom:18px; margin-bottom:8px}
+.kicker{font-size:13px; letter-spacing:.12em; color:var(--accent); font-weight:700; text-transform:uppercase}
+h1{font-size:1.72em; line-height:1.3; margin:.35em 0 .3em; font-weight:750; letter-spacing:-.01em}
+.sub{color:var(--muted); font-size:.92em; margin:0}
+h2{font-size:1.3em; margin:2.4em 0 .7em; padding-top:.6em; border-top:1px solid var(--border); font-weight:720; letter-spacing:-.01em}
+h3{font-size:1.06em; margin:1.9em 0 .5em; font-weight:700; color:var(--accent)}
+h4{font-size:.98em; margin:1.4em 0 .4em; font-weight:700}
+p{margin:.85em 0}
+ul,ol{padding-left:1.35em; margin:.7em 0}
+li{margin:.4em 0}
+strong{font-weight:700}
+a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; overflow-wrap:anywhere}
+code{background:var(--code); padding:.1em .35em; border-radius:4px; font-size:.9em}
+.lead{font-size:1.04em}
+/* 计算块 */
+.calc{
+  background:var(--num-bg); border:1px solid var(--num-border); border-left:4px solid var(--num-border);
+  border-radius:8px; padding:14px 16px; margin:1.1em 0; font-size:.97em;
+}
+.calc .row{font-variant-numeric:tabular-nums; margin:.35em 0; line-height:1.7}
+.calc .res{font-weight:700}
+.calc .lbl{font-size:.85em; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4em; font-weight:700}
+/* 推测框 */
+.spec{
+  background:var(--sp-bg); color:var(--sp-fg); border:2px dashed var(--sp-border);
+  border-radius:10px; padding:16px 18px; margin:1.4em 0;
+}
+.spec .tag{
+  display:inline-block; background:var(--sp-border); color:#231602; font-weight:800;
+  font-size:.78em; letter-spacing:.09em; padding:3px 10px; border-radius:20px; margin-bottom:.6em;
+}
+.spec p{margin:.6em 0}
+/* 断链框 */
+.brk{
+  background:var(--break-bg); color:var(--break-fg); border:2px solid var(--break-border);
+  border-radius:10px; padding:16px 18px; margin:1.4em 0;
+}
+.brk .tag{display:inline-block; background:var(--break-border); color:#fff; font-weight:800;
+  font-size:.78em; letter-spacing:.09em; padding:3px 10px; border-radius:20px; margin-bottom:.6em;}
+/* 卡片 */
+.card{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin:1.2em 0}
+.src{font-size:.85em; color:var(--muted); border-top:1px dashed var(--border); padding-top:.5em; margin-top:.9em}
+.src b{color:var(--fg)}
+/* 表格 */
+.tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0; border:1px solid var(--border); border-radius:8px}
+table{border-collapse:collapse; width:100%; min-width:460px; font-size:.9em; background:var(--card)}
+th,td{border-bottom:1px solid var(--border); padding:9px 11px; text-align:left; vertical-align:top}
+th{background:var(--accent-soft); font-weight:700; font-size:.88em}
+tr:last-child td{border-bottom:none}
+td.n{font-variant-numeric:tabular-nums; white-space:nowrap}
+/* SVG */
+figure{margin:1.6em 0; padding:0}
+figure svg{width:100%; height:auto; display:block}
+figcaption{font-size:.86em; color:var(--muted); margin-top:.6em; line-height:1.6}
+.svgbox{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 8px}
+.s-fg{fill:var(--fg)} .s-mut{fill:var(--muted)} .s-card{fill:var(--card)}
+.s-box{fill:var(--card); stroke:var(--border); stroke-width:1.5}
+.s-solid{stroke:var(--line); stroke-width:2.4; fill:none}
+.s-dash{stroke:var(--sp-border); stroke-width:2.4; fill:none; stroke-dasharray:7 5}
+.s-brk{stroke:var(--break-border); stroke-width:2.4; fill:none; stroke-dasharray:2 5}
+.s-anchor{fill:var(--accent-soft); stroke:var(--accent); stroke-width:2.5}
+/* 折叠 */
+details{background:var(--card); border:1px solid var(--border); border-radius:9px; padding:12px 16px; margin:.9em 0}
+details summary{cursor:pointer; font-weight:700; color:var(--accent)}
+details[open] summary{margin-bottom:.6em; padding-bottom:.5em; border-bottom:1px solid var(--border)}
+/* 杂项 */
+.q{border-left:3px solid var(--accent); padding-left:14px; color:var(--muted); font-style:normal; margin:1.1em 0}
+.tl{font-size:.9em; color:var(--muted)}
+hr{border:none; border-top:1px solid var(--border); margin:2.4em 0}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:.85em; color:var(--muted); margin-top:.7em}
+.legend span{display:flex; align-items:center; gap:6px}
+.sw{width:26px; height:0; border-top-width:3px; display:inline-block}
+.sw-s{border-top-style:solid; border-color:var(--line)}
+.sw-d{border-top-style:dashed; border-color:var(--sp-border)}
+.sw-b{border-top-style:dotted; border-color:var(--break-border)}
+@media (max-width:520px){ body{font-size:16px} .wrap{padding:20px 15px 70px} h1{font-size:1.45em} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 11 · 领域 C 地缘政治、能源与大宗商品</div>
+  <h1>海峡被堵住的时候，OPEC+ 还是一个卡特尔吗？</h1>
+  <p class="sub">锚点原理 <b>C2 · OPEC+ 减产博弈与卡特尔困境</b>　｜　事件日期 2026年8月26–27日　｜　撰写日 2026年8月28日（新加坡时间）</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p class="lead">今天从一条新闻出发：8 月 26 日，伊朗和阿曼宣布就霍尔木兹海峡的水域划分和"收入分成"谈成了协议。这条海峡从今年 2 月底起就一直不通畅，全球四分之一左右的海运原油要从这里过。</p>
+
+<p class="lead">我们要讲明白的道理是：<b>一个产油国联盟（OPEC+）之所以能影响油价，靠的从来不是"开会宣布减产"这个动作本身，而是两样东西——手里有没有随时能开的闲置产能，以及成员会不会偷偷多产。这两样今天都出了问题。</b></p>
+
+<p class="lead">读完你能回答一个问题：为什么一个"卡特尔"（价格同盟）在教科书上永远是不稳定的？我会用一组你能自己拿计算器验算的数字，把它算给你看——不是讲道理，是算出来。</p>
+
+<hr>
+
+<h2>1｜今天的事件</h2>
+
+<h3>1.1 主事件：伊朗与阿曼的霍尔木兹协议（8 月 26 日）</h3>
+
+<p>2026 年 8 月 26 日（星期三），伊朗伊斯兰革命卫队（IRGC）发言人 Hossein Mohebbi 通过伊朗官方的 Sepah News 通讯社宣布：伊朗与阿曼<b>已就"海峡水域中各自的份额"以及"两国对海峡收入的分成"达成协议</b>。</p>
+
+<p>需要注意的口径问题——这条消息有两个版本，而且不一致：</p>
+
+<ul>
+<li>8 月 25 日（周二），两国<b>外交部</b>发的联合声明只提到一个"临时框架（interim framework）"，用于恢复船只通行，<b>没有</b>确认正式协议，也<b>没有</b>提到费用。</li>
+<li>8 月 26 日，<b>革命卫队</b>的说法走得更远，直接提到了"收入分成"。</li>
+</ul>
+
+<p>同一天伊朗官员还强调：<b>光有阿曼这个协议不足以让海峡重新开放。</b>完全恢复需要美方履行今年 6 月的一份备忘录，包括解除制裁、结束海上封锁、解冻伊朗资产。</p>
+
+<div class="src"><b>出处：</b>Insurance Journal 转载 Bloomberg 报道，2026-08-26，<a href="https://www.insurancejournal.com/news/international/2026/08/26/882991.htm">insurancejournal.com/news/international/2026/08/26/882991.htm</a>（原报道：Bloomberg，<a href="https://www.bloomberg.com/news/articles/2026-08-26/iran-oman-agree-to-share-strait-of-hormuz-revenue-irgc-says">bloomberg.com</a>，我未能直接读取 Bloomberg 原文，此处依据转载版本）</div>
+
+<h3>1.2 背景事实：海峡到底堵成什么样</h3>
+
+<p>这些是美国能源信息署（EIA，U.S. Energy Information Administration，隶属美国能源部的官方统计机构）的数据：</p>
+
+<div class="tw">
+<table>
+<tr><th>指标</th><th class="n">数值</th><th>口径说明</th></tr>
+<tr><td>霍尔木兹海峡正常通过量</td><td class="n">20.7 百万桶/日</td><td>2025年第四季度（冲突前最后一个完整季度）；含原油 + 石油液体产品</td></tr>
+<tr><td>2026年第一季度通过量</td><td class="n">14.6 百万桶/日</td><td>其中原油 10.7、其他石油液体 3.9；同比降约 30%</td></tr>
+<tr><td>减少量</td><td class="n">约 6.1 百万桶/日</td><td>20.7 − 14.6 = 6.1（算术）</td></tr>
+<tr><td>沙特东西输油管（绕开海峡）</td><td class="n">7.0 百万桶/日</td><td>设计产能，非当前实际输量</td></tr>
+<tr><td>阿联酋 Habshan–Fujairah 管道</td><td class="n">1.8 百万桶/日</td><td>设计产能；有计划在明年翻倍</td></tr>
+</table>
+</div>
+
+<p class="tl">冲突起点：2026 年 2 月底的军事升级导致商业通行骤减（联合国新闻，2026-08-04）。2026 年 3 月 2 日，沙特阿美最大的国内炼厂 Ras Tanura（日常产能 50 万桶/日以上）遭袭停产约一周。</p>
+
+<div class="src"><b>出处：</b>EIA 报告转述见 Institute for Energy Research，2026-05-22，<a href="https://www.instituteforenergyresearch.org/fossil-fuels/gas-and-oil/new-eia-report-shows-extent-of-hormuz-oil-disruptions/">instituteforenergyresearch.org</a>；联合国新闻 2026-08-04 <a href="https://news.un.org/en/story/2026/08/1168074">news.un.org/en/story/2026/08/1168074</a>；Ras Tanura 事件见 <a href="https://en.wikipedia.org/wiki/2026_Aramco_refinery_attack">维基百科词条「2026 Aramco refinery attack」</a>（<b>注意：维基百科是三手来源，我用它只是为了时间点，不作为数量级论据</b>）。</div>
+
+<h3>1.3 OPEC+ 那边发生了什么（8 月 2 日，本课主菜的入口）</h3>
+
+<p>2026 年 8 月 2 日，OPEC 官网发布公告：<b>沙特阿拉伯、俄罗斯、伊拉克、科威特、哈萨克斯坦、阿尔及利亚、阿曼</b>这七个国家决定，在 <b>2026 年 9 月</b>实施一项 <b>18.8 万桶/日</b>的产量调整，来自 2023 年 4 月宣布的"额外自愿调整"。下次会议定在 <b>2026 年 9 月 6 日</b>。</p>
+
+<div class="card">
+<h4>⚠️ 一个真实的口径陷阱，正好今天撞上</h4>
+<p>OPEC 的公告原文用的词是 "production adjustment"（产量调整）。<b>"调整"这个词本身不带方向</b>——可以是增产，也可以是减产。结果同一件事在网上出现了两种完全相反的标题：一边写"七国同意<b>减产</b> 18.8 万桶/日"，一边写"这是<b>增产</b>不是减产"。</p>
+<p>正确的读法要看那半句限定语：调整"来自 2023 年 4 月宣布的额外自愿减产"。也就是说，这 18.8 万桶/日是把当年<b>减掉的量加回来</b>，方向是<b>增产</b>。CNBC 与 World Oil 的标题都确认这一点，并说这一步<b>完成了</b>约 350 万桶/日自愿减产的全部回补。</p>
+<p><b>教训：</b>看 OPEC 公告，永远不要只看数字，要看"从哪个基准调整"。这是这门课"引用数据前必须核对口径"那条规矩的一个活例子。</p>
+</div>
+
+<div class="src"><b>出处：</b>OPEC 官方公告，2026-08-02，<a href="https://www.opec.org/pr-detail/1854611-2-august-2026.html">opec.org/pr-detail/1854611-2-august-2026.html</a>；方向与累计回补量见 <a href="https://www.cnbc.com/2026/08/02/opec-agrees-september-oil-hike-completing-rollback-of-voluntary-cuts.html">CNBC 2026-08-02</a> 与 <a href="https://worldoil.com/news/2026/8/2/opec-approves-final-production-quota-increase-of-2026/">World Oil 2026-08-02</a>。</div>
+
+<h3>1.4 今天的市场读数</h3>
+
+<div class="tw">
+<table>
+<tr><th>资产</th><th class="n">2026-08-27 读数</th><th>口径 / 说明</th></tr>
+<tr><td>布伦特原油</td><td class="n">$89.59 / 桶<br>当日 +1.99%</td><td>近月期货报价；月初至今 +9.15%，年初至今 +31.79%</td></tr>
+<tr><td>美国 2 年期国债收益率</td><td class="n">4.24%</td><td>年化到期收益率</td></tr>
+<tr><td>美国 10 年期国债收益率</td><td class="n">4.67%（+0.02 个百分点）</td><td>同上；30年 5.20%，5年 4.40%</td></tr>
+<tr><td>美元 / 新元</td><td class="n">1.2711</td><td>1 美元换 1.2711 新元；当月新元升值 1.63%，报道称为 2014 年 10 月以来最强</td></tr>
+<tr><td>标普 500</td><td class="n">7,717.09（+0.72%）</td><td>月初至今 +3.88%，年初至今 +18.69%</td></tr>
+<tr><td>黄金</td><td class="n">$4,600.45 / 盎司</td><td>现货，每金衡盎司；当月 +14.20%</td></tr>
+<tr><td>美国 7 月 PCE 物价指数</td><td class="n">整体 +3.7% 同比<br>核心 +3.3% 同比</td><td>美国经济分析局（BEA）8 月 26 日发布；环比整体与核心均 +0.2%（月度变化为季调后）</td></tr>
+<tr><td>联邦基金利率</td><td class="n">3.75%</td><td>当前政策利率水平</td></tr>
+</table>
+</div>
+
+<div class="src"><b>出处：</b>价格与收益率读数取自 TradingEconomics 各品种页面（<a href="https://tradingeconomics.com/commodity/brent-crude-oil">布伦特</a>、<a href="https://tradingeconomics.com/united-states/government-bond-yield">美债</a>、<a href="https://tradingeconomics.com/singapore/currency">USDSGD</a>、<a href="https://tradingeconomics.com/commodity/gold">黄金</a>、<a href="https://tradingeconomics.com/united-states/stock-market">标普</a>），抓取时间 2026-08-27。<b>这是二手行情聚合源，不是交易所结算价</b>，日内报价可能与官方收盘价有小差异。PCE 数据来自一手来源：<a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA "Personal Income and Outlays, July 2026"</a>，发布日 2026-08-26。</div>
+
+<hr>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<div class="svgbox">
+<svg viewBox="0 0 640 1180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="霍尔木兹海峡到 OPEC+ 卡特尔困境的传导链示意图">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line)"/>
+    </marker>
+    <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--sp-border)"/>
+    </marker>
+  </defs>
+
+  <!-- 1 -->
+  <rect class="s-box" x="60" y="14" width="520" height="72" rx="10"/>
+  <text class="s-fg" x="76" y="42" font-size="15" font-weight="700">① 2026年2月底 霍尔木兹冲突</text>
+  <text class="s-mut" x="76" y="66" font-size="13">海峡通过量 20.7 → 14.6 百万桶/日（少 6.1）</text>
+  <path class="s-solid" d="M320 86 L320 116" marker-end="url(#ah)"/>
+
+  <!-- 2 -->
+  <rect class="s-box" x="60" y="120" width="520" height="72" rx="10"/>
+  <text class="s-fg" x="76" y="148" font-size="15" font-weight="700">② 绕行管道补不上这个缺口</text>
+  <text class="s-mut" x="76" y="172" font-size="13">沙特东西线 7.0 + 阿联酋 1.8 = 8.8，且原本已在用</text>
+  <path class="s-solid" d="M320 192 L320 222" marker-end="url(#ah)"/>
+
+  <!-- 3 -->
+  <rect class="s-box" x="60" y="226" width="520" height="72" rx="10"/>
+  <text class="s-fg" x="76" y="254" font-size="15" font-weight="700">③ 世界靠"吃库存"顶住</text>
+  <text class="s-mut" x="76" y="278" font-size="13">2Q26 全球库存日均减少 4.2 百万桶（EIA）</text>
+  <path class="s-solid" d="M320 298 L320 328" marker-end="url(#ah)"/>
+
+  <!-- 4 -->
+  <rect class="s-box" x="60" y="332" width="520" height="72" rx="10"/>
+  <text class="s-fg" x="76" y="360" font-size="15" font-weight="700">④ OPEC+ 的"备用油"也所剩无几</text>
+  <text class="s-mut" x="76" y="384" font-size="13">有效闲置产能 1.09 百万桶/日（IEA，2026年8月）</text>
+  <path class="s-solid" d="M320 404 L320 434" marker-end="url(#ah)"/>
+
+  <!-- 5 锚点 -->
+  <rect class="s-anchor" x="40" y="438" width="560" height="132" rx="12"/>
+  <text class="s-fg" x="60" y="466" font-size="12" font-weight="800" letter-spacing="1.5">今日锚点原理 C2</text>
+  <text class="s-fg" x="60" y="492" font-size="15.5" font-weight="700">⑤ 卡特尔的权力 = 闲置产能 × 成员的遵守意愿</text>
+  <text class="s-mut" x="60" y="516" font-size="13">闲置产能只剩 1.09；且多数成员因技术与运营限制</text>
+  <text class="s-mut" x="60" y="536" font-size="13">根本达不到自己的配额 → 配额不再"咬人"</text>
+  <text class="s-mut" x="60" y="558" font-size="13">→ 8/2 宣布的 +18.8 万桶/日，纸面动作大于实际供给</text>
+  <path class="s-solid" d="M320 570 L320 600" marker-end="url(#ah)"/>
+
+  <!-- 6 -->
+  <rect class="s-box" x="60" y="604" width="520" height="72" rx="10"/>
+  <text class="s-fg" x="76" y="632" font-size="15" font-weight="700">⑥ 油价高位运行</text>
+  <text class="s-mut" x="76" y="656" font-size="13">布伦特 $89.59（8/27），年初至今 +31.79%</text>
+  <path class="s-solid" d="M320 676 L320 706" marker-end="url(#ah)"/>
+
+  <!-- 7 -->
+  <rect class="s-box" x="60" y="710" width="520" height="86" rx="10"/>
+  <text class="s-fg" x="76" y="738" font-size="15" font-weight="700">⑦ 美国通胀里，能源是加分项不是减分项</text>
+  <text class="s-mut" x="76" y="762" font-size="13">7月 PCE 整体 3.7% &gt; 核心 3.3%，差 0.4 个百分点</text>
+  <text class="s-mut" x="76" y="782" font-size="13">（这一步是纯算术，见第 3.6 环）</text>
+  <path class="s-solid" d="M320 796 L320 826" marker-end="url(#ah)"/>
+
+  <!-- 8 -->
+  <rect class="s-box" x="60" y="830" width="520" height="86" rx="10"/>
+  <text class="s-fg" x="76" y="858" font-size="15" font-weight="700">⑧ 市场给美联储定价：不是降息，是加息</text>
+  <text class="s-mut" x="76" y="882" font-size="13">CME FedWatch：9月加息 38%，12月 &gt;70%</text>
+  <text class="s-mut" x="76" y="902" font-size="13">10Y 4.67%，2Y 4.24%，30Y 5.20%</text>
+  <path class="s-dash" d="M320 916 L320 946" marker-end="url(#ahd)"/>
+
+  <!-- 9 虚线 -->
+  <rect class="s-box" x="60" y="950" width="520" height="86" rx="10" stroke-dasharray="7 5"/>
+  <text class="s-fg" x="76" y="978" font-size="15" font-weight="700">⑨ 对「SGD 收入 + USD 资产」的人意味着什么</text>
+  <text class="s-mut" x="76" y="1002" font-size="13">USDSGD 1.2711，当月新元升 1.63%</text>
+  <text class="s-mut" x="76" y="1022" font-size="13">汇率换算是算术；组合含义部分是我的判断</text>
+
+  <!-- 断链标注 -->
+  <rect x="60" y="1058" width="520" height="100" rx="10" fill="var(--break-bg)" stroke="var(--break-border)" stroke-width="2"/>
+  <text x="76" y="1086" font-size="14" font-weight="800" fill="var(--break-fg)">✕ 这里我接不上</text>
+  <text x="76" y="1108" font-size="12.5" fill="var(--break-fg)">8月27日布伦特单日 +1.99% 的原因，我不做归因。</text>
+  <text x="76" y="1128" font-size="12.5" fill="var(--break-fg)">当天既有伊朗-阿曼利好（本该压价），也有俄罗斯出口</text>
+  <text x="76" y="1148" font-size="12.5" fill="var(--break-fg)">中断的说法。挑一条解释涨跌，就是事后叙事。</text>
+</svg>
+</div>
+<div class="legend">
+  <span><i class="sw sw-s"></i>实线 = 每一环都有当天读到的出处或纯算术</span>
+  <span><i class="sw sw-d"></i>虚线 = 含我的推断</span>
+  <span><i class="sw sw-b"></i>红框 = 明确接不上的地方</span>
+</div>
+<figcaption><b>把这条链用人话读一遍：</b>今年 2 月底霍尔木兹出事之后，全球每天有约 610 万桶油走不出这条海峡；沙特和阿联酋的绕行管道设计产能加起来 880 万桶/日，但那些管道本来就在用，剩下的余量补不满这个洞。于是世界靠"提取库存"顶着——第二季度全球库存平均每天减少 420 万桶。同时 OPEC+ 手里能随时打开的备用油只剩 109 万桶/日。到这里，今天的主菜就摆上来了：<b>一个产油国联盟能不能影响价格，靠的是它手里有没有"随时可以多产/少产"的余地，以及成员愿不愿意听话。现在这两样都很薄。</b>所以 8 月 2 日那个"9 月增产 18.8 万桶/日"的决定，纸面意义可能大于实际供给意义。油价因此维持高位，而高油价让美国的整体通胀高于核心通胀，市场于是给年底"加息"而不是"降息"定价。</figcaption>
+</figure>
+
+<hr>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>3.1 第①②环：为什么"绕过去"没那么容易</h3>
+
+<h4>先说生活里的事</h4>
+<p>想象你家门口那条主路封了。地图告诉你有一条小路可以绕。但小路平时就有车在跑——它不是空着专门等你的。所以你能不能绕过去，取决于<b>小路还剩多少空位</b>，而不是小路总共有几条车道。</p>
+
+<p>油管也是一样。沙特的东西输油管设计产能 700 万桶/日，阿联酋 Habshan–Fujairah 管道 180 万桶/日，加起来 880 万桶/日。<b>但这两条管道在冲突之前就已经在运油了。</b>能顶上的只是它们的"空余部分"。</p>
+
+<div class="calc">
+<div class="lbl">算术：绕行能力够不够</div>
+<div class="row">海峡少运的量　＝　20.7 − 14.6 　＝　<b>6.1 百万桶/日</b></div>
+<div class="row">绕行管道设计总产能　＝　7.0 ＋ 1.8　＝　8.8 百万桶/日</div>
+<div class="row">但这里有个我<b>查不到</b>的数：这两条管道当前的实际利用率是多少</div>
+<div class="row res">→ 只能说：设计产能 8.8 &gt; 缺口 6.1，但因为管道本来就在用，实际余量远小于 8.8</div>
+</div>
+
+<p><b>为什么 A 会导致 B（这一环的机制）：</b>海峡被封 → 油还在地下，产能还在，但<b>运不出来</b>。市场上能买到的油 = 生产出来的油 − 运不出来的油。所以这是一次<b>供给冲击</b>，即使全世界一桶油都没少产。</p>
+
+<p><b>这一环什么情况下会断：</b>如果实际通行量已经从 1Q26 的 14.6 恢复了很多，那么"缺 610 万桶"这个数就过时了。EIA 的这份数据是第一季度的，到 8 月底肯定变了。<b>我今天没有找到 8 月的日度通行量数据。</b>所以下面所有基于 6.1 的算术，都是"冲突最严重时"的量级估算，不是当前值。</p>
+
+<div class="src"><b>依据：</b>EIA 数据（经 IER 转述，2026-05-22）＋ 减法算术。管道利用率：<b>缺</b>。</div>
+
+<h3>3.2 第③环：库存是这条链上的"减震器"——而且我们能算出它减了多少震</h3>
+
+<h4>先说生活里的事</h4>
+<p>你家米缸里有 30 天的米。今天超市说米断供了。你会立刻涨价抢米吗？不会——你先吃缸里的。要等到缸快见底，你才会开始慌。</p>
+<p>全球石油库存就是那个米缸。它让"今天少了多少油"和"今天价格涨多少"之间隔了一层缓冲。</p>
+
+<h4>现在把弹性的算术摆出来（这是全文最需要你跟着算的一段）</h4>
+
+<p>先定义一个词。<b>价格涨了，大家少买多少</b>——这个"少买的比例 ÷ 涨价的比例"，经济学给它起了个名字，叫<b>需求价格弹性</b>（英文：price elasticity of demand）。</p>
+
+<div class="calc">
+<div class="lbl">弹性怎么算</div>
+<div class="row">价格涨 30%，买的量只减少 3%</div>
+<div class="row res">弹性 ＝ 3% ÷ 30% ＝ 0.1</div>
+<div class="row" style="margin-top:.6em">这个数越小，越说明"价格怎么变我都得买"。</div>
+</div>
+
+<p><b>石油的短期需求弹性到底是多少？</b>这里我必须给你出处，不能随口说 0.1。Caldara、Cavallo、Iacoviello 三位作者 2019 年发表在《Journal of Monetary Economics》第 103 卷的论文《Oil price elasticities and oil price fluctuations》给了两组估计：</p>
+
+<ul>
+<li>工具变量面板回归：需求弹性 <b>−0.080</b>（标准误 0.079）</li>
+<li>他们的 VAR 识别方案选定：需求弹性 <b>−0.14</b>，供给弹性 <b>0.10</b></li>
+</ul>
+
+<p>负号只表示"价格涨、量减"这个方向，算的时候取绝对值。我下面统一用 <b>0.1</b>，它正好落在这两个估计之间。<b>提醒你注意标准误 0.079 —— 这几乎和点估计 0.080 一样大，意思是这个数本身的不确定性很高。</b>所以下面的算术给的是<b>量级</b>，不是精确预测。</p>
+
+<div class="calc">
+<div class="lbl">算术 A：如果完全没有库存缓冲，价格该涨多少</div>
+<div class="row">全球液体燃料消费（EIA 对 2026 年的预测）　＝　102.7 百万桶/日</div>
+<div class="row">海峡缺口　＝　6.1 百万桶/日</div>
+<div class="row">缺口占全球消费的比例　＝　6.1 ÷ 102.7　＝　<b>5.94%</b></div>
+<div class="row" style="margin-top:.5em">要让全球少消费 5.94%，价格要涨多少？把弹性倒过来用：</div>
+<div class="row res">5.94% ÷ 0.1 　＝　价格要涨 <b>59.4%</b></div>
+</div>
+
+<p><b>这一步为什么成立，我要写清楚，不能跳过。</b>弹性 0.1 的意思是"价格每涨 1%，消费量减少 0.1%"。现在我要让消费量减少 5.94%，需要价格涨的百分比 = 5.94 ÷ 0.1 = 59.4。就是一个除法。之所以必须靠涨价来"逼"人少买，是因为<b>油就是不够了，总得有人买不到</b>——市场只能用价格来决定谁买不到。</p>
+
+<div class="calc">
+<div class="lbl">算术 B：实际涨了多少</div>
+<div class="row">2026-02-13 布伦特　≈　$67 / 桶（冲突刚起时）</div>
+<div class="row">2026-08-27 布伦特　＝　$89.59 / 桶</div>
+<div class="row res">涨幅 ＝ 89.59 ÷ 67 − 1 ＝ <b>+33.7%</b></div>
+</div>
+
+<p>实际涨 33.7%，"无缓冲"的算术说该涨 59.4%。<b>差了将近一半。差额去哪了？</b>答案就是米缸——库存。</p>
+
+<div class="calc">
+<div class="lbl">算术 C：把库存放进去重算</div>
+<div class="row">EIA：2Q26 全球库存日均减少　＝　4.2 百万桶/日</div>
+<div class="row">扣掉库存补的部分，净缺口　＝　6.1 − 4.2　＝　<b>1.9 百万桶/日</b></div>
+<div class="row">占全球消费　＝　1.9 ÷ 102.7　＝　<b>1.85%</b></div>
+<div class="row res">价格该涨　＝　1.85% ÷ 0.1　＝　<b>18.5%</b></div>
+</div>
+
+<p>现在夹住了：<b>没有库存缓冲要涨 59.4%，完全靠库存顶住只需涨 18.5%，实际涨了 33.7%——落在两者中间。</b></p>
+
+<p class="q">你可能会想：既然算出来是 18.5%，为什么实际涨了 33.7%？多出来的 15 个百分点是什么？<br><br><b>老实的回答：我不知道确切答案，但我能列出候选，并说明为什么不能随便挑一个。</b>候选包括：(1) 库存不能永远放，市场会为"缸要见底"提前定价；(2) 弹性 0.1 本身的标准误几乎和它一样大；(3) 我把季度平均数和单日价格混着用了，口径不齐；(4) 未来可能进一步中断的风险溢价。<b>挑其中一条说"就是它"，正是这门课要避免的事后叙事。</b>能诚实说的只有一句：实际涨幅在两个算术边界之间，说明这个框架的量级是对的，细节我接不上。</p>
+
+<div class="src"><b>依据：</b>弹性数值 —— <a href="https://www.matteoiacoviello.com/research_files/CCI.pdf">Caldara, Cavallo &amp; Iacoviello (2019), JME 103</a>。全球消费与库存 —— <a href="https://www.eia.gov/outlooks/steo/report/global_oil.php">EIA STEO，2026-08-11</a>。海峡量 —— EIA（经 IER 转述）。价格 —— TradingEconomics。<b>其余全部是我列给你的除法，你可以自己验算。</b></div>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p><b>推测内容：</b>上面把"海峡缺口 6.1"和"全球库存去化 4.2"直接相减，隐含假设了全球库存的减少<b>主要</b>是为了填这个海峡缺口。</p>
+<p><b>反对的看法：</b>库存变化还受需求本身、季节性、炼厂检修、以及俄罗斯出口变化影响，未必主要由海峡驱动。而且 6.1 是"海峡通过量"（含成品油与部分液体产品），4.2 是"全球原油+成品油库存"，两个口径并不严格对应，相减在会计意义上不干净。</p>
+<p><b>要判断需要什么材料：</b>按地区分解的库存变化数据（OECD vs 非OECD、中国储备），以及海峡月度或日度通行量的时间序列。这两样我今天都没拿到。</p>
+</div>
+
+<h3>3.3 第④⑤环 ★ 今日主菜：卡特尔困境</h3>
+
+<h4>先把"卡特尔"这个词讲清楚</h4>
+<p>先说生活里的事。你和另外三家早餐摊在同一条街上卖包子，都卖 2 块钱。有人提议：咱们四家都涨到 3 块，反正客人只能在这条街买。<b>几家卖同一样东西的人私下约好一起限量、一起抬价</b>——经济学给这种约定起了个名字，叫<b>卡特尔</b>（英文：cartel）。</p>
+
+<h4>再讲一个必须先讲的词：闲置产能</h4>
+<p>你的包子铺每天能蒸 500 个，现在只蒸 400 个。那多出来的 100 个的能力，就是<b>闲置产能</b>（英文：spare capacity）。它的关键性质是：<b>你可以在很短时间内把它用上</b>，不需要新建厂房。</p>
+
+<p>对产油国来说，"很短时间"通常指 30 到 90 天内能投产、并且能持续维持。IEA 在 2026 年 8 月的月度报告里给出：<b>OPEC+ 有效闲置产能为 1.09 百万桶/日</b>（这个数已经剔除了受制裁的伊朗和俄罗斯原油）。</p>
+
+<h4>为什么闲置产能就是卡特尔的权力本身</h4>
+
+<p>这一步必须推清楚，不能靠"显然"。</p>
+
+<p>卡特尔想抬价，靠的是<b>可信地少产</b>。卡特尔想压价（比如惩罚一个偷偷多产的成员），靠的是<b>可信地多产</b>。</p>
+<p>"可信地少产"任何时候都能做到——把阀门关小就行。<b>但"可信地多产"必须有闲置产能才做得到。</b>没有闲置产能，你的威胁就是空话。</p>
+<p>而威胁一旦是空话，成员就没有理由守规矩了。所以：<b>闲置产能不只是应急储备，它是卡特尔用来维持内部纪律的执法工具。</b></p>
+
+<h4>现在用算术把"为什么成员总想偷偷多产"算给你看</h4>
+
+<p>下面这组数字是<b>示意数字，只为演示算法</b>，不是真实的 OPEC+ 数据。弹性 0.1 沿用上面那篇论文的量级。</p>
+
+<div class="card">
+<b>设定（示意）：</b>
+<ul>
+<li>全球产量 100 百万桶/日，油价 $80/桶</li>
+<li>卡特尔有 10 个成员国，每国产 4 百万桶/日，合计 40</li>
+<li>需求弹性 0.1</li>
+<li>提议：每国减产 5%，即每国少产 0.2，全体少 2 百万桶/日</li>
+</ul>
+</div>
+
+<div class="calc">
+<div class="lbl">情形一：所有人都不减产（现状）</div>
+<div class="row">油价 $80，每国收入 ＝ 4 × 80 ＝ <b>320</b>（百万美元/日）</div>
+</div>
+
+<div class="calc">
+<div class="lbl">情形二：所有人都守约减产</div>
+<div class="row">全球供给减少 2 ÷ 100 ＝ 2%</div>
+<div class="row">价格该涨 2% ÷ 0.1 ＝ 20% → 油价 80 × 1.20 ＝ $96</div>
+<div class="row res">每国收入 ＝ 3.8 × 96 ＝ <b>364.8</b>　（比情形一多 44.8）</div>
+</div>
+
+<p>看起来皆大欢喜：一起减产，人人赚更多。<b>问题出在下一步。</b></p>
+
+<div class="calc">
+<div class="lbl">情形三：其他 9 国守约，我一个人偷偷不减</div>
+<div class="row">全球供给只减少 9 × 0.2 ＝ 1.8 → 1.8 ÷ 100 ＝ 1.8%</div>
+<div class="row">价格该涨 1.8% ÷ 0.1 ＝ 18% → 油价 80 × 1.18 ＝ $94.4</div>
+<div class="row res">我的收入 ＝ 4 × 94.4 ＝ <b>377.6</b>　（比守约的 364.8 还多 12.8）</div>
+<div class="row">而守约的那 9 国：3.8 × 94.4 ＝ 358.72（比 364.8 少）</div>
+</div>
+
+<div class="calc">
+<div class="lbl">情形四：其他 9 国都不减，只有我减</div>
+<div class="row">全球供给只减少 0.2 ÷ 100 ＝ 0.2%</div>
+<div class="row">价格该涨 0.2% ÷ 0.1 ＝ 2% → 油价 80 × 1.02 ＝ $81.6</div>
+<div class="row res">我的收入 ＝ 3.8 × 81.6 ＝ <b>310.08</b>　（比什么都不做的 320 还少）</div>
+</div>
+
+<h4>把四种情形排成一张表</h4>
+
+<div class="tw">
+<table>
+<tr><th>　</th><th>其他 9 国<b>守约减产</b></th><th>其他 9 国<b>不减产</b></th></tr>
+<tr><th>我<b>守约减产</b></th><td class="n">364.8</td><td class="n">310.08</td></tr>
+<tr><th>我<b>偷偷多产</b></th><td class="n"><b>377.6</b> ✓ 更好</td><td class="n"><b>320</b> ✓ 更好</td></tr>
+</table>
+</div>
+
+<p><b>请你一列一列地看：</b></p>
+<ul>
+<li>如果别人都守约，我守约拿 364.8，我背叛拿 377.6 → <b>背叛更好</b></li>
+<li>如果别人都不守约，我守约拿 310.08，我背叛拿 320 → <b>背叛还是更好</b></li>
+</ul>
+
+<p><b>结论：不管别人怎么做，我都应该背叛。</b>一个"不管别人怎么选，我选它都更好"的策略，经济学给它起了个名字，叫<b>占优策略</b>（英文：dominant strategy）。</p>
+
+<p>但每一个成员都会做同样的计算，所以每个成员都背叛，最后大家落在<b>320</b>——比"大家都守约"的 364.8 差了 44.8。<b>所有人明知合作更好，却每个人都做出了不合作的选择</b>。这个结构经济学叫它<b>囚徒困境</b>（英文：prisoner's dilemma）。</p>
+
+<figure>
+<div class="svgbox">
+<svg viewBox="0 0 620 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="卡特尔困境支付矩阵示意">
+  <text class="s-fg" x="310" y="26" font-size="15" font-weight="700" text-anchor="middle">卡特尔困境：每个格子是「我」一天的收入（百万美元，示意数字）</text>
+  <text class="s-mut" x="310" y="50" font-size="12.5" text-anchor="middle">箭头 = 从这个格子出发，我单方面改变选择会往哪走</text>
+
+  <rect x="150" y="72" width="200" height="100" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="350" y="72" width="200" height="100" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="150" y="172" width="200" height="100" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <rect x="350" y="172" width="200" height="100" rx="8" fill="var(--break-bg)" stroke="var(--break-border)" stroke-width="2.5"/>
+
+  <text class="s-mut" x="250" y="64" font-size="12.5" text-anchor="middle">其他人守约</text>
+  <text class="s-mut" x="450" y="64" font-size="12.5" text-anchor="middle">其他人背叛</text>
+  <text class="s-mut" x="142" y="128" font-size="12.5" text-anchor="end">我守约</text>
+  <text class="s-mut" x="142" y="228" font-size="12.5" text-anchor="end">我背叛</text>
+
+  <text class="s-fg" x="250" y="130" font-size="26" font-weight="700" text-anchor="middle">364.8</text>
+  <text class="s-mut" x="250" y="152" font-size="11.5" text-anchor="middle">全体最优</text>
+  <text class="s-fg" x="450" y="130" font-size="26" font-weight="700" text-anchor="middle">310.1</text>
+  <text class="s-mut" x="450" y="152" font-size="11.5" text-anchor="middle">最惨：我一个人吃亏</text>
+  <text class="s-fg" x="250" y="230" font-size="26" font-weight="700" text-anchor="middle">377.6</text>
+  <text class="s-mut" x="250" y="252" font-size="11.5" text-anchor="middle">我最爽：搭便车</text>
+  <text x="450" y="230" font-size="26" font-weight="700" text-anchor="middle" fill="var(--break-fg)">320.0</text>
+  <text x="450" y="252" font-size="11.5" text-anchor="middle" fill="var(--break-fg)">纳什均衡（大家都在这）</text>
+
+  <path class="s-solid" d="M250 172 L250 190" marker-end="url(#ah)"/>
+  <path class="s-solid" d="M450 172 L450 190" marker-end="url(#ah)"/>
+
+  <text class="s-mut" x="310" y="300" font-size="12.5" text-anchor="middle">两个箭头都往下：无论上面那一行是什么，我都想往下走一格。</text>
+  <text class="s-mut" x="310" y="320" font-size="12.5" text-anchor="middle">于是所有人都落到右下角 320，比左上角的 364.8 差 44.8。</text>
+</svg>
+</div>
+<figcaption>这张图里的每个数字都来自上面四个算术框，你可以逐个验算。它是<b>示意数字</b>，用来演示结构，不是 OPEC+ 的真实收入。</figcaption>
+</figure>
+
+<h4>那现实中卡特尔为什么有时还是撑得住？</h4>
+
+<p>因为上面那张表假设"只玩一次"。现实里 OPEC+ 每个月都开会，是<b>重复博弈</b>。在重复博弈里，背叛的代价不只是这一次——还包括未来被报复。而报复的形式就是：<b>拥有大量闲置产能的成员（历史上主要是沙特）把阀门全开，把价格砸下去</b>。</p>
+
+<p><b>请注意这句话的结构：报复能力 = 闲置产能。</b>回到今天的数字：OPEC+ 有效闲置产能 <b>1.09 百万桶/日</b>。相对于全球 102.7 百万桶/日的消费，这是 1.06%。用弹性算一下这个"威胁"有多大：</p>
+
+<div class="calc">
+<div class="lbl">算术：现在的"报复威胁"值多少钱</div>
+<div class="row">全部闲置产能投放 ＝ 1.09 ÷ 102.7 ＝ 全球供给增加 <b>1.06%</b></div>
+<div class="row">价格该跌 ＝ 1.06% ÷ 0.1 ＝ <b>10.6%</b></div>
+<div class="row res">→ 从 $89.59 砸到约 $80.1</div>
+<div class="row" style="margin-top:.5em">对比 2020 年前后闲置产能常在 3–4 百万桶/日量级时，同样算法给出的威胁是 29%–39%</div>
+</div>
+
+<p class="q">这里要诚实：上面那个"2020 年前后 3–4 百万桶/日"我<b>今天没有核对一手来源</b>，只是作为量级对照，不作为论据。你在读的时候请把它当成"待查"，不要当成事实。</p>
+
+<h4>而今年还有第二个问题：配额可能根本不"咬人"</h4>
+
+<p>先解释一个说法。如果限速 80 公里，但你的车最快只能开到 60，那么"限速 80"对你<b>没有任何约束</b>。经济学里管这种情况叫约束<b>不紧（non-binding constraint）</b>。</p>
+
+<p>World Oil 在报道 8 月 2 日决议时写道：<b>"许多 OPEC+ 成员由于技术和运营上的限制，仍然无法把产量提高到分配给它们的配额水平。"</b></p>
+
+<p><b>这句话的含义要一步一步推：</b></p>
+<ol>
+<li>如果一个成员实际能产 3.8，配额给它 4.0，那么配额从 4.0 提到 4.1，它的产量不会变——因为它本来就够不着。</li>
+<li>所以"OPEC+ 宣布增产 18.8 万桶/日"这件事，能不能变成市场上真实多出来的 18.8 万桶，取决于这些配额<b>是不是分给了有能力多产的国家</b>。</li>
+<li>反过来看减产也一样：对一个产不满配额的国家，"要求它减产"同样没有约束力。</li>
+</ol>
+
+<p><b>把两件事合起来：闲置产能薄（执法工具弱）＋ 配额对多数成员不紧（规则本身不咬人）。在这两个条件下，"OPEC+ 的决议"更接近一份对市场发出的信号，而不是一次实际的供给操作。</b></p>
+
+<h4>★ 学界的分歧：OPEC 到底是不是一个卡特尔</h4>
+
+<p>这是本课要求必须双方都讲的地方。这个问题在学术上<b>没有共识</b>，而且两边都有严肃的实证工作。</p>
+
+<div class="card">
+<h4>一方：Smith (2005)——是的，有合作行为</h4>
+<p>James L. Smith，《Inscrutable OPEC? Behavioral Tests of the Cartel Hypothesis》，<i>The Energy Journal</i>, Vol. 26, No. 1 (2005), pp. 51–82。</p>
+<p>他的核心论点分两半。第一半是<b>方法论上的坏消息</b>：他证明常用的 OPEC 行为统计检验"在很宽的市场结构备择假设范围内功效都非常低"（have very low power），意思是这些检验根本分辨不出合谋和竞争。第二半：他用一个新的、基于产量的方法重做，<b>找到了成员之间合作行为的有力证据</b>（"strong evidence of cooperative behavior among OPEC members"）。</p>
+<p>他还有一个反直觉的发现：1982 年引入的正式配额机制（取代之前的挂牌价体系）<b>提高了</b>组织内部的交易成本。至于沙特等核心产油国是否扮演特殊角色，他说统计证据是<b>混合的</b>。</p>
+<div class="src"><b>出处：</b><a href="https://journals.sagepub.com/doi/abs/10.5547/ISSN0195-6574-EJ-Vol26-No1-3">期刊页面（含完整摘要）</a></div>
+</div>
+
+<div class="card">
+<h4>另一方：Colgan (2014)——不，它更像一个政治俱乐部</h4>
+<p>Jeff D. Colgan，《The Emperor Has No Clothes: The Limits of OPEC in the Global Oil Market》，<i>International Organization</i>, 68(3), 2014, pp. 599–632。</p>
+<p>他的实证结果非常尖锐：</p>
+<ul>
+<li>1982–2009 年间，OPEC 作为一个整体<b>有 96% 的时间在超产</b>。</li>
+<li>九个主要成员平均比配额多产约 <b>10%</b>，折合约 <b>180 万桶/日</b>。</li>
+<li>配额变化和产量变化之间的统计关系几乎不存在：九大产油国作为一组的 <b>R² 只有 0.018</b>。</li>
+</ul>
+<p><b>R² 是什么？</b>它是"被解释掉的比例"。R² = 0.018 意思是：产量的所有变动里，只有 <b>1.8%</b> 能被配额的变动解释掉，剩下 98.2% 与配额无关。作为对照，如果配额完全决定产量，R² 会接近 1。</p>
+<p>他给出的替代解释是：OPEC 成员身份带来的是<b>外交收益</b>——他的回归显示加入 OPEC 与大约多九个国家在该国设立外交代表相关。他的结论句是："OPEC 的故事主要是政治，不是经济。"</p>
+<div class="src"><b>出处：</b><a href="https://www.ourenergypolicy.org/wp-content/uploads/2013/08/OPEC-Colgan.2013Mar.Copyedit-IO.pdf">论文全文 PDF（作者版）</a>；<a href="https://www.cambridge.org/core/journals/international-organization/article/emperor-has-no-clothes-the-limits-of-opec-in-the-global-oil-market/1A35BB1511789C7AEC0F36AAAAD2C188">Cambridge Core 期刊页</a></div>
+</div>
+
+<p><b>我不替你选边。</b>但我要指出两点你自己能验证的：</p>
+<ol>
+<li>两篇论文<b>覆盖的时间段和用的方法都不同</b>（Smith 用产量结构检验，Colgan 用配额-产量的相关性与政治收益回归），所以它们不完全是在回答同一个问题。"OPEC 成员之间有协调行为"和"OPEC 的配额决定了产量"是两个不同的命题，可以同时都对。</li>
+<li>Smith 那篇最有价值的部分可能不是他的结论，而是他的<b>方法论警告</b>：数据的可得性和精度不足以让标准检验区分合谋与竞争。这句话反过来也适用于任何一篇宣称"证明了 OPEC 是/不是卡特尔"的论文，<b>包括 Colgan 那篇</b>。</li>
+</ol>
+
+<p><b>这一环什么情况下会断：</b>如果霍尔木兹恢复通行、闲置产能回升到 3 百万桶/日以上，那么"卡特尔权力薄弱"这个判断立刻失效——沙特的报复威胁重新变得可信，配额也重新变得有约束力。所以这一环<b>不是关于 OPEC+ 的本质，而是关于它此刻的状态</b>。</p>
+
+<div class="src"><b>依据：</b>闲置产能 1.09 —— <a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA Oil Market Report, 2026年8月（发布日 8月12日）</a>。配额不紧 —— <a href="https://worldoil.com/news/2026/8/2/opec-approves-final-production-quota-increase-of-2026/">World Oil, 2026-08-02</a>（该文引述的是未具名的 delegates，属于<b>匿名消息源</b>，可信度低于官方文件）。囚徒困境矩阵 —— <b>纯算术推导，示意数字</b>。学界分歧 —— 上述两篇论文原文。</div>
+
+<h3>3.4 第⑥环：8月2日的决定，纸面上是什么</h3>
+
+<p>事实部分（有一手来源）：七国决定 9 月实施 18.8 万桶/日的产量调整，方向是把 2023 年 4 月的自愿减产加回来；这一步完成了约 350 万桶/日自愿减产的全部回补；下次会议 9 月 6 日。代表们表示，9 月增产之后，预计<b>今年剩下时间维持配额不变</b>。</p>
+
+<p><b>18.8 万桶/日相对于全球有多大？</b></p>
+
+<div class="calc">
+<div class="lbl">算术：这次增产的量级</div>
+<div class="row">0.188 ÷ 102.7 ＝ <b>0.183%</b> 的全球消费</div>
+<div class="row">用弹性 0.1 反推价格影响 ＝ 0.183% ÷ 0.1 ＝ <b>价格下压约 1.83%</b></div>
+<div class="row res">前提：这 18.8 万桶<b>真的产出来并运到市场</b>——而 3.3 节说了，这个前提未必成立</div>
+</div>
+
+<p>作为对照，8 月 27 日布伦特单日就动了 1.99%。<b>也就是说，如果这次增产完全兑现，它对价格的影响大约等于一个普通交易日的波动。</b>这个对比不是我编的比喻，是两个数字直接比。</p>
+
+<div class="src"><b>依据：</b><a href="https://www.opec.org/pr-detail/1854611-2-august-2026.html">OPEC 官方公告 2026-08-02</a>（一手）＋ <a href="https://worldoil.com/news/2026/8/2/opec-approves-final-production-quota-increase-of-2026/">World Oil</a> ＋ 除法算术。</div>
+
+<h3>3.5 断链处：我不解释 8 月 27 日的单日涨幅</h3>
+
+<div class="brk">
+<span class="tag">✕ 这里我接不上</span>
+<p>8 月 27 日布伦特涨 1.99% 到 $89.59。前一天（8/26）有伊朗-阿曼的利好消息，行情摘要同时提到"俄罗斯能源出口受到干扰"。此外 8/26 当周布伦特是<b>下跌</b>约 7% 的。</p>
+<p><b>我不会挑其中一条说"就是它导致了当天上涨"。</b>理由：任何一天都能找到至少三条方向相反的消息，事后挑一条永远说得通，而且永远无法证伪。这正是这门课明令要避开的错误。</p>
+<p>能诚实说的只有：当周下跌、当日反弹，两个方向的消息同时存在，归因需要的是逐笔的持仓与流动数据，我没有。</p>
+</div>
+
+<h3>3.6 第⑦环：油价怎么进到通胀里——这一步是纯算术</h3>
+
+<p>先讲一个词。统计机构公布通胀时通常给两个数：一个是<b>所有东西的价格</b>，叫<b>整体通胀</b>（headline）；一个是<b>把食品和能源剔掉之后</b>的价格，叫<b>核心通胀</b>（core）。剔掉是因为食品和能源波动特别大，容易掩盖趋势。</p>
+
+<p>美国经济分析局（BEA）8 月 26 日发布的 7 月数据：</p>
+
+<div class="calc">
+<div class="lbl">2026年7月 PCE 物价指数（BEA 一手数据）</div>
+<div class="row">整体　同比 <b>+3.7%</b>　环比 +0.2%（季调）</div>
+<div class="row">核心（剔除食品与能源）　同比 <b>+3.3%</b>　环比 +0.2%（季调）</div>
+<div class="row res">整体 − 核心 ＝ 3.7 − 3.3 ＝ <b>+0.4 个百分点</b></div>
+</div>
+
+<p><b>这个 0.4 个百分点说明什么，我要推清楚。</b>如果被剔掉的那部分（食品 + 能源）价格涨得比其他东西<b>慢</b>，那么剔掉它们之后剩下的核心应该<b>更高</b>。现在核心比整体<b>低</b> 0.4 个百分点，所以被剔掉的那部分涨得比其他东西<b>快</b>。</p>
+
+<p><b>这就是算术，不是因果推断。</b>请特别注意我<b>没有</b>说的话：我没有说"油价上涨导致 PCE 3.7%"。我只说：在 7 月这个月，食品和能源合起来是整体通胀的<b>加分项</b>。至于其中能源占多少、其中又有多少来自布伦特，需要 BEA 的分项数据，而这份新闻稿没有单列能源分项。</p>
+
+<p><b>什么情况下这一环会断：</b>食品和能源是打包剔除的。如果这 0.4 个百分点主要来自食品（比如农产品），那它和今天这条油的链条就无关。<b>我今天没拿到分项，所以这一环只能推到"食品+能源合计是加分项"为止。</b></p>
+
+<div class="src"><b>依据：</b><a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA, Personal Income and Outlays, July 2026</a>（一手，发布日 2026-08-26）＋ 减法。</div>
+
+<h3>3.7 第⑧环：市场对美联储的定价</h3>
+
+<p>事实：CME FedWatch 工具显示，市场给 <b>9 月加息</b> 的概率约 <b>38%</b>，给 <b>12 月加息</b> 的概率 <b>超过 70%</b>。当前联邦基金利率 3.75%。美债收益率：2 年 4.24%，10 年 4.67%，30 年 5.20%。</p>
+
+<p><b>请先注意方向。</b>市场定价的是<b>加息</b>，不是降息。在一个整体通胀 3.7%、政策利率 3.75% 的环境里，这个方向本身就是信息。</p>
+
+<p><b>为什么高油价会让央行倾向于收紧，而不是放松？</b>这一步值得讲，但我要说明这属于教科书上的标准框架，今天我没有为它单独查一手来源：</p>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p><b>推测内容：</b>把"高油价"和"市场定价加息"连成一条因果链。</p>
+<p><b>为什么这是推测：</b>供给冲击对央行其实是<b>两难</b>而不是单向的——它同时推高通胀（要加息）和压低产出（要降息）。教科书的标准答案是：央行主要担心<b>通胀预期脱锚</b>，所以在预期有风险时倾向于收紧。但这需要看通胀预期数据来判断，而我今天没有查五年期盈亏平衡通胀率或密歇根调查。</p>
+<p><b>反对的看法：</b>2026 年 8 月市场定价加息也可能主要来自与油无关的因素——行情摘要提到了"联邦赤字扩大、AI 相关债券发行激增、贸易紧张"。这些都能独立推高收益率。把它全算在油头上是过度归因。</p>
+<p><b>要判断需要什么材料：</b>5 年期与 5 年 5 年远期盈亏平衡通胀率的时间序列、以及 FOMC 会议纪要里对能源的表述。这两样我今天都没查。</p>
+</div>
+
+<div class="src"><b>依据：</b>FedWatch 概率与收益率读数 —— TradingEconomics 页面转述（<b>二手</b>）。因果解释 —— <b>我的推测，已装框</b>。</div>
+
+<hr>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="q"><b>先声明：这一节是教学分析与决策框架，不是针对你的个性化投资建议。</b>我不知道你的持仓、负债、收入稳定性与时间跨度，也不做资产推荐。下面每一条都是把公开数据代进算术里，让你看清"暴露在哪里"，判断留给你。</p>
+
+<h3>4.1 你的第一层暴露：赚新元、持美元资产</h3>
+
+<p>你的收入以 SGD 计，投资以 USD 资产为主。这意味着你的组合有<b>两个来源的涨跌</b>：资产本身的涨跌，以及美元兑新元的涨跌。把这个月的真实数字代进去：</p>
+
+<div class="calc">
+<div class="lbl">算术：8 月这一个月，以新元计你实际赚了多少</div>
+<div class="row">标普 500 当月涨幅（美元计）　＝　+3.88%</div>
+<div class="row">新元当月对美元升值　＝　1.63%（即美元贬值，同一件事的两种说法）</div>
+<div class="row" style="margin-top:.5em">假设你月初持有价值 10,000 美元的标普指数基金：</div>
+<div class="row">月末美元价值 ＝ 10,000 × 1.0388 ＝ $10,388</div>
+<div class="row">月初换算 ＝ 10,000 × 1.2922 ≈ S$12,922　<span class="tl">（月初汇率由 1.2711 ÷ (1 − 0.0163) ＝ 1.2922 倒推，是估算不是实测）</span></div>
+<div class="row">月末换算 ＝ 10,388 × 1.2711 ≈ S$13,204</div>
+<div class="row res">以新元计的收益 ＝ 13,204 ÷ 12,922 − 1 ≈ <b>+2.19%</b></div>
+<div class="row" style="margin-top:.5em">对照：以美元计是 +3.88%。<b>汇率吃掉了约 1.69 个百分点。</b></div>
+<div class="row tl">快捷验算：1.0388 × (1 − 0.0163) − 1 ＝ 1.0219 − 1 ＝ +2.19%（与上面逐步算出的 2.19% 一致）</div>
+</div>
+
+<p><b>这一步为什么成立：</b>你持有的是美元资产，最终要用新元衡量购买力。如果美元资产涨 3.88%，但每一美元只能换到少 1.63% 的新元，两个效应相乘就是你以新元计的真实回报。<b>这不是一个"风险"的比喻，这是一个乘法。</b></p>
+
+<h3>4.2 你的第二层暴露：新元升值同时在帮你</h3>
+
+<p>新加坡是能源净进口国。油价用美元报价，你用新元生活。所以新元升值会<b>抵消一部分</b>进口能源涨价：</p>
+
+<div class="calc">
+<div class="lbl">算术：8 月油价以新元计涨了多少</div>
+<div class="row">布伦特当月涨幅（美元计）　＝　+9.15%</div>
+<div class="row">新元当月升值　＝　1.63%</div>
+<div class="row res">以新元计的油价涨幅 ＝ 1.0915 × (1 − 0.0163) − 1 ＝ <b>+7.37%</b></div>
+<div class="row">→ 汇率替你挡掉了约 1.78 个百分点</div>
+</div>
+
+<p><b>注意这两节的方向是相反的：</b>新元升值让你的美股回报变小（4.1），同时让你的进口成本变小（4.2）。它<b>不是</b>单纯的好事或坏事，而是<b>把你的组合和你的生活成本挂在同一根杠杆的两端</b>。这是"赚 A 币、投 B 币"结构的本质特征。</p>
+
+<p class="q">新加坡金管局（MAS）使用汇率而非利率作为货币政策主工具，这套机制是后面 D25、D26 两讲的内容。今天只需要你记住一个事实：新元的走势不是纯市场结果，背后有政策带在管。所以"新元会不会继续升"这个问题，不能只看市场。</p>
+
+<h3>4.3 一个常见的错误想法，今天正好有数据可以拆</h3>
+
+<p>很多人的直觉是："既然担心油价，那我买石油股来对冲不就行了。"</p>
+
+<p><b>问题在于"石油股"不是一种东西。</b>今天有一组数据正好说明这一点。先讲一个词：把原油炼成汽油柴油之后，<b>成品油卖价减去原油买价的差额</b>，行业里叫<b>裂解价差</b>（英文：crack spread，"crack"指裂解这道工艺）。</p>
+
+<p>一份 2026 年 8 月 20 日的市场分析写道：柴油裂解价差最近<b>超过每桶 100 美元</b>，而历史正常区间是<b>每桶 15–25 美元</b>。同期 EIA 周报（截至 8 月 14 日当周）显示美国馏分油（柴油类）库存又减少 150 万桶，仍远低于五年均值。</p>
+
+<div class="calc">
+<div class="lbl">推一遍：为什么这对不同公司意味着相反的事</div>
+<div class="row"><b>上游公司</b>（只挖油卖油）：收入随原油价格走 → 油价涨，它赚</div>
+<div class="row"><b>下游炼厂</b>：买原油、卖成品油 → 赚的是裂解价差，不是油价本身</div>
+<div class="row" style="margin-top:.5em">裂解价差从 20 涨到 100，等于每桶多赚 80 美元</div>
+<div class="row res">→ 同样叫"能源股"，一个跟油价走，一个跟"油价与成品油价的<b>差</b>"走</div>
+<div class="row" style="margin-top:.5em"><b>而这个差可以在油价上涨时缩小</b>：如果原油涨得比柴油快，炼厂反而受损</div>
+</div>
+
+<p><b>可迁移的教训（这才是重点）：</b>当你说"我要对冲 X"，必须先问一句"<b>这个工具的收入到底跟着哪个变量走</b>"。名字里带"能源"不等于跟着油价走。这个提问方式在任何对冲场景里都适用。</p>
+
+<div class="src"><b>依据：</b>裂解价差与库存数字 —— <a href="https://m.investing.com/analysis/oil-trading-in-august-2026-backwardation-crack-spreads-and-hormuz-risk-explained-200686148?ampMode=1">Investing.com 分析文章，2026-08-20</a>（<b>二手来源，作者为市场分析人士，不是官方统计</b>；库存部分该文引述 EIA 周报）。上下游的差别 —— <b>算术与定义推导</b>。</div>
+
+<hr>
+
+<h2>5｜反向倒推：市场现在在赌什么</h2>
+
+<p>前面几节是<b>顺着推</b>：发生了 A，所以会有 B。这一节倒过来问：<b>今天这些价格，说明市场心里在赌什么假设？如果那个假设错了，价格会往哪走？</b></p>
+
+<h3>5.1 三个已经被定价进去的假设</h3>
+
+<div class="card">
+<h4>假设一：霍尔木兹会从 9 月开始逐步恢复</h4>
+<p><b>证据（这不是我推测的，是官方明写的假设）：</b>EIA 在 2026 年 8 月 11 日的《短期能源展望》中写道：<b>"我们假设通过霍尔木兹海峡的石油运输在 8 月份仍将受到严重限制，9 月起流量缓慢增加。"</b>基于这个假设，EIA 预测布伦特 3Q26 均价约 <b>$85/桶</b>，4Q26 降至 <b>$78/桶</b>，2027 年均价 <b>$69/桶</b>。</p>
+<p><b>为什么这能反映市场的赌注：</b>严格说，EIA 的预测是 EIA 的，不是市场的。但下面这一条是市场自己说的话。</p>
+</div>
+
+<div class="card">
+<h4>假设二：期货曲线本身就在说"现在紧、以后松"</h4>
+<p>先讲词。石油期货有很多个到期月份。如果<b>近月合约价格高于远月</b>，这种曲线形状叫<b>现货溢价</b>（英文：backwardation）；反过来近月低于远月，叫<b>期货溢价</b>（英文：contango）。</p>
+<p><b>为什么现货溢价意味着"现在紧"，要推清楚：</b>假设近月 $90、一年后 $80。你今天买一桶油存一年，成本是 90 加上仓储费和资金占用，一年后只能卖 80——必亏。<b>没人会为了存油而买油。</b>所以能出现这种形状，只可能是因为有人<b>现在就要用油</b>，愿意为"立刻拿到"付溢价。这就是"现货紧张"的直接证据。</p>
+<p>2026 年 8 月 20 日的一份分析确认："近月的 WTI 和布伦特价格显著高于曲线更远端的合约。"</p>
+<p><b>把两件事合起来：市场自己（通过曲线形状）和 EIA（通过明写的假设）都在赌同一件事——现在紧，以后会松。</b></p>
+<div class="src"><b>依据：</b>曲线形状 —— <a href="https://m.investing.com/analysis/oil-trading-in-august-2026-backwardation-crack-spreads-and-hormuz-risk-explained-200686148?ampMode=1">Investing.com，2026-08-20</a>（<b>二手</b>，且该文<b>没有给出具体的价差数字</b>，我没能拿到近月与远月的美元差额）。EIA 预测 —— <a href="https://www.eia.gov/outlooks/steo/">EIA STEO，2026-08-11</a>（一手）。</div>
+</div>
+
+<div class="card">
+<h4>假设三：库存还能继续放</h4>
+<p>EIA：全球库存 2Q26 日均减少 420 万桶，预计 3Q26 再日均减少 380 万桶。<b>这是一个只能持续有限时间的机制</b>——米缸会见底。而 3.2 节的算术显示，正是这个库存释放把价格涨幅从"该涨 59.4%"压到了实际的 33.7%。</p>
+</div>
+
+<h3>5.2 哪个假设最脆弱</h3>
+
+<p><b>我认为是假设一（海峡 9 月起恢复）</b>，理由有三条，每条都可核对：</p>
+
+<ol>
+<li><b>EIA 自己把它写成"假设"而不是"预测"。</b>官方机构用 "we assume" 而不是 "we forecast" 时，是在明确告诉读者：这一条不是模型算出来的，是外生给定的输入。</li>
+<li><b>8 月 26 日伊朗官员自己说了，光有阿曼协议不足以重开海峡</b>，还需要美方履行 6 月备忘录（解除制裁、结束海上封锁、解冻资产）。<b>这是一个三方条件，而不是双方条件</b>——协议里有一方（美国）今天没有表态。</li>
+<li><b>同一天，同一件事，两个伊朗官方口径不一致</b>（外交部说"临时框架"、革命卫队说"收入分成协议"）。当一个国家内部对协议内容的表述都不统一时，把它当成已落地的事实是危险的。</li>
+</ol>
+
+<h3>5.3 如果这个假设错了，价格该怎么走——用算术给出可证伪的预测</h3>
+
+<p>这一节是本课的自我检验：<b>这套框架能不能在事情发生之前做预测？</b>下面我把它写成明确可证伪的形式。</p>
+
+<div class="calc">
+<div class="lbl">情景 A：海峡显著恢复（通过量回到 18 百万桶/日）</div>
+<div class="row">供给增加 ＝ 18.0 − 14.6 ＝ 3.4 百万桶/日</div>
+<div class="row">占全球消费 ＝ 3.4 ÷ 102.7 ＝ 3.31%</div>
+<div class="row">价格该跌 ＝ 3.31% ÷ 0.1 ＝ <b>33.1%</b></div>
+<div class="row res">→ 从 $89.59 跌向约 <b>$60</b></div>
+<div class="row" style="margin-top:.5em">但库存要回补，会吸收一部分。若回补速度是当前去化速度的一半（约 2 百万桶/日）：</div>
+<div class="row">净供给增加 ＝ 3.4 − 2.0 ＝ 1.4 → 1.36% → 价格跌 13.6% → 约 <b>$77</b></div>
+<div class="row res">→ 区间预测：<b>$60 – $77</b>。注意 EIA 的 4Q26 预测 $78 正好落在这个区间的上沿。</div>
+</div>
+
+<div class="calc">
+<div class="lbl">情景 B：谈判破裂，海峡进一步收紧（再少 1 百万桶/日）</div>
+<div class="row">供给减少 1.0 ÷ 102.7 ＝ 0.97%</div>
+<div class="row">价格该涨 ＝ 0.97% ÷ 0.1 ＝ <b>9.7%</b>　→　约 <b>$98</b></div>
+<div class="row" style="margin-top:.5em">再问一句：OPEC+ 能不能顶上？闲置产能 1.09 百万桶/日</div>
+<div class="row res">→ 数字上刚好够顶这 1.0。但顶完之后，<b>缓冲归零</b>——再有任何意外，价格将没有任何缓冲</div>
+</div>
+
+<p><b>这两个情景为什么算得上"预测"而不是"叙事"：</b>因为它们给出了<b>可以被证伪的条件句</b>——"如果海峡通过量回到 18 百万桶/日，布伦特应落在 60–77 美元区间"。三个月后你可以拿实际数据回来对照。如果海峡真的恢复到 18 而油价还在 90 以上，那么<b>这个框架就是错的</b>，需要修正弹性假设或加入我漏掉的变量。<b>一套无法被这样打脸的说法，就不是机制，是叙事。</b></p>
+
+<h3>5.4 未来 1–3 个月，盯这些具体的东西</h3>
+
+<div class="tw">
+<table>
+<tr><th>时间</th><th>事件 / 数据</th><th>它能证实或证伪什么</th></tr>
+<tr><td>9月6日</td><td>OPEC+ 会议（<a href="https://www.opec.org/">opec.org</a> 会后发公告）</td><td>如果宣布<b>暂停</b>增产 → 与"代表称今年剩余时间维持不变"一致；如果宣布<b>继续</b>增产 → 说明成员在抢市场份额，指向 3.3 节的困境</td></tr>
+<tr><td>每周三</td><td>EIA 周度石油库存报告</td><td>库存是否还在去化。若开始回补 → 假设三的"米缸见底"风险下降</td></tr>
+<tr><td>9月中</td><td>IEA 月报 &amp; OPEC 月报</td><td>见 5.5 节：两家的需求预测差 2.2 百万桶/日，看谁向谁靠拢</td></tr>
+<tr><td>9/10月</td><td>EIA 月度 STEO 更新</td><td>它是否<b>修改</b>那句霍尔木兹假设。假设改了，$78 的 4Q26 预测就会跟着改</td></tr>
+<tr><td>持续</td><td>霍尔木兹日度/周度通行量</td><td>这是情景 A/B 的直接判据。<b>我今天没能找到公开的实时序列——这是我材料里的一个明确缺口</b></td></tr>
+</table>
+</div>
+
+<h3>5.5 一个必须告诉你的事实：三家权威机构互相打架</h3>
+
+<div class="brk">
+<span class="tag">✕ 这里我接不上</span>
+<p>2026 年 8 月 11–12 日这三天，三家机构发布了对同一个 2026 年的预测：</p>
+<ul>
+<li><b>IEA（8月12日）：</b>2026 年全球石油需求<b>下降 1.6 百万桶/日</b>；全球供给下降 4.3 至 102 百万桶/日；3Q26 <b>缺口 1.8 百万桶/日</b>；OPEC+ 有效闲置产能 1.09。</li>
+<li><b>OPEC MOMR（8月12日）：</b>2026 年全球石油需求<b>增长 0.6 百万桶/日</b>。</li>
+<li><b>EIA STEO（8月11日）：</b>2026 年全球液体燃料产量 100.8、消费 102.7 百万桶/日。</li>
+</ul>
+<p><b>IEA 说需求降 1.6，OPEC 说需求涨 0.6。同一年，同一个指标，差 2.2 百万桶/日。</b>这个差额比这次 OPEC+ 增产量（0.188）大十倍以上。</p>
+<p><b>我没有能力判断谁对。</b>可能的原因包括口径不同（"需求"是否包含被迫的供给约束）、方法论不同、以及双方的机构立场不同（IEA 代表消费国，OPEC 代表产油国）。<b>但把"可能的原因"当成"原因"就是编。</b>我今天没有读两份报告的方法论附录，所以这里明确断开。</p>
+<p><b>对你的实际含义：</b>凡是引用"2026 年全球石油需求"这个数字的分析，<b>都必须说明它用的是哪一家</b>。不说明的，你可以直接怀疑作者没核对过。</p>
+</div>
+
+<hr>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式：先看约束，再看意图</h3>
+
+<p>今天最核心的一步不是任何一个数字，而是这个提问顺序的<b>反转</b>：</p>
+
+<div class="card">
+<p><b>常见的读法（错的）：</b>OPEC+ 宣布增产 → 供给要增加 → 油价该跌。</p>
+<p><b>今天的读法：</b>先问"它们<b>有没有能力</b>增产"（闲置产能 1.09）→ 再问"配额<b>是否咬得住</b>"（多数成员达不到配额）→ 最后才看它宣布了什么。</p>
+</div>
+
+<p><b>把它抽象出来：任何一个主体的行为，都由"意图"和"约束"共同决定，而约束通常更硬、更可观测、也更少被讨论。</b>当一个组织的声明和它的物理约束不一致时，相信约束。</p>
+
+<h4>跨领域例子一：读央行的前瞻指引</h4>
+<p>央行说"我们将在必要时继续加息"。同样的顺序：先问约束——政府债务的利息负担有多重？银行体系能不能承受？房贷家庭的现金流还剩多少？这些约束比声明更能预测央行的实际路径。（这是后面 A11、A21 两讲的主题。）</p>
+
+<h4>跨领域例子二：读公司的资本开支指引</h4>
+<p>这个你会用得上，因为你正在做的是 AI Infra。一家公司宣布"未来三年投入 X 亿建数据中心"。先问约束：自由现金流够不够？电网有没有容量？高端芯片拿不拿得到？<b>宣布投资和完成投资之间的差距，正是"配额"与"实际产量"之间的差距。</b>同一个结构。</p>
+
+<h3>6.2 这条链在整个系统里的位置</h3>
+
+<figure>
+<div class="svgbox">
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="能源冲击在利率、通胀、汇率、增长四大板块中的位置">
+  <rect x="230" y="20" width="180" height="62" rx="10" class="s-anchor"/>
+  <text class="s-fg" x="320" y="46" font-size="14" font-weight="700" text-anchor="middle">C · 能源与大宗商品</text>
+  <text class="s-mut" x="320" y="68" font-size="12" text-anchor="middle">今天在这里（霍尔木兹 / OPEC+）</text>
+
+  <rect x="40" y="150" width="170" height="62" rx="10" class="s-box"/>
+  <text class="s-fg" x="125" y="176" font-size="14" font-weight="700" text-anchor="middle">B · 通胀与增长</text>
+  <text class="s-mut" x="125" y="197" font-size="11.5" text-anchor="middle">整体 3.7% vs 核心 3.3%</text>
+
+  <rect x="235" y="150" width="170" height="62" rx="10" class="s-box"/>
+  <text class="s-fg" x="320" y="176" font-size="14" font-weight="700" text-anchor="middle">A · 货币政策与利率</text>
+  <text class="s-mut" x="320" y="197" font-size="11.5" text-anchor="middle">12月加息概率 &gt;70%</text>
+
+  <rect x="430" y="150" width="170" height="62" rx="10" class="s-box"/>
+  <text class="s-fg" x="515" y="176" font-size="14" font-weight="700" text-anchor="middle">D · 汇率与资本流动</text>
+  <text class="s-mut" x="515" y="197" font-size="11.5" text-anchor="middle">USDSGD 1.2711</text>
+
+  <rect x="140" y="288" width="170" height="62" rx="10" class="s-box"/>
+  <text class="s-fg" x="225" y="314" font-size="14" font-weight="700" text-anchor="middle">E · 信用与金融稳定</text>
+  <text class="s-mut" x="225" y="335" font-size="11.5" text-anchor="middle">高利率 → 再融资压力</text>
+
+  <rect x="335" y="288" width="170" height="62" rx="10" class="s-box"/>
+  <text class="s-fg" x="420" y="314" font-size="14" font-weight="700" text-anchor="middle">F · 股票估值</text>
+  <text class="s-mut" x="420" y="335" font-size="11.5" text-anchor="middle">折现率 ↑ → 长久期资产</text>
+
+  <path class="s-solid" d="M280 82 L150 145" marker-end="url(#ah)"/>
+  <path class="s-solid" d="M320 82 L320 145" marker-end="url(#ah)"/>
+  <path class="s-solid" d="M210 181 L230 181" marker-end="url(#ah)"/>
+  <path class="s-dash" d="M405 181 L425 181" marker-end="url(#ahd)"/>
+  <path class="s-dash" d="M300 212 L245 283" marker-end="url(#ahd)"/>
+  <path class="s-dash" d="M345 212 L400 283" marker-end="url(#ahd)"/>
+
+  <text class="s-mut" x="320" y="382" font-size="12" text-anchor="middle">实线 = 今天有数据支撑的环节；虚线 = 结构上的联系，今天没有为它单独查证</text>
+</svg>
+</div>
+<figcaption>能源冲击不是一个孤立的商品故事。它先变成通胀数字（B），通胀数字变成利率预期（A），利率预期变成汇率（D）——而汇率决定了你这个"赚新元、投美元"的人真正拿到多少。这条从 C 到 D 的路径，是你个人处境里最直接的一条。</figcaption>
+</figure>
+
+<hr>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tw">
+<table>
+<tr><th>术语（中／英）</th><th>一句话大白话</th><th>出现在哪一环</th></tr>
+<tr><td>需求价格弹性<br>price elasticity of demand</td><td>价格涨 1%，大家少买百分之几。石油短期约 0.1 量级</td><td>3.2、3.3、5.3</td></tr>
+<tr><td>闲置产能<br>spare capacity</td><td>短时间内说开就能开的产能。它是卡特尔的执法工具，不只是应急储备</td><td>3.3</td></tr>
+<tr><td>卡特尔<br>cartel</td><td>几家卖同一种东西的人约好一起限量抬价</td><td>3.3</td></tr>
+<tr><td>占优策略<br>dominant strategy</td><td>不管别人怎么选，我选它都更好</td><td>3.3</td></tr>
+<tr><td>囚徒困境<br>prisoner's dilemma</td><td>每个人都理性选择，结果所有人都比合作时更差</td><td>3.3</td></tr>
+<tr><td>约束不紧<br>non-binding constraint</td><td>限速 80 但车只能开 60，那限速对你等于不存在</td><td>3.3</td></tr>
+<tr><td>整体 / 核心通胀<br>headline / core inflation</td><td>所有东西的价格 ／ 剔掉食品和能源之后的价格</td><td>3.6</td></tr>
+<tr><td>现货溢价<br>backwardation</td><td>近月期货比远月贵。只可能因为"现在就缺"</td><td>5.1</td></tr>
+<tr><td>期货溢价<br>contango</td><td>近月比远月便宜。通常意味着眼下不缺、存着划算</td><td>5.1</td></tr>
+<tr><td>裂解价差<br>crack spread</td><td>成品油卖价减原油买价。炼厂赚的是这个差，不是油价本身</td><td>4.3</td></tr>
+<tr><td>R²（决定系数）</td><td>"被解释掉的比例"。0.018 = 只有 1.8% 能被解释</td><td>3.3（Colgan）</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>第 1 题：假设 OPEC+ 的闲置产能从 1.09 突然回升到 4.0 百万桶/日。这会让 OPEC+ 更强还是更弱？为什么？（提示：分"抬价能力"和"执法能力"两个方向想）</summary>
+<p><b>参考答案：</b></p>
+<p><b>先算"执法能力"这一面。</b>3.3 节给了算法：全部投放闲置产能能把价格砸下去多少 = (闲置产能 ÷ 全球消费) ÷ 弹性。</p>
+<div class="calc">
+<div class="row">现在：1.09 ÷ 102.7 = 1.06% → 1.06% ÷ 0.1 = 价格可砸 <b>10.6%</b></div>
+<div class="row">回升后：4.0 ÷ 102.7 = 3.89% → 3.89% ÷ 0.1 = 价格可砸 <b>38.9%</b></div>
+<div class="row res">→ 执法威胁从"砸 10.6%"变成"砸 38.9%"，强了约 3.7 倍</div>
+</div>
+<p>回到 3.3 节的支付矩阵：一个成员偷偷多产，能多赚 377.6 − 364.8 = 12.8（在示意设定下，约 3.5%）。如果背叛之后要面对 38.9% 的价格暴跌威胁，这笔账立刻不划算了。<b>所以执法能力变强 → 成员更愿意守约 → 卡特尔更稳。</b></p>
+<p><b>但"抬价能力"这一面相反。</b>闲置产能回升到 4.0，通常意味着<b>供给约束解除了</b>（比如海峡通了）。而闲置产能是全市场都能看到的公开数据。市场知道有 4.0 百万桶随时能出来，就不会给同样高的风险溢价。<b>所以同一件事让 OPEC+ 内部更团结，同时让它面对的价格水平更低。</b></p>
+<p><b>这是本题的关键：一个组织"内部纪律更好"和"它想要的结果更容易实现"是两回事。</b>OPEC+ 会变成一个更有秩序、但在更低价格上运作的组织。</p>
+</details>
+
+<details>
+<summary>第 2 题：3.6 节说"整体 3.7% 高于核心 3.3%，说明食品+能源是加分项"。现在假设下个月整体降到 3.4%、核心还是 3.3%。这是通胀在好转吗？对美联储意味着什么？</summary>
+<p><b>参考答案：分两步答，不要跳。</b></p>
+<p><b>第一步：算术上发生了什么。</b>整体减核心从 0.4 个百分点缩到 0.1 个百分点。核心没变。所以变化<b>全部来自被剔掉的那部分</b>（食品+能源），它们的涨幅相对其他东西下降了。</p>
+<p><b>第二步：这算不算"好转"，取决于你问的是哪个问题。</b></p>
+<ul>
+<li><b>对普通家庭：算。</b>他们花的是整体，不是核心。加油和买菜真的便宜了。</li>
+<li><b>对央行判断趋势：几乎没有信息。</b>核心通胀纹丝不动在 3.3%，说明<b>价格压力的持续性部分没有任何改善</b>。央行剔除食品能源，正是因为这两项的波动会自己回来——今天油价跌回去，明天可能再涨上来。</li>
+</ul>
+<p><b>第三步：还要问一个反向的问题。</b>油价下跌<b>为什么</b>下跌？如果是因为海峡恢复（供给改善），那是好消息。如果是因为全球需求塌了（衰退），那么整体通胀下降的同时经济在恶化，央行面对的是完全不同的局面。<b>同一个数字，两种成因，两种政策含义。这就是为什么本课反复强调"供给冲击还是需求冲击"必须先分清（B8 讲的内容）。</b></p>
+<p><b>最诚实的答案：</b>整体降到 3.4% 而核心不动，对央行来说基本不构成放松的理由。今天市场给 12 月加息 >70% 的概率，看的多半也不是整体那一栏。</p>
+</details>
+
+<details>
+<summary>第 3 题（最难）：3.3 节说 Colgan 发现"配额与产量的 R² 只有 0.018"，因此 OPEC 不像卡特尔。请给出至少两个理由，说明这个 R² 数字<b>不一定</b>能支持那个结论。</summary>
+<p><b>参考答案（这题在训练你读研究，不是记结论）：</b></p>
+<p><b>理由一：R² 低可能是因为因果方向反了。</b>如果 OPEC 的配额是<b>跟着</b>成员实际产量走的（即先看大家产多少，再把配额定成接近那个数，以维持"配额被遵守"的表象），那么配额本身就没有独立信息，R² 自然低。<b>但这恰恰是一个高度协调的卡特尔可能的做法</b>——把规则定成大家愿意遵守的样子。低 R² 在这个故事里是协调的证据，不是反证。</p>
+<p><b>理由二：R² 衡量的是"变动的共同性"，不是"水平的影响"。</b>假设 OPEC 的作用是把全体产量长期压在一个比竞争水平低 5% 的位置上，但月度调整很随机。这种情况下水平效应巨大、R² 却接近 0。<b>R² 回答"配额变动能否解释产量变动"，不回答"OPEC 存在是否让产量更低"。这是两个不同的问题。</b></p>
+<p><b>理由三（加分）：Smith 2005 自己给了这个警告。</b>他证明标准检验的<b>功效很低</b>——功效低的意思是：即使真的存在合谋，检验也很可能查不出来。所以"没有查出配额的影响"和"配额没有影响"之间，隔着一整个统计推断问题。</p>
+<p><b>但也要给 Colgan 公道：</b>96% 的时间超产、平均超产 10%（约 180 万桶/日）这两个数字是<b>描述性事实</b>，不依赖任何回归假设。这部分证据比 R² 那部分硬得多。<b>读一篇论文，要分清哪部分是描述、哪部分是推断——描述通常更可信。</b></p>
+</details>
+
+<h3>今天就能做的一个小动作（10 分钟）</h3>
+
+<div class="card">
+<p>打开 <a href="https://www.opec.org/">opec.org</a>，找到 9 月 6 日会后的公告（本周日之后就会有）。<b>不要看任何媒体标题，先自己读那份公告，然后回答三个问题：</b></p>
+<ol>
+<li>数字是多少？</li>
+<li><b>方向是什么？</b>（"adjustment" 是加还是减，看那句"from ... announced in ..." 的基准）</li>
+<li>是哪几个国家？是全体 OPEC+ 还是那七/八国的小组？</li>
+</ol>
+<p>然后再去看媒体标题，检查有几家写反了。<b>今天 1.3 节里那个"减产"vs"增产"的矛盾标题，就是这么被发现的。</b>这个动作每个月做一次，一年之后你读一手公告会比大多数财经记者准。</p>
+</div>
+
+<h3>延伸阅读（三份，附难度）</h3>
+
+<div class="tw">
+<table>
+<tr><th>材料</th><th>为什么值得读</th><th>难度</th></tr>
+<tr><td><a href="https://www.eia.gov/outlooks/steo/">EIA《Short-Term Energy Outlook》</a>（每月约 11 日发布）</td><td>先只读 "Highlights" 那一页，重点找 <b>"We assume"</b> 开头的句子。那些是模型的<b>输入</b>而不是输出，也是整份预测最脆弱的地方。学会找这些句子，你读任何机构预测的水平都会跳一级</td><td>★★☆☆☆<br>有中文摘要机构转载，但建议读英文原文的 Highlights，只有两三页</td></tr>
+<tr><td><a href="https://www.ourenergypolicy.org/wp-content/uploads/2013/08/OPEC-Colgan.2013Mar.Copyedit-IO.pdf">Colgan (2014)《The Emperor Has No Clothes》</a></td><td>今天用到的 96%、10%、R²=0.018 都出自这里。<b>建议只读引言和结论（约 8 页），跳过中间的计量部分</b>。它示范了一件很重要的事：怎样用简单的描述性统计挑战一个所有人都默认的说法</td><td>★★★☆☆<br>英文学术论文，但引言写得很通俗</td></tr>
+<tr><td><a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA《Oil Market Report》</a> 月报（公开摘要部分）</td><td>和 OPEC 自己的 MOMR 对照着读同一个月。<b>今天 5.5 节那个 2.2 百万桶/日的分歧，就是这么发现的。</b>养成"同一个指标至少看两家"的习惯，比记住任何一个数字都值钱</td><td>★★☆☆☆<br>公开摘要不长；完整报告需订阅</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p class="lead">这不是免责声明，是给你的可信度地图。读上面任何一段时，回到这里核对它属于哪一类。</p>
+
+<h3>9.1 一手来源（官方机构原始发布）</h3>
+
+<div class="tw">
+<table>
+<tr><th>数据</th><th>口径</th><th>来源与日期</th></tr>
+<tr><td>9 月产量调整 18.8 万桶/日，七国，下次会议 9/6</td><td>OPEC 官方公告原文</td><td><a href="https://www.opec.org/pr-detail/1854611-2-august-2026.html">opec.org</a>，2026-08-02</td></tr>
+<tr><td>7月 PCE：整体 +3.7% 同比 / +0.2% 环比；核心 +3.3% / +0.2%</td><td>美国 PCE 物价指数；月度变化为季调；同比为指数相隔 12 个月之比</td><td><a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA</a>，发布 2026-08-26</td></tr>
+<tr><td>Brent 3Q26 $85 / 4Q26 $78 / 2026年均 $87 / 2027年均 $69；全球 2026 产 100.8、消费 102.7；2Q26 库存日均 −4.2、3Q26 −3.8；"我们假设"霍尔木兹 9 月起缓慢恢复</td><td>EIA 预测，非实际值；均为百万桶/日</td><td><a href="https://www.eia.gov/outlooks/steo/">EIA STEO</a>，2026-08-11</td></tr>
+<tr><td>OPEC+ 有效闲置产能 1.09；2026 全球需求 −1.6、供给 −4.3 至 102；3Q26 缺口 1.8；7月北海 Dated 月末 $96.80</td><td>IEA 口径；闲置产能已剔除受制裁伊朗与俄罗斯原油</td><td><a href="https://www.iea.org/reports/oil-market-report-august-2026">IEA OMR</a>，2026-08-12</td></tr>
+<tr><td>2026 全球需求增长 +0.6；2027 +2.2；7月 DoC 原油产量 37.66（环比 +1.42）</td><td>OPEC 口径，产量数据来自"二手来源"（secondary sources）而非各国自报</td><td><a href="https://www.opec.org/monthly-oil-market-report.html">OPEC MOMR</a>，2026-08-12</td></tr>
+<tr><td>需求弹性 −0.080（SE 0.079）／VAR 识别 −0.14；供给弹性 0.10</td><td>学术估计，非官方统计</td><td><a href="https://www.matteoiacoviello.com/research_files/CCI.pdf">Caldara, Cavallo &amp; Iacoviello, JME 103 (2019)</a></td></tr>
+<tr><td>OPEC 1982–2009 超产 96% 的时间；平均超产 10%（≈180万桶/日）；R²=0.018</td><td>学术研究结论</td><td><a href="https://www.ourenergypolicy.org/wp-content/uploads/2013/08/OPEC-Colgan.2013Mar.Copyedit-IO.pdf">Colgan, International Organization 68(3), 2014</a></td></tr>
+<tr><td>"strong evidence of cooperative behavior"；标准检验功效低</td><td>学术研究结论（与上条对立）</td><td><a href="https://journals.sagepub.com/doi/abs/10.5547/ISSN0195-6574-EJ-Vol26-No1-3">Smith, The Energy Journal 26(1), 2005</a></td></tr>
+</table>
+</div>
+
+<h3>9.2 二手来源（转述、聚合、分析文章）——请打折使用</h3>
+
+<ul>
+<li><b>伊朗-阿曼协议内容</b>：Insurance Journal 转载 Bloomberg（2026-08-26）。<b>我未能直接读取 Bloomberg 原文。</b>且消息本身来自伊朗革命卫队通过 Sepah News 的单方面表述。</li>
+<li><b>霍尔木兹通过量 20.7 → 14.6 百万桶/日、管道产能 7.0 与 1.8</b>：EIA 报告，但我读的是 Institute for Energy Research 的转述（2026-05-22），<b>不是 EIA 原文</b>。数据本身应属 1Q26。</li>
+<li><b>"许多成员达不到配额"、"预计年内维持配额不变"、"完成 350 万桶/日回补"</b>：World Oil（2026-08-02），引述<b>未具名代表</b>。</li>
+<li><b>市场读数</b>（布伦特 $89.59、美债 4.24/4.67/5.20%、USDSGD 1.2711、标普 7717.09、黄金 $4600.45、FedWatch 概率）：TradingEconomics 页面，抓取于 2026-08-27。<b>行情聚合源，非交易所结算价。</b></li>
+<li><b>曲线呈现货溢价、柴油裂解价差 &gt;$100/桶（正常 $15–25）、EIA 周报库存数字</b>：Investing.com 分析文章（2026-08-20），作者为市场分析人士。<b>该文没有给出具体的近远月价差数值。</b></li>
+<li><b>Ras Tanura 遇袭（2026-03-02，&gt;50 万桶/日，停产约一周）</b>：维基百科词条。<b>三手来源，我只用它定位时间点。</b></li>
+</ul>
+
+<h3>9.3 纯算术推导（你可以自己验算，不需要相信我）</h3>
+
+<ol>
+<li>海峡缺口 6.1 = 20.7 − 14.6</li>
+<li>无缓冲情形的价格涨幅 59.4% = (6.1 ÷ 102.7) ÷ 0.1</li>
+<li>实际涨幅 33.7% = 89.59 ÷ 67 − 1</li>
+<li>扣库存后 18.5% = ((6.1 − 4.2) ÷ 102.7) ÷ 0.1</li>
+<li>卡特尔困境四格支付矩阵（320 / 364.8 / 377.6 / 310.08）——<b>全部为示意数字</b>，弹性 0.1 取自上述论文的量级</li>
+<li>闲置产能的威胁值 10.6% = (1.09 ÷ 102.7) ÷ 0.1</li>
+<li>本次增产影响 1.83% = (0.188 ÷ 102.7) ÷ 0.1</li>
+<li>整体 − 核心 = 3.7 − 3.3 = 0.4 个百分点</li>
+<li>新元计的美股回报 +2.19% = 1.0388 × (1 − 0.0163) − 1</li>
+<li>新元计的油价涨幅 +7.37% = 1.0915 × (1 − 0.0163) − 1</li>
+<li>情景 A/B 的价格区间（$60–77 / $98）——同一个弹性公式</li>
+</ol>
+
+<h3>9.4 我的推测（已在正文中装框）</h3>
+
+<ol>
+<li><b>把"库存去化 4.2"直接用来抵消"海峡缺口 6.1"</b>——两个口径不严格对应，且库存变化还有其他成因。见 3.2 节推测框。</li>
+<li><b>把高油价与市场给美联储定价加息连成因果</b>——供给冲击对央行本是两难；同期还有赤字、AI 债券发行等独立因素。见 3.7 节推测框。</li>
+<li><b>"闲置产能 = 卡特尔执法能力"这个等式本身</b>——这是标准的产业组织理论框架，逻辑我在 3.3 节完整推导了，但我今天没有为这个框架本身找一篇实证文献。属于推理，不是引用。</li>
+</ol>
+
+<h3>9.5 明确接不上的地方（四处）</h3>
+
+<ol>
+<li><b>8 月 27 日布伦特单日 +1.99% 的原因。</b>不做归因。见 3.5 节。</li>
+<li><b>IEA 与 OPEC 对 2026 年需求的预测相差 2.2 百万桶/日。</b>我无法判断谁对，也没读两家的方法论附录。见 5.5 节。</li>
+<li><b>霍尔木兹的当前（8 月）通行量。</b>我只有 1Q26 的 14.6。所有基于 6.1 缺口的算术都是"冲突最严重时"的量级，不是当前值。这是本文最重要的一个数据缺口。</li>
+<li><b>绕行管道的实际利用率。</b>只有设计产能 7.0 与 1.8，不知道剩余空间。</li>
+</ol>
+
+<h3>9.6 提到但未核对的历史事件（请勿当作论据）</h3>
+<p>3.3 节提到"2020 年前后闲置产能常在 3–4 百万桶/日量级"。<b>这个数字我今天没有核对一手来源</b>，仅作量级对照。文中没有其他未核对的历史断言。</p>
+
+<hr>
+<p class="tl" style="text-align:center; margin-top:2.4em">Day 11 · 领域 C · 锚点原理 C2　｜　资料截至 2026-08-27（新加坡时间 2026-08-28 撰写）<br>本文为教学材料，不构成投资建议。</p>
+
+</div>
+</body>
+</html>
