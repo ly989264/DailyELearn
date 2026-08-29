@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 12 · 日元干预与购买力平价</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1e1c19; --muted:#6a655d; --line:#ddd8cf;
+  --card:#ffffff; --accent:#8a5a2b; --accent-soft:#f3ece2;
+  --src:#3d6b4a; --src-bg:#eef5ef;
+  --guess:#8c3a2b; --guess-bg:#fdf0ec; --guess-line:#c9765f;
+  --break:#7a5c00; --break-bg:#fdf7e3;
+  --math-bg:#f2f4f7; --math-line:#d3d9e2;
+  --svg-ink:#1e1c19; --svg-box:#ffffff; --svg-soft:#f3ece2;
+}
+@media (prefers-color-scheme: dark){
+:root{
+  --bg:#16150f; --fg:#ece7dd; --muted:#a29a8c; --line:#39352c;
+  --card:#1f1d16; --accent:#d8a06a; --accent-soft:#2a241a;
+  --src:#7fb98d; --src-bg:#1a2620;
+  --guess:#e4907a; --guess-bg:#2c1d18; --guess-line:#9c5540;
+  --break:#d9bc63; --break-bg:#2a2416;
+  --math-bg:#1c1f25; --math-line:#333a45;
+  --svg-ink:#ece7dd; --svg-box:#1f1d16; --svg-soft:#2a241a;
+}
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:17px; line-height:1.85; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 90px}
+h1{font-size:1.62rem;line-height:1.35;margin:.2em 0 .1em;letter-spacing:-.01em}
+h2{font-size:1.24rem;margin:2.6em 0 .6em;padding-top:.9em;border-top:1px solid var(--line);letter-spacing:-.01em}
+h3{font-size:1.06rem;margin:2em 0 .4em;color:var(--accent)}
+h4{font-size:.98rem;margin:1.5em 0 .3em}
+p{margin:.85em 0}
+a{color:var(--accent)}
+.kicker{font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
+.sub{color:var(--muted);font-size:.94rem;margin:.5em 0 1.6em}
+.lead{font-size:1.03rem}
+strong{font-weight:650}
+code,.num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.93em}
+
+/* 算术块 */
+.math{background:var(--math-bg);border:1px solid var(--math-line);border-radius:8px;
+  padding:14px 16px;margin:1.1em 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.9rem;line-height:2.0;overflow-x:auto;white-space:pre;color:var(--fg)}
+.math .hl{background:var(--accent-soft);padding:1px 4px;border-radius:3px}
+
+/* 出处行 */
+.src{font-size:.84rem;color:var(--src);background:var(--src-bg);border-left:3px solid var(--src);
+  padding:7px 12px;border-radius:0 5px 5px 0;margin:.7em 0 1.4em;line-height:1.65;word-break:break-word}
+.src b{font-weight:650}
+.src a{color:var(--src)}
+
+/* 推测框 */
+.guess{border:2px dashed var(--guess-line);background:var(--guess-bg);border-radius:10px;
+  padding:16px 18px;margin:1.5em 0}
+.guess-t{font-weight:700;color:var(--guess);font-size:.95rem;margin:0 0 .5em;
+  display:flex;align-items:center;gap:8px}
+.guess-t .badge{border:1.5px solid var(--guess);border-radius:20px;padding:1px 10px;font-size:.74rem;letter-spacing:.06em}
+.guess p{margin:.6em 0;font-size:.96rem}
+
+/* 断点框 */
+.break{border:1px solid var(--break);background:var(--break-bg);border-radius:10px;padding:14px 18px;margin:1.5em 0}
+.break-t{font-weight:700;color:var(--break);margin:0 0 .4em;font-size:.95rem}
+.break p{margin:.5em 0;font-size:.96rem}
+
+/* 卡片 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:1.3em 0}
+.card h4{margin-top:0}
+.ask{color:var(--accent);font-weight:650}
+
+/* 环标题 */
+.ring{display:inline-block;background:var(--accent);color:#fff;border-radius:6px;
+  padding:2px 10px;font-size:.8rem;letter-spacing:.05em;margin-right:8px;vertical-align:2px}
+
+/* 表 */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.2em 0;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--accent-soft);font-weight:650;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+
+/* svg */
+.figure{margin:1.6em 0}
+.figwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:10px}
+.figwrap svg{display:block;width:100%;height:auto;min-width:340px}
+.figcap{font-size:.85rem;color:var(--muted);margin:.6em 2px 0;line-height:1.7}
+
+details{border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:.8em 0;background:var(--card)}
+summary{cursor:pointer;font-weight:650;font-size:.95rem}
+details[open] summary{margin-bottom:.6em;padding-bottom:.5em;border-bottom:1px solid var(--line)}
+ul,ol{padding-left:1.4em}
+li{margin:.4em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.5em 0}
+.tag{display:inline-block;font-size:.76rem;padding:1px 8px;border-radius:12px;border:1px solid;margin-right:6px;white-space:nowrap}
+.t-src{color:var(--src);border-color:var(--src)}
+.t-math{color:var(--accent);border-color:var(--accent)}
+.t-guess{color:var(--guess);border-color:var(--guess)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="kicker">Day 12 / 368 · 领域 D 汇率与全球资本流动</p>
+<h1>日本一个月买了 15.4 万亿日元，日元还是回不到「该在的地方」</h1>
+<p class="sub">锚点原理 <strong>D2 购买力平价：长期锚还是神话</strong>　·　事件：2026-08-28 日本财务省公布月度外汇干预数据<br>本页写于 2026-08-29（新加坡时间）</p>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p class="lead">昨天（8 月 28 日）日本财务省公布了一个数字：过去一个月，它在外汇市场上花掉了 <strong>15.4 万亿日元</strong>（约合 965 亿美元）去买自己的货币。这是有记录以来最大的一次月度操作。买完之后，日元回到了 159 附近——而按照「一样的东西在两个国家该卖一样的价钱」这个算法，日元本来应该在 <strong>97</strong> 附近。</p>
+
+<p>今天要讲明白的道理就是这个 97：它是怎么算出来的、为什么它几十年来一直被当作汇率的「长期锚」、以及为什么它<strong>此刻完全不管用</strong>——差了 39%，而且过去一年还在继续变差。</p>
+
+<p>读完你能回答的问题：一个国家的央行拿真金白银去买自己的货币，为什么常常推不动汇率？「这个货币被低估了」这句话到底是什么意思，它能不能拿来赚钱？</p>
+
+<h2>1｜今天的事件</h2>
+
+<p>先把事实摆出来。下面每一条都注明了是谁发布的、哪一天、什么口径。</p>
+
+<h3>1.1 昨天发布的那个数字</h3>
+
+<p>日本财务省（Ministry of Finance, MOF）在 <strong>2026 年 8 月 28 日</strong>公布了月度《外汇平衡操作》数据。覆盖期间是 <strong>2026 年 7 月 30 日至 8 月 26 日</strong>，金额为 <strong>153,993 亿日元</strong>，也就是 <strong>15 兆 3,993 亿日元 ≈ 15.4 万亿日元</strong>。</p>
+
+<div class="src"><b>出处：</b>日本財務省《Foreign Exchange Intervention Operations（2026年7月30日〜2026年8月26日）》，2026-08-28 发布。<a href="https://www.mof.go.jp/english/policy/international_policy/reference/feio/monthly/20260828e.html">mof.go.jp</a>　<b>口径：</b>官方公布单位是「億円」（1 億円 = 1 千万... 更准确地说 1 億円 = 100,000,000 日元 = 1 亿日元）。财务省这张月报只给一个合计数，<b>不区分买卖方向</b>，也不给逐日明细（逐日数据按季度另行公布）。方向来自下面 1.2 的新闻报道，不是这张表本身。</div>
+
+<h3>1.2 方向和背景（来自媒体，不是官方表格）</h3>
+
+<ul>
+<li>方向是<strong>买日元、卖美元</strong>。7 月 30–31 日日元一度跌到约 <strong>164 日元兑 1 美元</strong>，报道称是四十年来的最弱水平。</li>
+<li>干预从 <strong>7 月 30–31 日（周四、周五）</strong>由日本财务省开始，<strong>美国财政部于 7 月 31 日加入</strong>（英国《金融时报》首报，CNBC 8 月 1 日转载）。8 月 1 日与 2 日是周六周日，外汇市场休市。<strong>8 月 3 日（周一）</strong>两国正式公开确认，当日日元一度回到 <strong>155.20</strong>。</li>
+<li>关于「上一次」：这是 <strong>2011 年以来美国首次参与联合外汇干预</strong>，但<strong>方向相反</strong>——2011 年（福岛地震后 G7 协调）是<em>卖出</em>日元以压制升值。美国上一次为<em>支撑</em>日元而买入日元，要追溯到 <strong>1998 年</strong>。</li>
+<li>8 月 10 日之后，汇率基本卡在 <strong>159.50</strong> 附近。</li>
+<li>此前有记录的单日最大干预是 2026 年 4 月 30 日的 6.3 万亿日元。</li>
+</ul>
+
+<div class="src"><b>出处：</b>BNN Bloomberg，2026-08-28，<a href="https://www.bnnbloomberg.ca/business/economics/2026/08/28/japan-spent-record-965-billion-to-support-yen-over-past-month-ministry-data-shows/">"Japan spent record $96.5 billion to support yen over past month"</a>；Al Jazeera，2026-08-03，<a href="https://www.aljazeera.com/economy/2026/8/3/japan-and-us-confirm-rare-joint-intervention-to-prop-up-yen">"Japan and US confirm rare joint intervention to prop up yen"</a>。<b>注意：</b>这一节是媒体报道，属于二手来源。「财务省确实在买日元」这一点有美国财政部长 Bessent 的公开确认作为旁证（同上 Al Jazeera 报道）。</div>
+
+<h3>1.3 「965 亿美元」这个换算是怎么来的</h3>
+
+<p>新闻里说 15.4 万亿日元「约合 965 亿美元」。这个换算不是官方给的，我们自己验一遍：</p>
+
+<div class="math">15.3993 万亿日元 ÷ 965 亿美元 = <span class="hl">159.6</span> 日元/美元
+
+反过来： 153,993 亿日元 ÷ 159.5 = 965.5 亿美元 ✓</div>
+
+<p>所以媒体用的是 159.5 左右的汇率来折算。这里已经埋了一个小陷阱：干预是在<strong>一个月里分很多次</strong>做的，每一次的成交价都不一样，用一个平均汇率折成美元只是个近似。</p>
+
+<p>证据就在报道本身：<strong>日经亚洲的标题用的是 $96bn，BNN Bloomberg 用的是 $96.5 billion</strong>——同一个官方数字，两家媒体差了五亿美元，因为折算汇率取得不一样。<strong>真正确定的数字是那 15.4 万亿日元，美元数是估算。</strong>以后你看到任何跨货币的金额，都要问一句「按哪天的汇率折的」。</p>
+
+<div class="card">
+<h4>还有一件事今天查不到：具体哪一天买了多少</h4>
+<p>财务省的<strong>逐日</strong>干预明细是按季度公布的，官网目前最新只到 2026 年 4–6 月那一季。<strong>7–9 月的逐日数据要到 11 月初才发布。</strong></p>
+<p>所以「7 月 30 日单日投入了多少」这类说法，目前<strong>只有媒体推算，没有官方确认</strong>（媒体的推算通常来自日本银行的当日资金余额预测与实绩之差）。这一点在第 5 节的检验里会再用到。</p>
+</div>
+
+<h3>1.4 今天的市场读数（链条的落点）</h3>
+
+<div class="tw">
+<table>
+<tr><th>读数</th><th>数值</th><th>日期</th><th>发布者与口径</th></tr>
+<tr><td>美元/日元</td><td>158.91 日元 = 1 美元</td><td>2026-08-21</td><td>美联储 H.10；纽约中午买入价（noon buying rate），非季调</td></tr>
+<tr><td>美元/新元</td><td>1.2692 新元 = 1 美元</td><td>2026-08-21</td><td>同上</td></tr>
+<tr><td>美元广义名义指数</td><td>118.06（2006年1月=100）</td><td>2026-08-21</td><td>美联储 H.10 broad index</td></tr>
+<tr><td>美国 2 年期国债收益率</td><td>4.20%</td><td>2026-08-27</td><td>美国财政部每日「par yield curve」</td></tr>
+<tr><td>美国 10 年期国债收益率</td><td>4.67%</td><td>2026-08-27</td><td>同上</td></tr>
+<tr><td>日本 2 年期国债收益率</td><td>1.696%</td><td>2026-08-27</td><td>日本財務省 JGB 每日金利</td></tr>
+<tr><td>日本 10 年期国债收益率</td><td>2.897%</td><td>2026-08-27</td><td>同上</td></tr>
+<tr><td>联邦基金目标区间</td><td>3.50–3.75%</td><td>自 2025-12-11</td><td>美联储；2026 年内未变动</td></tr>
+<tr><td>日本央行政策利率</td><td>无担保隔夜拆借利率「约 1.0%」</td><td>2026-06-16 会议加息至此水平；2026-07-31 会议<b>维持</b></td><td>日本银行，07-31 以 8 比 1 通过</td></tr>
+<tr><td>日本外汇储备总额</td><td>1,287,099 百万美元</td><td>2026-07 月末</td><td>日本財務省《国际储备/外币流动性》</td></tr>
+<tr><td>日元实际有效汇率</td><td>65.04（2020年=100）</td><td>2026 年 7 月</td><td>国际清算银行 BIS，月度，非季调</td></tr>
+<tr><td>标普 500</td><td>7,730.99</td><td>2026-08-27</td><td>S&amp;P Dow Jones Indices，收盘</td></tr>
+<tr><td>VIX</td><td>15.21</td><td>2026-08-26</td><td>CBOE，收盘</td></tr>
+</table>
+</div>
+
+<div class="src"><b>出处：</b>美联储 H.10 <a href="https://www.federalreserve.gov/releases/h10/current/">federalreserve.gov/releases/h10</a>（经 FRED 序列 DEXJPUS / DEXSIUS / DTWEXBGS 核对）；美国财政部 <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve">Daily Treasury Par Yield Curve Rates</a>；日本財務省 <a href="https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/index.htm">JGB 金利</a>；美联储 <a href="https://www.federalreserve.gov/monetarypolicy/openmarket.htm">Open Market Operations</a>；日本银行 <a href="https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf">2026-07-31 金融政策决定会合声明</a>；日本財務省 <a href="https://www.mof.go.jp/english/policy/international_policy/reference/official_reserve_assets/e0807.html">2026年7月末 外貨準備</a>；BIS 实际广义有效汇率（FRED 序列 RBJPBIS）；S&amp;P 500（FRED 序列 SP500）；CBOE VIX（FRED 序列 VIXCLS）。</div>
+
+<p class="sub" style="margin-top:1.2em">注意日期不齐：汇率是 8/21 的（美联储 H.10 每周一发布，最新一周只到 8/21），债券收益率是 8/27 的，实际有效汇率是 7 月的月度值。<strong>不同日期的数字放在一起比较是有代价的</strong>，我在下面用到的地方会明说。</p>
+
+<h2>2｜传导链全图</h2>
+
+<p>下面这张图是<strong>读完上面那些来源之后</strong>才画出来的，不是先画好再去找证据。<span class="tag t-src">实线＝有出处或纯算术</span><span class="tag t-guess">虚线＝我的推测</span></p>
+
+<div class="figure">
+<div class="figwrap">
+<svg viewBox="0 0 640 966" role="img" aria-label="日元干预传导链">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--svg-ink)"/>
+    </marker>
+    <marker id="ard" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--guess-line)"/>
+    </marker>
+  </defs>
+  <g font-family="-apple-system,'Noto Sans CJK SC','PingFang SC',sans-serif" fill="var(--svg-ink)">
+
+  <!-- 1 -->
+  <rect x="40" y="10" width="560" height="60" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="58" y="35" font-size="13.5" font-weight="650">① 美日政策利率差</text>
+  <text x="58" y="56" font-size="13">美联储 3.50–3.75%（中点 3.625%） 减 日本央行 约 1.0% ＝ 2.625 个百分点</text>
+  <line x1="320" y1="70" x2="320" y2="94" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 2 -->
+  <rect x="40" y="98" width="560" height="60" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="58" y="123" font-size="13.5" font-weight="650">② 借日元、买美元资产：账面一年赚 3.2%</text>
+  <text x="58" y="144" font-size="13">日元要在一年内升值超过 3.1%，这笔账才会亏 —— 纯算术，见第 3 节环 2</text>
+  <line x1="320" y1="158" x2="320" y2="182" stroke="var(--guess-line)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ard)"/>
+
+  <!-- 3 dashed -->
+  <rect x="40" y="186" width="560" height="60" rx="9" fill="var(--guess-bg)" stroke="var(--guess-line)" stroke-width="2" stroke-dasharray="7 4"/>
+  <text x="58" y="211" font-size="13.5" font-weight="650" fill="var(--guess)">③ 所以持续有人卖日元、把日元推低</text>
+  <text x="58" y="232" font-size="13" fill="var(--guess)">这一步是我的推测。标准利率平价理论预测的恰好相反 —— 详见环 3</text>
+  <line x1="320" y1="246" x2="320" y2="270" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 4 -->
+  <rect x="40" y="274" width="560" height="60" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="58" y="299" font-size="13.5" font-weight="650">④ 7 月 30–31 日：日元跌到约 164，报道称四十年最弱</text>
+  <text x="58" y="320" font-size="13">事实有出处；「为什么是这两天」没有出处 —— 见图下方的断点</text>
+  <line x1="320" y1="334" x2="320" y2="358" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 5 -->
+  <rect x="40" y="362" width="560" height="60" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="58" y="387" font-size="13.5" font-weight="650">⑤ 7 月 30–31 日：日本财务省入场，美国财政部 7/31 加入</text>
+  <text x="58" y="408" font-size="13">8 月 3 日（周一）两国正式确认，当日日元一度回到 155.20</text>
+  <line x1="320" y1="422" x2="320" y2="446" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 6 -->
+  <rect x="40" y="450" width="560" height="60" rx="9" fill="var(--svg-soft)" stroke="var(--svg-ink)" stroke-width="2.4"/>
+  <text x="58" y="475" font-size="13.5" font-weight="700">⑥ 8 月 28 日（今天的事件）：财务省公布一个月合计 15.4 万亿日元</text>
+  <text x="58" y="496" font-size="13">一手来源，期间 7/30–8/26，官方数字 153,993 億円 ≈ 965 亿美元</text>
+  <line x1="320" y1="510" x2="320" y2="534" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 7 -->
+  <rect x="40" y="538" width="560" height="60" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="58" y="563" font-size="13.5" font-weight="650">⑦ 这笔钱有多大？＝ 日本外汇储备的 7.5%</text>
+  <text x="58" y="584" font-size="13">但只相当于同期日元外汇成交总额的约 0.3% —— 纯算术，见环 5</text>
+  <line x1="320" y1="598" x2="320" y2="622" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 8 -->
+  <rect x="40" y="626" width="560" height="60" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="58" y="651" font-size="13.5" font-weight="650">⑧ 8 月 10 日起卡在 159.5；8 月 21 日为 158.91</text>
+  <text x="58" y="672" font-size="13">比 7/30 的 164 强了一点，但离购买力平价算出的 97 还差 39%</text>
+  <line x1="320" y1="686" x2="320" y2="710" stroke="var(--svg-ink)" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <!-- 9 -->
+  <rect x="40" y="714" width="560" height="82" rx="9" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="2.4"/>
+  <text x="58" y="739" font-size="13.5" font-weight="700">⑨ 今天的主菜：为什么「97」这个锚拉不动它？</text>
+  <text x="58" y="760" font-size="13">日元实际有效汇率 2026 年 7 月 ＝ 65.04（2020＝100），一年前是 72.49，</text>
+  <text x="58" y="781" font-size="13">扣掉两国物价差之后，过去一年又贬了 10.3%。锚不但没拉回，还在被拖远。</text>
+
+  <!-- break -->
+  <rect x="40" y="820" width="560" height="52" rx="9" fill="var(--break-bg)" stroke="var(--break)" stroke-width="1.6" stroke-dasharray="2 4"/>
+  <text x="58" y="843" font-size="13" font-weight="700" fill="var(--break)">⚠ 链条断点：④ 那两天为什么是 164 而不是 161 或 168？</text>
+  <text x="58" y="862" font-size="12.5" fill="var(--break)">我今天没查到能支撑任何具体解释的材料。这一环我接不上，不用推测搭桥。</text>
+
+  <!-- legend -->
+  <line x1="40" y1="896" x2="600" y2="896" stroke="var(--line)" stroke-width="1"/>
+  <rect x="40" y="912" width="26" height="14" rx="4" fill="var(--svg-box)" stroke="var(--svg-ink)" stroke-width="1.6"/>
+  <text x="74" y="923" font-size="12">实线＝有一手/二手出处，或纯算术推导</text>
+  <rect x="330" y="912" width="26" height="14" rx="4" fill="var(--guess-bg)" stroke="var(--guess-line)" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="364" y="923" font-size="12" fill="var(--guess)">虚线＝我的推测，不是定论</text>
+  </g>
+</svg>
+</div>
+<p class="figcap">图 1：2026 年 8 月日元干预的传导链。图中只有一环是虚线——那一环恰好是整条链里最"想当然"的一环。</p>
+</div>
+
+<h3>用人话把这条链读一遍</h3>
+
+<p>美国现在把钱存在央行能拿 3.6% 左右，日本只有 1.0% 左右。于是产生了一笔看起来白捡的买卖：<strong>用便宜的日元借钱，换成美元去买美国国债，赚中间的差价</strong>。要做这笔买卖，第一步就得把日元卖掉换成美元。做的人多了，日元的卖单就多。</p>
+
+<p>7 月底，日元跌到 164 兑 1 美元，是四十年来最弱的水平。日本财务省出手了——而且这次美国财政部也一起下场，两家一起在市场上买日元。日元一度从 164 回到 155.20。</p>
+
+<p>昨天财务省公布账单：这一个月总共买了 15.4 万亿日元的规模。听起来是个天文数字，但和外汇市场每天的成交量比，它只有 0.3%。买完之后日元停在 159 附近，比 164 好一点，但离「购买力平价」算出来的 97 还有 39% 的距离。</p>
+
+<p>而且——这是今天最刺眼的一点——把两国物价涨幅剔除掉之后（这个指标叫实际有效汇率），日元过去一年<strong>又贬了 10.3%</strong>。也就是说，那个所谓的「长期锚」不但没有把日元拉回去，日元还在离它越来越远。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3><span class="ring">环 1</span>「两国利率差 2.625 个百分点」是什么意思</h3>
+
+<p>先从生活里的事情说起。你把钱放在银行的活期账户里，银行会给你一点点利息。银行自己呢？银行把暂时用不掉的钱放到<strong>中央银行</strong>那里，或者拆借给别的银行过夜。这个「放一晚上明天拿回来」的利息，就是整个国家所有利率里最短、最基础的那一个。</p>
+
+<p>中央银行有办法把这个隔夜利息控制在自己想要的水平上。经济学给这个被央行控制住的利率起了个名字，叫<strong>政策利率</strong>（英文：policy rate）。它是「利率」这座金字塔的最底层——房贷利率、企业贷款利率、国债收益率，全都建在它上面。</p>
+
+<p>现在看两个数字：</p>
+
+<div class="math">美国：联邦基金目标区间   3.50% ~ 3.75%
+      （美联储自 2025-12-11 起维持，2026 年内没动过）
+      中点 = (3.50 + 3.75) ÷ 2 = <span class="hl">3.625%</span>
+
+日本：无担保隔夜拆借利率  约 1.0%
+      （2026-06-16 会议加息至此；2026-07-31 会议维持，8 票赞成 1 票反对）
+
+差额 = 3.625% − 1.0% = <span class="hl">2.625 个百分点</span></div>
+
+<p class="ask">你可能会想：为什么写「个百分点」而不是「%」？</p>
+
+<p>因为「3.625% 比 1.0% 高多少」有两种答案，混起来会出大错。一种是<strong>相对的</strong>：3.625 ÷ 1.0 = 3.6 倍，可以说「高了 262%」。另一种是<strong>绝对的</strong>：3.625 − 1.0 = 2.625，两个百分数直接相减。金融里讲利率差用的永远是后者，为了避免歧义，专门给这个差值起了个单位名叫<strong>百分点</strong>（percentage point）。再往下切，1 个百分点 = 100 个<strong>基点</strong>（basis point，常写作 bp）。所以 2.625 个百分点 = 262.5 个基点。</p>
+
+<p>以后你看到「美联储降息 25 个基点」，翻译过来就是「政策利率下调 0.25 个百分点」。</p>
+
+<p><strong>这一环什么情况下会断？</strong>如果哪一天日本央行把利率一口气提到 3% 以上，或者美联储降到 1% 附近，这个 2.625 就没了，后面整条链的起点就消失了。</p>
+<div class="src"><b>依据：</b>有出处。<a href="https://www.federalreserve.gov/monetarypolicy/openmarket.htm">美联储公开市场操作历史</a>；<a href="https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260731a.pdf">日本银行 2026-07-31 声明</a>（该水平由 <a href="https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k260616a.pdf">2026-06-16 会议</a>设定，7 月 31 日为维持）。「百分点/基点」的定义是术语约定，不是需要证据的因果说法。</div>
+
+<h3><span class="ring">环 2</span>为什么利差会变成「卖日元」的动作</h3>
+
+<p>还是先从生活场景进。假设有两家银行，A 银行贷款给你收 1% 的年利率，B 银行的存款给你 4% 的年利息。你会怎么做？从 A 借钱，存到 B，中间白赚 3%。</p>
+
+<p>放到国际市场上，这件事叫做：在日本借钱（便宜），换成美元，去买美国的债（利息高）。经济学给这个操作起了个名字，叫<strong>套息交易</strong>（英文：carry trade，字面意思是「持有并赚取」）。</p>
+
+<p>我们用真实的数字算一遍。用今天查到的两个利率：日本央行政策利率 1.00%，美国 2 年期国债收益率 4.20%（2026-08-27，美国财政部）。假设你在 159 日元 = 1 美元的时候动手。</p>
+
+<div class="math">第 1 步  借入日元        15,900,000 日元（利率 1.00%）
+第 2 步  换成美元        15,900,000 ÷ 159 = 100,000 美元
+第 3 步  买 2 年期美债    一年后本息 100,000 × 1.0420 = 104,200 美元
+第 4 步  一年后要还日元   15,900,000 × 1.0100 = 16,059,000 日元
+
+如果汇率一年后还是 159：
+         换回日元        104,200 × 159 = 16,567,800 日元
+         还掉欠款后剩下  16,567,800 − 16,059,000 = <span class="hl">508,800 日元</span>
+         占借款本金       508,800 ÷ 15,900,000 = <span class="hl">3.2%</span>
+
+对照一下： 4.20% − 1.00% = 3.20 个百分点 ✓ 完全对得上</div>
+
+<p><strong>这里就是关键的一步：这 3.2% 不是白给的，它是拿「汇率不变」换来的。</strong>如果一年后日元变强了（比如 1 美元只能换 150 日元了），你换回来的日元就变少了。变强到什么程度这笔生意就白做？把上面的算式倒过来解：</p>
+
+<div class="math">要求：换回的日元 ≥ 要还的日元
+      104,200 美元 × 汇率 ≥ 16,059,000 日元
+      汇率 ≥ 16,059,000 ÷ 104,200 = <span class="hl">154.12</span>
+
+从 159 涨到 154.12，日元升值幅度：
+      (159 − 154.12) ÷ 159 = <span class="hl">3.07%</span></div>
+
+<p>所以整笔交易的真实内容是一个赌注：<strong>「我赌日元在一年内升值不到 3.07%」</strong>。赌赢了拿 3.2%，赌输了亏损没有上限（日元涨多少你就亏多少）。</p>
+
+<p class="ask">你可能会想：那这不是稳赚的钱，那为什么大家还抢着做？</p>
+
+<p>因为对一个借钱的人来说，「什么都不发生」就是赢。汇率一年不动、或者继续朝着对你有利的方向走，你就拿走 3.2%。而 3.07% 的安全垫在很多年份里是够用的——直到某一年不够用，一次就把好几年的收益全吐回去。这个「平时天天小赚、偶尔一次巨亏」的形状，以后会反复出现，今天先记住它长什么样。</p>
+
+<div class="card">
+<h4>这个例子里有两处简化，我明说</h4>
+<p><strong>一、期限不匹配。</strong>我用 1.00% 当借钱成本，但那是<em>隔夜</em>利率——真做这笔交易的人只能借到很短期的钱，然后不断续借。一年里日本央行如果加息，续借成本就会变。而 4.20% 那一头是锁死两年的。所以这 3.2% 不是锁定的收益，只是<em>按今天的利率算出来的</em>。</p>
+<p><strong>二、真实的借款人拿不到央行的政策利率。</strong>银行之间拆借的利率会略高于政策利率，非银行机构还要再高一点。所以真实的净收益会比 3.2% 低一些。我用 1.00% 是为了让算式干净，不是说市场上真能按这个价借到钱。</p>
+</div>
+
+<p><strong>这一环什么情况下会断？</strong>如果日本的短期利率突然跳升，或者美债收益率大跌，3.2% 会迅速缩水。当安全垫从 3.07% 缩到 1% 时，同样一次日元升值就足以把所有人打亏。</p>
+<div class="src"><b>依据：</b>纯算术推导。你可以自己拿计算器把上面每一行验一遍。用到的两个利率有出处（见环 1 与第 1.4 节表格）。</div>
+
+<h3><span class="ring">环 3</span>⚠ 从「有人想做」到「日元真的跌」——这一步我接不上</h3>
+
+<p>上一环证明了：<strong>利差存在 → 有一笔账面上划算的交易</strong>。这是算术，没有争议。</p>
+
+<p>但下一句话——「所以大家会卖日元，所以日元会跌」——听起来天经地义，其实是这条链里最不牢靠的一环。原因是：<strong>标准的国际金融理论预测的恰好相反。</strong></p>
+
+<p>让我先把那个理论讲清楚，你才能看出问题在哪。</p>
+
+<p>假设你手上有 100 万日元，可以选：(a) 放在日本拿 1%；(b) 换成美元拿 4.2%，一年后再换回来。如果所有人都能自由地在两者之间选，而且大家都不傻，那么这两条路的<strong>预期结果必须一样</strong>——否则所有人都会挤到收益高的那一条，直到它不再更高为止。</p>
+
+<p>两条路的利息差是 3.2 个百分点。要让它们最终一样，唯一的可能就是：<strong>大家预期日元在这一年里升值大约 3.2%</strong>，正好把利息优势抵消掉。</p>
+
+<div class="math">路径 a（留在日元）：       1.000 × 1.010 = 1.0100
+路径 b（换美元再换回）：    1.000 × 1.042 × (预期汇率变化)
+
+要两者相等： 1.042 × (预期汇率变化) = 1.010
+             预期汇率变化 = 1.010 ÷ 1.042 = 0.9693
+             也就是 1 美元只能换回 <span class="hl">96.93%</span> 的日元
+             → 日元预期升值约 3.1%</div>
+
+<p>经济学给这个条件起了个名字，叫<strong>未抛补利率平价</strong>（英文：uncovered interest parity，简称 UIP）。「未抛补」的意思是你没有事先锁定未来的汇率，得自己承担汇率风险。</p>
+
+<p><strong>注意它说的是什么：利率高的货币，未来应该<em>贬值</em>。</strong>美国利率高，所以美元未来该贬、日元该升。这和「利差导致日元贬值」是完全相反的方向。</p>
+
+<p>那现实是哪一种？现实是——两种都不太对。大量实证研究发现，利率高的货币在随后的一段时间里往往<strong>不但没贬，反而还升了</strong>，这正是套息交易长期能赚钱的原因。这个理论与数据的顽固矛盾，学界给它起了个名字，叫<strong>远期溢价之谜</strong>（forward premium puzzle）。</p>
+
+<div class="guess">
+<p class="guess-t"><span class="badge">这是我的推测</span></p>
+<p><strong>我的说法：</strong>2.625 个百分点的美日利差，是日元长期承压的重要原因之一。</p>
+<p><strong>为什么它只能是推测：</strong>我今天读到的材料里，OMFIF 的 Mark Sobel 明确把日元弱势归因于「日本 1.0% 对美联储 3.5–3.75% 的利差造成的套息激励」，但那是<strong>一位分析者的论证</strong>，不是实证检验的结论。而上面讲的 UIP 理论恰恰预测相反的方向。要在这两者之间做判断，需要的是对日元头寸数据（比如 CFTC 的投机性持仓、日本对外证券投资流量）的时间序列检验，那不是我今天能查实的。</p>
+<p><strong>反对的看法是什么：</strong>如果利差真是主因，那么 2026 年 8 月 27 日的市场定价里（见第 5 节），日美两国的短端收益率都在往上走，两边利差其实在收窄——按这个逻辑日元该走强，可它还是卡在 159。这说明至少还有别的力量在起作用。Sobel 自己列出的另外两条是日本的财政状况和能源进口依赖，但他也没有给出量化的分解。</p>
+<p><strong>需要什么材料才能判断：</strong>一份把日元汇率变动分解到「利差 / 贸易流 / 风险偏好 / 财政风险溢价」各占多少的实证研究，而且要是覆盖 2026 年的。我今天没找到。</p>
+</div>
+<div class="src"><b>依据：</b>UIP 的推导是纯算术（上面那个算式）。「远期溢价之谜」是国际金融的标准教科书结论。<a href="https://www.omfif.org/2026/08/japans-yen-intervention-and-the-us-unusual-support/">OMFIF, Mark Sobel, 2026-08</a> 提供了「利差是主因」这一说法的出处，但它是评论文章。<b>从「有套息激励」到「所以日元跌」这一步，本页不作为定论使用。</b></div>
+
+<h3><span class="ring">环 4</span>「干预」到底是在做什么动作</h3>
+
+<p>生活场景：假设你家小区门口的西瓜摊，今天西瓜降价降得太狠，摊主自己受不了了。他能怎么办？他可以自己掏钱，把摊上的西瓜买回去一批，让市面上的西瓜变少、价格回升。</p>
+
+<p>央行/财政部在外汇市场做的就是这件事，只不过「商品」是自己国家的货币。日元太便宜了，日本政府就<strong>拿美元去买日元</strong>——市面上流通的日元少了、美元多了，日元的价格（也就是汇率）就该往上走。这个操作叫<strong>外汇干预</strong>（英文：foreign exchange intervention）。</p>
+
+<p class="ask">你可能会想：政府哪来那么多美元？</p>
+
+<p>这就要引入下一个词。一个国家的政府会常年攒一笔外币资产——主要是美国国债，还有一些存款和黄金——放在那里备用。这笔家底叫<strong>外汇储备</strong>（英文：foreign exchange reserves / official reserve assets）。日本这笔家底有多大？</p>
+
+<div class="math">日本外汇储备（2026 年 7 月末，财务省口径）
+  合计            1,287,099 百万美元 ≈ <span class="hl">1.287 万亿美元</span>
+  其中 有价证券      927,332 百万美元
+       存款          162,285 百万美元
+       黄金          109,520 百万美元（2,720 万金衡盎司）
+       IMF 头寸        11,377 百万美元
+       特别提款权 SDR  60,728 百万美元
+       其他            15,857 百万美元</div>
+
+<p>干预的时候，日本要卖掉的就是里面的「有价证券」和「存款」这两块（美元资产），换成日元。</p>
+
+<h4>一个有意思的细节：7 月末的储备几乎没动</h4>
+
+<p>7 月 30–31 日就已经在干预了（那是本次统计期间的头两天），但看财务省自己的数据：</p>
+
+<div class="math">2026 年 6 月末 储备合计  1,287,476 百万美元
+2026 年 7 月末 储备合计  1,287,099 百万美元
+差额                        <span class="hl">−377 百万美元</span>（约 −3.8 亿美元）</div>
+
+<p>如果 7 月 30–31 那两天真的卖掉了几百亿美元，储备怎么只少了 3.8 亿？</p>
+
+<div class="guess">
+<p class="guess-t"><span class="badge">这是我的推测</span></p>
+<p><strong>我的解释：</strong>外汇交易通常是「T+2 交割」——今天成交，两个工作日后钱才真正划走。7 月 30 日（周四）和 31 日（周五）成交的单子，交割日会落到 8 月 3 日、8 月 4 日，因此不会体现在 7 月末的储备余额里。</p>
+<p><strong>为什么只是推测：</strong>T+2 是外汇市场的通行惯例，但我今天没有找到财务省或日本银行的文件明确说明它的干预操作按哪种交割日结算、以及储备统计用的是成交日还是交割日。这两个数字（1,287,476 和 1,287,099）本身有一手出处，<strong>但把它们的差额解释成「交割时滞」是我的推断</strong>。</p>
+<p><strong>好消息是这个推断可以被检验。</strong>见第 5 节末尾——我给出了一个具体的、有日期的验证方法。</p>
+</div>
+
+<p><strong>这一环什么情况下会断？</strong>如果日本转而用「借来的美元」（比如动用美联储的货币互换额度）去干预，储备就不会同步下降，上面这个检验就失效了。</p>
+<div class="src"><b>依据：</b>储备数字有一手出处（<a href="https://www.mof.go.jp/english/policy/international_policy/reference/official_reserve_assets/e0807.html">7月末</a>、<a href="https://www.mof.go.jp/english/policy/international_policy/reference/official_reserve_assets/e0806.html">6月末</a>，日本財務省）。「买本币会推高本币价格」是供求关系的直接推论。交割时滞的解释是我的推测。</div>
+
+<h3><span class="ring">环 5</span>15.4 万亿日元，到底算大还是算小</h3>
+
+<p>这是今天最值得学的一个思维习惯：<strong>任何一个大数字，单独看都没有意义，必须找一个分母。</strong></p>
+
+<h4>分母一：和日本自己的家底比</h4>
+
+<div class="math">干预金额 ≈ 965 亿美元
+外汇储备 = 12,871 亿美元
+
+965 ÷ 12,871 = <span class="hl">7.5%</span></div>
+
+<p>一个月烧掉家底的 7.5%。按这个速度，理论上还能撑十三个月左右——但那是把储备清零，实际上远远到不了那一步。<strong>这个分母告诉你：弹药是有限的，而且市场知道它有限。</strong></p>
+
+<h4>分母二：和市场的体量比</h4>
+
+<p>国际清算银行（BIS）每三年做一次全球外汇市场的普查。最近一次是 2025 年 4 月：</p>
+
+<div class="math">全球外汇市场日均成交额       9.6 万亿美元
+日元参与其中一边的交易占比    16.8%
+→ 涉及日元的日均成交额        9.6 × 0.168 = <span class="hl">1.61 万亿美元/天</span>
+
+统计期间 2026-07-30 至 2026-08-26 的工作日数 = 20 天
+→ 期间涉及日元的成交总额       1.61 × 20 = 32.3 万亿美元
+
+干预占比 = 965 亿 ÷ 32.3 万亿 = <span class="hl">0.30%</span></div>
+
+<p>三千分之一。这就是那个「天文数字」在市场里的真实分量。</p>
+
+<div class="card">
+<h4>这个 0.30% 有三处不精确，我明说</h4>
+<p><strong>一、时点不同。</strong>BIS 的数据是 2025 年 4 月的普查，用来推算 2026 年 8 月的成交量。外汇市场的成交量长期是增长的，所以真实分母可能比 32.3 万亿更大，0.30% 是<em>偏高</em>的估计。</p>
+<p><strong>二、口径不同。</strong>「涉及日元」包含日元兑所有货币（欧元/日元、澳元/日元等等），而干预几乎全部集中在美元/日元这一个货币对上。如果只和美元/日元的成交量比，占比会高一些。这个方向和上一条相反。</p>
+<p><strong>三、工作日数是我数出来的</strong>（7 月 30 日至 8 月 26 日之间的周一至周五共 20 天），没有扣除日本或美国的公众假期。</p>
+<p>所以正确的读法是：<strong>0.3% 是一个数量级的参照——千分之几，不是百分之几十</strong>。不要把它当成一个精确比例去引用。</p>
+</div>
+
+<p class="ask">你可能会想：既然只占 0.3%，那 8 月 3 日日元从 164 涨到 155.20 又是怎么回事？</p>
+
+<p>这是个好问题，而且它指向了本环真正的机制。干预起作用<strong>不是靠成交量本身</strong>，而是靠传递信息：「政府在场，而且这次连美国财政部都下场了。」对一个正在赌日元继续跌的交易员来说，这条信息会改变他对风险的估计——他不知道政府愿意烧多少，也不知道下一次什么时候出手。于是他先平掉一部分头寸，而这些平仓单本身才是推动价格的量。</p>
+
+<p>但这条信息的保质期很短。8 月 3 日的 155.20 到 8 月 10 日就退回了 159.5 附近，之后一直卡在那儿。</p>
+
+<div class="src"><b>依据：</b>0.30% 与 7.5% 是纯算术推导，输入数据有出处：BIS《OTC foreign exchange turnover in April 2025》<a href="https://www.bis.org/statistics/rpfx25_fx.htm">bis.org</a>（9.6 万亿美元/日，日元参与 16.8%）；日本財務省储备与干预数据（见上）。<br><b>「干预靠传递信息起作用」这一段属于机制解释，不是我今天查到的实证结论</b>——但它与 OMFIF 的 Sobel 的论证方向一致：他主张「不改变政策本身的干预不会产生持久变化」，并以日元迅速回吐涨幅作为证据。价格轨迹（164 → 155.20 → 159.5）有媒体出处。</div>
+
+<h2 style="color:var(--accent)">3★｜环 6 · 今日锚点原理：购买力平价——长期锚还是神话</h2>
+
+<p>这一环是今天的主菜，也是全文最厚的一节。前面五环解释了「日元为什么会跌、政府怎么救、为什么救不动」。这一环回答一个更根本的问题：<strong>我们凭什么说日元「应该」在 97，而不是 159？</strong></p>
+
+<h3>环6·1　先说一件生活里的事</h3>
+
+<p>假设你在新加坡花 6 新元买一杯咖啡。你飞到东京，同样的一杯咖啡卖 500 日元。今天的汇率是 1 新元约等于 125 日元（这是我用 158.91 ÷ 1.2692 算出来的示意值，见下）。那么东京那杯咖啡折成新元是：</p>
+
+<div class="math">500 日元 ÷ 125 = <span class="hl">4 新元</span>
+
+新加坡：6 新元　　东京：4 新元</div>
+
+<p>同一杯咖啡，在两个地方的价钱不一样。现在问一个傻问题：<strong>这种情况能一直持续下去吗？</strong></p>
+
+<p>对咖啡来说，能。因为你没法在东京买 1000 杯咖啡装箱运到新加坡卖——它会凉、会洒、运费比咖啡还贵。</p>
+
+<p>但换成别的东西就不一定了。假设同一台索尼相机，东京卖 10 万日元（＝800 新元），新加坡卖 1200 新元。那就会有人专门飞去东京扫货、带回新加坡卖，一台赚 400 新元。这种人多了会发生两件事：东京的相机变抢手，价格涨；新加坡市面上相机变多，价格跌。两边一直挤压，直到<strong>差价刚好被运费和麻烦程度吃掉为止</strong>。</p>
+
+<p>经济学给这个「同一件东西在不同地方最终会卖出同一个价钱」的说法起了个名字，叫<strong>一价定律</strong>（英文：law of one price）。</p>
+
+<h3>环6·2　从一件商品推到整个国家：绝对购买力平价</h3>
+
+<p>现在把这个想法放大。不看一台相机，而是看<strong>一整篮子东西</strong>——吃的、穿的、用的、住的，把一个普通家庭一年会买的所有东西装进一个篮子。</p>
+
+<p>如果一价定律对篮子里的每一样都成立，那么整个篮子在两国的价钱也该一样。假设：</p>
+
+<div class="math">这一篮子东西在美国卖   100 美元
+这一篮子东西在日本卖  9,708 日元
+
+那么「让两边买到一样多东西」的汇率必须是：
+   9,708 ÷ 100 = <span class="hl">97.08 日元 = 1 美元</span></div>
+
+<p>这个算出来的汇率，就叫这两个国家之间的<strong>购买力平价</strong>（英文：purchasing power parity，缩写 <strong>PPP</strong>）。名字听起来吓人，其实就是刚才那个除法：<strong>把同一篮子东西的两个价格相除。</strong></p>
+
+<p>「一篮子东西的价格在两国相等」这个主张，叫做<strong>绝对购买力平价</strong>（absolute PPP）。</p>
+
+<h3>环6·3　那个 97 是从哪里来的真实数字</h3>
+
+<p>上面 9,708 日元不是我编的。世界银行主持一个叫<strong>国际比较项目</strong>（International Comparison Program, ICP）的工程，几十个国家的统计机构一起，在同一时间去调查同一批商品和服务在各国的实际售价，然后算出每个国家的 PPP。日本最近几年的数值是：</p>
+
+<div class="tw">
+<table>
+<tr><th>年份</th><th>PPP 换算因子（日元 / 国际元）</th><th>比上一年变化</th></tr>
+<tr><td>2021</td><td>99.21</td><td>—</td></tr>
+<tr><td>2022</td><td>94.92</td><td>−4.3%</td></tr>
+<tr><td>2023</td><td>93.83</td><td>−1.1%</td></tr>
+<tr><td>2024</td><td>94.46</td><td>+0.7%</td></tr>
+<tr><td>2025</td><td><strong>97.08</strong></td><td>+2.8%</td></tr>
+</table>
+</div>
+
+<div class="src"><b>出处：</b>世界银行指标 <code>PA.NUS.PPP</code>「PPP conversion factor, GDP (LCU per international $)」，数据来源为 ICP / Eurostat / OECD 的 PPP 项目。<a href="https://data.worldbank.org/indicator/PA.NUS.PPP?locations=JP">data.worldbank.org</a>　<b>口径必须说清楚：</b>这是 <b>GDP 口径</b>的 PPP，篮子是整个国内生产总值（含投资、政府支出、出口），<b>不是</b>一个家庭的消费篮子。这一点在 环6·7 会变成关键。</div>
+
+<p><strong>请注意这张表最重要的信息：PPP 动得很慢。</strong>四年里从 99.21 走到 97.08，每年变动都在 5% 以内。这是因为它由两国的物价水平决定，而物价是慢变量。记住这一点——下面马上要用到。</p>
+
+<h3>环6·4　「日元被低估 39%」是什么意思</h3>
+
+<p>把 PPP 和市场上真实的汇率放在一起：</p>
+
+<div class="math">购买力平价（2025 年）    97.08 日元 = 1 美元
+市场汇率（2026-08-21）  158.91 日元 = 1 美元
+
+差额  158.91 − 97.08 = 61.83 日元
+比值  97.08 ÷ 158.91 = 0.6109
+低估幅度  1 − 0.6109 = <span class="hl">38.9%</span></div>
+
+<p class="ask">「低估 39%」到底是什么意思？很多人在这里理解错，所以我们把它翻译成一件具体的事。</p>
+
+<p>你拿 100 美元。在市场上换成日元，得到 <code>100 × 158.91 = 15,891 日元</code>。这些日元在日本能买多少东西？按 PPP 的定义，97.08 日元买到的东西 = 1 美元在美国买到的东西。所以：</p>
+
+<div class="math">15,891 日元 ÷ 97.08 = <span class="hl">163.7</span>
+
+翻译：你在美国值 100 美元的购买力，
+      换成日元拿到日本去花，能买到相当于 163.7 美元的东西。</div>
+
+<p><strong>这才是「低估 39%」的真实含义</strong>：不是「日元将来一定会涨 39%」，而是<strong>「此时此刻，同样一笔钱在日本能多买 64% 的东西」</strong>。这是一个关于<em>现状</em>的陈述，不是关于<em>未来</em>的预测。把这两件事搞混，是新手在汇率上犯的最贵的错误之一。</p>
+
+<div class="card">
+<h4>时点不匹配，我明说</h4>
+<p>我拿 <strong>2025 年</strong>的 PPP 和 <strong>2026 年 8 月</strong>的市场汇率相比。严格说这不干净。但从上面那张表可以看到，PPP 每年变动 5% 以内，而市场汇率一年能动 10% 以上。所以这个时点错配大概会让 38.9% 这个数偏差几个百分点，<strong>不会改变「差了三成以上」这个结论</strong>。真要精确，得等世界银行发布 2026 年的 PPP。</p>
+</div>
+
+<h3>环6·5　那锚有没有在往回拉？用实际有效汇率看</h3>
+
+<p>上面比的是「某一天的日元兑美元」。但日本不只和美国做生意，而且两国物价都在涨。要看清楚「日元真实的强弱」，需要一个把这两件事都处理掉的指标。</p>
+
+<p>先说这个指标要做的两件事：</p>
+
+<p><strong>第一件：按贸易量加权。</strong>日本和中国、美国、韩国、欧盟都做生意，所以不该只看兑美元，而应该把日元对各个贸易伙伴货币的汇率按贸易量加权平均。这样得到的东西，叫<strong>名义有效汇率</strong>（nominal effective exchange rate）。「有效」在这里的意思就是「综合的、加权的」。</p>
+
+<p><strong>第二件：扣掉物价差。</strong>假设日元名义上一年没动，但日本物价涨 2%、美国物价涨 5%。那么日本的东西相对变便宜了 3%——即使汇率数字没变，日本的商品在国际上其实变得更有竞争力了。把这个物价差调整掉之后的指标，叫<strong>实际有效汇率</strong>（real effective exchange rate，缩写 <strong>REER</strong>）。</p>
+
+<p class="ask">「实际」这个词在经济学里永远是同一个意思：把物价变动扣掉之后的。它的反面叫「名义」——就是账面上那个没修过的数字。以后每见到「实际 GDP」「实际利率」「实际工资」，都是同一个动作：扣掉物价。</p>
+
+<p>REER 的关键在于：<strong>它就是「相对购买力平价」的直接测量。</strong>如果 PPP 成立，两国物价的相对变化会被汇率完全抵消，REER 应该在一个水平上下摆动，不会长期单向漂移。国际清算银行（BIS）算了这个指标，以 2020 年为 100：</p>
+
+<div class="tw">
+<table>
+<tr><th>月份</th><th>日元实际有效汇率（2020=100）</th></tr>
+<tr><td>2025 年 1 月</td><td>71.92</td></tr>
+<tr><td>2025 年 4 月</td><td>76.31（这段时间的高点）</td></tr>
+<tr><td>2025 年 7 月</td><td>72.49</td></tr>
+<tr><td>2025 年 12 月</td><td>68.46</td></tr>
+<tr><td>2026 年 4 月</td><td>65.54</td></tr>
+<tr><td>2026 年 7 月</td><td><strong>65.04</strong></td></tr>
+</table>
+</div>
+
+<div class="math">2025 年 7 月 → 2026 年 7 月
+(65.04 − 72.49) ÷ 72.49 = <span class="hl">−10.3%</span>
+
+含义：把两国物价涨幅都扣掉之后，
+      过去一年日元<b>又</b>贬了 10.3%。</div>
+
+<div class="src"><b>出处：</b>BIS 实际广义有效汇率指数，月度、非季调、2020 年=100，经 FRED 序列 <code>RBJPBIS</code> 取得。<a href="https://fred.stlouisfed.org/series/RBJPBIS">fred.stlouisfed.org/series/RBJPBIS</a>。BIS 对该指数的定义是「按相对消费者物价调整的双边汇率加权平均」。<b>−10.3% 是我做的算术</b>，两个输入值都在上表里，你可以自己验。</div>
+
+<p><strong>这就是今天最重要的一个观察。</strong>如果 PPP 是一根把汇率往回拉的橡皮筋，那么日元被拉得越远，回拉的力就该越大。可实际发生的是：过去一年，橡皮筋不但没把它拉回来，它还<strong>又跑远了 10.3%</strong>。</p>
+
+<h3>环6·6　为什么锚这么弱：那个著名的 15%</h3>
+
+<p>这不是日本特有的现象。1996 年，Kenneth Rogoff 在《经济文献杂志》上发表了一篇综述，把当时几十项关于 PPP 的实证研究汇总起来，得出一个结论：</p>
+
+<blockquote style="border-left:3px solid var(--accent);margin:1.2em 0;padding:.2em 0 .2em 16px;color:var(--muted);font-style:normal">
+<p style="margin:.4em 0">"Consensus estimates suggest, however, that the speed of convergence to PPP is extremely slow; deviations appear to damp out at a rate of roughly <strong>15 percent per year</strong>."</p>
+<p style="margin:.4em 0">「共识估计表明，向购买力平价收敛的速度极其缓慢；偏离大约以<strong>每年 15%</strong> 的速度衰减。」</p>
+<p style="margin:.4em 0;font-size:.9rem">—— Rogoff (1996), <i>Journal of Economic Literature</i> 34(2), p.647</p>
+</blockquote>
+
+<p>「每年消掉 15%」听起来还行？我们算一算它意味着什么。</p>
+
+<p>假设今天的偏离是 100 个单位。每年剩下 85%：</p>
+
+<div class="math">第 1 年后： 100 × 0.85 = 85.0
+第 2 年后：  85 × 0.85 = 72.3
+第 3 年后：  72.3 × 0.85 = 61.4
+第 4 年后：  61.4 × 0.85 = <span class="hl">52.2</span>   ← 还剩一半多一点
+第 5 年后：  52.2 × 0.85 = <span class="hl">44.4</span>   ← 已经不到一半
+
+精确的「消掉一半」需要多少年？
+   0.85 的几次方等于 0.5？
+   答案 = ln(0.5) ÷ ln(0.85) = (−0.6931) ÷ (−0.1625) = <span class="hl">4.27 年</span></div>
+
+<p>Rogoff 在同一篇文章里也是这么说的：「这些研究在 PPP 偏离半衰期上的共识程度相当惊人（<strong>三到五年</strong>）」（p.656）。我们刚才那个 4.27 年，正好落在这个区间里——因为它就是同一件事的两种说法。</p>
+
+<p class="ask">「半衰期」这个词：如果你在物理课上见过它，是同一个意思——某个量衰减到原来一半所需要的时间。这里衰减的是「汇率偏离 PPP 的幅度」。</p>
+
+<h4>把这个速度套到今天的日元上</h4>
+
+<div class="math">当前偏离  158.91 − 97.08 = 61.83 日元
+
+一年后剩下 61.83 × 0.85 = 52.56
+→ 汇率     97.08 + 52.56 = <span class="hl">149.64</span>
+→ 相对今天 (149.64 − 158.91) ÷ 158.91 = <span class="hl">−5.8%</span>
+
+也就是：按历史平均的收敛速度，
+        日元一年该升值 5.8%。</div>
+
+<p><strong>现在把它和环 2 的套息交易放在一起看，会得到一个很有意思的结果：</strong></p>
+
+<div class="math">套息交易的账面收益          ＋3.2%
+PPP 收敛带来的汇率损失       −5.8%
+                            ────────
+净结果                      <span class="hl">−2.6%</span></div>
+
+<p>按 Rogoff 那个历史平均速度，今天的套息交易<strong>是亏钱的</strong>。可市场上显然有大量的人在做它。</p>
+
+<p>这个矛盾不是我算错了，它就是真实存在的张力，而且有两种可能的解释：要么 PPP 在今天的日元上根本不起作用（那 Rogoff 的平均值就不该套用到这里）；要么它起作用，只是没人知道会是哪一年——而如果那一年不是今年，你先拿 3.2%。这两种可能今天分不出来，所以我不假装能分。</p>
+
+<h3>环6·7　反对意见：也许 PPP 本来就不该成立</h3>
+
+<p>到目前为止，我一直把 PPP 当成一个「本该成立但很慢」的规律。但学界有一派认为，这个框架本身就问错了问题。这一派的意见必须讲清楚，否则今天这一课就是偏的。</p>
+
+<h4>反对一：有些东西根本不能搬运（巴拉萨-萨缪尔森效应）</h4>
+
+<p>回到 环6·1 的咖啡。相机能套利，咖啡不能。理发、看牙、租房、坐地铁——这些东西你都没法从东京运到新加坡。经济学把商品分成两类：能跨境买卖的叫<strong>可贸易品</strong>（tradables），不能的叫<strong>不可贸易品</strong>（non-tradables）。</p>
+
+<p>一价定律只对可贸易品有效。而一个国家的消费篮子里，理发、房租、医疗、教育这些占了很大一块。所以整篮子的价格<strong>在原理上就不该</strong>在两国相等。</p>
+
+<p>更进一步：为什么富国的不可贸易品更贵？逻辑是这样的——</p>
+
+<ol>
+<li>富国之所以富，主要是因为它的<strong>可贸易品部门</strong>（制造业、出口）生产率高。</li>
+<li>制造业工资因此高。</li>
+<li>但理发师和制造业工人在同一个劳动力市场里竞争。如果理发店给的工资太低，理发师就去工厂上班了。</li>
+<li>所以理发店<strong>也必须</strong>付高工资——尽管理发这件事本身的生产率一百年来没怎么变。</li>
+<li>理发的成本上去了，理发的价格就上去了。</li>
+</ol>
+
+<p>结论：<strong>可贸易品部门生产率越高的国家，它的不可贸易品就越贵，整体物价水平就越高。</strong>这个机制叫<strong>巴拉萨-萨缪尔森效应</strong>（Balassa-Samuelson effect）。它预测的是：PPP <em>不该</em>成立，而且偏离的方向是可以预测的。</p>
+
+<div class="src"><b>出处：</b>Taylor, A. M. &amp; Taylor, M. P. (2004), "The Purchasing Power Parity Debate", <i>Journal of Economic Perspectives</i> 18(4), pp.135–158，<a href="https://users.ssc.wisc.edu/~mchinn/taylor&taylor_PPP_JEP.pdf">全文 PDF</a>。该文指出 Harrod-Balassa-Samuelson 模型「通过可贸易与不可贸易部门的生产率增长差异来解释实际汇率的长期趋势」，并称这一效应自 1950 年以来有所增强，在美英汇率变动中约可解释三分之一。</div>
+
+<div class="guess">
+<p class="guess-t"><span class="badge">这是我的推测</span></p>
+<p><strong>诱人但我不能下的结论：</strong>日元实际有效汇率从 2020 年的 100 掉到 65，是因为日本相对生产率下降，所以巴拉萨-萨缪尔森效应在反向起作用。</p>
+<p><strong>为什么不能这么说：</strong>这个故事听起来严丝合缝，但我今天没有查到任何把日元实际汇率变动分解到「生产率因素 vs 利差因素 vs 其他」的实证研究。而且 B-S 效应是一个<strong>几十年尺度</strong>的缓慢机制，而日元 REER 在<strong>过去 12 个月内</strong>掉了 10.3%（72.49 → 65.04）——时间尺度对不上。用一个慢变量去解释一个快变化，正是事后叙事最典型的形态。</p>
+<p><strong>需要什么才能判断：</strong>日本与主要贸易伙伴的可贸易/不可贸易部门相对生产率的时间序列，以及一个把实际汇率变动做正式分解的研究。</p>
+</div>
+
+<h4>反对二：收敛可能不是匀速的（非线性调整）</h4>
+
+<p>Rogoff 那个「每年 15%」隐含了一个假设：偏离 5% 和偏离 50% 的时候，回拉的速度是<em>一样的</em>（都是 15%）。Taylor &amp; Taylor 认为这个假设不对。</p>
+
+<p>理由回到 环6·1 的相机：套利是要成本的（运费、关税、时间、风险）。所以当价差很小的时候，<strong>没有人会动</strong>——赚的还不够付运费。价差要大到一定程度，套利才启动。他们把这个「小偏离时没人管」的区域叫做<strong>不作为区间</strong>（band of inaction）。</p>
+
+<p>这个模型的预测和 Rogoff 的不一样：<strong>偏离越大，回拉越快。</strong>在这个框架下，中等规模冲击的半衰期会降到 <strong>1 到 3 年</strong>，而不是 3 到 5 年。</p>
+
+<p>对今天的日元来说，这个分歧很要紧：如果 38.9% 的偏离属于「大偏离」，那按非线性模型，回拉速度应该<em>远快于</em> 15%/年。可我们从 REER 看到的是相反的：偏离在扩大。<strong>这构成了对非线性模型的一个反例</strong>——至少在日元这个案例上。</p>
+
+<div class="src"><b>出处：</b>同上 Taylor &amp; Taylor (2004)。该文明确指出交易成本造成「阻碍套利的不作为区间」，导致调整速度随偏离幅度增大而加快，并称非线性模型下中等冲击的半衰期可降至一到三年。<b>「日元构成一个反例」是我从 环6·5 的 REER 数据做的推论</b>，不是该文的说法。</div>
+
+<h4>反对三：这个「97」到底量的是什么？——新加坡给我们上了一课</h4>
+
+<p>这一条最实用，因为它直接关系到你怎么用这个数。我们用同样的方法算一遍新元：</p>
+
+<div class="math">新加坡 PPP 换算因子（2025，世界银行）   0.7909 新元 = 1 国际元
+市场汇率（2026-08-21，美联储 H.10）      1.2692 新元 = 1 美元
+
+比值  0.7909 ÷ 1.2692 = 0.6231
+「低估幅度」 1 − 0.6231 = <span class="hl">37.7%</span></div>
+
+<p>按这个算法，<strong>新元也被「低估」了 37.7%</strong>，和日元的 38.9% 几乎一模一样。换句话说，同样一笔钱在新加坡也应该能多买六成的东西。</p>
+
+<p><strong>任何在新加坡生活过的人都知道这不对。</strong>新加坡是全世界生活成本最高的城市之一。这个矛盾不是数据错了，而是——</p>
+
+<p>这个 PPP 的口径是 <strong>GDP</strong>，不是家庭消费。GDP 的篮子里装的是一个国家生产出来的全部东西：出口、投资、政府支出、企业设备。新加坡的 GDP 里，转口贸易和出口占了极大的比重，这些东西是按国际价格计价的。而你在乌节路买一杯咖啡的价格，在这个篮子里的权重很小。</p>
+
+<p><strong>所以：GDP 口径的 PPP 不是生活成本指数。</strong>用它去判断「一个国家贵不贵」是错的口径。</p>
+
+<div class="guess">
+<p class="guess-t"><span class="badge">这是我的推测</span></p>
+<p><strong>我的解释：</strong>新加坡 GDP 口径 PPP 之所以显得「便宜」，主要是因为其 GDP 中贸易相关部分权重极高，把整体价格水平拉向国际价格。</p>
+<p><strong>为什么只是推测：</strong>我今天没有查到新加坡 GDP 分项 PPP 的官方拆解（ICP 会公布家庭消费、政府支出、资本形成等分项的 PPP，但我没能取到 2025 年的新加坡分项数据）。<strong>0.7909、1.2692 和 37.7% 这三个数字是确凿的</strong>，「为什么会这样」是我的推断。</p>
+<p><strong>怎么才能验证：</strong>去 ICP 或 OECD 拿新加坡「实际个人消费」（Actual Individual Consumption, AIC）口径的 PPP，那个才对应生活成本。如果 AIC 口径下新加坡的价格水平接近或高于美国，我的解释就成立；如果它也远低于美国，那我的解释就是错的。<b>这是一个可以在十分钟内证伪我的检验。</b></p>
+</div>
+
+<h3>环6·8　那 PPP 到底还有什么用</h3>
+
+<p>把上面三条反对意见叠起来，看起来 PPP 快被判死刑了。但 Taylor &amp; Taylor 的结论其实是这样的：绝对和相对 PPP 在短期都不成立，但「<strong>作为长期平均看，它成立得还算不错</strong>」；而且它对生产者价格比对消费者价格更成立，在相对价格变动很大的时候也更成立。Rogoff 自己的话是：多数人「本能地相信某种形式的购买力平价，把它当作长期实际汇率的锚」。</p>
+
+<p>所以正确的用法是：</p>
+
+<div class="card">
+<h4>PPP 能做的三件事</h4>
+<ol>
+<li><strong>提供一个刻度。</strong>「日元偏离 39%」这句话本身就有信息量——它告诉你现在不是常态。至于什么时候回到常态，它一个字都没说。</li>
+<li><strong>做跨国比较。</strong>比较两个国家的人均产出、生活水平时，用市场汇率换算会被汇率波动严重扭曲。用 PPP 换算就稳定得多。这是 PPP 最没有争议、也是它被发明出来的本职工作。</li>
+<li><strong>作为极长期（十年以上）情景分析的一个边界。</strong>如果你要为二十年后做规划，「汇率永远停在今天这里」和「汇率回到 PPP」这两个假设都该算一遍，看看结论会不会翻转。</li>
+</ol>
+<h4>PPP 不能做的一件事</h4>
+<p><strong>不能当择时工具。</strong>「日元低估 39%，所以买日元」——这句话在 2024 年、2025 年、2026 年都可以说，而每一年说了都是亏的。一个可以连续三年发出同一个信号而三年都错的指标，不是交易信号。</p>
+</div>
+
+<p><strong>这一环什么情况下会断？</strong>如果世界银行发布 2026 年 PPP 时数字大幅上调（比如日本物价追赶上来，PPP 从 97 涨到 120），那「偏离 39%」这个前提本身就变了，后面的讨论都要重算。这一点值得留意：日本 2026 年 7 月的整体 CPI 同比是 +1.9%，美国是 +3.4%——<strong>美国物价涨得更快，这实际上会让 PPP 的数值往下走（日元的 PPP 更强），也就是让「低估」看起来更严重。</strong></p>
+
+<div class="src"><b>依据：</b>Rogoff (1996) JEL 34(2) pp.647, 656（半衰期与 15%/年）；Taylor &amp; Taylor (2004) JEP 18(4) pp.135–158（长期成立、非线性、B-S 效应）；世界银行 <code>PA.NUS.PPP</code>（日本、新加坡 PPP）；BIS REER（FRED <code>RBJPBIS</code>）；美联储 H.10（汇率）。<b>CPI 口径：</b>美国 2026 年 7 月 CPI-U 整体同比 +3.4%、核心（除食品与能源）+2.5%，未季调，美国劳工统计局 2026-08-12 发布，<a href="https://www.bls.gov/news.release/cpi.nr0.htm">bls.gov</a>；日本 2026 年 7 月整体 CPI 同比 +1.9%、除生鲜食品 +1.8%，日本总务省统计局 2026-08-20 发布（此项经 TradingEconomics 转载取得，属二手来源，我未能直接取到统计局原始页面）。「更快的美国通胀会压低 PPP 数值」是定义上的推论：PPP = 日本篮子价格 ÷ 美国篮子价格，分母涨得快，商就变小。</div>
+
+<h3><span class="ring">环 7</span>这条链断在哪里</h3>
+
+<div class="break">
+<p class="break-t">⚠ 断点：为什么偏偏是 7 月 30–31 日跌到 164？</p>
+<p>整条链里，我可以告诉你日元<em>为什么会有下行压力</em>（利差，环 1–3，虽然那一步本身也是推测），可以告诉你 7 月 30–31 日<em>发生了什么</em>（跌到 164），可以告诉你之后<em>做了什么</em>（干预）和<em>结果如何</em>（159.5）。</p>
+<p><strong>但我接不上「为什么是那两天、为什么是 164 这个数」。</strong>我今天没有查到任何能支撑一个具体触发原因的一手材料。</p>
+<p>而这恰恰是最容易编的一环——随便挑一条 7 月 30 日的新闻，说「因为这个所以日元跌了」，听起来永远成立，而且永远无法证伪。所以这里留白。</p>
+</div>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="sub">以下是<strong>教学分析与决策框架</strong>，不是个性化投资建议。我不知道你的资产规模、时间跨度、税务身份和风险承受能力，这些恰恰是任何具体建议成立的前提。下面讲的是「这些机制怎么作用到一个新元收入、美元资产的人身上」，以及「哪些推理是错的」。</p>
+
+<h3>4.1 你的处境和日本的套息交易者是同构的</h3>
+
+<p>你的收入以新元计价，你的资产以美元计价。这中间有一个天然的缺口：你未来要花的钱是新元（房租、吃饭、孩子学费），但你现在存的钱是美元。这个「收入货币和资产货币不一致」的状态，经济学给它起了个名字，叫<strong>货币错配</strong>（currency mismatch）。</p>
+
+<p>算一遍这个缺口有多大。假设你持有的美股一年涨了 8%，但同一年新元对美元升值了 3%（也就是同样 1 美元换回来的新元少了 3%）：</p>
+
+<div class="math">用美元衡量的收益         ＋8.0%
+换回新元时的汇率损失      1 ÷ 1.03 = 0.9709 → −2.9%
+
+以新元衡量的真实收益
+  1.08 ÷ 1.03 − 1 = <span class="hl">＋4.85%</span>
+
+（这里的 8% 和 3% 都是示意数字，只为演示算法。）</div>
+
+<p><strong>关键的一步在于那个除法。</strong>很多人会做减法：8% − 3% = 5%。这在小数字上误差不大，但正确的做法是除法——因为汇率是作用在<em>本利和</em>上，不是只作用在本金上。数字越大，两种算法差得越远。</p>
+
+<h3>4.2 新加坡的汇率政策：一个不能忽略的结构性事实</h3>
+
+<p>大多数国家的央行调整利率，新加坡不是。新加坡金融管理局（MAS）的政策工具是<strong>汇率本身</strong>：它管理新元对一篮子贸易伙伴货币的加权汇率（叫 <strong>S$NEER</strong>，即新元名义有效汇率），让它在一条<strong>缓慢向上倾斜的通道里</strong>移动。</p>
+
+<p>「向上倾斜」的意思是：MAS 的默认设定就是让新元<strong>逐年小幅升值</strong>。倾斜的陡峭程度（叫「斜率」，slope）是 MAS 的主要政策旋钮。</p>
+
+<p>2026 年 7 月 27 日，MAS <strong>上调了这个斜率</strong>，理由是一次能源冲击带来的外部价格压力会更广泛地传导到国内消费价格。政策带的<strong>宽度和中心点不变</strong>。</p>
+
+<p class="ask">但这里有一件必须讲清楚的事：<strong>MAS 从来不公布斜率的具体数值。</strong></p>
+
+<p>声明的原文措辞是：「MAS will therefore increase the rate of appreciation of the policy band <strong>very slightly</strong>. The extent of this increase is <strong>smaller than that in April</strong>.」——「非常轻微地」提高升值速度，幅度「小于四月那一次」。<strong>全文没有任何数字。</strong></p>
+
+<p>那外面流传的「上调 25 个基点至每年 1.25%」是哪来的？是<strong>券商根据 S$NEER 的历史轨迹反推出来的估算</strong>（MUFG、FocusEconomics 都给出这个数；高盛则估计中性斜率约为每年 1.00%，据此把 1.25% 判为「轻度紧缩」）。</p>
+
+<div class="card" style="border-color:var(--guess-line)">
+<h4>这件事本身就是今天的一课</h4>
+<p>你在财经媒体上会看到「MAS 把斜率提到 1.25%」这样的表述，写得像官方数字一样确定。<strong>它不是。</strong>官方说的是「very slightly」，1.25% 是<strong>推算</strong>。两者在页面上长得一模一样，但可信度差一个量级。</p>
+<p>这正是本课程唯一那条规则要防的事情：<strong>查出来的和推出来的，看上去没有区别。</strong>所以每次看到一个精确的数字，都要问一句——这个精确度是谁给的？</p>
+</div>
+
+<div class="src"><b>出处与级别，分三层：</b><br>
+<b>（1）政策方向「轻微收紧、幅度小于四月」＋ 宽度与中心点不变</b>：MAS 2026-07-27 货币政策声明原文措辞。<b>MAS 官网对我和我的核查工具都返回 403</b>，该措辞经 <a href="https://mondovisione.com/media-and-resources/news/monetary-authority-of-singapore-monetary-policy-statement-july-2026-2026727/">Mondovisione 全文转载</a> 与 <a href="https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7976469/mas-tightens-very-slightly-saying-it-will-cap-inflation">Central Banking</a> 取得，属<b>转载来源</b>。官方页面：<a href="https://www.mas.gov.sg/news/monetary-policy-statements/2026/mas-monetary-policy-statement-27jul26">mas.gov.sg</a>。<br>
+<b>（2）「约 25 个基点至每年 1.25%」</b>：<b>券商估算，不是 MAS 数字</b>（MUFG、FocusEconomics）。下面用它做算术时，请当成<b>示意值</b>。<br>
+<b>（3）通胀与增长</b>：MAS 维持 2026 年核心与整体通胀预测于 1.5–2.5%；二季度 GDP 同比 +5.7%。经 <a href="https://www.focus-economics.com/countries/singapore/news/monetary-policy/singapore-central-bank-meeting-27-07-2026-monetary-authority-of-singapore-tightens-monetary-policy-again-in-july/">FocusEconomics</a> 取得，属二手。</div>
+
+<p>这个事实对你的含义，是一个可以直接算的数字：</p>
+
+<div class="math">假设 MAS 的斜率维持在每年 +1.25%，
+且你的美元资产用美元计价的回报是 0：
+
+  一年后以新元衡量  1 ÷ 1.0125 − 1 = <span class="hl">−1.23%</span>
+  十年后以新元衡量  1 ÷ 1.0125¹⁰ − 1 = <span class="hl">−11.7%</span>
+
+（1.25% 是<b>券商估算的示意值</b>，不是 MAS 公布的数字；
+  0% 回报是我设的演示假设。两者都只为演示算法。）</div>
+
+<p><strong>翻译成人话：</strong>作为一个新元花钱的人，持有美元资产有一个<strong>结构性的、政策制造出来的逆风</strong>。<strong>确定的部分是方向</strong>（MAS 的公开政策就是让新元逐年升值，这一点写在它的政策框架里），<strong>不确定的是幅度</strong>（每年一个多百分点是券商的推算，MAS 不公布）。这不是市场噪音，它不代表你不该持有美元资产——美股的长期回报可能远大于 1.25%——但它意味着<strong>你在心里算美股回报的时候，应该先扣掉这一块再和新加坡本地的选项比较</strong>。</p>
+
+<h3>4.3 今天这一课最该防的三个错误推理</h3>
+
+<div class="card">
+<h4>错误一：「日元低估 39%，所以该买日元资产」</h4>
+<p>这正是 环6·8 讲的误用。这个信号在 2025 年 7 月也成立（当时 REER 是 72.49，同样远低于历史水平），跟着做的人过去一年亏了 10.3%（实际汇率口径）。<strong>一个连续三年发出同一信号、三年都错的指标，不是择时工具。</strong>它是一个刻度，告诉你「现在不正常」，仅此而已。</p>
+</div>
+
+<div class="card">
+<h4>错误二：「新元也低估 37.7%，所以新元会涨」</h4>
+<p>环6·7 已经拆过这个：那个 37.7% 是 GDP 口径算出来的，不是生活成本口径。<strong>把一个口径的数字拿去支持另一个口径的结论，是最难自查的一类错误</strong>，因为数字本身是真的。每次看到一个「低估/高估」的百分比，第一个要问的永远是：这个篮子里装的是什么？</p>
+</div>
+
+<div class="card">
+<h4>错误三：「日本政府在托日元，所以跟着买日元不会亏」</h4>
+<p>环 5 的算术给了答案：那 965 亿美元只占同期日元成交量的约 0.3%，只占日本外汇储备的 7.5%。<strong>「有人在托」和「托得住」是两件事</strong>。而且日本自己的数据显示，托完之后汇率只从 164 回到 159.5，然后就不动了。政府在场是事实，政府能改变方向不是。</p>
+</div>
+
+<h3>4.4 一个和你的日常有关的补充</h3>
+
+<p>如果你近期要去日本，那 38.9% 有一个非常具体、非常确定的含义：<strong>你在那里花钱确实便宜</strong>。这一点和「日元会不会涨」完全无关——它是关于<em>现在</em>的陈述，而 PPP 对现在的陈述是可靠的，只有对未来的陈述才不可靠。这两件事分清楚，就掌握了 PPP 的正确用法。</p>
+
+<h2>5｜反向倒推：市场现在在赌什么</h2>
+
+<p>先说这一节在干什么。前面第 3 节是<strong>顺着推</strong>：发生了 A，所以会有 B。现在<strong>倒过来问</strong>：市场今天的价格摆在这里，要让这些价格同时成立，大家心里必须在赌什么？</p>
+
+<p>这样问的好处是：价格是真金白银下注下出来的，比任何人嘴上说的都实在。坏处是——这一节也最容易滑向事后叙事，所以我在最后会用一个检验把它验一遍。</p>
+
+<h3>5.1 从一根债券收益率里读出预期</h3>
+
+<p>先讲清楚怎么读。假设今天的隔夜利率是 3.625%，而 2 年期国债的收益率是 4.20%。</p>
+
+<p>你有两个选择：(a) 买 2 年期国债，锁定 4.20%；(b) 每天做隔夜，做两年。如果两条路的<strong>预期</strong>结果差太多，就会有人在两者之间套利，直到差距被抹平。所以：</p>
+
+<div class="math">2 年期收益率 ≈ 未来两年隔夜利率的平均预期 ＋ 期限溢价
+
+4.20% = 未来两年隔夜利率的平均预期 ＋ 期限溢价</div>
+
+<p>那个「期限溢价」（term premium）是什么？是投资者因为<strong>把钱锁死两年</strong>而额外索取的补偿——两年里利率可能大涨、你可能急需用钱、通胀可能失控。它通常是正数，但没法直接观测，只能靠模型估。</p>
+
+<p>所以严格地讲，我们从 4.20% 里读不出一个干净的预期值。但可以读出一个<strong>方向</strong>：</p>
+
+<div class="math">2 年期 4.20% − 当前政策利率中点 3.625% = ＋<span class="hl">0.575</span> 个百分点</div>
+
+<p>如果市场预期未来两年美联储要<strong>降息</strong>，那么「未来隔夜利率的平均预期」会低于 3.625%，2 年期收益率就得靠期限溢价把这 0.575 全撑起来才行——那需要一个不小的期限溢价。反过来，如果市场预期<strong>加息</strong>，这个正数就很自然。</p>
+
+<p>为了减少期限溢价的干扰，再看更短的一端。3 个月期的国库券把钱锁死的时间只有 90 天，期限溢价小得多：</p>
+
+<div class="math">3 个月期 3.84% − 政策利率中点 3.625% = ＋<span class="hl">0.215</span> 个百分点</div>
+
+<p><strong>这一条读起来比较干净：市场认为未来三个月内，美国的短期利率会比今天更高，而不是更低。</strong>也就是说，市场此刻定价的是<strong>加息</strong>倾向，不是降息。</p>
+
+<p>这个读法有一个独立的旁证。2026 年 7 月 29 日的联邦公开市场委员会会议上，虽然维持了 3.50–3.75% 不变，但<strong>有三位委员投了反对票（Hammack、Kashkari、Logan），三人主张的都是加息 25 个基点</strong>。</p>
+
+<p>为什么这是旁证？因为债券价格和 FOMC 投票是<strong>两个完全独立的信息源</strong>——一个是市场用钱投出来的，一个是政策制定者举手投出来的。两者指向同一个方向（加息倾向），比任何单独一个都可信。<strong>这就是「交叉验证」在实务中的样子：不是找两篇说法一致的新闻，而是找两个来源互不相干的证据。</strong></p>
+
+<div class="src"><b>出处：</b>美联储 <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">2026-07-29 FOMC 声明</a>（维持 3-1/2 至 3-3/4，三票反对且均主张加息）。8 月无 FOMC 会议，故截至今日区间未变。</div>
+
+<div class="src"><b>依据：</b>数值来自美国财政部 2026-08-27 每日 par yield curve（3 Mo 3.84 / 2 Yr 4.20 / 10 Yr 4.67）与美联储公布的目标区间 3.50–3.75%。中点 3.625% 与两个差值是我的算术。<b>「短端期限溢价较小」是固定收益的标准处理，但它本身是一个近似假设，不是精确结论。</b>更严谨的做法是直接读联邦基金期货的隐含路径，我今天没有取到该数据。</div>
+
+<h3>5.2 日本那一边在赌什么</h3>
+
+<p>同样的读法用到日本：</p>
+
+<div class="math">日本 2 年期国债 1.696% − 政策利率 1.00% = ＋<span class="hl">0.696</span> 个百分点
+美国 2 年期国债 4.20%  − 政策利率中点 3.625% = ＋<span class="hl">0.575</span> 个百分点</div>
+
+<p><strong>这是今天最有意思的一个对照。</strong>按这两个数字，市场对<strong>日本</strong>加息的定价，比对<strong>美国</strong>加息的定价还要多一点。也就是说：市场并不是在赌「日元会一直这么惨」，市场在赌「日本会加息、利差会收窄」。</p>
+
+<p>可是——利差收窄的预期已经在价格里了，日元还是卡在 159。</p>
+
+<h3>5.3 那个最脆弱的假设</h3>
+
+<p>把上面几件事放在一起，市场此刻的定价隐含着这样一组假设：</p>
+
+<ol>
+<li>日本会继续<strong>缓慢地</strong>加息（2 年期比政策利率高 0.696 个百分点，摊到两年里，是一个温和的路径）。</li>
+<li>这个过程<strong>有序</strong>。VIX 在 8 月 26 日收于 15.21，标普 500 在 8 月 27 日收于 7,730.99——这不是一个恐慌的市场。<strong>在日元创下四十年新低、政府投入创纪录规模干预的同一个月，股票市场的波动率预期处在低位。</strong>这本身就是一条重要的信息：市场不认为这是一场危机。</li>
+<li>套息交易可以慢慢退出，不会挤兑。</li>
+</ol>
+
+<p><strong>最脆弱的是第 3 条。</strong>理由回到环 2 的算术：那笔交易的安全垫只有 3.07%。如果日元在短时间内升值超过这个幅度，所有做这笔交易的人会同时开始亏钱，而平仓的动作是「买回日元」——这会把日元推得更高，逼更多人平仓。这个「平仓推动价格、价格逼出更多平仓」的自我强化过程，在任何杠杆交易里都存在。</p>
+
+<p>换句话说：<strong>市场在赌一个「温和收敛」的路径，而这条路径的失败模式不是缓慢的，是突然的。</strong></p>
+
+<div class="guess">
+<p class="guess-t"><span class="badge">这是我的推测</span></p>
+<p>我说「平仓会自我强化」，这个机制在逻辑上成立（每个人的止损都是别人的推力），但我今天<strong>没有查到当前日元套息头寸规模的数据</strong>。没有这个数字，我说不出这个风险有多大——可能是几百亿美元，也可能是上万亿。<strong>规模不知道，风险就无法定价。</strong></p>
+<p><strong>需要什么材料：</strong>美国商品期货交易委员会（CFTC）的日元非商业净持仓、日本对外证券投资的月度流量、以及 BIS 的跨境日元贷款余额。这三项都是公开数据，我今天没有取。</p>
+</div>
+
+<h3>5.4 这套说法能不能预测？——三个有日期的检验</h3>
+
+<p>这是本节最重要的部分。判断一套说法是机制还是叙事，标准只有一个：<strong>它能不能在事情发生之前给出可以被证伪的说法。</strong>下面三条都有明确日期和明确的证伪条件。</p>
+
+<div class="card">
+<h4>检验一（最强）：9 月上旬，日本外汇储备应该大幅下降</h4>
+<p><strong>预测：</strong>日本财务省将在 2026 年 9 月上旬公布 8 月末外汇储备。如果 7/30–8/26 期间真的卖出了约 965 亿美元，那么 8 月末储备应当从 7 月末的 <code>1,287,099 百万美元</code> 显著下降，量级接近 <code>1,190,600 百万美元</code>。</p>
+<p><strong>为什么不会精确相等：</strong>还有估值效应（美债价格和金价的涨跌）、利息收入、以及跨月的交割时滞。所以合理的区间是下降 <strong>600 亿到 1,100 亿美元</strong>。</p>
+<p><strong>什么结果会证伪我：</strong>如果 8 月末储备下降不到 200 亿美元，那么环 4 里我关于「T+2 交割时滞」的推测就是错的，或者日本用了储备以外的资金来源（例如美联储的货币互换额度）。<strong>两种情况都说明我这条链有一环是错的，我会在那天说清楚。</strong></p>
+</div>
+
+<div class="card">
+<h4>检验二：9 月的日本银行会议</h4>
+<p><strong>市场已经定价的：</strong>2 年期日本国债比政策利率高 0.696 个百分点。7 月 31 日的会议上已经有一位委员（高田创）投票主张加到 1.25%。</p>
+<p><strong>怎么读结果：</strong>如果 9 月加息 25 个基点到 1.25%，那基本符合已定价的路径，日元的反应应该有限——因为这早就在价格里了。如果<strong>按兵不动</strong>，那 0.696 这个定价就要被打掉一部分，日元有再度走弱的压力。如果一次加到 1.5% 以上，那就是超出定价，检验 5.3 里第 3 条假设的时刻。</p>
+</div>
+
+<div class="card">
+<h4>检验三：9 月底的下一份干预月报</h4>
+<p>财务省会在 9 月底前后公布 8 月 27 日至 9 月 25 日的干预金额。<strong>如果这个数字仍然是万亿日元量级</strong>，说明托举还在继续、而且没托住（因为汇率没回到干预前的水平）。<strong>如果是零</strong>，那说明财务省认为 159 附近是可以接受的——那么「164 是政府的痛点、159 不是」这条信息本身就有价值。</p>
+</div>
+
+<p class="ask">用那个检验问一遍：这套说法在事情发生之前能不能用来做预测？</p>
+
+<p><strong>检验一能，而且是定量的</strong>——它给出了一个具体数字区间和一个明确的证伪条件，而且发布日期是固定的。<strong>检验二和三是条件性的</strong>——它们说的是「如果 X 则 Y」，也可以被证伪。</p>
+
+<p>但要诚实地说：<strong>这三条检验的都是「干预和政策」这一段链条，不是最核心的 PPP 那一环。</strong>PPP 那一环恰恰是最难在短期内证伪的——Rogoff 的半衰期是 4.27 年，意思是你要等好几年才能知道对错。<strong>这本身就是 PPP 作为工具的最大局限，也是今天这一课的核心。</strong></p>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1｜底层思维：存量、流量，和「优化了 0.3% 改变不了整体」</h3>
+
+<p>今天这条链，从头到尾都在区分两种东西：</p>
+
+<ul>
+<li><strong>流量</strong>（flow）：单位时间里发生的量。利差每年产生 3.2% 的收益，是流量。干预的 965 亿美元，也是流量（一个月发生的）。</li>
+<li><strong>存量</strong>（stock）：某一时点上的总量。日本的 1.287 万亿美元储备，是存量。PPP 算出的 97，是一个关于价格<em>水平</em>的存量概念。</li>
+</ul>
+
+<p><strong>今天所有的失败，都是「用一次性的流量去对抗一个持续的流量或一个巨大的存量」。</strong></p>
+
+<p>干预是一次性的流量（965 亿），要对抗的是持续的流量（每年 3.2% 的套息激励，年复一年）。一次性的钱花完就没了，持续的激励不会消失。所以对抗失败几乎是结构性的。</p>
+
+<p>而 PPP 是一个存量层面的锚，它的回拉力量按 Rogoff 的估计每年只有 15%——也是流量。<strong>一个每年只使 15% 力气的锚，对抗不了一个每年 3.2% 的持续推力加上其他冲击。</strong>39% 的偏离能存在好几年，算术上完全说得通。</p>
+
+<h4>跨领域例子一：性能优化里的同一个道理</h4>
+
+<p>你做性能评估的时候会遇到一模一样的结构。假设一个推理服务的端到端延迟里，某个算子只占 0.3%。你把这个算子优化到<strong>零耗时</strong>，端到端延迟最多改善 0.3%。这就是阿姆达尔定律（Amdahl's law）的核心：<strong>整体的改善上限，由你没动的那部分决定。</strong></p>
+
+<p>日本财务省做的事情，结构上完全一样：它在一个自己只占 0.3% 的市场里全力操作。<strong>不管操作得多漂亮，上限就在那里。</strong>而真正决定汇率的那 99.7%——利差、资金流、预期——它没动。要改变结果，得动那 99.7%，也就是加息。而加息是日本银行的事，不是财务省的事。</p>
+
+<p>顺带一提，这也解释了为什么美国财政部下场会有额外效果：它改变的不是成交量（那还是 0.3%），而是<strong>市场对「政府愿意做到什么程度」的预期</strong>——那属于那 99.7% 里的一部分。</p>
+
+<h4>跨领域例子二：半衰期思维</h4>
+
+<p>「每年消掉 15%，半衰期 4.27 年」这个算法，在很多地方都成立，而且都指向同一个反直觉的结论：<strong>缓慢的均值回归，在你关心的时间尺度上等于不存在。</strong></p>
+
+<p>比如减肥后的体重反弹、企业降本后的成本回升、代码重构后技术债的重新累积——这些都有各自的半衰期。如果一件事的半衰期是 4 年，而你的规划周期是 1 年，那么「它终究会回去」这句话虽然是对的，却对你的决策<strong>没有任何指导价值</strong>。</p>
+
+<p><strong>这条思维习惯值得记一辈子：判断一个「终究会回归」的规律有没有用，先算它的半衰期，再和你的时间尺度比。</strong>比不过，就别用它做决定。</p>
+
+<h3>6.2｜顶层视角：这条链在整个系统里的位置</h3>
+
+<p>今天这条链的主体在<strong>汇率</strong>板块，但它同时咬住了另外三块：</p>
+
+<div class="tw">
+<table>
+<tr><th>板块</th><th>今天这条链在哪里碰到它</th><th>方向</th></tr>
+<tr><td><strong>利率</strong></td><td>整条链的起点就是美日政策利率差 2.625 个百分点。汇率在这里是利率的<b>下游</b>。</td><td>利率 → 汇率</td></tr>
+<tr><td><strong>增长</strong></td><td>日元实际有效汇率 65.04 意味着日本出口品在国际上极其便宜——这对日本出口企业的盈利是顺风；同时进口的能源和食品极其昂贵，对家庭是逆风。</td><td>汇率 → 增长（分配效应）</td></tr>
+<tr><td><strong>信用</strong></td><td>套息交易是<b>加杠杆</b>的：借日元、买美元资产。杠杆头寸的强制平仓，是危机跨市场传染的经典通道。这一块是今天没展开的部分。</td><td>汇率 ↔ 信用（尾部风险）</td></tr>
+<tr><td><strong>汇率</strong>（本体）</td><td>PPP 是长期锚、利率平价是短期锚。今天证明了两个锚都拴不住它。</td><td>—</td></tr>
+</table>
+</div>
+
+<p>把这四块连起来看，会得到一个对你更有用的结论：<strong>汇率不是一个独立的东西，它是利率、资金流和预期的一个「读数」。</strong>所以当你想预测汇率的时候，正确的做法从来不是盯着汇率图，而是去问：利差会怎么变？谁在借谁的钱？大家的预期是什么？</p>
+
+<p>这也是为什么日本财务省花 965 亿美元收效甚微，而日本银行只要开一次会、改一个数字，效果会大得多。<strong>动读数不如动机制。</strong></p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tw">
+<table>
+<tr><th>术语（中／英）</th><th>一句话大白话</th><th>出现在哪一环</th></tr>
+<tr><td>政策利率<br><span style="color:var(--muted);font-size:.85em">policy rate</span></td><td>央行能直接控制住的那个「放一晚上」的利息，所有其他利率都建在它上面</td><td>环 1</td></tr>
+<tr><td>百分点／基点<br><span style="color:var(--muted);font-size:.85em">percentage point / basis point</span></td><td>两个百分数直接相减得到的差值单位；1 个百分点 = 100 个基点</td><td>环 1</td></tr>
+<tr><td>套息交易<br><span style="color:var(--muted);font-size:.85em">carry trade</span></td><td>在利率低的地方借钱，换成利率高的货币去存，赚中间的差；赌的是汇率不动</td><td>环 2</td></tr>
+<tr><td>未抛补利率平价<br><span style="color:var(--muted);font-size:.85em">uncovered interest parity, UIP</span></td><td>理论上说：利率高的货币，未来应该贬值，正好把利息优势抵消掉</td><td>环 3</td></tr>
+<tr><td>远期溢价之谜<br><span style="color:var(--muted);font-size:.85em">forward premium puzzle</span></td><td>现实中利率高的货币经常不贬反升，和 UIP 相反，至今没有公认解释</td><td>环 3</td></tr>
+<tr><td>外汇干预<br><span style="color:var(--muted);font-size:.85em">FX intervention</span></td><td>政府自己下场买卖本国货币，想把汇率推向自己希望的方向</td><td>环 4</td></tr>
+<tr><td>外汇储备<br><span style="color:var(--muted);font-size:.85em">official reserve assets</span></td><td>政府常年攒着的外币家底，主要是美国国债、存款和黄金</td><td>环 4</td></tr>
+<tr><td>一价定律<br><span style="color:var(--muted);font-size:.85em">law of one price</span></td><td>同一件能运输的东西，在不同地方最终会卖出同一个价</td><td>环 6</td></tr>
+<tr><td><strong>购买力平价</strong><br><span style="color:var(--muted);font-size:.85em">purchasing power parity, PPP</span></td><td>把同一篮子东西在两国的价格相除，得到的那个「该有的汇率」</td><td>环 6 ★</td></tr>
+<tr><td>绝对／相对 PPP<br><span style="color:var(--muted);font-size:.85em">absolute / relative PPP</span></td><td>绝对：篮子价格该相等。相对：两国物价<b>涨幅</b>的差，该被汇率变动抵消</td><td>环 6</td></tr>
+<tr><td>可贸易品／不可贸易品<br><span style="color:var(--muted);font-size:.85em">tradables / non-tradables</span></td><td>能跨境运输买卖的（相机）／不能的（理发、房租）</td><td>环 6</td></tr>
+<tr><td>名义／实际<br><span style="color:var(--muted);font-size:.85em">nominal / real</span></td><td>名义＝账面上的原始数字；实际＝把物价变动扣掉之后的</td><td>环 6</td></tr>
+<tr><td>实际有效汇率<br><span style="color:var(--muted);font-size:.85em">real effective exchange rate, REER</span></td><td>对所有贸易伙伴按贸易量加权、并扣掉物价差之后的汇率；相对 PPP 的直接测量</td><td>环 6 ★</td></tr>
+<tr><td>半衰期<br><span style="color:var(--muted);font-size:.85em">half-life</span></td><td>某个偏离衰减到原来一半所需要的时间</td><td>环 6</td></tr>
+<tr><td>巴拉萨-萨缪尔森效应<br><span style="color:var(--muted);font-size:.85em">Balassa-Samuelson effect</span></td><td>富国的理发、房租更贵，所以整体物价更高，所以 PPP 本来就不该成立</td><td>环 6</td></tr>
+<tr><td>不作为区间<br><span style="color:var(--muted);font-size:.85em">band of inaction</span></td><td>价差小于运输成本时没人套利，所以小偏离会一直存在</td><td>环 6</td></tr>
+<tr><td>期限溢价<br><span style="color:var(--muted);font-size:.85em">term premium</span></td><td>因为把钱锁死更久，投资者额外索取的补偿；看不见，只能估</td><td>第 5 节</td></tr>
+<tr><td>货币错配<br><span style="color:var(--muted);font-size:.85em">currency mismatch</span></td><td>你赚钱的货币和你存钱的货币不是同一个</td><td>第 4 节</td></tr>
+<tr><td>S$NEER<br><span style="color:var(--muted);font-size:.85em">Singapore dollar nominal effective exchange rate</span></td><td>新元对一篮子贸易伙伴货币的加权汇率；MAS 的政策工具就是它</td><td>第 4 节</td></tr>
+<tr><td>存量／流量<br><span style="color:var(--muted);font-size:.85em">stock / flow</span></td><td>存量＝某一刻的总量（储备余额）；流量＝单位时间发生的量（每月干预额）</td><td>第 6 节</td></tr>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<details>
+<summary>题一（算术）：如果日本银行在 9 月把政策利率从 1.0% 提到 1.5%，环 2 那笔套息交易的「安全垫」会从 3.07% 变成多少？</summary>
+<p>按环 2 的完全相同的步骤重算一遍，只把借款利率从 1.00% 改成 1.50%：</p>
+<div class="math">借入日元       15,900,000 日元
+换成美元       15,900,000 ÷ 159 = 100,000 美元
+买 2 年期美债   一年后 100,000 × 1.0420 = 104,200 美元
+
+一年后要还     15,900,000 × 1.0150 = <span class="hl">16,138,500</span> 日元
+              （原来是 16,059,000，多了 79,500）
+
+盈亏平衡汇率   16,138,500 ÷ 104,200 = <span class="hl">154.88</span>
+              （原来是 154.12）
+
+安全垫         (159 − 154.88) ÷ 159 = <span class="hl">2.59%</span>
+              （原来是 3.07%）
+
+账面收益也从 4.20 − 1.00 = 3.20%
+        降到 4.20 − 1.50 = 2.70%</div>
+<p><strong>要点：</strong>加息 50 个基点，把安全垫从 3.07% 削到 2.59%，削掉了大约六分之一。这解释了为什么日本银行的一次会议，比财务省的 965 亿美元更能影响日元——<strong>它改变的是那个持续的流量，不是做一次性的对冲。</strong></p>
+<p><strong>再想一层：</strong>加息还会让日本国债收益率上升，这本身会吸引资金回流日本。所以真实效果会比这个算术更强。</p>
+</details>
+
+<details>
+<summary>题二（口径）：有人说「日本的 PPP 是 97，市场汇率是 158.91，所以日本的物价只有美国的 61%」。这句话哪里有问题？</summary>
+<p><strong>算术本身没错</strong>：97.08 ÷ 158.91 = 0.6109，确实是 61%。问题出在<strong>这个 0.61 量的是什么</strong>。</p>
+<p>那个 97.08 是<strong>世界银行 GDP 口径</strong>的 PPP 换算因子。GDP 这个篮子里装的是一个国家生产的<em>全部</em>东西：家庭消费、企业投资、政府支出、出口。而你说「物价」的时候，心里想的是<em>家庭消费</em>那一小块。两个篮子不一样，权重更不一样。</p>
+<p><strong>怎么知道这个区别有多要紧？用新加坡验一遍：</strong></p>
+<div class="math">新加坡 PPP（2025，世界银行 GDP 口径） 0.7909
+新加坡市场汇率（2026-08-21）          1.2692
+比值 0.7909 ÷ 1.2692 = <span class="hl">0.6231</span>
+
+按同样的读法：「新加坡物价只有美国的 62%」</div>
+<p>这个结论和你在新加坡的日常经验直接冲突——新加坡是全球生活成本最高的城市之一。<strong>同一个算法在一个你能亲身验证的案例上给出了荒谬的结果，那么它在日本身上给出的结果也不能当真。</strong></p>
+<p><strong>正确的做法：</strong>要比较生活成本，应该用「实际个人消费」（Actual Individual Consumption, AIC）口径的 PPP，那个篮子才对应家庭真实开销。</p>
+<p><strong>这道题真正要练的能力：</strong>当一个数字得出的结论和你的直接经验冲突时，第一反应不该是「我的经验错了」，也不该是「数据错了」，而是<strong>「我用错口径了」</strong>。这是三种可能里最常见的一种。</p>
+</details>
+
+<details>
+<summary>题三（推理）：如果 9 月上旬公布的 8 月末日本外汇储备只比 7 月末下降了 50 亿美元，而不是我预测的 600–1100 亿，有哪几种可能的解释？</summary>
+<p>先明确：这个结果会<strong>证伪我在环 4 里的推测</strong>（T+2 交割时滞），或者证伪我对干预资金来源的假设。至少有四种可能，而且它们的含义完全不同：</p>
+<ol>
+<li><strong>资金不是来自储备。</strong>日本可能动用了美联储的美元货币互换额度——借来的美元不计入自己的储备。考虑到这次美国财政部直接参与，这个可能性不低。<b>含义：日本的「弹药」比 1.287 万亿美元这个数字更多，环 5 的 7.5% 就低估了它的能力。</b></li>
+<li><strong>估值效应抵消了。</strong>储备的大头是美国国债和黄金。如果 8 月美债价格上涨、金价上涨，账面增值可能抵消掉一部分卖出。<b>含义：储备余额本身就不是一个干净的干预指标，我该改用别的口径。</b></li>
+<li><strong>交割时滞比我想的更长。</strong>如果部分操作用了远期合约或更晚的交割日，钱会落到 9 月甚至更晚。<b>含义：我的 T+2 推测方向对但时点错。</b></li>
+<li><strong>我读错了「15.4 万亿」的含义。</strong>财务省的月报只给一个合计数、不标方向。如果里面既有买日元也有卖日元的操作，净额会小得多。<b>含义：我在 1.2 节采信的媒体报道有偏差，这是最严重的一种，因为它动摇的是链条的第 ⑥ 环。</b></li>
+</ol>
+<p><strong>这道题真正要练的能力：</strong>预先想清楚「如果我错了，可能错在哪」。<strong>如果你只有一个解释，那你其实没有解释</strong>——因为你无法区分「我对了」和「我碰巧蒙对了」。事先列出四种可能，等数据出来的时候你才知道该更新哪一条信念。</p>
+</details>
+
+<h3>今天就能做的一个小动作（十分钟）</h3>
+
+<div class="card">
+<p><strong>用你的浏览器打开 MAS 官网 7 月 27 日的货币政策声明原文，做一件很具体的事：把全文搜一遍，看它到底有没有出现「1.25%」或者任何一个斜率数字。</strong></p>
+<p>网址：<a href="https://www.mas.gov.sg/news/monetary-policy-statements/2026/mas-monetary-policy-statement-27jul26">mas.gov.sg — MAS Monetary Policy Statement, July 2026</a>（这个页面对我的抓取工具返回 403，但在浏览器里应该能正常打开）</p>
+<p><strong>为什么是这一件事：</strong>我在第 4 节告诉你，MAS 从不公布这个数字，外面流传的 1.25% 是券商推算的。<strong>你花十分钟就能亲自验证我说得对不对。</strong></p>
+<p><strong>顺便留意第 11–13 段的措辞</strong>——「very slightly」「smaller than that in April」。感受一下央行的真实语言有多模糊，再对比一下财经媒体转述时有多精确。<strong>这个落差是你以后读任何政策新闻时都要在心里补上的一步。</strong></p>
+</div>
+
+<h3>延伸阅读（三篇）</h3>
+
+<div class="card">
+<p><strong>1. Taylor &amp; Taylor (2004), "The Purchasing Power Parity Debate"</strong><br>
+<a href="https://users.ssc.wisc.edu/~mchinn/taylor&taylor_PPP_JEP.pdf">PDF 全文</a>　·　<i>Journal of Economic Perspectives</i> 18(4), pp.135–158</p>
+<p><strong>为什么值得读：</strong>今天第 6 节的三条反对意见，全部出自这一篇。它是 PPP 这个题目上写得最清楚的综述，而且 JEP 这本期刊的定位就是「写给非本专业的经济学家看」，所以数学门槛低。</p>
+<p><strong>难度：</strong>中等。前 8 页（讲 PPP 是什么、B-S 效应）你现在就能读懂。后面讲计量方法的部分可以先跳过。</p>
+</div>
+
+<div class="card">
+<p><strong>2. Rogoff (1996), "The Purchasing Power Parity Puzzle"</strong><br>
+<a href="http://ohu.people.ysu.edu/ECON5812/ppp_Rogoff.pdf">PDF 全文</a>　·　<i>Journal of Economic Literature</i> 34(2), pp.647–668</p>
+<p><strong>为什么值得读：</strong>那个「15% 每年、半衰期 3–5 年」的说法，三十年来一直是这个领域的基准，所有后来的研究都在和它对话。读原文你会看到<strong>一个共识是怎么被建立起来的</strong>——这本身就是训练判断力的材料。</p>
+<p><strong>难度：</strong>较高，有计量经济学内容。<strong>建议只读第 647–650 页和第 656–658 页</strong>，那几页是纯文字论述，正好覆盖今天引用的两句话。</p>
+</div>
+
+<div class="card">
+<p><strong>3. 日本财务省《外国為替平衡操作の実施状況》数据页</strong><br>
+<a href="https://www.mof.go.jp/english/policy/international_policy/reference/feio/monthly/index.html">mof.go.jp（英文版）</a></p>
+<p><strong>为什么值得读：</strong>这不是文章，是一张表。但今天整条链的起点就是它，而且它是<strong>一手来源长什么样</strong>的最好例子——你会发现官方数据比新闻报道<em>少</em>很多东西（不标方向、不给逐日明细），新闻里那些额外的信息都是记者从别处补的。<strong>亲手对比一次原始数据和新闻报道的差别，比听我讲十遍「要看一手来源」有用。</strong></p>
+<p><strong>难度：</strong>低。表格而已。花五分钟往回翻几个月，看看干预的频率和规模。</p>
+</div>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p class="lead">这一节不是免责声明，是一张<strong>可信度地图</strong>。同一页纸上，「我查到的」和「我推出来的」长得一模一样——所以必须有人把它们分开标出来，否则你没法知道哪些可以直接拿去用、哪些要打个折扣。</p>
+
+<div class="card" style="border-color:var(--src)">
+<h4>写完之后我做了一次独立核查，改了三处</h4>
+<p>初稿写完后，我把六条关键事实交给一个独立的核查流程重新查了一遍。<strong>它抓出了三处错误，已经全部改正：</strong></p>
+<ol>
+<li><strong>干预日期写错了。</strong>初稿写「8 月 1–2 日美日联合入场」。实际是日本 <b>7 月 30–31 日</b>入场、美国财政部 <b>7 月 31 日</b>加入、<b>8 月 3 日</b>公开确认。而且 2026 年 8 月 1 日是周六、2 日是周日，外汇市场休市——<strong>这个区间本身就不可能成立</strong>，我当时没有查日历。</li>
+<li><strong>「2011 年以来首次」少说了半句。</strong>2011 年那次美日协同是<b>卖出</b>日元（压制升值），方向相反。美国上一次为<b>支撑</b>日元而买入，是 1998 年。</li>
+<li><strong>MAS 的 1.25% 被我当成了官方数字。</strong>实际上 MAS 从不公布斜率数值，1.25% 是券商推算。见第 4.2 节。</li>
+</ol>
+<p><strong>为什么把这段留在页面上：</strong>因为这三处错误正好示范了三种最典型的出错方式——<b>日期没核对日历</b>、<b>把「相似」当成「相同」</b>、<b>把推算当成官方数据</b>。把它们藏起来，你就少了三个可以照着防的例子。</p>
+</div>
+
+<h3>9.1 全部数据的出处与口径</h3>
+
+<div class="tw">
+<table>
+<tr><th>数据</th><th>数值</th><th>口径与时点</th><th>来源</th><th>级别</th></tr>
+<tr><td>日本外汇干预额</td><td>153,993 億円<br>（15.3993 万亿日元）</td><td>2026-07-30 至 08-26 合计；<b>官方不标方向、不给逐日明细</b>；2026-08-28 发布</td><td>日本財務省</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>干预的美元折算</td><td>约 965 亿美元</td><td>媒体折算，隐含汇率约 159.5；<b>非官方数字</b></td><td>BNN Bloomberg</td><td><span class="tag t-guess">二手</span></td></tr>
+<tr><td>干预方向 / 价格轨迹</td><td>买日元；164 → 155.20 → 159.5</td><td>2026-07-30 至 08-10</td><td>BNN Bloomberg / Al Jazeera</td><td><span class="tag t-guess">二手</span></td></tr>
+<tr><td>美日联合干预</td><td>美国 2011 年以来首次参与；上一次<b>买入</b>日元是 1998 年</td><td>日本 2026-07-30/31 入场，美国财政部 07-31 加入，08-03 正式确认；美财长 Bessent 公开承认参与</td><td>CNBC / Al Jazeera / OMFIF / CFR</td><td><span class="tag t-guess">二手</span></td></tr>
+<tr><td>日本外汇储备</td><td>1,287,099 百万美元<br>（6 月末 1,287,476）</td><td>2026 年 7 月末 / 6 月末；含证券、存款、黄金、SDR、IMF 头寸</td><td>日本財務省</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>美元/日元</td><td>158.91</td><td>2026-08-21；纽约中午买入价，非季调；H.10 每周一发布</td><td>美联储 H.10</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>美元/新元</td><td>1.2692</td><td>同上</td><td>美联储 H.10</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>美元广义名义指数</td><td>118.06</td><td>2026-08-21；2006 年 1 月＝100</td><td>美联储 H.10</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>美债收益率</td><td>3M 3.84 / 2Y 4.20 / 10Y 4.67</td><td>2026-08-27；Daily Treasury <b>Par Yield Curve</b>（不是零息曲线）</td><td>美国财政部</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>日债收益率</td><td>2Y 1.696 / 10Y 2.897</td><td>2026-08-27；財務省每日公表金利</td><td>日本財務省</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>联邦基金目标区间</td><td>3.50–3.75%</td><td>自 2025-12-11；2026 年内未变；中点 3.625% 为我计算</td><td>美联储</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>日本央行政策利率</td><td>无担保隔夜拆借利率约 1.0%</td><td><b>2026-06-16 加息至此</b>；2026-07-31 维持，8:1 通过（高田委员主张 1.25%）</td><td>日本银行声明 PDF</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>日元实际有效汇率</td><td>2026-07: 65.04<br>2025-07: 72.49</td><td>BIS 实际<b>广义</b>有效汇率，月度、非季调、2020＝100；按相对<b>消费者</b>物价调整</td><td>BIS（经 FRED RBJPBIS）</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>日本 PPP 换算因子</td><td>2025: 97.08<br>（2021–24: 99.21 / 94.92 / 93.83 / 94.46）</td><td><b>GDP 口径</b>，日元/国际元；来源为 ICP、Eurostat、OECD 的 PPP 项目</td><td>世界银行 PA.NUS.PPP</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>新加坡 PPP 换算因子</td><td>2025: 0.7909</td><td>同上，新元/国际元，GDP 口径</td><td>世界银行 PA.NUS.PPP</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>全球外汇成交额</td><td>9.6 万亿美元/日；日元参与 16.8%</td><td>2025 年 4 月三年期普查，net-net 口径；<b>用来推算 2026 年 8 月属于外推</b></td><td>BIS</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>美国 CPI</td><td>整体 +3.4% / 核心 +2.5%</td><td>2026 年 7 月，同比，<b>未季调</b>；2026-08-12 发布</td><td>美国劳工统计局</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>日本 CPI</td><td>整体 +1.9% / 除生鲜食品 +1.8%</td><td>2026 年 7 月，同比；2026-08-20 发布；2025 年基准</td><td>日本总务省统计局（经转载）</td><td><span class="tag t-guess">二手</span></td></tr>
+<tr><td>MAS 政策决定（方向）</td><td>「very slightly」提高政策带升值速度，幅度小于四月；宽度与中心点不变</td><td>2026-07-27 声明原文措辞；<b>MAS 官网对我返回 403</b>，经 Mondovisione 全文转载取得</td><td>MAS 声明（转载）</td><td><span class="tag t-guess">转载</span></td></tr>
+<tr><td>MAS 斜率数值</td><td>约 25bp / 每年约 1.25%</td><td><b>MAS 从不公布斜率数值</b>；此数为券商反推估算（高盛估中性斜率约 1.00%）</td><td>MUFG / FocusEconomics</td><td><span class="tag t-guess">估算</span></td></tr>
+<tr><td>标普 500 / VIX</td><td>7,730.99（08-27）/ 15.21（08-26）</td><td>收盘值，指数，非季调</td><td>S&amp;P DJI / CBOE（经 FRED）</td><td><span class="tag t-src">一手</span></td></tr>
+<tr><td>PPP 收敛速度</td><td>约 15%/年；半衰期 3–5 年</td><td>Rogoff (1996) JEL 34(2) pp.647, 656，原文引用见 环6·6</td><td>学术文献</td><td><span class="tag t-src">文献</span></td></tr>
+<tr><td>PPP 的三条反对意见</td><td>B-S 效应；非线性半衰期 1–3 年；长期平均成立</td><td>Taylor &amp; Taylor (2004) JEP 18(4) pp.135–158</td><td>学术文献</td><td><span class="tag t-src">文献</span></td></tr>
+</table>
+</div>
+
+<h3>9.2 每一环的性质</h3>
+
+<div class="tw">
+<table>
+<tr><th>环</th><th>内容</th><th>性质</th></tr>
+<tr><td>①</td><td>美日政策利率差 2.625 个百分点</td><td><span class="tag t-src">出处</span> 两家央行原始文件；减法是算术</td></tr>
+<tr><td>②</td><td>套息交易账面 3.2%、安全垫 3.07%</td><td><span class="tag t-math">纯算术</span> 每一步你都能自己验；两个利率有出处</td></tr>
+<tr><td>③</td><td>「所以持续有人卖日元、推低日元」</td><td><span class="tag t-guess">我的推测</span> UIP 理论预测相反方向；OMFIF 的 Sobel 支持这个说法，但那是评论不是实证</td></tr>
+<tr><td>④</td><td>7/30–31 跌到 164，四十年最弱</td><td><span class="tag t-guess">二手出处</span> 媒体报道；<b>「为什么是那两天」查不到</b></td></tr>
+<tr><td>⑤</td><td>8/1–3 美日联合干预，一度回 155.20</td><td><span class="tag t-guess">二手出处</span> 媒体报道 + 美财长公开确认</td></tr>
+<tr><td>⑥</td><td>一个月合计 15.4 万亿日元</td><td><span class="tag t-src">一手出处</span> 财务省原始数据（今天的事件）</td></tr>
+<tr><td>⑦</td><td>＝储备的 7.5%、日元成交量的约 0.3%</td><td><span class="tag t-math">纯算术</span> 输入有出处；0.3% 只是数量级参照，三处不精确已在环 5 说明</td></tr>
+<tr><td>⑦b</td><td>「干预靠传递信息起作用」</td><td><span class="tag t-guess">我的解释</span> 与 Sobel 的论证方向一致，但不是实证结论</td></tr>
+<tr><td>⑧</td><td>卡在 159.5；偏离 PPP 38.9%</td><td><span class="tag t-src">出处</span>＋<span class="tag t-math">算术</span> 汇率与 PPP 都有出处，38.9% 是除法</td></tr>
+<tr><td>⑨★</td><td>PPP 是弱锚：REER −10.3%、半衰期 4.27 年、三条反对意见</td><td><span class="tag t-src">出处</span>＋<span class="tag t-math">算术</span> 数据来自 BIS 与世界银行，理论来自 Rogoff 与 Taylor&amp;Taylor，4.27 年是对数运算</td></tr>
+</table>
+</div>
+
+<h3>9.3 我今天接不上的地方（一共四处）</h3>
+
+<ol>
+<li><strong>7 月 30–31 日为什么跌到 164。</strong>没有任何能支撑具体触发原因的材料。留白，不用推测搭桥。</li>
+<li><strong>从「有套息激励」到「日元因此下跌」的因果强度。</strong>需要一份把日元汇率变动做正式分解的实证研究，没找到覆盖 2026 年的。</li>
+<li><strong>当前日元套息头寸的规模。</strong>没有这个数，第 5.3 节说的「平仓踩踏风险」就只能定性、无法定量。CFTC 持仓、日本对外证券投资流量、BIS 跨境日元贷款这三项都是公开数据，我今天没取。</li>
+<li><strong>新加坡 GDP 口径 PPP 为什么显得「便宜」。</strong>需要 ICP 的分项 PPP（尤其是 AIC 口径），我没能取到 2025 年新加坡数据。我在 环6·7 给出了一个十分钟内就能证伪我的检验方法。</li>
+</ol>
+
+<h3>9.4 我没能拿到一手确认的两个数字</h3>
+
+<ol>
+<li><strong>MAS 2026-07-27 声明原文。</strong>MAS 官网对我和我的核查流程都返回 403，声明措辞经第三方全文转载取得。更要紧的是：<strong>那个流传很广的「1.25%」根本不是 MAS 的数字，是券商推算的</strong>——我在初稿里曾把它当成官方数据写进正文，核查后已改正。今天的小动作就是让你亲自去验证这一点。</li>
+<li><strong>日本 2026 年 7 月 CPI（+1.9% / +1.8%）。</strong>统计局原页面我没找到对应链接，数字经转载取得。这个数字在正文中只用于一个方向性论述（美国通胀更快，会让日元的 PPP 数值更低），不承担定量结论。</li>
+<li><strong>干预的逐日明细。</strong>7–9 月的官方逐日数据要到 11 月初才公布，所以「哪一天买了多少」目前只有媒体推算。</li>
+</ol>
+
+<div class="card" style="border-color:var(--accent)">
+<h4>一句话总结今天的可信度</h4>
+<p><strong>可以直接拿去用的：</strong>环 ①②⑥⑦⑧⑨——利差的数字、套息交易的算术、干预的官方金额、规模比值、PPP 偏离幅度、REER 的变化、以及 PPP 收敛速度的文献结论。</p>
+<p><strong>要打折扣的：</strong>环 ③（利差→日元下跌）和 ⑦b（干预靠信息起作用）——这两处是我的推理，我已经把反对意见和验证方法都写出来了。</p>
+<p><strong>不要用的：</strong>任何关于「7 月 30 日为什么跌」的解释——包括你在别处看到的。<strong>这条链在那里是断的，谁把它接上了，谁就在编。</strong></p>
+</div>
+
+<hr>
+<p class="sub" style="text-align:center">Day 12 / 368　·　领域 D 汇率与全球资本流动　·　锚点原理 D2 购买力平价<br>下一次进入 D 领域是 Day 20（D3 利率平价与套息交易的数学）——今天环 2 和环 3 的内容会在那天正式展开。</p>
+
+</div>
+</body>
+</html>
