@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 13｜银行资产负债表的读法 —— FDIC 二季报、互惠存款新规与 Warsh 的转向</title>
+<style>
+  :root{
+    --bg:#fbfaf7; --fg:#1c1b19; --muted:#5d5b55; --line:#ddd9d0;
+    --card:#ffffff; --card2:#f4f1ea;
+    --accent:#8a5a2b; --accent-soft:#f0e3d2;
+    --solid:#2f6f4e;      /* 有出处 */
+    --dash:#a8452f;       /* 推测 */
+    --arith:#2b5f8a;      /* 算术 */
+    --warn-bg:#fff4e8; --warn-bd:#d98b3f;
+    --code:#f0ede6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15161a; --fg:#e8e6e1; --muted:#a3a099; --line:#33353c;
+      --card:#1d1f24; --card2:#23262c;
+      --accent:#d9a15f; --accent-soft:#2e2519;
+      --solid:#6dc294; --dash:#e78a6f;
+      --arith:#79b4e6;
+      --warn-bg:#2a2113; --warn-bd:#c98d3f;
+      --code:#22252b;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.85; overflow-x:hidden;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:28px 20px 80px}
+  header.top{border-bottom:2px solid var(--line); padding-bottom:20px; margin-bottom:12px}
+  .kicker{font-size:13px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  h1{font-size:26px; line-height:1.4; margin:10px 0 8px; font-weight:700}
+  .sub{color:var(--muted); font-size:14.5px; margin:0}
+  h2{font-size:21px; margin:44px 0 14px; padding-top:14px; border-top:1px solid var(--line); font-weight:700}
+  h3{font-size:18px; margin:30px 0 10px; font-weight:700}
+  h4{font-size:16px; margin:22px 0 8px; font-weight:700; color:var(--accent)}
+  p{margin:0 0 15px}
+  ul,ol{margin:0 0 15px; padding-left:1.4em}
+  li{margin:6px 0}
+  a{color:var(--accent); text-underline-offset:3px}
+  strong{font-weight:700}
+  .lead{font-size:17.5px}
+  .calc{
+    background:var(--code); border-left:3px solid var(--arith);
+    padding:12px 16px; margin:14px 0; border-radius:0 6px 6px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:14.5px; line-height:1.95; overflow-x:auto;
+  }
+  .calc .r{color:var(--arith); font-weight:700}
+  .box{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:18px 0}
+  .box.tight{padding:12px 16px}
+  .box h4{margin-top:0}
+  .guess{
+    background:var(--warn-bg);
+    border:2px dashed var(--warn-bd);
+    border-radius:10px; padding:14px 18px; margin:20px 0;
+  }
+  .guess .tag{
+    display:inline-block; background:var(--warn-bd); color:#fff;
+    font-size:12px; font-weight:700; letter-spacing:.05em;
+    padding:3px 10px; border-radius:20px; margin-bottom:8px;
+  }
+  .guess p:last-child{margin-bottom:0}
+  .src{font-size:13.5px; color:var(--muted); margin:10px 0 0; padding-left:12px; border-left:2px solid var(--line)}
+  .src b{color:var(--fg)}
+  figure{margin:24px 0}
+  figure svg{width:100%; height:auto; display:block}
+  figcaption{font-size:13.5px; color:var(--muted); margin-top:10px; line-height:1.7}
+  .tablewrap{overflow-x:auto; margin:18px 0; -webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:480px}
+  th,td{border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  th{background:var(--card2); font-weight:700}
+  details{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:12px 0}
+  summary{cursor:pointer; font-weight:700; font-size:15.5px}
+  details[open] summary{margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line)}
+  .ring{
+    display:inline-block; background:var(--accent-soft); color:var(--accent);
+    font-size:13px; font-weight:700; padding:2px 10px; border-radius:4px; margin-right:8px;
+  }
+  .anchor-note{background:var(--accent-soft); border-left:4px solid var(--accent); padding:12px 16px; border-radius:0 8px 8px 0; margin:16px 0; font-size:15px}
+  .q{font-weight:700; color:var(--accent); margin-top:18px}
+  .small{font-size:14px; color:var(--muted)}
+  hr{border:0; border-top:1px solid var(--line); margin:34px 0}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--muted); margin-top:8px}
+  .legend span{display:flex; align-items:center; gap:6px}
+  .sw{width:26px; height:0; border-top:3px solid}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 13 · 领域 E 信用、银行与金融稳定 · 锚点原理 E2</div>
+  <h1>银行资产负债表的读法</h1>
+  <p class="sub">从 FDIC 2026 年二季度银行业报告（8/25 发布）、FDIC 互惠存款新规（8/27）与 Warsh 在 Jackson Hole 的转向（8/28）说起</p>
+  <p class="sub" style="margin-top:8px">写作日期：2026 年 8 月 30 日（新加坡时间）</p>
+</header>
+
+<div class="box tight">
+  <p style="margin:0"><strong>关于选题时点。</strong>今天（8/30）是周日，E 领域当天没有新事件。我选的是过去 5 天里这个领域最值得拆的一组事实：三件事发生在 8 月 25、27、28 日，它们指向同一张资产负债表。链条的长度是我读完来源之后的结果，不是预先定好的目标——所以你会在第 3 节看到一处我明写「这里我接不上」。</p>
+</div>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p class="lead">上周二，美国的存款保险机构公布了全国 4,238 家银行合并起来的一张账本，截止到 6 月 30 日。两天后，同一个机构改了一条规则，管的正是这张账本负债那一侧的某一行。再一天后，美联储主席在一场年会上讲话，把市场对未来利率的赌注掉了个头——而这会立刻改变账本资产那一侧的价值。</p>
+
+<p>今天我要讲明白的道理只有一个：<strong>怎么读一家银行的账本。</strong>银行的账本和你熟悉的任何一家公司都不一样，不一样的地方在于，它的「货」就是钱本身。搞懂这一点，你才能理解为什么一家看上去在赚钱的银行会在三天里倒掉。</p>
+
+<p>读完你应该能回答：一家银行的自有资金占它总资产的多少？为什么这个比例小到吓人却是正常的？「未实现亏损」是什么，它为什么不出现在利润表上？银行为什么要费劲把一笔大额存款拆成很多份放到别的银行去？</p>
+
+<h2>1｜今天的事件</h2>
+
+<h3>事件 A｜FDIC 发布 2026 年第二季度《银行业季度概览》</h3>
+
+<p>先解释这个机构和这份文件。<strong>FDIC</strong>（Federal Deposit Insurance Corporation，美国联邦存款保险公司）是美国政府里负责给银行存款上保险的机构：银行倒了，储户的钱由它赔，目前每人每家银行每个所有权类别的赔付上限是 <strong>25 万美元</strong>。因为要担这个责任，它有权收集全美所有承保银行的详细财务数据，每季度汇总一次发布，这份汇总就叫 <strong>Quarterly Banking Profile</strong>（季度银行业概览，下面简称 QBP）。</p>
+
+<p>它的价值在于：这不是估算，不是抽样调查，是全部 4,238 家承保机构逐家上报的监管报表加总。在宏观数据里，这种「普查级」的东西非常少。</p>
+
+<p><strong>发布时间：2026 年 8 月 25 日。数据时点：2026 年 6 月 30 日（第二季度末）。</strong>请把这两个日期分开记，后面第 3 节会用到——报告说的是 6 月 30 日那天的照片，不是 8 月 25 日的。</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>项目</th><th>数值</th><th>口径说明（这一栏比数值更重要）</th></tr></thead>
+<tbody>
+<tr><td>季度净利润</td><td>901 亿美元</td><td>全部 FDIC 承保机构合计，<b>单季度</b>（不是年度），环比 +97 亿 / +12%，同比 +201 亿 / +28.7%</td></tr>
+<tr><td>资产回报率 ROA</td><td>1.37%</td><td><b>年化</b>后的比率；分母是当季<b>平均</b>总资产，不是季末时点数</td></tr>
+<tr><td>净息差 NIM</td><td>3.32%</td><td>年化，环比 <b>+1 个基点</b>（basis point，1 基点 = 0.01 个百分点）</td></tr>
+<tr><td>证券未实现亏损</td><td>3,267 亿美元</td><td>季末时点数，环比 +16 亿 / +0.5%，<b>同比 −17.4%</b></td></tr>
+<tr><td>不良贷款率</td><td>1.44%</td><td>FDIC 的 noncurrent 定义 = 逾期 90 天以上 + 非应计；环比 −9 基点</td></tr>
+<tr><td>净核销率</td><td>0.57%</td><td>年化；核销减去收回，占平均贷款余额</td></tr>
+<tr><td>国内存款</td><td>环比 +1,427 亿 / +0.8%</td><td>domestic office deposits，连续第 8 个季度增长</td></tr>
+<tr><td>未保险国内存款</td><td>环比 +3,174 亿</td><td>FDIC 自己的口径（下面第 3 节我会指出这个数字我没能对上）</td></tr>
+<tr><td>贷款</td><td>+1.8% 至 13.9 万亿</td><td>环比；同比 +6.8%。这是<b>总</b>贷款，不是扣除坏账准备后的净贷款</td></tr>
+<tr><td>机构数量</td><td>4,238 家</td><td>季度内减少 41 家（主要是合并，不是倒闭）</td></tr>
+<tr><td>问题银行</td><td>47 家</td><td>占全行业 1.1%，环比减少 7 家</td></tr>
+<tr><td>存款保险基金 DIF</td><td>1,611 亿</td><td>准备金率 1.48%，环比 +5 基点</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="src"><b>出处：</b>FDIC 官网对我的抓取返回 403，无法直接读取原始 PDF。我用了两家独立的二手报道交叉核对，两者数字一致：<a href="https://www.americanbanker.com/news/banks-put-up-strong-earnings-lending-in-q2">American Banker（8/25）</a>与 <a href="https://bankingjournal.aba.com/2026/08/quarterly-banking-profile-banking-net-income-90-1b-in-q2-2026/">ABA Banking Journal（8/25）</a>。此外我从 <a href="https://fred.stlouisfed.org/series/QBPBSTAS">FRED 上 FDIC 直供的 QBP 数据系列</a>（2026-08-27 更新）取到了资产负债表原始条目，用它独立验算了其中几个数字——验算过程和结果都写在第 3 节，包括一处对不上的。</p>
+
+<h4>FRED 上的 QBP 原始条目（单位：百万美元）</h4>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>FRED 系列</th><th>含义</th><th>2026 Q1</th><th>2026 Q2</th></tr></thead>
+<tbody>
+<tr><td>QBPBSTAS</td><td>总资产</td><td>26,145,458</td><td>26,462,210</td></tr>
+<tr><td>QBPBSTLKTEQKTBKEQK</td><td>银行权益资本</td><td>2,619,515</td><td>2,624,826</td></tr>
+<tr><td>QBPBSTLKDPDOFFDP</td><td>国内办公室存款</td><td>18,827,804</td><td>18,970,514</td></tr>
+<tr><td>QBPBSTLKDPDOFFDPESTIDP</td><td>其中：估计<b>受保</b>存款</td><td>10,953,137</td><td>10,838,725</td></tr>
+<tr><td>QBPBSTLKDPDOFFDPBRKDP</td><td>其中：经纪存款</td><td>1,203,733</td><td>1,227,504</td></tr>
+<tr><td>QBPBSTASNTLN</td><td>净贷款与租赁</td><td>13,468,697</td><td>13,712,380</td></tr>
+<tr><td>QBPBSTASTLN</td><td>总贷款与租赁</td><td>13,692,552</td><td>（FRED 未更新）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>事件 B｜FDIC 修改互惠存款规则</h3>
+
+<p><strong>2026 年 8 月 27 日</strong>，FDIC 批准一项 <em>interim final rule</em>（临时最终规则：先生效、同时继续征求意见），落实 2026 年 7 月生效的《21st Century ROAD to Housing Act》第 902 条，修改「互惠存款」（reciprocal deposits）的监管处理：</p>
+
+<ul>
+<li>把原来的固定上限，换成一套<strong>按银行负债规模分层计算</strong>的上限，最高 <strong>300 亿美元</strong>；</li>
+<li>放宽「agent institution」（可以使用这个豁免的银行）的定义；</li>
+<li>联邦公报刊登后 30 天生效。</li>
+</ul>
+
+<p>原来的上限是什么？根据达拉斯联储 2023 年的一篇研究：自 2018 年起，「低风险、资本充足」的银行，其互惠存款只要不超过 <strong>50 亿美元与总负债 20% 两者中的较小值</strong>，就不算经纪存款。</p>
+
+<p class="src"><b>出处：</b><a href="https://bankingjournal.aba.com/2026/08/fdic-updates-rules-on-reciprocal-deposits/">ABA Banking Journal，2026-08-27</a>；<a href="https://www.paulhastings.com/insights/ph-fedaction-financial-regulatory-updates-homepage/daily-financial-regulation-update-friday-august-28-2026">Paul Hastings 每日监管简报，2026-08-28</a>（独立确认了同一条 8/27 的 FDIC 行动）；旧上限与机制来自 <a href="https://www.dallasfed.org/research/economics/2023/1128">达拉斯联储，2023-11-28</a> 与 <a href="https://www.dallasfed.org/research/economics/2025/0805">达拉斯联储，2025-08-05</a>。</p>
+
+<h3>事件 C｜Warsh 在 Jackson Hole 转鹰，市场改赌加息</h3>
+
+<p><strong>2026 年 8 月 28 日（周五）</strong>，美联储主席 Kevin Warsh 在杰克逊霍尔年会讲话，表示通胀高于 2% 目标、美联储当前的首要任务应是物价。市场把这解读为可能加息。</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>读数</th><th>8 月 27 日</th><th>8 月 28 日收盘</th><th>变化</th></tr></thead>
+<tbody>
+<tr><td>2 年期美债收益率</td><td>4.20%</td><td>4.35%</td><td>+12 基点（当日）</td></tr>
+<tr><td>10 年期美债收益率</td><td>4.67%</td><td>4.728%</td><td>+5.6 基点</td></tr>
+<tr><td>9 月加息概率</td><td>约 33–35%</td><td>50%–57%</td><td>翻倍</td></tr>
+<tr><td>标普 500</td><td>—</td><td>7,711</td><td>−0.25%</td></tr>
+<tr><td>罗素 2000（小盘）</td><td>—</td><td>2,972</td><td>−1.39%</td></tr>
+<tr><td>美元指数 DXY</td><td>—</td><td>99.65</td><td>+0.5%</td></tr>
+<tr><td>黄金</td><td>—</td><td>$4,529.90</td><td>−2.88%</td></tr>
+<tr><td>WTI 原油</td><td>—</td><td>$83.40</td><td>−0.16%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="src"><b>出处：</b>8/27 收益率为 <a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15《选定利率》，2026-08-28 发布</a>（官方数据，单位：年化百分比）；同一份 H.15 还给出：联邦基金有效利率 3.63%、1 个月国库券 3.66%、3 个月 3.69%、6 个月 3.78%、1 年 3.86%、5 年 4.38%、30 年 5.19%。8/28 收盘读数来自 <a href="https://investrade.com/market-review-august-28-2026/">Investrade 市场回顾，2026-08-28</a>。Warsh 讲话内容与加息概率变化由 <a href="https://www.npr.org/2026/08/28/nx-s1-5947903/federal-reserve-inflation-jackson-hole-interest-rates">NPR（8/28）</a>与 <a href="https://finance.yahoo.com/economy/policy/articles/rate-hike-expectations-rise-warsh-144023525.html">Reuters/Yahoo（8/28）</a>独立报道。通胀数据我用 <a href="https://www.bls.gov/news.release/cpi.nr0.htm">美国劳工统计局 CPI 新闻稿</a>直接核对：2026 年 7 月 CPI-U 季调环比 +0.1%，<b>未季调同比 +3.4%</b>，<b>剔除食品与能源的核心同比 +2.5%</b>，发布日 2026 年 8 月 12 日。</p>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p>NPR 的报道里提到「美联储偏好的通胀指标同期为 3.7%」。美联储偏好的指标是 PCE 物价指数，而 PCE 通常<strong>低于</strong> CPI（因为 PCE 的住房权重小得多）。3.7% 高于 CPI 的 3.4%，与常规关系相反。我今天没能从 BEA（美国经济分析局）核到这个数字的原始出处，也无法确定它指的是整体 PCE 还是核心 PCE。<strong>所以这个 3.7% 我不在正文里使用，本文所有通胀引用都以 BLS 的 CPI 为准。</strong>要判断它对不对，需要 BEA 的 Personal Income and Outlays 原始发布。</p>
+</div>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 720 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="传导链示意图">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="var(--solid)"/>
+    </marker>
+    <marker id="ahd" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="var(--dash)"/>
+    </marker>
+  </defs>
+
+  <!-- 环 1 -->
+  <rect x="14" y="18" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="114" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">① 利率环境</text>
+  <text x="114" y="60" text-anchor="middle" font-size="11.5" fill="var(--muted)">隔夜 3.63%，10 年 4.67%</text>
+
+  <!-- 环 2 -->
+  <rect x="256" y="18" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="356" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">② 银行赚钱能力</text>
+  <text x="356" y="53" text-anchor="middle" font-size="11.5" fill="var(--muted)">息差 3.32%，贷款 +1.8%</text>
+  <text x="356" y="69" text-anchor="middle" font-size="11.5" fill="var(--muted)">季度利润 901 亿</text>
+
+  <!-- 环 3 -->
+  <rect x="498" y="18" width="208" height="60" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="602" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">③ 这张表长什么样</text>
+  <text x="602" y="60" text-anchor="middle" font-size="11.5" fill="var(--muted)">资产 26.5 万亿 / 权益 2.62 万亿</text>
+
+  <line x1="216" y1="48" x2="252" y2="48" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <line x1="458" y1="48" x2="494" y2="48" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+
+  <!-- 锚点环 -->
+  <rect x="120" y="118" width="480" height="86" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="360" y="143" text-anchor="middle" font-size="14" font-weight="700" fill="var(--accent)">★ 锚点原理 E2：把这张表拆开读</text>
+  <text x="360" y="164" text-anchor="middle" font-size="11.5" fill="var(--fg)">杠杆 10.08 倍 · 自有资金只占 9.92%</text>
+  <text x="360" y="182" text-anchor="middle" font-size="11.5" fill="var(--fg)">证券未实现亏损 3,267 亿 = 全行业权益的 12.4%</text>
+  <text x="360" y="198" text-anchor="middle" font-size="11" fill="var(--muted)">——而它不进利润表</text>
+
+  <line x1="602" y1="80" x2="602" y2="100" stroke="var(--solid)" stroke-width="2.5"/>
+  <line x1="602" y1="100" x2="604" y2="100" stroke="var(--solid)" stroke-width="2.5"/>
+  <path d="M602,80 L602,105 L360,105 L360,114" fill="none" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+
+  <!-- 环 4 -->
+  <rect x="14" y="248" width="320" height="76" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="174" y="272" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">④ 负债那一侧在变</text>
+  <text x="174" y="290" text-anchor="middle" font-size="11.5" fill="var(--muted)">受保存款 −1,144 亿</text>
+  <text x="174" y="307" text-anchor="middle" font-size="11.5" fill="var(--muted)">未保险存款上升</text>
+
+  <!-- 环 5 -->
+  <rect x="386" y="248" width="320" height="76" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="546" y="272" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">⑤ 8/27 互惠存款新规</text>
+  <text x="546" y="290" text-anchor="middle" font-size="11.5" fill="var(--muted)">豁免上限 50 亿 → 最高 300 亿</text>
+  <text x="546" y="307" text-anchor="middle" font-size="11.5" fill="var(--muted)">把未保险存款「变成」受保存款</text>
+
+  <path d="M300,206 L174,206 L174,244" fill="none" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <line x1="338" y1="286" x2="382" y2="286" stroke="var(--dash)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ahd)"/>
+
+  <!-- 环 6 -->
+  <rect x="120" y="368" width="480" height="86" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="360" y="392" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">⑥ 8/28 Warsh 转鹰 → 长端利率上行</text>
+  <text x="360" y="411" text-anchor="middle" font-size="11.5" fill="var(--muted)">10 年 4.44%（6/30）→ 4.728%（8/28）</text>
+  <text x="360" y="428" text-anchor="middle" font-size="11.5" fill="var(--muted)">曲线扁平：10Y−2Y 从 47bp → 37.8bp</text>
+  <text x="360" y="446" text-anchor="middle" font-size="11.5" fill="var(--dash)">→ 那 3,267 亿的窟窿，现在比报告里更大（方向确定，幅度未知）</text>
+
+  <path d="M420,206 L546,206 L546,244" fill="none" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <path d="M174,328 L174,352 L360,352 L360,364" fill="none" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+</svg>
+<div class="legend">
+  <span><i class="sw" style="border-color:var(--solid)"></i> 实线 = 有出处（链接见各环末尾）</span>
+  <span><i class="sw" style="border-color:var(--dash); border-top-style:dashed"></i> 虚线 = 我的推测，未证实</span>
+</div>
+<figcaption>注意 ④→⑤ 是虚线。FDIC 在 8/27 出这条规则，是在执行 7 月国会通过的法律，不是因为 8/25 的数据。把它们说成因果关系是事后叙事，我不这么写。</figcaption>
+</figure>
+
+<h4>用人话把这条链读一遍</h4>
+
+<p>现在的利率环境是：银行隔夜拆借的成本约 3.63%，而 10 年期国债给 4.67%。银行的生意就是在这两个数中间赚差价，二季度它赚到的差价是 3.32%，加上贷款余额涨了 1.8%，于是一个季度赚了 901 亿。</p>
+
+<p>但利润只是这张表的一角。<strong>整张表的样子是：26.5 万亿资产，背后只有 2.62 万亿是银行自己的钱</strong>——剩下的全是欠别人的，主要是储户的存款。这就是今天的主菜：一个只有 9.92% 自有资金的机构，怎么读它的账。</p>
+
+<p>读进去以后你会看到一处裂缝：银行手里的债券，因为过去几年利率上升已经亏了 3,267 亿，但这笔亏损<strong>不进利润表</strong>。它相当于全行业自有资金的 12.4%。</p>
+
+<p>再看负债那一侧：这个季度受保存款减少了 1,144 亿，而存款总量还在涨——意思是新增的钱大多是<strong>没有保险的钱</strong>。没有保险的钱是最容易跑的钱。两天后 FDIC 放宽了互惠存款的上限，从 50 亿放到最高 300 亿，而互惠存款干的事恰恰就是把没保险的钱变成有保险的钱。</p>
+
+<p>最后，8 月 28 日 Warsh 讲完话，市场改赌加息，长端利率涨到 4.728%。而那份报告里的 3,267 亿窟窿，是按 6 月 30 日、10 年期在 4.44% 附近的水平算的。<strong>那张照片已经旧了。</strong></p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3><span class="ring">环 ①</span>利率环境：银行的进货价与卖货价</h3>
+
+<p>先从生活说起。你去银行存钱，银行给你利息，比如活期 0.5%。你去银行借房贷，银行收你利息，比如 6.6%。银行的钱从哪来？从你和别的储户那里来。银行的钱到哪去？借给买房的人、开公司的人，或者买国债。</p>
+
+<p><strong>所以银行本质上是一个「批发资金、零售资金」的中间商：低价进货（吸收存款），高价出货（发放贷款）。</strong></p>
+
+<p>它的进货价大致锚在市场的短期利率上。8 月 27 日：</p>
+
+<div class="calc">
+联邦基金有效利率（银行之间隔夜互借的实际成交利率）　<span class="r">3.63%</span><br>
+3 个月国库券　<span class="r">3.69%</span><br>
+1 年期国库券　<span class="r">3.86%</span><br>
+2 年期国债　<span class="r">4.20%</span><br>
+10 年期国债　<span class="r">4.67%</span><br>
+30 年期国债　<span class="r">5.19%</span>
+</div>
+
+<p>这里出现了一个术语。你注意到期限越长、利率越高。把这些点画成一条线，横轴是期限、纵轴是利率，这条线经济学里叫 <strong>收益率曲线</strong>（yield curve）。今天这条线是向上倾斜的。</p>
+
+<p>为什么这对银行重要？因为银行的负债（存款）期限短，资产（贷款、债券）期限长。<strong>它赚的就是这条曲线的坡度。</strong>坡度越陡，赚得越多。</p>
+
+<div class="calc">
+10 年 4.67% − 2 年 4.20% = <span class="r">0.47 个百分点 = 47 个基点</span>
+</div>
+
+<p>先把「基点」说清楚，因为下面到处都是。<strong>1 个基点 = 0.01 个百分点。</strong>为什么要发明这个单位？因为在利率的世界里，「上升了 0.5%」有歧义：是从 4.00% 变成 4.50%（加了 0.5 个百分点），还是从 4.00% 变成 4.02%（涨了 0.5%，即百分之零点五）？说「上升 50 个基点」就没有歧义，只可能是前者。英文 basis point，常写作 bp 或 bps。</p>
+
+<p class="src"><b>这一环的依据：</b><a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15，2026-08-28 发布，数据日 8/27</a>；坡度是我做的减法，你可以自己减一遍。</p>
+
+<h3><span class="ring">环 ②</span>银行赚了多少：净息差与它的两个陷阱</h3>
+
+<p>FDIC 报的净息差是 <strong>3.32%</strong>，环比 +1 个基点。</p>
+
+<p>先用大白话说这是什么现象：把银行一年从贷款和债券上收到的全部利息，减去它一年付给储户和债主的全部利息，得到一个净额；再把这个净额除以「能生息的资产」。<strong>经济学/会计给这个比值起了个名字，叫净息差</strong>（Net Interest Margin，缩写 NIM）。</p>
+
+<p>「能生息的资产」（earning assets）指贷款、债券这些会给银行带来利息的资产，不包括银行的办公楼、ATM 机、商誉这些。</p>
+
+<p><strong>陷阱一：3.32% 不是「银行的利润率」。</strong>它是毛的，还没扣人工、房租、IT、坏账。</p>
+
+<p><strong>陷阱二：+1 个基点这个「变化」是季度环比，但 3.32% 这个「水平」是年化的。</strong>混着读会得出很荒谬的结论。</p>
+
+<p>我们用 NIM 做一个粗略的规模感演算，看看这个数字大到什么程度：</p>
+
+<div class="calc">
+假设能生息资产占总资产的 90%（<b>这是示意数字，只为演示算法</b>，不是查到的数据）<br>
+26.46 万亿 × 90% = 23.8 万亿<br>
+23.8 万亿 × 3.32% = <span class="r">约 7,900 亿美元／年的净利息收入</span><br>
+对比：全行业年化净利润 901 × 4 = <span class="r">3,604 亿美元</span>
+</div>
+
+<p>所以净利息收入大约是净利润的两倍多。中间差掉的那一半多，就是人工、房租、坏账准备和税。<strong>注意这里的 90% 是我编的示意值，这一步只用来建立数量级直觉，不能当结论用。</strong></p>
+
+<p class="q">你可能会想：净息差只涨了 1 个基点，为什么利润却涨了 12%？</p>
+
+<p>因为利润有三个来源，息差只是其中之一。据路透报道，FDIC 把二季度的利润增长归因于三件事：非利息收入上升、证券出售获利、以及<strong>拨备减少</strong>。</p>
+
+<p>「拨备」（provision）需要解释：银行放贷时，会预先从利润里扣掉一笔钱，用来对付将来可能收不回的贷款。这笔预扣叫拨备。<strong>拨备减少，意味着银行认为将来的坏账会比之前估的少，于是少扣一点——账面利润就上去了。但这不是多赚了钱，是少预留了钱。</strong>这一点在读任何银行财报时都要盯住。</p>
+
+<p>与之呼应的是资产质量数据：不良贷款率 1.44%（环比 −9 基点），净核销率 0.57%。这两个都在改善，所以少提拨备在当下是说得通的。</p>
+
+<p class="src"><b>这一环的依据：</b>NIM、不良率、核销率来自 <a href="https://www.americanbanker.com/news/banks-put-up-strong-earnings-lending-in-q2">American Banker</a> 转述 FDIC QBP；利润归因来自 <a href="https://www.tradingview.com/news/reuters.com,2026:newsml_L6N44M0PX:0-u-s-bank-profits-climb-12-in-second-quarter-as-loan-growth-climbs-fdic/">Reuters（Pete Schroeder）,8/25</a>。上面的 7,900 亿是算术推导，其中 90% 是明确标注的示意值。</p>
+
+<hr>
+
+<h3><span class="ring">环 ③</span><span style="color:var(--accent)">★ 锚点原理 E2：银行资产负债表的读法</span></h3>
+
+<div class="anchor-note">这是今天的主菜，也是全文最厚的一节。前面两环是铺垫，后面三环是应用。</div>
+
+<h4>先从你自己的资产负债表说起</h4>
+
+<p>假设你在新加坡买了一套 100 万新元的公寓，首付 25 万，贷款 75 万。你还有 5 万现金存在银行。</p>
+
+<p>把这些东西分成三堆：</p>
+
+<ul>
+<li><strong>你拥有的东西</strong>：公寓 100 万 + 现金 5 万 = 105 万</li>
+<li><strong>你欠别人的</strong>：房贷 75 万</li>
+<li><strong>真正属于你的</strong>：105 − 75 = 30 万</li>
+</ul>
+
+<p>第一堆叫<strong>资产</strong>（assets），第二堆叫<strong>负债</strong>（liabilities），第三堆叫<strong>权益</strong>或<strong>净资产</strong>（equity / net worth）。这三堆的关系永远是一个恒等式：</p>
+
+<div class="calc">
+资产 = 负债 + 权益<br>
+105 万 = 75 万 + 30 万　<span class="r">✓</span>
+</div>
+
+<p>这个等式为什么永远成立？因为它不是一条定律，而是一个定义：<strong>权益就是「资产减负债剩下的那部分」</strong>。你把它移项写成「权益 = 资产 − 负债」，就看出来了。把三堆东西列在一张表上，这张表叫<strong>资产负债表</strong>（balance sheet）。</p>
+
+<p>现在算一个比值：</p>
+
+<div class="calc">
+资产 ÷ 权益 = 105 ÷ 30 = <span class="r">3.5 倍</span>
+</div>
+
+<p><strong>这个比值经济学和金融学里叫杠杆倍数</strong>（leverage ratio）。它的意思是：你在用 30 万自己的钱，操纵 105 万的资产。</p>
+
+<p>杠杆的关键性质是<strong>放大</strong>。看看房价跌 10% 会发生什么：</p>
+
+<div class="calc">
+公寓从 100 万跌到 90 万，资产变成 95 万<br>
+房贷不变，还是 75 万<br>
+权益 = 95 − 75 = <span class="r">20 万</span><br>
+你的净资产从 30 万跌到 20 万，跌了 <span class="r">33.3%</span><br><br>
+房价跌 10%，你的净资产跌 33.3%。放大倍数 = 33.3 ÷ 10 = <span class="r">3.33 倍</span>
+</div>
+
+<p>这个 3.33 和你的杠杆 3.5 很接近（不完全相等是因为分母也在变）。<strong>规律：资产价格变动 1%，权益变动约等于「杠杆倍数」个百分点。</strong>这条规律待会儿会以一个吓人的形式再出现。</p>
+
+<h4>现在换成银行</h4>
+
+<p>银行的资产负债表结构和你的一样，但内容对调了一件很奇怪的事：</p>
+
+<div class="box">
+<p style="margin:0"><strong>你存进银行的钱，在银行的账上是负债，不是资产。</strong></p>
+<p style="margin:8px 0 0">为什么？因为那笔钱银行迟早要还给你。凡是要还的，就是负债。所以「银行有很多存款」的正确读法不是「银行有很多钱」，而是<strong>「银行欠了很多钱」</strong>。这是理解银行的第一个坎，很多人一辈子没跨过去。</p>
+</div>
+
+<p>那银行的资产是什么？是它<strong>把这些借来的钱变成了什么</strong>——放出去的贷款、买入的债券、留在美联储账上的现金。</p>
+
+<p>现在看真实数字。2026 年 6 月 30 日，全美 4,238 家 FDIC 承保机构合并起来：</p>
+
+<figure>
+<svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="美国银行业合并资产负债表结构">
+  <text x="360" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">美国银行业合并资产负债表（2026 年 6 月 30 日，单位：万亿美元）</text>
+
+  <!-- 左：资产 -->
+  <text x="150" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">资产 26.46</text>
+  <rect x="60" y="64" width="180" height="152" fill="var(--solid)" opacity="0.75" stroke="var(--line)"/>
+  <text x="150" y="130" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">净贷款与租赁</text>
+  <text x="150" y="152" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">13.71</text>
+  <text x="150" y="172" text-anchor="middle" font-size="11" fill="#fff">占总资产 51.8%</text>
+
+  <rect x="60" y="216" width="180" height="76" fill="var(--arith)" opacity="0.7" stroke="var(--line)"/>
+  <text x="150" y="248" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">证券组合</text>
+  <text x="150" y="268" text-anchor="middle" font-size="11" fill="#fff">（Q2 明细未查到）</text>
+
+  <rect x="60" y="292" width="180" height="76" fill="var(--muted)" opacity="0.45" stroke="var(--line)"/>
+  <text x="150" y="324" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--fg)">现金、房产、其他</text>
+  <text x="150" y="344" text-anchor="middle" font-size="11" fill="var(--fg)">剩余部分</text>
+
+  <!-- 右：负债+权益 -->
+  <text x="530" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">负债 + 权益 26.46</text>
+  <rect x="440" y="64" width="180" height="196" fill="var(--accent)" opacity="0.68" stroke="var(--line)"/>
+  <text x="530" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">存款（国内）</text>
+  <text x="530" y="162" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">18.97</text>
+  <text x="530" y="182" text-anchor="middle" font-size="11" fill="#fff">其中受保 10.84</text>
+  <text x="530" y="200" text-anchor="middle" font-size="11" fill="#fff">其中未保险 8.13（推算）</text>
+
+  <rect x="440" y="260" width="180" height="70" fill="var(--muted)" opacity="0.45" stroke="var(--line)"/>
+  <text x="530" y="290" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--fg)">海外存款、借款</text>
+  <text x="530" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">其他负债</text>
+
+  <rect x="440" y="330" width="180" height="38" fill="var(--dash)" opacity="0.85" stroke="var(--line)"/>
+  <text x="530" y="347" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">权益资本 2.62</text>
+  <text x="530" y="362" text-anchor="middle" font-size="10.5" fill="#fff">只占总资产 9.92%</text>
+
+  <!-- 中间箭头 -->
+  <path d="M250,200 L430,200" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4"/>
+  <text x="340" y="192" text-anchor="middle" font-size="11.5" fill="var(--muted)">两边必须相等</text>
+</svg>
+<figcaption>证券组合的 Q2 2026 明细（可供出售 / 持有至到期的分拆）我今天没查到——FRED 上这两个系列最新只到 2025 年一季度，FDIC 官网的 PDF 对我返回 403。所以那一块画成了没有数字的方块。灰色「现金、房产、其他」是用总资产减去已知项得到的余额，不是独立查证的数字。</figcaption>
+</figure>
+
+<h4>第一个要算的数：杠杆</h4>
+
+<div class="calc">
+总资产 26,462,210 百万<br>
+权益资本 &nbsp;2,624,826 百万<br><br>
+杠杆倍数 = 26,462,210 ÷ 2,624,826 = <span class="r">10.08 倍</span><br>
+权益占比 = 2,624,826 ÷ 26,462,210 = <span class="r">9.92%</span>
+</div>
+
+<p>停下来体会一下这个数。你买房用 3.5 倍杠杆，已经算是一辈子最大的一笔冒险了。<strong>整个美国银行业的平均杠杆是 10.08 倍。</strong>而且这还是危机后监管收紧了十几年的结果——2007 年危机前，很多机构在 30 倍以上。</p>
+
+<p>套用刚才那条规律：</p>
+
+<div class="calc">
+如果全行业资产贬值 1%：<br>
+损失 = 26,462,210 × 1% = 264,622 百万 = 2,646 亿<br>
+占权益比例 = 264,622 ÷ 2,624,826 = <span class="r">10.08%</span><br><br>
+<b>资产跌 1%，全行业自有资金蒸发 10.08%。</b><br>
+资产跌 9.92%，自有资金<span class="r">全部归零</span>。
+</div>
+
+<p>这不是危言耸听的修辞，这就是除法。<strong>银行这门生意的本质，就是拿别人 10 块钱、自己 1 块钱，去买一堆价格会波动的东西。</strong>所以银行业是被管得最狠的行业——不是因为银行家坏，是因为这个结构天生脆弱。</p>
+
+<p class="q">你可能会想：那为什么不让银行多用自己的钱、少借钱呢？</p>
+
+<p>这正是过去十几年监管界吵得最凶的问题之一，两边都有像样的道理。反对提高资本要求的一方说：权益资本比存款贵得多（股东要求的回报率远高于活期存款利率），逼银行多用权益，会抬高贷款价格、压缩信贷供给，实体经济受损。支持的一方说：这个「贵」有很大一部分是幻觉——政府隐性兜底让银行的债务定价偏低，所谓「便宜的负债」是纳税人在补贴。这场争论今天没有共识，我不会假装有。</p>
+
+<h4>第二个要算的数：验证 ROA 的口径</h4>
+
+<p>报告说 ROA 是 1.37%。<strong>ROA</strong>（Return on Assets，资产回报率）= 净利润 ÷ 总资产。但「总资产」用哪个数？季末的还是平均的？这正是「口径」问题。我们可以直接算出来验证：</p>
+
+<div class="calc">
+季度净利润 901 亿 → 年化 = 901 × 4 = <span class="r">3,604 亿</span><br><br>
+<b>用季末总资产：</b>3,604 ÷ 264,622 = 1.362%<br>
+<b>用季度平均总资产：</b><br>
+　平均 = (26,145,458 + 26,462,210) ÷ 2 = 26,303,834 百万 = 263,038 亿<br>
+　3,604 ÷ 263,038 = <span class="r">1.3701%</span> → 四舍五入 <span class="r">1.37%</span> ✓
+</div>
+
+<p><strong>严丝合缝。</strong>所以 FDIC 的 ROA 用的是季度平均资产，而且我们独立复现了它。这件事的意义不只是「对上了」：它同时证明了 FRED 上那两个总资产数字和二手报道里的净利润、ROA 是同一套账，我可以放心用。</p>
+
+<p>顺带记住这个方法——<strong>拿两个独立来源的数字互相验算，是识别「编出来的数字」最便宜的手段。</strong>编的数字对不上。</p>
+
+<h4>第三个要算的数：那个不进利润表的窟窿</h4>
+
+<p>现在讲今天最重要的一件事。</p>
+
+<p>先说生活里的类比。你 2021 年花 100 万买了一套房，现在市价 85 万。你亏了 15 万吗？<strong>在「我心里觉得亏了」的意义上，是。在「我银行账户少了 15 万」的意义上，没有——你一天没卖，就一分钱没少。</strong></p>
+
+<p>会计上把这两件事分开：<strong>只要没卖，这 15 万叫「未实现亏损」</strong>（unrealized loss）；卖掉的那一刻它变成「已实现亏损」（realized loss）。</p>
+
+<p>银行手里有几万亿美元的债券。债券有个性质你必须先懂：<strong>市场利率上升，已经发行的旧债券价格下跌。</strong></p>
+
+<p>为什么？用一个具体例子推一遍，不要跳。</p>
+
+<div class="box">
+<p><strong>2021 年</strong>：市场利率 1%。银行花 100 元买了一张 10 年期国债，这张债券每年付 1 元利息，10 年后还你 100 元本金。这个交易在当时是公平的：100 元投入，每年拿 1 元，正好 1% 的回报。</p>
+<p><strong>2026 年</strong>：市场利率涨到 4.7%。现在新发行的 10 年国债，花 100 元买，每年付你 4.7 元。</p>
+<p><strong>问题</strong>：现在还有人愿意花 100 元买银行手上那张每年只付 1 元的旧债券吗？</p>
+<p style="margin-bottom:0"><strong>当然不会。</strong>同样 100 元，买新的每年拿 4.7 元，买旧的每年只拿 1 元，没人会选旧的。旧债券要卖得出去，只有一个办法：<strong>降价</strong>。降到什么价格？降到「用这个价格买入、持有到期，总回报率也是 4.7%」为止。</p>
+</div>
+
+<p>降多少呢？做一个简化的估算。旧债券每年比新债券少给 3.7 元（4.7 − 1），还有大约 5 年（假设这张 2021 年买的 10 年期债券现在剩 5 年，<strong>这是示意数字</strong>）。粗略地说，买家要求的补偿约等于：</p>
+
+<div class="calc">
+每年少收 3.7 元 × 剩余 5 年 = <span class="r">约 18.5 元的补偿</span><br>
+所以旧债券的价格大约从 100 元跌到 <span class="r">81.5 元</span>
+</div>
+
+<p>（真实计算要把未来每一笔钱按 4.7% 折算回今天的价值，得到的数会比 81.5 略高一点，因为远期的损失应该打折。但量级就是这个量级，而且这个简化算法正好引出下面这个术语。）</p>
+
+<p>你注意到：<strong>价格跌多少，取决于「利率变了多少」乘以「还剩多少年」。</strong>这个「还剩多少年」在金融学里有个名字，叫<strong>久期</strong>（duration）。你可以先粗略地把它理解成「这张债券的加权平均剩余年限」，它衡量的是<strong>这张债券对利率变化有多敏感</strong>。久期 5 年，意思大致是：利率每上升 1 个百分点，价格跌约 5%。</p>
+
+<div class="calc">
+价格变动百分比 ≈ − 久期 × 利率变动<br><br>
+代入：久期 5 年，利率涨 1 个百分点（100 基点）<br>
+价格变动 ≈ − 5 × 1% = <span class="r">−5%</span><br><br>
+再代入：久期 5 年，利率涨 29 个基点（0.29 个百分点）<br>
+价格变动 ≈ − 5 × 0.29% = <span class="r">−1.45%</span>
+</div>
+
+<p>回到真实数字。<strong>2026 年 6 月 30 日，全美银行业证券组合的未实现亏损是 3,267 亿美元。</strong>把它放到刚才算的杠杆背景里：</p>
+
+<div class="calc">
+未实现亏损 3,267 亿<br>
+全行业权益资本 26,248 亿<br><br>
+3,267 ÷ 26,248 = <span class="r">12.4%</span><br><br>
+<b>如果这些债券今天全部按市价卖掉，全行业自有资金会少掉八分之一。</b>
+</div>
+
+<h4>为什么这个窟窿不出现在利润表上</h4>
+
+<p>这是 E2 里最需要讲透的一步，也是硅谷银行事件的核心。</p>
+
+<p>银行买的债券，在会计上要分类。主要有两类：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>分类</th><th>大白话</th><th>价格跌了怎么记账</th></tr></thead>
+<tbody>
+<tr><td><b>可供出售</b><br>Available for Sale, AFS</td><td>「我可能会卖」</td><td>按市价记在资产负债表上，跌价计入一个叫 <b>AOCI</b> 的科目，<b>不进利润表</b>，但会减少账面权益</td></tr>
+<tr><td><b>持有至到期</b><br>Held to Maturity, HTM</td><td>「我打算拿到期」</td><td>按<b>买入成本</b>记账，市价跌了<b>账上完全不动</b>——只在报表附注里披露</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>AOCI</strong>（Accumulated Other Comprehensive Income，累计其他综合收益）需要单独解释：它是权益里的一个格子，专门放那些「价值变了但还没实现」的东西。你可以把它想成账本上一个写着「潜在盈亏」的抽屉。</p>
+
+<p>然后是关键的一步——<strong>监管资本</strong>和<strong>会计权益</strong>不是一回事。</p>
+
+<p>会计权益是财报上那个数（2.62 万亿）。监管资本是监管机构用来判断「这家银行够不够格营业」的那个数，它是在会计权益的基础上做一堆加减调整算出来的。而美国的资本规则里有一条叫 <strong>AOCI opt-out</strong>（AOCI 豁免选择权）：</p>
+
+<ul>
+<li>2012 年，美国监管机构曾提议：所有银行都要把 AOCI 计入核心一级资本（CET1）。理由是这样才能反映真实风险。</li>
+<li>行业强烈反对。2013 年的最终规则大幅缩窄：只有「高级方法」银行（资产 2,500 亿美元以上，或境外风险敞口 100 亿以上）必须计入；<strong>其余银行可以一次性、永久性地选择「不计入」</strong>。</li>
+<li>2019 年，EGRRCPA 法案后的门槛调整把标准进一步提高到资产 7,000 亿美元。但这一步影响有限——<strong>此时 99% 的美国银行早已选择了豁免。</strong></li>
+</ul>
+
+<p>所以对绝大多数美国银行来说：<strong>AFS 债券跌价会减少会计权益，但不减少监管资本；HTM 债券跌价连会计权益都不减少。</strong>这就是为什么一家银行可以一边报着漂亮的资本充足率，一边坐在一个巨大的窟窿上。</p>
+
+<div class="box">
+<h4>硅谷银行是怎么死的（把上面的零件拼起来）</h4>
+<p>2020–2021 年，SVB 吸收了海量科技公司存款，把钱大量买成长久期债券，很多归到 HTM。2022–2023 年利率暴涨，这些债券市价大跌，但因为是 HTM，<strong>账面上什么都没发生</strong>。</p>
+<p>问题出在负债那一侧：SVB 的存款绝大部分超过 25 万保险上限，也就是<strong>未保险存款</strong>。当储户意识到那个窟窿的存在，他们发现自己的钱没有保险——于是跑。</p>
+<p style="margin-bottom:0">储户跑，银行必须拿出现金。现金从哪来？<strong>只能卖债券。</strong>而卖出的那一刻，未实现亏损变成已实现亏损，直接砸进利润表和资本。<strong>「打算持有到到期」这个前提，被挤兑本身摧毁了。</strong>这就是为什么 HTM 分类在承平时期看起来无害，在挤兑时一文不值。</p>
+</div>
+
+<h4>这条原理的学界分歧（必须讲）</h4>
+
+<p>「未实现亏损该不该进资本」在专业圈里没有定论，两边的论据都不弱：</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>反对计入（维持豁免）</th><th>支持计入</th></tr></thead>
+<tbody>
+<tr><td>会让资本充足率<b>剧烈波动</b>——利率天天变，资本比率跟着天天变，银行没法做长期规划</td><td>它<b>真实反映了利率风险</b>敞口，这个风险是客观存在的，不记账不代表不存在</td></tr>
+<tr><td>可能<b>损害放贷和流动性管理</b>：银行为了稳住资本比率，会不敢持有长债、被迫缩表</td><td>它反映的是<b>特定时点的真实经济状况</b>，会计的目的本来就是如实反映</td></tr>
+<tr><td>如果真能持有到期，这些亏损<b>会自然消失</b>（债券到期按面值兑付），临时的账面波动不该永久损害资本地位</td><td>SVB 证明了「能持有到期」是一个<b>会被挤兑证伪的假设</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>我个人的判断是什么，不重要，也不该写进正文——这是一个至今仍在监管、学界和行业之间拉锯的问题，任何断言都是在替你做判断。<strong>你需要知道的是这场争论存在，以及双方各自站得住的理由。</strong></p>
+
+<h4>那么，这一环什么情况下会断？</h4>
+
+<ul>
+<li><strong>如果利率下降。</strong>未实现亏损会自动缩小甚至转正。事实上它同比已经<strong>缩小了 17.4%</strong>，说明过去一年整体在改善。</li>
+<li><strong>如果银行的存款足够稳定。</strong>只要没人挤兑，银行就真的能把债券拿到到期，窟窿会自己愈合。这也是为什么负债端的结构（下一环）比资产端的窟窿更关键。</li>
+<li><strong>如果这 3,267 亿高度集中在少数几家。</strong>全行业加总的数字会掩盖分布。一个平均值健康、但尾部有几家极端的行业，和一个人人都差一点的行业，风险完全不同。我今天没有分布数据。</li>
+</ul>
+
+<p class="src"><b>这一环的依据：</b>资产、权益、贷款数字来自 <a href="https://fred.stlouisfed.org/series/QBPBSTAS">FRED 上 FDIC 直供的 QBP 系列</a>（2026-08-27 更新）；未实现亏损 3,267 亿来自 <a href="https://www.americanbanker.com/news/banks-put-up-strong-earnings-lending-in-q2">American Banker</a> 转述 FDIC；AOCI 豁免的制度史（2012 提议 / 2013 最终规则 / 2019 门槛调整 / 99% 银行已豁免）来自 <a href="https://bankregblog.substack.com/p/the-aoci-opt-out-revisiting-how-the">bankregblog《The AOCI Opt-Out》，2023-03-12</a>——这是一个专注银行监管的专业博客，不是法规原文，我按二手来源对待；杠杆、ROA 验算、12.4% 比值、久期估算全部是算术推导，久期 5 年和债券剩余 5 年是<b>明确标注的示意数字</b>。</p>
+
+<hr>
+
+<h3><span class="ring">环 ④</span>负债那一侧：受保存款在减少</h3>
+
+<p>刚才讲了资产端的窟窿，现在看负债端——因为决定一家银行生死的，往往不是资产有多烂，而是<strong>负债跑得有多快</strong>。</p>
+
+<p>先做一个减法。FDIC 报的国内存款增长：</p>
+
+<div class="calc">
+18,970,514 − 18,827,804 = <span class="r">142,710 百万 = 1,427 亿</span><br>
+142,710 ÷ 18,827,804 = <span class="r">0.758% → 报告说 +0.8%</span> ✓
+</div>
+
+<p>又对上了。现在看这 1,427 亿的构成：</p>
+
+<div class="calc">
+估计受保存款：<br>
+Q2 10,838,725 − Q1 10,953,137 = <span class="r">−114,412 百万 = −1,144 亿</span><br><br>
+<b>存款总量涨了 1,427 亿，其中受保的部分反而少了 1,144 亿。</b>
+</div>
+
+<p>把这两句话拼起来的含义是：<strong>这个季度新流进银行的钱，全部是没有保险的钱，而且还额外有一批原本受保的钱转成了不受保。</strong></p>
+
+<p>为什么这重要？回到 SVB 那个逻辑：受保存款是「黏」的——反正政府赔，储户没有理由跑。<strong>未保险存款是「热」的</strong>——一有风吹草动，第一个跑的就是它。同样是 1 万亿存款，全部受保和全部未保险，是两种完全不同的银行。</p>
+
+<h4>这里我有一处对不上，必须写出来</h4>
+
+<p>我用 FRED 数据推算未保险存款：</p>
+
+<div class="calc">
+未保险 = 国内存款 − 估计受保存款<br>
+Q2：18,970,514 − 10,838,725 = 8,131,789<br>
+Q1：18,827,804 − 10,953,137 = 7,874,667<br>
+增加 = <span class="r">257,122 百万 = 2,571 亿（+3.27%）</span><br><br>
+<b>但 ABA 转述 FDIC 的口径是 +3,174 亿，American Banker 说 +3.8%。</b><br>
+差距约 <span class="r">600 亿</span>。
+</div>
+
+<p><strong>我不知道这 600 亿的差从哪来，今天也没查实。</strong>最可能的解释是口径不同：FDIC 的「估计未保险存款」是银行在监管报表上<strong>直接填报</strong>的一个专门项目，而不是「国内存款减受保存款」算出来的——两者会因为抵押担保存款、银行自身子公司的内部账户等因素而不一致（FDIC 在 2023 年专门发过一份关于这一项填报口径的机构信函，说明这里确实存在填报差异）。但这只是最可能的解释，我没有验证。</p>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p>我倾向于认为差异来自「填报口径 vs 相减口径」，而不是任何一方的数字有错。<strong>反对的看法</strong>是：也可能 ABA 那句「未保险国内存款 +3,174 亿」引用的是同比而非环比，或者包含了海外办公室存款（海外存款全部不受保，Q1 约 1.72 万亿）。<strong>要判断这一点，需要 FDIC QBP 原始 PDF 里那张存款明细表</strong>——我今天抓不到（fdic.gov 对我返回 403）。</p>
+<p style="margin-bottom:0">不管是哪一种，<strong>方向是一致的：未保险存款在增加。</strong>我在正文里只使用方向，不使用具体幅度。</p>
+</div>
+
+<h4>顺手验证一下存款保险基金</h4>
+
+<p>报告说存款保险基金（DIF）余额 1,611 亿，准备金率 1.48%。准备金率的定义是「基金余额 ÷ 全部估计受保存款」。我们用刚才的受保存款数验一下：</p>
+
+<div class="calc">
+161,100 ÷ 10,838,725 = <span class="r">1.486% → 1.48% ✓</span>
+</div>
+
+<p>对上了。这同时印证了 FRED 那个受保存款数字是可靠的。</p>
+
+<p>顺带体会一下这个比例的含义：<strong>存款保险基金只有受保存款的 1.48%。</strong>它设计上从来不是用来应付系统性危机的，只是用来应付零星倒闭的。真出大事，靠的是财政部和美联储，不是这 1,611 亿。</p>
+
+<p class="src"><b>这一环的依据：</b>存款数据来自 <a href="https://fred.stlouisfed.org/series/QBPBSTLKDPDOFFDP">FRED QBPBSTLKDPDOFFDP</a> 与 <a href="https://fred.stlouisfed.org/data/QBPBSTLKDPDOFFDPESTIDP">QBPBSTLKDPDOFFDPESTIDP</a>；DIF 余额与准备金率来自 <a href="https://bankingjournal.aba.com/2026/08/quarterly-banking-profile-banking-net-income-90-1b-in-q2-2026/">ABA Banking Journal</a>；所有减法和除法都是算术推导，你可以自己复算；600 亿的差是<b>我明确承认没查实的地方</b>。</p>
+
+<hr>
+
+<h3><span class="ring">环 ⑤</span>互惠存款：把未保险的钱「变成」受保的钱</h3>
+
+<p>现在这条新规就好懂了。</p>
+
+<p>先看问题。假设你是一家新加坡公司在美国的财务主管，公司在某家美国区域银行有 500 万美元活期。保险上限是 25 万。<strong>你有 475 万是裸奔的。</strong></p>
+
+<p>笨办法：跑 20 家银行各开一个户。麻烦到没人愿意做。</p>
+
+<p><strong>互惠存款网络</strong>（reciprocal deposit network）做的就是把这件麻烦事自动化。达拉斯联储给的例子（我把它的 50 万改成 500 万，机制一样）：</p>
+
+<figure>
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="互惠存款网络机制">
+  <text x="360" y="20" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--fg)">互惠存款网络：钱兜了一圈，回到原点</text>
+
+  <rect x="20" y="46" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="95" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">你的公司</text>
+  <text x="95" y="92" text-anchor="middle" font-size="11.5" fill="var(--muted)">存入 500 万</text>
+
+  <rect x="285" y="46" width="150" height="60" rx="8" fill="var(--accent)" opacity="0.75" stroke="var(--line)"/>
+  <text x="360" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">A 银行（你的银行）</text>
+  <text x="360" y="92" text-anchor="middle" font-size="11.5" fill="#fff">加入了互惠网络</text>
+
+  <rect x="550" y="46" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="625" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">网络里的其他银行</text>
+  <text x="625" y="92" text-anchor="middle" font-size="11.5" fill="var(--muted)">B、C、D…共 20 家</text>
+
+  <line x1="172" y1="76" x2="281" y2="76" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+
+  <path d="M437,64 L546,64" stroke="var(--solid)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="491" y="56" text-anchor="middle" font-size="10.5" fill="var(--muted)">送出 475 万</text>
+  <text x="491" y="42" text-anchor="middle" font-size="10.5" fill="var(--muted)">拆成 19 份×25 万</text>
+
+  <path d="M546,92 L437,92" stroke="var(--dash)" stroke-width="2.5" marker-end="url(#ahd)"/>
+  <text x="491" y="110" text-anchor="middle" font-size="10.5" fill="var(--muted)">同时收回等额 475 万</text>
+  <text x="491" y="124" text-anchor="middle" font-size="10.5" fill="var(--muted)">（来自它们的客户）</text>
+
+  <rect x="60" y="164" width="600" height="112" rx="8" fill="var(--card2)" stroke="var(--line)"/>
+  <text x="360" y="188" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--fg)">结果（三方都没损失什么）</text>
+  <text x="80" y="212" font-size="11.5" fill="var(--fg)">· 你的公司：500 万<b>全部受 FDIC 保险</b>，利率还是 A 银行原来给的那个利率</text>
+  <text x="80" y="234" font-size="11.5" fill="var(--fg)">· A 银行：账上存款<b>还是 500 万</b>——送出去 475 万，收回来 475 万，净额不变</text>
+  <text x="80" y="256" font-size="11.5" fill="var(--fg)">· 网络：收 12–15 个基点的手续费</text>
+</svg>
+<figcaption>关键在于「互惠」两个字：A 银行把钱送出去的同时，等额地把别家的钱收回来。所以 A 银行的资金规模一分钱没少，客户却拿到了全额保险。</figcaption>
+</figure>
+
+<p class="q">你可能会想：这不就是钻空子吗？监管怎么允许？</p>
+
+<p>监管确实为此纠结了很多年，这就是<strong>经纪存款</strong>（brokered deposits）规则的来历。</p>
+
+<p>大白话先行：有一类存款不是储户自己走进网点存的，而是通过中介、平台撮合过来的。这种钱哪家利率高就去哪家，没有客户关系，<strong>一有更好的价格就走</strong>。历史上（尤其是 1980 年代的储贷危机里），快要不行的银行常常靠高息招揽这种钱来续命，结果把窟窿捅得更大。<strong>所以监管给它起名叫「经纪存款」，并且规定：资本不达标的银行不许吸收，同时所有银行的这类存款要交更高的存款保险费。</strong></p>
+
+<p>问题在于，互惠存款从形式上看也是「通过中介撮合到别家去的」，会被扫进经纪存款。但它的经济实质完全不同——<strong>客户是本地的、关系是真实的、利率是本行原本的利率，不存在追高息的动机</strong>（达拉斯联储明确指出这一点）。</p>
+
+<p>于是 2018 年国会开了一个口子：低风险、资本充足的银行，互惠存款在<strong>「50 亿美元」与「总负债的 20%」两者较小值</strong>之内，不算经纪存款。</p>
+
+<p>这个口子的问题是「50 亿」这个绝对数字，对小银行绰绰有余，对中型银行很快就不够用了。<strong>8 月 27 日的新规就是把它换成按负债规模分层、最高 300 亿的算法。</strong></p>
+
+<div class="calc">
+旧上限（绝对数部分）：50 亿<br>
+新上限（最高档）：300 亿<br>
+放大倍数 = 300 ÷ 50 = <span class="r">6 倍</span>
+</div>
+
+<p>规模感：达拉斯联储的数据显示，互惠存款 2022 年底约 1,570 亿，2023 年二季度（SVB 事件后那个季度）超过 3,000 亿，2025 年一季度 4,220 亿。<strong>三年不到翻了 2.7 倍。</strong>网络费率 12–15 个基点，全系统一年约 5–6 亿美元的成本。</p>
+
+<p>对照今天的数字：全行业经纪存款 Q2 2026 为 1.2275 万亿。</p>
+
+<div class="calc">
+1,227,504 ÷ 18,970,514 = <span class="r">占国内存款的 6.47%</span>
+</div>
+
+<h4>什么情况下这一环会断</h4>
+
+<ul>
+<li><strong>如果新上限对绝大多数银行本来就不构成约束</strong>，那这条规则就只是纸面变化。达拉斯联储 2025 年的数据显示，100 亿以下的银行互惠存款占其存款约 6.47%，10–1000 亿的银行约 6.2%——离 20% 那条线还很远。<strong>所以真正被 50 亿绝对上限卡住的，只有那些规模够大、互惠存款占比又高的中型银行。</strong>这条规则的受益面可能比标题看起来窄。</li>
+<li><strong>如果客户根本不在乎保险。</strong>在长期没有银行倒闭的年份里，企业财务主管未必愿意为保险付那 12–15 个基点。互惠存款的需求本身是顺周期的。</li>
+</ul>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>我很想把「未保险存款上升 → 所以 FDIC 放宽互惠存款」写成一条因果链，但这是站不住的。</strong>这条规则是在执行 2026 年 7 月已经生效的法律（ROAD to Housing Act 第 902 条），法律的立法过程远早于 8 月 25 日的数据发布。时间顺序上，8/25 → 8/27 看起来像因果，实际上不是。<strong>这正是本课程反复警告的「事后叙事」——两件事挨得近，配一个听起来合理的说辞，永远成立，永远无法证伪。</strong></p>
+<p style="margin-bottom:0">更弱、但可能成立的说法是：两者<strong>共同反映</strong>了 2023 年 SVB 之后的一个持续压力——未保险存款的规模让现有的存款保险框架显得不够用，立法和市场都在往同一个方向走。这个说法我也没有证据，只是它至少不假装存在因果。</p>
+</div>
+
+<p class="src"><b>这一环的依据：</b>新规内容与 300 亿上限来自 <a href="https://bankingjournal.aba.com/2026/08/fdic-updates-rules-on-reciprocal-deposits/">ABA Banking Journal，2026-08-27</a>，由 <a href="https://www.paulhastings.com/insights/ph-fedaction-financial-regulatory-updates-homepage/daily-financial-regulation-update-friday-august-28-2026">Paul Hastings 8/28 简报</a>独立确认；机制、旧上限（50 亿/20%）、规模数据、12–15 基点费率来自 <a href="https://www.dallasfed.org/research/economics/2023/1128">达拉斯联储 2023-11-28</a> 与 <a href="https://www.dallasfed.org/research/economics/2025/0805">达拉斯联储 2025-08-05</a>；6 倍和 6.47% 是算术推导。</p>
+
+<hr>
+
+<h3><span class="ring">环 ⑥</span>8 月 28 日之后：那张照片已经旧了</h3>
+
+<p>把前面所有东西装到一起，看今天这个位置。</p>
+
+<p>FDIC 那份报告拍的是 <strong>6 月 30 日</strong>的照片。那天 10 年期国债收益率的周均值是 4.44%。8 月 28 日收盘是 4.728%。</p>
+
+<div class="calc">
+4.728% − 4.44% = <span class="r">约 +0.288 个百分点 = 约 +29 个基点</span>
+</div>
+
+<div class="box tight">
+<p style="margin:0"><strong>口径警告：</strong>4.44% 是 <b>6 月最后一周的周均值</b>，4.728% 是 <b>8 月 28 日单日收盘</b>。两者测量方式不同（周均 vs 单日），不能当成精确的日对日比较。所以我写「约 29 个基点」，并且下面只用它做量级估算，不做结论。</p>
+</div>
+
+<p>用久期公式估一下这 29 个基点意味着什么：</p>
+
+<div class="calc">
+<b>以下全部是示意计算，用于建立量级感，不是查到的数据：</b><br>
+假设银行证券组合规模 5.5 万亿（<b>示意</b>——FRED 上 AFS+HTM 最新只到 2025 年初，当时约 5.5 万亿，Q2 2026 的真实值我没查到）<br>
+假设组合平均久期 5 年（<b>示意</b>——真实久期我没有来源）<br><br>
+价格变动 ≈ −5 × 0.29% = −1.45%<br>
+5.5 万亿 × 1.45% = <span class="r">约 800 亿美元</span>
+</div>
+
+<p><strong>再强调一次：800 亿这个数你不能引用。</strong>它的两个输入都是我编的示意值。它唯一的用处是告诉你：<strong>29 个基点的利率变化，对应的是「几百亿到一千亿」这个量级，不是「几亿」，也不是「几万亿」。</strong>知道量级，比不知道好；把示意值当数据用，比不知道更糟。</p>
+
+<p>方向是确定的、有出处的：利率从 6/30 到 8/28 上升了，所以那 3,267 亿的未实现亏损，今天比报告里写的更大。<strong>幅度未知。</strong></p>
+
+<p>再看曲线形状的变化：</p>
+
+<div class="calc">
+8/27：10 年 4.67% − 2 年 4.20% = <span class="r">47 个基点</span>（H.15 官方数据）<br>
+8/28：10 年 4.728% − 2 年 4.35% = <span class="r">37.8 个基点</span><br><br>
+一天之内曲线<span class="r">扁平了约 9 个基点</span>
+</div>
+
+<p>为什么会扁平？因为 Warsh 讲的是<strong>短期政策利率</strong>可能要上调。2 年期主要反映未来两年的政策利率路径，所以它跳了 12 个基点；10 年期还包含更长期的增长和通胀预期，只跳了 5.6 个基点。</p>
+
+<p>这对银行是双向的：</p>
+<ul>
+<li><strong>坏的一面</strong>：曲线扁平 = 银行赚的坡度变窄。而且加息会直接抬高存款成本（银行必须跟着提高存款利率才留得住钱），而贷款重定价通常更慢。</li>
+<li><strong>另一面</strong>：加息也会提高新发放贷款和新买债券的收益率。哪一面占上风，取决于这家银行的资产和负债各自的重定价速度——这在银行业叫「利率敏感性缺口」，是另一天的题目。</li>
+</ul>
+
+<h4 style="color:var(--dash)">这里我接不上</h4>
+
+<p><strong>我今天没能查到 8 月 28 日银行板块的具体表现</strong>（KRE 区域银行 ETF、KBW 银行指数、金融板块的当日涨跌幅），几次搜索只返回实时报价页，没有当日收盘的定值。我看到的唯一相关读数是<strong>罗素 2000 小盘股指数当日 −1.39%</strong>，明显弱于标普 500 的 −0.25%——区域银行在罗素 2000 里权重不低，但我<strong>不能</strong>由此推断银行股跌了多少，因为罗素 2000 里同时有大量对利率敏感的非银行小盘股，这个下跌完全可能来自别处。</p>
+
+<p><strong>所以这条链在这里断掉，我不用推测去搭桥。</strong>要接上它，需要 8 月 28 日 KRE 或 KBW Bank Index 的收盘数据。</p>
+
+<p class="src"><b>这一环的依据：</b>6 月末 10 年期周均值 4.44% 来自 <a href="https://www.advisorperspectives.com/dshort/updates/2026/07/01/10-year-treasury-yield-long-term-perspective-june-2026">Advisor Perspectives，2026-07-01</a>；8/27 收益率来自 <a href="https://www.federalreserve.gov/releases/h15/">H.15</a>；8/28 收盘来自 <a href="https://investrade.com/market-review-august-28-2026/">Investrade</a>；Warsh 讲话来自 <a href="https://www.npr.org/2026/08/28/nx-s1-5947903/federal-reserve-inflation-jackson-hole-interest-rates">NPR</a>。久期估算是<b>标注了示意值的算术推导</b>；曲线扁平化是减法。银行板块反应<b>未查实，明写为断点</b>。</p>
+
+<h2>4｜对你意味着什么</h2>
+
+<div class="box tight">
+<p style="margin:0"><strong>先说清楚：下面是教学分析和判断框架，不是针对你个人情况的投资建议。</strong>我不了解你的全部财务状况、风险承受能力和税务安排，也不会给出「该买什么」的结论。这一节的目的，是让你以后自己看到类似消息时，知道该问哪些问题。</p>
+</div>
+
+<h4>一、你在新加坡的存款，保险规则不一样</h4>
+
+<p>今天讲的 25 万美元是<strong>美国</strong>的规则。新加坡有自己的存款保险制度（Deposit Insurance Scheme，由新加坡存款保险公司 SDIC 管理），保额和覆盖范围与美国不同。<strong>这不是可以类推的东西——每个国家的额度、覆盖的账户类型、是按人还是按账户，都不一样。</strong></p>
+
+<p><strong>今天你能做的事很小但很实在：去确认你自己的银行、你自己的账户类型，具体受保额度是多少。</strong>我不在这里给数字，因为这类额度会调整，你应该从 SDIC 官网确认当前值，而不是记住我说的一个数。</p>
+
+<h4>二、这一课改变的是你「读财报」的方式，不是你的持仓</h4>
+
+<p>你的资产以美股为主。假设某天你在看一家美国银行股，或者持有的某个 ETF 里有大量银行股，今天这一课给了你四个具体的检查项：</p>
+
+<ol>
+<li><strong>翻到未实现亏损那一栏，除以权益。</strong>全行业平均是 12.4%。一家银行如果是 40%，它和行业平均是两种生物。这个数不在利润表上，通常在证券投资的附注里。</li>
+<li><strong>看 HTM 占证券组合的比例。</strong>HTM 越多，账面越好看，真实的利率风险越被掩盖。</li>
+<li><strong>看未保险存款占总存款的比例。</strong>这是「负债有多热」的直接度量。SVB 的这个比例极高。</li>
+<li><strong>看利润增长里有多少来自拨备减少。</strong>这不是赚来的，是少留的。</li>
+</ol>
+
+<p>这四项都不需要你会估值模型，只需要会做除法。<strong>而且它们中的任何一项，都不会出现在券商研报的摘要页上。</strong></p>
+
+<h4>三、汇率这一层今天不适用，但要知道它在哪</h4>
+
+<p>你收入是新元、资产是美元，中间隔着汇率。今天的事件对 USDSGD 有没有影响？<strong>我不知道，因为我今天没查到 8 月 28 日的 USDSGD 收盘价</strong>（几个来源都返回实时页面或 403）。我只知道美元指数 DXY 当日 +0.5%——但 DXY 里没有新元，不能直接推出 USDSGD 怎么走。</p>
+
+<p><strong>不能推的东西就不推。</strong>汇率暴露是 D 领域的题目（D23 专门讲新加坡投资者持有美股的汇率暴露），轮到那天再展开。</p>
+
+<h4>四、最该带走的一句话</h4>
+
+<p><strong>「这家机构报出来的利润」和「这家机构的账本有多结实」是两回事，而且第二件事通常不在头条里。</strong>今天 FDIC 的头条是「银行业赚了 901 亿，创同比 28.7% 的增长」。同一份报告里还写着 3,267 亿的未实现亏损、受保存款下降 1,144 亿。这三个数字都是真的，只有第一个上了标题。</p>
+
+<h2>5｜反向倒推</h2>
+
+<p>先说清楚这一节在干什么。前面五节是<strong>顺着推</strong>：发生了 A，所以会有 B。现在<strong>倒过来问</strong>：市场现在的价格，说明大家心里在赌什么？</p>
+
+<p>这是两个方向完全相反的思维动作，而且倒推更难，因为它要求你把价格当成「一堆假设的加权平均」来读，而不是当成一个事实。</p>
+
+<h4>市场现在已经把什么定价进去了</h4>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>价格读数</th><th>它反映了什么假设</th><th>为什么能这么读</th></tr></thead>
+<tbody>
+<tr>
+<td>1 年期国库券 3.86% &gt; 联邦基金有效利率 3.63%（8/27）</td>
+<td>市场认为未来一年的平均隔夜利率会<b>高于</b>今天</td>
+<td>1 年期国库券的收益率，大致等于「未来一年里逐日隔夜利率的平均值」加上一个期限补偿。如果市场认为利率会跌，这个数应该低于 3.63%</td>
+</tr>
+<tr>
+<td>2 年 4.20%（8/27）→ 4.35%（8/28）</td>
+<td>加息路径被<b>显著上修</b></td>
+<td>2 年期几乎纯粹反映政策利率路径预期，受长期增长预期影响小</td>
+</tr>
+<tr>
+<td>9 月加息概率从约 33% 升到 50% 以上</td>
+<td>市场认为下次会议就动手是<b>五五开</b></td>
+<td>这个概率是从联邦基金期货价格反推出来的</td>
+</tr>
+<tr>
+<td>黄金单日 −2.88%</td>
+<td>与「实际利率上升」一致</td>
+<td>黄金不生息，持有它的机会成本就是实际利率。实际利率上升，黄金变得更不划算</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>把 1 年和 2 年的收益率放在一起，可以算出市场对「一年之后的一年期利率」的定价。这个数叫<strong>隐含远期利率</strong>（implied forward rate）。</p>
+
+<p>先说这个算法的逻辑，用生活例子。你要存两年钱，有两个选择：(a) 直接存两年期，年利率 4.20%；(b) 先存一年期 3.86%，一年后再存一年。如果市场是有效的，这两条路的两年总收益应该差不多——否则所有人都会挤到收益高的那条路上，把它的收益压下来。</p>
+
+<div class="calc">
+路径 (a) 两年总增长：1.0420 × 1.0420 = <span class="r">1.085764</span><br>
+路径 (b) 两年总增长：1.0386 × (1 + x)<br><br>
+令两者相等：1.0386 × (1 + x) = 1.085764<br>
+1 + x = 1.085764 ÷ 1.0386 = 1.045412<br>
+x = <span class="r">4.54%</span>
+</div>
+
+<p><strong>市场今天的定价说：一年之后，一年期利率大约是 4.54%，比今天的 3.86% 高 68 个基点。</strong></p>
+
+<div class="box tight">
+<p style="margin:0"><strong>这个推导有一个必须说的漏洞。</strong>上面假设「两条路收益相等」，但现实里长债还要额外补偿一个东西：把钱锁两年比锁一年更没自由，投资者会要求补偿。这个补偿叫<b>期限溢价</b>（term premium）。所以 4.54% 里混着「预期的利率」和「期限溢价」两部分，我无法把它们分开——分开需要模型，而不同模型给出的结果差异很大。<b>所以 4.54% 是市场定价的一个上界式读数，不等于市场真的预期利率会到 4.54%。</b></p>
+</div>
+
+<h4>哪个假设最脆弱</h4>
+
+<p>我认为最脆弱的是这一条：<strong>「通胀 3.4% 是需要加息来压的」。</strong></p>
+
+<p>为什么脆弱？看 BLS 那份数据的内部结构：</p>
+
+<div class="calc">
+整体 CPI 同比　<span class="r">+3.4%</span><br>
+核心 CPI（剔除食品与能源）同比　<span class="r">+2.5%</span><br>
+两者差距　<span class="r">0.9 个百分点</span>
+</div>
+
+<p>核心比整体低了将近一个百分点，意思是<strong>把通胀顶到 3.4% 的主要是食品和能源，而不是广泛的、由需求驱动的涨价。</strong>而且核心还在下行（7 月 2.5%，6 月 2.6%）。</p>
+
+<p>加息压得住需求驱动的通胀，压不住能源供给冲击——加息不会让油井多产油。<strong>如果 3.4% 里的大部分是能源，那么加息的成本（压制经济、加剧银行的未实现亏损）可能超过它的收益。</strong></p>
+
+<h4>如果这个假设错了，价格该怎么走</h4>
+
+<p>如果后续数据显示通胀压力确实主要来自能源、核心继续回落，那么：加息预期回落 → 2 年期收益率下行 → 曲线重新陡峭化 → 银行的未实现亏损收窄、息差改善。这是可以事先说出来的路径。</p>
+
+<h4>用那个检验问一遍</h4>
+
+<div class="box">
+<p><strong>检验：这套说法在事情发生之前，能不能用来做预测？</strong></p>
+<p>我认为可以，因为它给出了<strong>可证伪的具体条件</strong>：如果 8 月、9 月的核心 CPI 继续低于 2.6% 而整体 CPI 高于 3%，那么「加息是必要的」这个假设就变弱，2 年期收益率应该回落。如果反过来，核心 CPI 掉头上行到 2.8% 以上，那么加息预期应该进一步上修。<strong>两个方向我都预先说了会看到什么。</strong></p>
+<p style="margin-bottom:0"><strong>而我在环 ⑤ 明确拒绝写的那条（「未保险存款上升 → 所以 FDIC 放宽互惠存款」），就通不过这个检验</strong>——它只能解释已经发生的事，无法用来预测下一条规则会是什么。这就是叙事和机制的区别。</p>
+</div>
+
+<h4>未来 1–3 个月的证实/证伪清单</h4>
+
+<ol>
+<li><strong>9 月的 FOMC 会议</strong>——加息、不加息，还是修改前瞻指引？这是对 50% 那个概率最直接的检验。</li>
+<li><strong>8 月和 9 月的 CPI（BLS，每月中旬发布）</strong>——特别盯核心同比。核心继续下、整体高，支持我上面的判断；核心掉头向上，则我错了。</li>
+<li><strong>FDIC 三季度 QBP（约 11 月底发布，数据截止 9 月 30 日）</strong>——三个要看的：未实现亏损是不是随利率上行而扩大、受保存款是不是继续下降、经纪存款和互惠存款的规模变化（互惠新规的第一次实证检验）。</li>
+<li><strong>互惠存款新规在联邦公报的正式刊登</strong>——刊登后 30 天生效，届时才有分层上限的具体条文。</li>
+</ol>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h4>今天这条链体现的思维方式：先看结构，再看数字</h4>
+
+<p>今天全篇最有用的一个动作，不是任何一个数字，而是<strong>「资产 ÷ 权益 = 10.08」</strong>这个除法。</p>
+
+<p>这个动作的普遍形式是：<strong>先算出一个系统的「放大倍数」，再看冲击有多大。</strong>因为在一个有杠杆的系统里，「冲击的绝对大小」几乎不重要，重要的是「冲击 × 放大倍数」相对于「缓冲垫」有多大。3,267 亿美元听起来很多，但只有除以 26,248 亿的权益，得到 12.4%，你才知道它意味着什么。</p>
+
+<p><strong>跨领域例子一（性能工程）</strong>：一个系统里某个环节的延迟从 1ms 涨到 2ms，是灾难还是无所谓？取决于放大倍数——如果每个请求要串行调它 200 次，那就是 +200ms；如果调 1 次，那就是 +1ms。同样的绝对变化，量级差 200 倍。<strong>先找放大倍数，再看变化量。</strong></p>
+
+<p><strong>跨领域例子二（个人财务）</strong>：你的储蓄率从 30% 提高到 35%，看起来只涨了 5 个百分点。但从「多久能财务自由」的角度，放大倍数很大——因为它同时提高了分子（每年存下的钱）和降低了分母（每年要花的钱，也就是需要覆盖的目标）。这是 G3 的题目。</p>
+
+<h4>今天这条链在整个系统里的位置</h4>
+
+<p>银行资产负债表是<strong>利率、信用、增长三个板块的交汇点</strong>：</p>
+
+<ul>
+<li><strong>接利率（A 领域）</strong>：央行的政策利率经过银行的资产负债表，才变成你实际能拿到的房贷利率和存款利率。银行是货币政策的传导管道——A3「从隔夜利率到房贷」讲的就是这一段。如果银行因为资本受损而不敢放贷，降息也传不下去。</li>
+<li><strong>接信用（E 领域自身）</strong>：银行的贷款是企业和家庭的负债。银行资产负债表收缩，就是全社会的信用收缩。这是 E26「信贷周期与经济周期」和 E28「金融加速器」的核心。</li>
+<li><strong>接增长（B 领域）</strong>：信用收缩压制投资和消费，进而压制 GDP。反过来，GDP 走弱推高坏账，又打击银行资本。这是一个<strong>反馈回路</strong>，而且是正反馈——往哪个方向走都会自我强化。</li>
+<li><strong>接汇率（D 领域）</strong>：美国的银行体系同时是全球美元体系的一部分。美国银行收缩，全球的美元流动性跟着紧。这是 D14「离岸美元体系」和 D15「全球美元荒」的起点。</li>
+</ul>
+
+<p>换句话说：<strong>你今天学的这张表，是四大板块咬合的那个齿轮。</strong>这也是为什么 2008 年、2023 年这两次，问题都是从银行的资产负债表上开始，然后蔓延到所有地方。</p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>术语</th><th>一句话大白话</th><th>出现在哪一环</th></tr></thead>
+<tbody>
+<tr><td>基点<br>basis point / bp</td><td>0.01 个百分点。发明它是为了消除「涨了 0.5%」的歧义</td><td>环 ①</td></tr>
+<tr><td>收益率曲线<br>yield curve</td><td>把不同期限的国债利率画成一条线。今天是向上倾斜的</td><td>环 ①</td></tr>
+<tr><td>净息差<br>Net Interest Margin, NIM</td><td>银行收到的利息减去付出的利息，除以生息资产。银行的「毛利率」</td><td>环 ②</td></tr>
+<tr><td>拨备<br>provision</td><td>放贷时预先从利润里扣掉、用来对付将来坏账的钱。少提拨备会让利润变好看</td><td>环 ②</td></tr>
+<tr><td>资产负债表<br>balance sheet</td><td>把「拥有的」「欠别人的」「真正属于自己的」列成一张表。三者永远满足：资产 = 负债 + 权益</td><td>环 ③</td></tr>
+<tr><td>杠杆倍数<br>leverage ratio</td><td>总资产 ÷ 权益。它是冲击的放大倍数。美国银行业 = 10.08 倍</td><td>环 ③</td></tr>
+<tr><td>ROA<br>Return on Assets</td><td>年化净利润 ÷ 平均总资产。注意分母是<b>平均</b>，不是期末</td><td>环 ③</td></tr>
+<tr><td>未实现亏损<br>unrealized loss</td><td>东西跌价了但你还没卖，所以现金没少。一卖就变成真金白银的损失</td><td>环 ③</td></tr>
+<tr><td>久期<br>duration</td><td>债券对利率变化的敏感度。粗略说：利率涨 1 个百分点，价格跌「久期」个百分点</td><td>环 ③、⑥</td></tr>
+<tr><td>AFS / HTM</td><td>「我可能会卖」的债券按市价记账；「我打算拿到期」的债券按买入成本记账，跌了账上不动</td><td>环 ③</td></tr>
+<tr><td>AOCI<br>累计其他综合收益</td><td>权益里专门放「价值变了但还没实现」的那个抽屉</td><td>环 ③</td></tr>
+<tr><td>AOCI 豁免<br>AOCI opt-out</td><td>2013 年起，绝大多数美国银行可以选择「不把 AFS 跌价计入监管资本」。99% 的银行选了</td><td>环 ③</td></tr>
+<tr><td>未保险存款<br>uninsured deposits</td><td>超过存款保险上限、没有政府兜底的那部分存款。最容易跑的钱</td><td>环 ④</td></tr>
+<tr><td>经纪存款<br>brokered deposits</td><td>通过中介撮合来的、追高息的存款。监管对它有额外限制</td><td>环 ⑤</td></tr>
+<tr><td>互惠存款<br>reciprocal deposits</td><td>银行之间等额交换大额存款，把它拆成 25 万以下的小份，让客户全额受保、而银行的资金规模不变</td><td>环 ⑤</td></tr>
+<tr><td>隐含远期利率<br>implied forward rate</td><td>从今天不同期限的利率，反推市场对「将来某段时间的利率」的定价</td><td>第 5 节</td></tr>
+<tr><td>期限溢价<br>term premium</td><td>把钱锁得更久所要求的额外补偿。它混在长期利率里，很难拆出来</td><td>第 5 节</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<h4>三道思考题</h4>
+
+<p class="q">题 1：一家银行总资产 1,000 亿，权益 80 亿。它持有的债券未实现亏损 30 亿。请问：(a) 杠杆倍数是多少？(b) 未实现亏损占权益的比例？(c) 如果这些债券被迫全部按市价卖出，杠杆倍数变成多少？</p>
+
+<details>
+<summary>展开参考答案</summary>
+<p><strong>(a)</strong> 杠杆 = 总资产 ÷ 权益 = 1,000 ÷ 80 = <strong>12.5 倍</strong>。</p>
+<p><strong>(b)</strong> 30 ÷ 80 = <strong>37.5%</strong>。远高于今天算出来的全行业 12.4%，这是一家风险显著偏高的银行。</p>
+<p><strong>(c)</strong> 这一步要小心，很多人会算错。卖出后发生两件事：</p>
+<ul>
+<li>亏损被实现，权益减少 30 亿：80 − 30 = <strong>50 亿</strong></li>
+<li><b>资产也同时减少 30 亿</b>。为什么？因为债券原本在账上记的是成本价（比如 200 亿），卖出只收回 170 亿现金。资产从 1,000 亿变成 970 亿。</li>
+</ul>
+<p>（如果你只减了权益没减资产，你就破坏了「资产 = 负债 + 权益」这个恒等式——负债一分钱没变，所以资产和权益必须减掉同样的数。这是个很好的自检技巧。）</p>
+<div class="calc">
+新杠杆 = 970 ÷ 50 = <span class="r">19.4 倍</span>
+</div>
+<p>杠杆从 12.5 倍跳到 19.4 倍。<strong>这就是被迫卖出的可怕之处：它不但吃掉资本，还同时抬高杠杆，让银行对下一次冲击更脆弱。</strong>这个自我强化的过程有个名字，叫「去杠杆螺旋」（E14 的题目）。</p>
+</details>
+
+<p class="q">题 2：某银行有 100 亿存款，其中 70 亿未保险。它加入互惠存款网络，把 60 亿的未保险存款做成互惠存款。请问操作完成后：(a) 它的存款总额是多少？(b) 未保险存款是多少？(c) 这家银行的资产负债表规模变了吗？(d) 它承担了什么新的成本？</p>
+
+<details>
+<summary>展开参考答案</summary>
+<p><strong>(a) 还是 100 亿。</strong>这是互惠存款最容易被误解的地方。银行送出去 60 亿的同时，从网络里等额收回 60 亿别家客户的钱。<strong>送出 60，收回 60，净变化为零。</strong></p>
+<p><strong>(b) 10 亿。</strong>原来 70 亿未保险，其中 60 亿通过网络拆成了 25 万以下的小份、分散到多家银行，全部变成受保。剩下 70 − 60 = 10 亿。</p>
+<p><strong>(c) 没变，还是 100 亿存款支撑的同样规模。</strong>这正是互惠存款对银行的吸引力所在：如果只是让客户自己去别家开户，这 60 亿就<b>真的流失了</b>，银行的资产负债表会缩水 60%。互惠机制让银行留住了资金规模，同时给了客户保险。</p>
+<p><strong>(d) 网络手续费。</strong>达拉斯联储给的费率是 12–15 个基点。按 60 亿算：</p>
+<div class="calc">
+60 亿 × 0.13%（取 12–15bp 的中值，<b>示意</b>） = <span class="r">约 780 万美元／年</span>
+</div>
+<p>此外还有一个不那么显眼的成本：这些存款是否算「经纪存款」，会影响它的存款保险费率——而这正是 8 月 27 日那条新规在处理的问题。</p>
+</details>
+
+<p class="q">题 3：假设你看到一条新闻：「某银行 Q3 净利润同比增长 40%，创历史新高。」你已知它的不良贷款率同比上升了 20 个基点。请问这两条信息矛盾吗？你会去查哪三个数字来判断这个利润增长的质量？</p>
+
+<details>
+<summary>展开参考答案</summary>
+<p><strong>不矛盾，但高度可疑。</strong>不良率上升意味着资产质量在恶化，正常情况下银行应该<b>增加</b>拨备，这会压低利润。利润却大涨 40%，说明利润的来源在别处，或者拨备的计提不够。</p>
+<p>要查的三个数字：</p>
+<ol>
+<li><strong>拨备（provision）同比变化。</strong>如果不良率在上升而拨备在下降，这是最强的警号——银行在用「乐观的坏账假设」制造利润。今天正文里讲过，FDIC 明确把二季度全行业的利润增长部分归因于「拨备减少」，那是在不良率<b>下降</b>的背景下，所以说得通；如果不良率在上升，同样的动作就说不通了。</li>
+<li><strong>拨备覆盖率</strong>（贷款损失准备 ÷ 不良贷款）。这个比值直接回答「预留的钱够不够赔」。今天我们用算术推出全行业的准备/贷款约 1.63%，而不良率 1.44%——覆盖率大致是 1.63 ÷ 1.44 ≈ 1.13 倍。低于 1 就意味着预留不足。</li>
+<li><strong>一次性收益。</strong>比如出售资产、出售证券的获利、出售业务线。这些是不可重复的。FDIC 也把二季度的利润增长归因中列了「证券出售获利」——这一项明年不一定还有。</li>
+</ol>
+<p>这三个数字都不在新闻标题里，都在财报正文和附注里。<strong>这道题的真正答案是：一个不带出处和分解的「利润增长 40%」，本身不构成任何信息。</strong></p>
+</details>
+
+<h4>今天就能做的一个小动作（10 分钟）</h4>
+
+<p>打开 <a href="https://fred.stlouisfed.org/series/QBPBSTAS">FRED 的 QBPBSTAS（银行业总资产）</a>，然后打开 <a href="https://fred.stlouisfed.org/series/QBPBSTLKTEQKTBKEQK">QBPBSTLKTEQKTBKEQK（银行业权益资本）</a>。</p>
+
+<p>把 2007 年 Q2、2009 年 Q1、2023 年 Q1（SVB 倒闭那个季度）、2026 年 Q2 这四个时点的两个数字抄下来，各自做一次除法，得到四个杠杆倍数。<strong>你会看到危机前、危机中、和现在的差别。</strong>这个练习花不了 10 分钟，但它会让今天这个 10.08 倍从一个孤立的数字变成一条曲线上的一个点——而「一个点」和「一条曲线上的一个点」，是两种完全不同的理解。</p>
+
+<h4>延伸阅读</h4>
+
+<ol>
+<li><p><a href="https://www.dallasfed.org/research/economics/2023/1128">达拉斯联储：《Reciprocal deposit networks provide means to exceed FDIC's $250,000 account cap》（2023-11-28）</a><br>
+<span class="small"><strong>难度：低。</strong>约 1,500 字。<strong>为什么值得读：</strong>今天环 ⑤ 的机制图就是从这篇的例子改的。它用一个 50 万美元的具体例子把互惠存款讲得极清楚，而且给了 2018 年立法背景。联储的区域银行研究文章通常是给公众写的，几乎没有数学。</span></p></li>
+
+<li><p><a href="https://www.dallasfed.org/research/economics/2025/0805">达拉斯联储：《How do reciprocal deposit networks interact with deposit insurance?》（2025-08-05）</a><br>
+<span class="small"><strong>难度：中低。</strong><strong>为什么值得读：</strong>它把上一篇往前推了一步，提出三个政策问题：现行 25 万的保额是不是最优？互惠网络是不是提供额外保护的最佳机制？小银行付费买保险、大银行享受隐性兜底，这个不平等要不要处理？<strong>这三个问题今天都没有答案，正因为如此它们值得你自己想一遍。</strong></span></p></li>
+
+<li><p><a href="https://www.fdic.gov/quarterly-banking-profile">FDIC《Quarterly Banking Profile》原始 PDF</a><br>
+<span class="small"><strong>难度：中高。</strong>约 40 页表格。<strong>为什么值得读：</strong>这是今天所有数字的源头，也是全世界质量最高的公开银行业数据之一。<strong>建议的读法：</strong>不要从头读，直接翻到资产负债表那张表（Table III-A 之类），把今天正文里的每一个数字自己找一遍、验一遍。<strong>注意我今天抓取它时被 403 拒绝，你在浏览器里应该能正常打开。</strong>如果你打开了，麻烦顺手看一眼第 4 节里我没对上的那个「未保险存款」数字——那张表能直接给出答案。</span></p></li>
+</ol>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<div class="box">
+<p style="margin-top:0"><strong>这不是免责声明，是一张可信度地图。</strong>下面每一行你都应该按不同的信任程度对待。</p>
+</div>
+
+<h4>A. 一手来源，可直接引用</h4>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>数据</th><th>来源</th><th>口径</th></tr></thead>
+<tbody>
+<tr><td>银行业总资产、权益资本、国内存款、受保存款、经纪存款、净贷款</td><td><a href="https://fred.stlouisfed.org/series/QBPBSTAS">FRED（FDIC QBP 直供系列）</a>，2026-08-27 更新</td><td>季末时点数，百万美元，未季调</td></tr>
+<tr><td>联邦基金有效利率及各期限国债收益率（8/27）</td><td><a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15</a>，2026-08-28 发布</td><td>年化百分比，恒定到期收益率</td></tr>
+<tr><td>7 月 CPI：环比季调 +0.1%、同比未季调 +3.4%、核心同比 +2.5%</td><td><a href="https://www.bls.gov/news.release/cpi.nr0.htm">BLS CPI 新闻稿</a>，2026-08-12 发布</td><td>CPI-U，环比为季调，同比为未季调</td></tr>
+<tr><td>互惠存款机制、旧上限（50 亿/负债 20% 孰低）、规模（2022 年底 1,570 亿 → 2023Q2 逾 3,000 亿 → 2025Q1 4,220 亿）、费率 12–15bp</td><td><a href="https://www.dallasfed.org/research/economics/2023/1128">达拉斯联储 2023</a> 与 <a href="https://www.dallasfed.org/research/economics/2025/0805">2025</a></td><td>联储区域银行研究文章</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>B. 二手来源，已交叉验证</h4>
+
+<ul>
+<li><strong>FDIC Q2 2026 QBP 的各项指标</strong>（净利润 901 亿、ROA 1.37%、NIM 3.32%、未实现亏损 3,267 亿、不良率 1.44%、核销率 0.57%、贷款 +1.8%、问题银行 47 家、DIF 1,611 亿 / 1.48%）：来自 <a href="https://www.americanbanker.com/news/banks-put-up-strong-earnings-lending-in-q2">American Banker</a>、<a href="https://bankingjournal.aba.com/2026/08/quarterly-banking-profile-banking-net-income-90-1b-in-q2-2026/">ABA Banking Journal</a>、<a href="https://www.tradingview.com/news/reuters.com,2026:newsml_L6N44M0PX:0-u-s-bank-profits-climb-12-in-second-quarter-as-loan-growth-climbs-fdic/">Reuters</a> 三家独立报道，彼此一致。<strong>fdic.gov 对我的抓取一律返回 403，原始 PDF 我今天没读到。</strong></li>
+<li><strong>8/27 FDIC 互惠存款 interim final rule</strong>：<a href="https://bankingjournal.aba.com/2026/08/fdic-updates-rules-on-reciprocal-deposits/">ABA</a> 与 <a href="https://www.paulhastings.com/insights/ph-fedaction-financial-regulatory-updates-homepage/daily-financial-regulation-update-friday-august-28-2026">Paul Hastings</a> 独立确认。<strong>规则原文我没读到</strong>，「分层负债计算、最高 300 亿」是转述。</li>
+<li><strong>Warsh 讲话与加息概率变化</strong>：<a href="https://www.npr.org/2026/08/28/nx-s1-5947903/federal-reserve-inflation-jackson-hole-interest-rates">NPR</a>、<a href="https://finance.yahoo.com/economy/policy/articles/rate-hike-expectations-rise-warsh-144023525.html">Reuters/Yahoo</a>、<a href="https://www.cnbc.com/2026/08/28/kevin-warsh-jackson-hole-fed-inflation-rate-hike.html">CNBC</a> 三家报道。概率的具体数字两家不一致（NPR：约 33% → 50% 以上；Investrade：35% → 57%），<strong>我在正文里给了区间而不是单一数字。</strong></li>
+<li><strong>AOCI 豁免的制度史</strong>：<a href="https://bankregblog.substack.com/p/the-aoci-opt-out-revisiting-how-the">bankregblog，2023-03-12</a>，一个专注银行监管的专业博客。<strong>这是单一来源，我没有找到第二个独立确认，也没有读到 2013 年最终规则原文。</strong>其中「99% 的美国银行已选择豁免」这个比例我建议你按「大致如此」而非精确值对待。</li>
+<li><strong>8/28 市场收盘读数</strong>：<a href="https://investrade.com/market-review-august-28-2026/">Investrade</a>，单一来源，小型站点。其中 2 年期 4.35% 与 <a href="https://www.advisorperspectives.com/dshort/updates/2026/08/28/treasury-yields-snapshot-august-28-2026">Advisor Perspectives 报的 4.34%</a> 基本一致，可以互相印证；其余读数（标普、罗素、黄金、DXY、WTI）只有一个来源。</li>
+</ul>
+
+<h4>C. 纯算术推导（你可以自己复算，不需要相信我）</h4>
+
+<ul>
+<li>杠杆 26,462,210 ÷ 2,624,826 = 10.08 倍；权益占比 9.92%</li>
+<li>ROA 验算：3,604 亿 ÷ 平均资产 263,038 亿 = 1.3701% —— <strong>与报告的 1.37% 完全吻合，这条同时验证了两个独立来源的一致性</strong></li>
+<li>存款环比：+1,427 亿 / +0.758% —— 与报告的「+1,427 亿 / +0.8%」吻合</li>
+<li>受保存款环比：−1,144 亿</li>
+<li>DIF 准备金率：1,611 亿 ÷ 108,387 亿 = 1.486% —— 与报告的 1.48% 吻合</li>
+<li>贷款损失准备推算：总贷款约 139,390 亿 − 净贷款 137,124 亿 = 2,266 亿，占贷款 1.63%（<strong>其中总贷款是用 Q1 数 × 1.018 推的，1.8% 是四舍五入后的数，所以这个 1.63% 有小数级误差</strong>）</li>
+<li>未实现亏损 ÷ 权益 = 3,267 ÷ 26,248 = 12.4%</li>
+<li>互惠上限 300 ÷ 50 = 6 倍；经纪存款占国内存款 6.47%</li>
+<li>隐含远期利率：1.0420² ÷ 1.0386 − 1 = 4.54%（<strong>含期限溢价，已在正文标注</strong>）</li>
+<li>曲线斜率：8/27 为 47bp，8/28 为 37.8bp</li>
+</ul>
+
+<h4>D. 明确标注的示意数字（不可引用）</h4>
+
+<ul>
+<li>「生息资产占总资产 90%」——用于估算净利息收入量级</li>
+<li>「债券久期 5 年」「剩余期限 5 年」——用于演示久期与债券定价</li>
+<li>「证券组合 5.5 万亿」——FRED 上的 AFS/HTM 系列最新只到 2025 年初，Q2 2026 真实值未查到</li>
+<li>由上述三项推出的「约 800 亿」和「约 7,900 亿」——<strong>这两个数只用于建立量级感</strong></li>
+</ul>
+
+<h4>E. 我的推测（在正文中都装在虚线框里）</h4>
+
+<ul>
+<li>「未保险存款上升 → FDIC 放宽互惠存款」这条因果链<strong>不成立</strong>，我明确拒绝写。规则是在执行 7 月已生效的立法。</li>
+<li>未保险存款 600 亿差额的原因（填报口径 vs 相减口径），我倾向于此但未验证。</li>
+<li>NPR 报道的「PCE 3.7%」我未能核实，且它与 CPI 3.4% 的关系反常，<strong>已从正文中剔除</strong>。</li>
+</ul>
+
+<h4>F. 接不上的地方</h4>
+
+<ol>
+<li><strong>未保险存款的准确数字。</strong>FDIC 口径（+3,174 亿）与我从 FRED 推算的（+2,571 亿）差约 600 亿，我没能解决。<strong>正文中我只使用「未保险存款在增加」这个方向，不使用幅度。</strong></li>
+<li><strong>8 月 28 日银行板块的具体表现。</strong>没查到 KRE / KBW Bank Index 的当日收盘。罗素 2000 的 −1.39% 不能替代它。<strong>链条在这里断掉，我没有搭桥。</strong></li>
+<li><strong>Q2 2026 证券组合的 AFS/HTM 分拆。</strong>FRED 上这两个系列最新只到 2025 年初，FDIC 官网 403。所以第 3 节的资产负债表图上，证券那一块是个没有数字的方块。</li>
+<li><strong>3,267 亿未实现亏损在各家银行之间的分布。</strong>全行业加总掩盖了集中度，而集中度恰恰是风险的关键。今天没有分布数据。</li>
+<li><strong>8 月 28 日的 USDSGD 收盘价。</strong>没查到，所以第 4 节没有做任何汇率层面的推论。</li>
+</ol>
+
+<p class="small" style="margin-top:32px; padding-top:16px; border-top:1px solid var(--line)">
+Day 13 / 368 · 领域 E（信用、银行与金融稳定）· 锚点原理 E2「银行资产负债表的读法」<br>
+本文为教学材料，不构成投资建议。所有数据的时点、口径与来源已在第 9 节完整列出。
+</p>
+
+</div>
+</body>
+</html>
