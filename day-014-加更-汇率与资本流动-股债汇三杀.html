@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>加更 · 股债汇三杀：为什么第三个"跌"才是真正的信号</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --fg:#1f2328; --muted:#5b6570; --line:#e2e0dc;
+    --card:#ffffff; --accent:#1d5fbf; --accent-soft:#eaf1fd;
+    --warn:#b45309; --warn-bg:#fff8ec; --warn-line:#e0a750;
+    --good:#0f7a52; --bad:#b4232c;
+    --code-bg:#f2f1ee;
+    --c1:#1d5fbf; --c2:#b4232c; --surface:#fcfcfb;
+    --grid:#dedbd6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --fg:#e6e6e3; --muted:#9aa4ae; --line:#2c3238;
+      --card:#1b1f23; --accent:#7db1ff; --accent-soft:#16233a;
+      --warn:#f0b45c; --warn-bg:#2a2113; --warn-line:#8a6320;
+      --good:#4fc99a; --bad:#ff8a8a;
+      --code-bg:#22262b;
+      --c1:#4a86d8; --c2:#d96a6a; --surface:#1b1f23;
+      --grid:#333a41;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.85; overflow-x:hidden;}
+  .wrap{max-width:760px; margin:0 auto; padding:32px 20px 90px}
+  header.top{border-bottom:1px solid var(--line); padding-bottom:20px}
+  .kicker{font-size:13px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  h1{font-size:27px; line-height:1.4; margin:.35em 0 .3em; font-weight:700}
+  .sub{color:var(--muted); font-size:15px; margin:0}
+  h2{font-size:21px; margin:2.6em 0 .7em; padding-top:.6em; border-top:1px solid var(--line); font-weight:700}
+  h3{font-size:17.5px; margin:2em 0 .5em; font-weight:700}
+  h4{font-size:16px; margin:1.5em 0 .4em; font-weight:700; color:var(--accent)}
+  p{margin:.85em 0}
+  ul,ol{padding-left:1.35em; margin:.7em 0}
+  li{margin:.4em 0}
+  a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; word-break:break-word}
+  .lead{background:var(--accent-soft); border-radius:10px; padding:16px 18px; margin:1.2em 0}
+  .calc{background:var(--code-bg); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+    padding:12px 16px; margin:1.1em 0; font-size:16.5px; line-height:2.05; overflow-x:auto;}
+  .guess{border:2px dashed var(--warn-line); background:var(--warn-bg); border-radius:10px; padding:14px 18px 16px; margin:1.4em 0}
+  .guess .tag{display:inline-block; background:var(--warn); color:#fff; font-size:12.5px; font-weight:700;
+    padding:2px 10px; border-radius:20px; margin-bottom:8px; letter-spacing:.03em}
+  .guess p{margin:.5em 0; font-size:16px}
+  .src{font-size:13.5px; color:var(--muted); border-top:1px dotted var(--line); padding-top:8px; margin-top:14px}
+  .src b{color:var(--fg)}
+  .box{border:1px solid var(--line); background:var(--card); border-radius:10px; padding:14px 18px; margin:1.2em 0}
+  .qbox{border:1px solid var(--line); border-radius:10px; padding:2px 16px; margin:1em 0; background:var(--card)}
+  .tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0}
+  table{border-collapse:collapse; width:100%; font-size:15px; min-width:500px}
+  th,td{border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  th{font-weight:700; color:var(--muted); font-size:13.5px}
+  td.n{font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+  .up{color:var(--good); font-weight:600}
+  .dn{color:var(--bad); font-weight:600}
+  .hl{background:var(--accent-soft); font-weight:700}
+  figure{margin:1.8em 0}
+  figure svg{width:100%; height:auto; display:block}
+  figcaption{font-size:14px; color:var(--muted); margin-top:10px; line-height:1.7}
+  details{margin:.7em 0; border:1px solid var(--line); border-radius:8px; padding:0 14px; background:var(--card)}
+  details[open]{padding-bottom:8px}
+  summary{cursor:pointer; padding:11px 0; font-weight:600; font-size:16px}
+  .hint{font-size:15px; color:var(--muted)}
+  /* diagram */
+  .dg rect.n{fill:var(--card); stroke:var(--fg); stroke-width:1.6}
+  .dg rect.w{fill:var(--warn-bg); stroke:var(--warn); stroke-width:1.6; stroke-dasharray:7 5}
+  .dg text{fill:var(--fg)}
+  .dg text.t1{font-size:14.5px; font-weight:700}
+  .dg text.t2{font-size:12.5px; fill:var(--muted)}
+  .dg path{stroke:var(--fg); stroke-width:1.8; fill:none}
+  /* chart */
+  .ch text{fill:var(--fg)}
+  .ch .ax{font-size:13px; fill:var(--muted)}
+  .ch .vl{font-size:14px; font-weight:700}
+  .ch .gr{stroke:var(--grid); stroke-width:1}
+  .ch .bar{fill:var(--c1)}
+  .ch .bar:hover{opacity:.82}
+  footer{margin-top:3em; padding-top:20px; border-top:1px solid var(--line); font-size:14.5px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 14 · 加更 · 跨领域（D 汇率与全球资本流动 × A 利率 × E 金融稳定）</div>
+  <h1>股债汇三杀<br><span style="font-size:20px;font-weight:600;color:var(--muted)">——为什么第三个「跌」才是真正的信号</span></h1>
+  <p class="sub">成稿 2026-08-31（新加坡）｜市场数据截至 2026-08-28 美股收盘，日本数据截至 2026-08-31</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<div class="lead">
+<p>「股债汇三杀」听起来像是「三件坏事一起发生」。<strong>它不是。</strong>它是一个有特定含义的诊断结果——三个「跌」里，前两个只告诉你冲击有多大，<strong>第三个才告诉你冲击是什么种类的。</strong></p>
+<p>今天要讲透的是：为什么在正常世界里，本国利率上升应该让本币<strong>升值</strong>；所以当利率上升的同时本币在<strong>贬值</strong>，这说明发生的事情已经换了一个类别——不再是「央行更鹰派」，而是「有人在离开这个国家」。</p>
+<p>读完你能回答：上周五 8 月 28 日算不算三杀？（不算，我会用五个信号逐项验给你看。）以及——下次再看到「收益率飙升」的新闻标题，你先该看哪两个数字。</p>
+</div>
+
+<h2>1｜先把这三个「跌」定义清楚</h2>
+
+<p>这个词在中文财经媒体里用得很随意，所以先定死口径，否则后面全是糊的。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>哪个「杀」</th><th>字面意思</th><th>你在行情上看到的</th></tr></thead>
+<tbody>
+<tr><td><strong>股杀</strong></td><td>股票价格下跌</td><td>指数下跌</td></tr>
+<tr><td><strong>债杀</strong></td><td>债券<strong>价格</strong>下跌</td><td>债券<strong>收益率上升</strong>（价格与收益率永远反向，下面会算给你看）</td></tr>
+<tr><td><strong>汇杀</strong></td><td>本国货币贬值</td><td>本币对美元下跌；如果被杀的是美国，就是美元指数下跌</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="hint">英文里对应的说法有两个：市场报道常说 <strong>triple whammy</strong>（三重打击），研究机构（例如 MSCI）用 <strong>Triple-Red</strong>（三红，指屏幕上三栏全红）。<strong>经济学教科书里没有专门的术语</strong>——它是一个市场从业者的诊断标签，不是一个正式的理论概念。这一点值得知道：它没有严格定义，所以不同人说的「三杀」可能不是同一件事。</p>
+
+<h4>先补一个必须先懂的机械关系：债券价格和收益率为什么永远反向</h4>
+
+<p>假设有一张永远不到期的政府债券，每年固定付你 <strong>4 元</strong>。这个 4 元是印在纸上的，永远不变。</p>
+
+<p>这张纸值多少钱？用 Day 14 讲过的<strong>同一个永续年金公式</strong>：价格 = 每年金额 ÷ 市场要求的收益率。</p>
+
+<div class="calc">
+市场要求 4% → 价格 = 4 ÷ 0.04 = <b>100 元</b><br>
+市场要求 3.5% → 价格 = 4 ÷ 0.035 = <b>114.29 元</b>　（涨 14.29%）<br>
+市场要求 4.5% → 价格 = 4 ÷ 0.045 = <b>88.89 元</b>　（跌 11.11%）
+</div>
+
+<p><strong>票息是死的，所以调整只能发生在价格上。</strong>要求的收益率上升，价格必须下降——这不是市场情绪，这是算术。所以「收益率涨」和「债券跌」是同一件事的两种说法。</p>
+
+<h2>2｜第一层：股和债为什么通常一涨一跌</h2>
+
+<p>先从生活场景进。你有两个口袋：一个装公司的股份，一个装政府的欠条。</p>
+
+<p><strong>现在来一个坏消息：经济要衰退了。</strong>两个口袋各自会发生什么？</p>
+
+<ul>
+<li><strong>股份那个口袋：</strong>经济差 → 公司卖得少、赚得少 → 未来分红少 → 按 Day 14 的股利折现模型，分子变小 → <strong>股票跌</strong>。</li>
+<li><strong>欠条那个口袋：</strong>经济差 → 央行会降息来救经济 → 市场要求的收益率下降 → 按上面那个算术，<strong>债券涨</strong>。</li>
+</ul>
+
+<p><strong>所以在「增长冲击」下，股跌债涨。</strong>这就是所谓「避险」的机械原理——它不是因为大家害怕所以躲进债券，而是因为<strong>同一个坏消息，对这两个口袋的作用方向天生相反</strong>：它压低了公司的现金流，同时压低了折现率。</p>
+
+<p class="hint">这个「一个跌、另一个涨」的性质，是「股六债四」这类组合能分散风险的全部理由。<strong>它不是一条自然法则，它是一个关于冲击种类的假设。</strong>下面就会看到假设失效的样子。</p>
+
+<div class="src"><b>依据：</b>永续债价格为算术推导；「增长冲击下股债反向」是教科书标准结论，机制在上面完整推出，读者可自行检查每一步。</div>
+
+<h2>3｜第二层：股债双杀，说明冲击换了种类</h2>
+
+<p>现在换一个坏消息：<strong>不是经济变差，而是通胀变高。</strong></p>
+
+<ul>
+<li><strong>欠条口袋：</strong>通胀高 → 央行要加息 → 要求的收益率上升 → <strong>债券跌</strong>。</li>
+<li><strong>股份口袋：</strong>同一个折现率上升，直接压低所有未来现金流的现值 → <strong>股票也跌</strong>。（这正是 Day 14 整堂课推的那个模型。）</li>
+</ul>
+
+<p><strong>两个口袋同时跌。</strong>这就是「股债双杀」。它传达的信息很具体：<strong>这次的冲击不是通过「公司赚多少」这条路来的，而是通过「折现率」这条路来的。</strong></p>
+
+<p>上周五 8 月 28 日就是这一类：标普 500 跌 0.25%，同时 2 年期国债收益率上行约 8 个基点。<strong>股债双杀，教科书标准形态。</strong></p>
+
+<p>但是——<strong>股债双杀只告诉你「是折现率冲击」，它没告诉你折现率为什么上升。</strong>而这正是第三个「杀」要回答的问题。</p>
+
+<h2>4｜第三层：加上汇率，才是真正的诊断</h2>
+
+<h3>4.1　先建立直觉：本国利率上升，本币为什么该升值</h3>
+
+<p>生活场景。有两个国家，A 国和 B 国。你手上有 100 万 B 国货币。</p>
+
+<p>原来两国的一年期存款利率都是 3%。汇率是 <strong>1 单位 A 国货币 = 1.0000 B 国货币</strong>，而且市场认为<strong>一年后汇率还是 1.0000</strong>（长期汇率由别的因素决定，短期这一次利率变动不影响它）。</p>
+
+<p>现在 <strong>A 国把利率提到 4%</strong>，B 国不变。你会怎么做？</p>
+
+<div class="calc">
+<b>留在 B 国：</b>100 万 × 1.03 = <b>103 万 B 国货币</b><br><br>
+<b>去 A 国（假设汇率还没动）：</b><br>
+　100 万 B → 换成 100 万 A（汇率 1.0000）<br>
+　存一年 → 100 × 1.04 = 104 万 A<br>
+　一年后换回 → 104 万 A × 1.0000 = <b>104 万 B 国货币</b><br><br>
+<b>差额 = 1 万 B 国货币，白捡的。</b>
+</div>
+
+<p>白捡的钱不会一直摆在那里。所有人都想去 A 国，就都要买 A 国货币，<strong>A 国货币今天的价格就被买上去了。</strong></p>
+
+<p><strong>买到什么位置才停？</strong>买到「白捡的部分正好消失」为止。设今天的汇率被推到 <strong>1 单位 A 国货币 = S 个 B 国货币</strong>：</p>
+
+<div class="calc">
+100 万 B ÷ S = (100/S) 万 A　　← 今天汇率贵了，能换到的 A 变少<br>
+存一年 → (100/S) × 1.04 万 A<br>
+一年后换回（汇率回到 1.0000）→ (104/S) 万 B<br><br>
+要让它等于 103 万：　104 ÷ S = 103<br>
+　→ <b>S = 104 ÷ 103 = 1.00971</b>
+</div>
+
+<p><strong>验算：</strong>100 万 ÷ 1.00971 = 99.038 万 A；× 1.04 = 103.00 万 A；× 1.0000 = 103.00 万 B。<strong>正好等于留在 B 国。</strong>没有白捡的钱了。</p>
+
+<p>所以：<strong>A 国利率上升 1 个百分点，A 国货币今天立刻升值约 0.97%（≈1%）。</strong></p>
+
+<p>这个「两条路的回报必须相等」的条件，<strong>经济学给它起了个名字，叫「利率平价」（interest rate parity）</strong>。它推出的结论是今天要用的那句话：</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>利率上升 → 本币升值。</strong>这是默认剧本。</p>
+</div>
+
+<p class="hint">你可能会想：<em>那为什么现实里高利率货币不是一直涨？</em>因为上面的推导里有一个关键假设——「一年后的汇率不变」。如果市场同时认为 A 国的长期汇率要往下走（比如因为它的通胀更高、或者财政有问题），那 S_e 本身就变小了，今天的升值可以被完全抵消甚至反转。<strong>这个「例外」不是模型的漏洞，它恰恰是今天整堂课的主题。</strong></p>
+
+<div class="src"><b>依据：</b>算术推导，每一步可自行验算。利率平价是教科书标准结论；这里给的是「非抛补」版本（uncovered interest parity）的直觉推导，实证上它长期不成立——这一点在第 4.4 节展开。</div>
+
+<h3>4.2　所以：收益率涨 + 本币跌，是一个矛盾</h3>
+
+<p>把两句话摆在一起：</p>
+
+<ul>
+<li>本国收益率上升 → 按利率平价，资金应该<strong>流入</strong> → 本币<strong>升值</strong></li>
+<li>但实际观察到本币<strong>贬值</strong></li>
+</ul>
+
+<p><strong>这个组合意味着什么？</strong>意味着有一群人，在明知道这个国家的债券现在给出更高收益的情况下，<strong>仍然选择卖掉它并把钱换出这个国家。</strong></p>
+
+<p>能让人做出这个选择的理由只有一个：<strong>他们认为那个更高的收益率不是「奖励」，而是「风险补偿」</strong>——补偿的是本金拿不回来、或者拿回来时已经贬值的风险。</p>
+
+<p><strong>换句话说：他们不是在这个国家内部换资产，他们是在离开这个国家。</strong></p>
+
+<h3>4.3　把收益率拆开，就能看清楚这一点</h3>
+
+<p>一个国家长期国债的名义收益率，可以拆成两块（这是 A15 会专门讲的内容，今天只用它的结论）：</p>
+
+<div class="calc">
+名义收益率 = <b>预期政策利率路径</b> ＋ <b>期限溢价</b><br>
+<span style="font-size:14px;color:var(--muted)">（未来央行大概会把利率定在多高）　（锁定这么久，你要多少额外补偿）</span>
+</div>
+
+<p>现在关键的一步来了。<strong>这两块上升，对汇率的作用方向是相反的：</strong></p>
+
+<ul>
+<li><strong>如果上升来自「预期政策利率路径」</strong>——那是真的能拿到手的更高回报。按 4.1 的推导，资金流入，<strong>本币升值</strong>。</li>
+<li><strong>如果上升来自「期限溢价」</strong>——那是在为风险要价，不是在提供更高的真实回报。要价越高说明风险被认为越大，资金流出，<strong>本币贬值</strong>。</li>
+</ul>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>所以：汇率就是那个能告诉你「收益率上升来自哪一块」的指标。</strong></p>
+<p style="margin:.5em 0 .3em">这一句是今天全文的核心。它之所以有用，是因为它<strong>在事前就能用</strong>：你看到长端收益率跳升的新闻标题时，还不知道这是好事还是坏事；但你只要同时看一眼本币，就能分类。</p>
+</div>
+
+<h3>4.4　第二个判据：曲线的形状</h3>
+
+<p>汇率不是唯一的线索，还有一个独立的判据，而且它不需要看外汇市场。</p>
+
+<p>想一想两种冲击各自会先动哪一端：</p>
+
+<ul>
+<li><strong>央行更鹰派</strong>：影响的是<strong>未来一两年</strong>的政策利率。所以<strong>短端</strong>动得多。（Day 14 已经用算术验过：一次加息对 2 年期平均利率的影响，是对 30 年期平均利率影响的十几倍。）</li>
+<li><strong>财政信誉受损</strong>：影响的是「这个国家几十年后还不还得起」。政策利率明年多少跟这件事关系不大。所以<strong>长端</strong>动得多。</li>
+</ul>
+
+<p>把 8 月 28 日的真实数据画出来：</p>
+
+<figure>
+<svg class="ch" viewBox="0 0 660 300" role="img" aria-label="2026年8月28日美国国债收益率当日变动，按期限：2年期约+8个基点，10年期+4个基点，30年期+2个基点">
+  <text x="0" y="18" style="font-size:15px;font-weight:700">美国国债收益率当日变动（2026-08-28）</text>
+  <text class="ax" x="0" y="38">单位：基点（1 基点 = 0.01 个百分点）｜来源：Yahoo Finance 当日收盘报道</text>
+  <!-- gridlines -->
+  <g class="gr">
+    <line x1="70" y1="250" x2="640" y2="250"/>
+    <line x1="70" y1="210" x2="640" y2="210"/>
+    <line x1="70" y1="170" x2="640" y2="170"/>
+    <line x1="70" y1="130" x2="640" y2="130"/>
+    <line x1="70" y1="90"  x2="640" y2="90"/>
+  </g>
+  <g class="ax">
+    <text x="60" y="255" text-anchor="end">0</text>
+    <text x="60" y="215" text-anchor="end">2</text>
+    <text x="60" y="175" text-anchor="end">4</text>
+    <text x="60" y="135" text-anchor="end">6</text>
+    <text x="60" y="95"  text-anchor="end">8</text>
+  </g>
+  <!-- bars: scale 20px per bp, baseline y=250 -->
+  <g class="bar">
+    <path d="M120 250 L120 94 Q120 90 124 90 L216 90 Q220 90 220 94 L220 250 Z"><title>2 年期：+8 个基点</title></path>
+    <path d="M290 250 L290 174 Q290 170 294 170 L386 170 Q390 170 390 174 L390 250 Z"><title>10 年期：+4 个基点</title></path>
+    <path d="M460 250 L460 214 Q460 210 464 210 L556 210 Q560 210 560 214 L560 250 Z"><title>30 年期：+2 个基点</title></path>
+  </g>
+  <g class="vl">
+    <text x="170" y="80" text-anchor="middle">+8</text>
+    <text x="340" y="160" text-anchor="middle">+4</text>
+    <text x="510" y="200" text-anchor="middle">+2</text>
+  </g>
+  <g class="ax">
+    <text x="170" y="272" text-anchor="middle">2 年期</text>
+    <text x="340" y="272" text-anchor="middle">10 年期</text>
+    <text x="510" y="272" text-anchor="middle">30 年期</text>
+  </g>
+  <text class="ax" x="330" y="294" text-anchor="middle">期限越长，动得越小 —— 短端主导</text>
+</svg>
+<figcaption><strong>形状比数值重要。</strong>三根柱子从左到右单调变矮：期限越长，当天动得越少。这是「央行更鹰派」的指纹。另一个数据源（Investrade）给的是 2 年期 +12、10 年期 +5.6 个基点——数值不同，但<strong>短端主导的形状不变</strong>，所以结论不依赖于我选了哪个来源。（30 年期两个来源都是 +2，且与前一日 H.15 的 5.19% 对得上：5.19 → 5.21。）</figcaption>
+</figure>
+
+<p>对照一下 2022 年 9 月的英国：<strong>30 年期国债收益率在 mini-budget 之后的三个交易日里上升了 120 个基点</strong>，英格兰银行的研究论文描述为「中长期限的名义收益率在几天内上升超过 100 个基点」。<strong>动的是长端。</strong></p>
+
+<p class="hint">我要在这里明说一个缺口：<strong>我没有查到英国当时短端（2 年期）的同期变动数字</strong>，所以我不能像美国那样画一张完整的英国曲线图，也不能断言「英国当时长端涨得比短端多」。我能引用的只有「长端涨了 120–200 个基点」这个事实，以及英格兰银行论文用「中长期限」来描述震中的措辞。</p>
+
+<div class="src"><b>依据：</b>美国数据见 <a href="https://finance.yahoo.com/markets/live/stock-market-today-friday-august-28-dow-sp-500-nasdaq-dip-fed-warsh-jackson-hole-speech-081514091.html">Yahoo Finance</a> 与 <a href="https://www.federalreserve.gov/releases/h15/">美联储 H.15</a>；英国数据见 <a href="https://www.bankofengland.co.uk/-/media/boe/files/working-paper/2023/an-anatomy-of-the-2022-gilt-market-crisis.pdf">Bank of England Staff Working Paper No. 1019</a> 与 <a href="https://www.efginternational.com/insights/2022/uk-mini-budget-sparks-gilt-market-mayhem.html">EFG International</a>。<b>英国短端数据未查到，已明写。</b></div>
+
+<h2>5｜三种冲击的指纹表</h2>
+
+<p>把前面所有推导压成一张表。<strong>这张表的每一行，上面都推导过了，没有一行是我凭印象填的。</strong></p>
+
+<div class="tw">
+<table>
+<thead><tr><th>观察什么</th><th>增长冲击<br><span class="hint" style="font-weight:400">经济要衰退</span></th><th>通胀 / 鹰派冲击<br><span class="hint" style="font-weight:400">折现率要上升</span></th><th>信誉 / 财政冲击<br><span class="hint" style="font-weight:400">有人要离开</span></th></tr></thead>
+<tbody>
+<tr><td>股票</td><td class="dn">跌</td><td class="dn">跌</td><td class="dn">跌</td></tr>
+<tr><td>长端收益率</td><td class="up">跌</td><td class="dn">涨</td><td class="dn">涨</td></tr>
+<tr><td><strong>曲线形状</strong></td><td>短端跌得更多</td><td><strong>短端涨得更多</strong>（平坦化）</td><td><strong>长端涨得更多</strong>（陡峭化）</td></tr>
+<tr><td><strong>本币</strong></td><td>涨或持平</td><td><strong>涨</strong></td><td class="dn"><strong>跌</strong></td></tr>
+<tr><td>黄金</td><td>涨</td><td>跌</td><td>涨</td></tr>
+<tr><td>市场叫它</td><td>避险 / flight to quality</td><td>股债双杀</td><td class="hl">股债汇三杀</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="hint">黄金那一行的机制：黄金不付利息，所以它的对手是「实际利率」——实际利率上升，持有黄金的机会成本变高，金价跌。鹰派冲击抬高实际利率 → 金价跌。而信誉冲击下，人们买黄金正是因为不想持有那个国家的纸面资产 → 金价涨。（C13 会专门拆。）</p>
+
+<h3>用这张表给 8 月 28 日打分</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>信号</th><th class="n">8/28 实际</th><th>落在哪一列</th></tr></thead>
+<tbody>
+<tr><td>标普 500</td><td class="n dn">−0.25%</td><td>三列都符合（没有区分力）</td></tr>
+<tr><td>30 年期收益率</td><td class="n dn">+2 bp</td><td>鹰派 或 信誉</td></tr>
+<tr><td>曲线形状</td><td class="n">2Y +8 &gt; 30Y +2</td><td class="up"><strong>鹰派</strong></td></tr>
+<tr><td>美元指数</td><td class="n up">+0.5% 至 99.65</td><td class="up"><strong>鹰派</strong></td></tr>
+<tr><td>黄金</td><td class="n dn">−2.88% 至 $4,529.90</td><td class="up"><strong>鹰派</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>三个有区分力的信号，全部指向同一列。8 月 28 日不是三杀，是一次教科书式的鹰派重定价。</strong></p>
+</div>
+
+<p><strong>这个区分有实际后果，不是文字游戏：</strong></p>
+<ul>
+<li><strong>鹰派冲击是可逆的。</strong>它的原因是通胀数据，而通胀数据会变。核心 PCE 从 3.3% 掉下来，这次重定价就会自己反过来。</li>
+<li><strong>信誉冲击不是。</strong>它的原因是市场对一个国家偿付能力或货币购买力的判断，这个判断一旦转向，需要政策实质性掉头（英国 2022 年是首相和财相双双下台加全面撤回减税），或者央行直接下场买债，才能停下来。</li>
+</ul>
+
+<p class="hint">三个信号一致，也可能只是巧合——一天的数据，三个指标，本来就不是统计证据。<strong>这张表的价值在于它给了你一个事前可用的分类程序，而不在于它「解释」了周五。</strong></p>
+
+<div class="src"><b>依据：</b>表格每一行的机制均在第 2–4 节推导；8/28 数据出处见 Day 14 材料第 1 节（Yahoo Finance、Investrade、H.15）。<b>「三个信号一致」是观察，不是因果证明。</b></div>
+
+<h2>6｜案例：英国 2022 年 9 月（最干净的教科书样本）</h2>
+
+<h3>发生了什么</h3>
+
+<ul>
+<li><strong>9 月 23 日</strong>：英国政府公布「迷你预算」，包含估计每年 <strong>450 亿英镑</strong>的减税，且<strong>没有说明资金来源</strong>——EFG 称之为「过去四十年最大的减税之一」。</li>
+<li><strong>随后三个交易日</strong>：30 年期国债收益率上升 <strong>120 个基点</strong>。从 8 月底到 9 月 27 日的峰值，30 年期累计上升约 <strong>200 个基点</strong>（芝加哥联储）。英格兰银行的论文形容为「中长期限的名义收益率在几天内上升超过 100 个基点，这在英国近代经济史上是前所未有的」。</li>
+<li><strong>9 月 26 日盘中</strong>：英镑兑美元跌到约 <strong>1.035</strong>，<strong>历史最低</strong>（此前纪录是 1985 年 2 月的约 1.05）。</li>
+</ul>
+
+<p><strong>用第 5 节的表打分：长端收益率暴涨 + 本币创历史新低 = 信誉冲击那一列。</strong>而且注意，这个诊断当时就能做，不需要等后来的发展。</p>
+
+<h3>然后出现了一个只有在这一列才会出现的东西：正反馈回路</h3>
+
+<p>英国养老金普遍使用一种叫 <strong>LDI</strong>（负债驱动投资）的策略，其中用到了利率互换等衍生品，并且是<strong>加杠杆</strong>的。这些合约有一个规则：<strong>亏了要当天补现金保证金。</strong></p>
+
+<figure>
+<svg class="dg" viewBox="0 0 660 300" role="img" aria-label="LDI 强制卖出的正反馈回路">
+  <rect class="n" x="30" y="20" width="250" height="56" rx="8"/>
+  <text class="t1" x="46" y="44">① 国债收益率跳升</text>
+  <text class="t2" x="46" y="64">养老金的衍生品头寸出现浮亏</text>
+
+  <rect class="n" x="380" y="20" width="250" height="56" rx="8"/>
+  <text class="t1" x="396" y="44">② 被追加保证金</text>
+  <text class="t2" x="396" y="64">9/23–9/27 互换浮亏约 80 亿英镑</text>
+
+  <rect class="n" x="380" y="160" width="250" height="56" rx="8"/>
+  <text class="t1" x="396" y="184">③ 必须马上拿出现金</text>
+  <text class="t2" x="396" y="204">手上最容易变现的就是国债</text>
+
+  <rect class="n" x="30" y="160" width="250" height="56" rx="8"/>
+  <text class="t1" x="46" y="184">④ 被迫抛售国债</text>
+  <text class="t2" x="46" y="204">9/23–10/14 净卖出超 360 亿英镑</text>
+
+  <path d="M280 48 L372 48"/><path d="M364 42 L374 48 L364 54"/>
+  <path d="M505 76 L505 152"/><path d="M499 144 L505 154 L511 144"/>
+  <path d="M380 188 L288 188"/><path d="M296 182 L286 188 L296 194"/>
+  <path d="M155 160 L155 84"/><path d="M149 92 L155 82 L161 92"/>
+  <text class="t2" x="155" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:var(--warn)">抛售把收益率推得更高 → 回到 ①</text>
+  <text class="t2" x="330" y="252" text-anchor="middle">这个回路自己不会停：每转一圈，触发它的那个原因（收益率上升）就被放大一次</text>
+  <text class="t2" x="330" y="276" text-anchor="middle">9/28 英格兰银行下场买债才切断它；操作至 10/14 结束，共买入约 193 亿英镑</text>
+</svg>
+<figcaption>这类「越跌越要卖、越卖越跌」的结构，<strong>经济学给它起了个名字，叫「去杠杆螺旋」</strong>（deleveraging spiral）。它的特征是<strong>没有自然的停止点</strong>——价格下跌本身产生新的卖压，所以只能靠一个不受保证金约束的买家（央行）从外部打断。</figcaption>
+</figure>
+
+<p><strong>为什么这一段值得单独讲：</strong>它说明「三杀」不只是三个价格同时难看。当第三个「杀」出现时，往往意味着已经有人被迫卖出——而被迫卖出和主动卖出是两回事。<strong>主动卖出会在价格够低时停下来，被迫卖出不会。</strong></p>
+
+<div class="src"><b>依据：</b><a href="https://www.bankofengland.co.uk/-/media/boe/files/working-paper/2023/an-anatomy-of-the-2022-gilt-market-crisis.pdf">Bank of England SWP No. 1019</a>（浮亏、净卖出、干预时点）；<a href="https://www.chicagofed.org/publications/chicago-fed-letter/2023/480">Chicago Fed Letter No. 480</a>（30 年期 +200bp、干预规模 193 亿英镑）；<a href="https://www.efginternational.com/insights/2022/uk-mini-budget-sparks-gilt-market-mayhem.html">EFG International</a>（450 亿英镑减税、三天 +120bp）；<a href="https://gbpusd.net/history/all-time-high-low/">GBP/USD 历史极值</a>（1.035）。<b>英镑历史低点这一项来自汇率数据站，不是一手交易所记录。</b></div>
+
+<h2>7｜案例：日本，正在发生（这一节是给你练手的，我不给结论）</h2>
+
+<p>把第 5 节的表拿去套一个还没结束的情况，你会立刻发现现实比表格乱。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>观察</th><th class="n">数值</th><th>时点 / 出处</th></tr></thead>
+<tbody>
+<tr><td>日本 10 年期国债收益率</td><td class="n">2.93%</td><td>2026-08-28，Trading Economics</td></tr>
+<tr><td>　同比变化</td><td class="n dn">+1.32 个百分点</td><td>同上</td></tr>
+<tr><td>　（8/18 报道）10 年期曾触及</td><td class="n">2.945%</td><td>1996 年 9 月以来最高，Reuters</td></tr>
+<tr><td>USD/JPY</td><td class="n">159.811</td><td>2026-08-31，Trading Economics</td></tr>
+<tr><td>　USD/JPY 同比变化</td><td class="n up">−8.65%</td><td>同上（数值下降 = <strong>日元对美元走强</strong>）</td></tr>
+<tr><td>日元实际有效汇率</td><td class="n">65.04</td><td>2026 年 7 月，2020 年 = 100（BIS / FRED）</td></tr>
+<tr><td>市场定价的 9 月 BOJ 加息概率</td><td class="n">约 87%</td><td>Trading Economics（7 月会议前为 23%）</td></tr>
+<tr><td>政府债务 / GDP</td><td class="n">&gt; 200%</td><td>Reuters（2026-08-18）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>信号在打架，而且是两种打架</h3>
+
+<p><strong>第一种打架：机制上的。</strong>市场给 BOJ 9 月加息定价 87%，这是标准的「预期政策利率路径」上升——按第 4.3 节，它应该让日元<strong>升值</strong>。而 USD/JPY 同比下跌 8.65%，也就是日元对美元这一年确实<strong>升了</strong>。<strong>到这里，日本看起来完全是「正常剧本」，不是三杀。</strong></p>
+
+<p><strong>第二种打架：口径上的。</strong>但 8 月 18 日的报道说日元「徘徊在四十年低点附近」。这跟「同比升值 8.65%」矛盾吗？<strong>不矛盾，因为它们量的不是同一个东西：</strong></p>
+
+<ul>
+<li><strong>USD/JPY</strong> 是<strong>名义双边</strong>汇率——只对美元，不调整物价。</li>
+<li><strong>实际有效汇率</strong>（real effective exchange rate）是对<strong>一篮子贸易伙伴</strong>的加权平均，<strong>并且用两边的物价水平调整过</strong>。它衡量的是「你的钱在国外能买多少东西」。</li>
+</ul>
+
+<p>日元的实际有效汇率 2026 年 7 月是 <strong>65.04</strong>（2020 年 = 100），也就是比 2020 年的水平低了约 <strong>35%</strong>。<strong>所以「日元很弱」和「日元今年对美元变强了」可以同时为真</strong>——前者说的是长期的、对所有人的、扣掉通胀的购买力，后者说的是过去 12 个月对一种货币的名义价格。</p>
+
+<div class="calc">
+指数 65.04，基准 2020 年 = 100<br>
+(65.04 − 100) ÷ 100 = <b>−34.96%</b>，约低 35%
+</div>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>我的判断倾向是：<strong>日本目前的「收益率上升」主要来自政策路径（BOJ 正常化），而不是财政风险溢价</strong>——理由是加息概率 87% 这个数太高了，足以解释收益率的大部分变动，而且日元对美元同比是升的。</p>
+<p><strong>反对的看法：</strong>债务超过 GDP 的 200%，以及 7 月底刚发生过一次日美联合汇市干预（说明当局认为日元弱到需要出手），这两件事都指向存在实质的财政/货币信誉压力。而且我上面那个「87% 足以解释大部分变动」是一句<strong>没有量化的话</strong>——我没有把收益率变动拆成政策路径和期限溢价两部分，我只是看着两个数觉得像。</p>
+<p><strong>要判断需要什么材料：</strong>日本国债的期限溢价模型估计值（BOJ 或学术模型）、日本通胀保值国债的盈亏平衡通胀率、以及 30 年期与 2 年期 JGB 的相对变动。这三样我今天都没有。<strong>所以这一节我不给结论。</strong></p>
+</div>
+
+<p class="hint"><strong>这一节真正的教学点不是日本，是这个：</strong>指纹表是一个分类工具，不是一个判决机器。现实中信号经常互相矛盾，正确的反应是<strong>说出它们在哪里矛盾，以及需要什么数据才能拆开</strong>，而不是挑一边写成结论。</p>
+
+<div class="src"><b>依据：</b><a href="https://tradingeconomics.com/japan/government-bond-yield">Trading Economics 日本 10 年期国债</a>、<a href="https://tradingeconomics.com/japan/currency">USD/JPY</a>、<a href="https://fred.stlouisfed.org/series/RBJPBIS">FRED / BIS 日本实际广义有效汇率</a>、<a href="https://finance.yahoo.com/economy/policy/articles/japan-bond-yields-near-3-023501804.html">Reuters 2026-08-18</a>。<b>「四十年低点」是报道措辞，我没有核对它指的是哪个具体序列；REER 为 65.04 是我查到的硬数据，「多数十年低位」的判断我没有独立验证。</b></div>
+
+<h2>8｜对你意味着什么（SGD 收入 / USD 资产）</h2>
+
+<p class="hint">以下是教学分析与决策框架，不是针对你个人情况的投资建议。</p>
+
+<h3>8.1　三杀对外国持有人是复合，不是相加</h3>
+
+<p>Day 14 讲过：你的资产以美元计价，但你花钱用新元，所以你的真实回报要把两段乘起来。三杀的特殊之处在于，<strong>它让三段全部往同一个方向乘。</strong></p>
+
+<p>下面用一组<strong>示意数字</strong>做对照——<strong>这四个数字都是我编的，只为演示算法，不是任何真实事件的数据。</strong></p>
+
+<div class="calc">
+<b>情形一：增长冲击（正常剧本）</b>　股票 −20%，债券 <b>+5%</b>，美元 <b>0%</b><br>
+　美元口径 = 0.6 × (−20%) + 0.4 × (+5%) = −12% + 2% = <b>−10%</b><br>
+　新元口径 = −10% × (1 + 0%) → <b>−10%</b><br><br>
+<b>情形二：三杀</b>　股票 −20%，债券 <b>−5%</b>，美元 <b>−6%</b><br>
+　美元口径 = 0.6 × (−20%) + 0.4 × (−5%) = −12% − 2% = <b>−14%</b><br>
+　新元口径 = (1 − 0.14) × (1 − 0.06) − 1 = 0.86 × 0.94 − 1 = <b>−19.16%</b>
+</div>
+
+<p><strong>股票跌幅完全一样（都是 −20%），你的实际损失一个是 10%、一个是 19.2%，差了将近一倍。</strong></p>
+
+<p>差在哪里？差在你以为自己有<strong>三层保护</strong>，而三杀同时拆掉了三层：</p>
+<ol>
+<li>债券本该涨来对冲股票 → 它跌了</li>
+<li>美元本该在避险时走强 → 它跌了</li>
+<li>你的新元记账货币本该给你一点缓冲 → 它反而放大了损失</li>
+</ol>
+
+<p class="hint">注意 −14% 和 −6% 复合起来是 −19.16%，不是相加的 −20%。因为第二段的 −6% 是作用在<strong>已经缩水后</strong>的本金上。<strong>复合总是比相加温和一点点</strong>——这是个小安慰，但方向上没帮上什么忙。</p>
+
+<h3>8.2　历史上这种事有多大、多久一次</h3>
+
+<p>下面是 MSCI 的研究结论（他们把这类事件称为 <strong>Triple-Red</strong>，考察区间 1970 年 1 月至 2026 年 1 月），<strong>这些是引用的真实数据，不是我编的示意数字：</strong></p>
+
+<ul>
+<li><strong>频率：</strong>2000 年之前较为常见，此后「几乎绝迹」。持续性的三红时期主要出现在 <strong>1970 年代滞胀期</strong>和 <strong>1980 年代后期（广场协议之后）</strong>。</li>
+<li><strong>1974 年的一次（六个月）：</strong>股票约 −20%，国债收益率上升约 <strong>80 个基点</strong>，美元贬值 <strong>6%</strong>。</li>
+<li><strong>1987 年（最严重，四个月）：</strong>一个<strong>外币投资者</strong>持有的 60/40 组合累计回撤约 <strong>31%</strong>。</li>
+<li><strong>2025 年 4 月（关税事件）：</strong>两周内约 <strong>−12%</strong>。</li>
+</ul>
+
+<p class="hint">MSCI 那篇文章明确是<strong>站在外国投资者角度</strong>算的——这正好是你的位置。所以这几个数字对你的相关性，比一般的「标普回撤了多少」要高。</p>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>MSCI 的文章把 <strong>2026 年 1 月</strong>也列为近期三红案例之一。但我另外查到的 1 月市场回顾（Janus Henderson）给出的数字是：标普 500 <strong>上涨</strong> 1.4%，10 年期收益率 +8 个基点至 4.26%，美元指数 −1.4%。<strong>股票是涨的，那就不该算三杀。</strong></p>
+<p><strong>我的猜想：</strong>MSCI 判定「三红」用的可能是<strong>滚动相关性</strong>或月内某个窗口，而不是整月收益的符号；也可能我拿到的是文章摘要的压缩转述，原文说的是别的意思。</p>
+<p><strong>反对的看法：</strong>也可能是 Janus Henderson 的月度口径掩盖了 1 月内部某一段的剧烈三杀。两种都有可能，我分不出。</p>
+<p><strong>要判断需要什么材料：</strong>MSCI 原文对「Triple-Red」的准确定义（用什么频率、什么阈值判定），以及 2026 年 1 月的日度数据。我今天都没拿到。<b>所以上面正文里我只引用了 1974、1987、2025 年 4 月这三个 MSCI 给了具体数字的案例，没有引用 2026 年 1 月。</b></p>
+</div>
+
+<h3>8.3　这条链留给你的可操作认知</h3>
+
+<ol>
+<li><strong>「分散化」不是一个属性，是一个关于相关性的赌注。</strong>股六债四之所以有效，前提是冲击来自增长这条路。冲击换一条路来，两个口袋就一起跌。<strong>你不能靠增加持仓数量来解决这个问题</strong>，因为它不是集中度问题。</li>
+<li><strong>看到「收益率飙升」的标题，先看两个数：本币方向 + 长短端谁涨得多。</strong>这两个数不到十秒能查到，而它们决定了这条新闻属于哪一类。</li>
+<li><strong>你的货币暴露在这里是双向的。</strong>Day 14 那种情形（美股跌、美元涨）里，新元记账帮了你；三杀情形里，它会伤你。<strong>同一个暴露，在不同的冲击类型下符号相反</strong>——这就是为什么「要不要对冲汇率」不能一句话回答（G30 会专门拆）。</li>
+</ol>
+
+<div class="src"><b>依据：</b>8.1 全部为算术推导，输入数字已明确标注为示意；8.2 引用 <a href="https://www.msci.com/research-and-insights/blog-post/scenario-analysis-when-stocks-bonds-and-the-dollar-fall-together">MSCI, Scenario Analysis: When Stocks, Bonds and the Dollar Fall Together</a>；1 月案例的矛盾见 <a href="https://www.janushenderson.com/en-us/advisor/article/market-moves-themes-that-mattered-january-2026/">Janus Henderson, January 2026</a>，已装进推测框。</div>
+
+<h2>9｜反向倒推：现在的价格在赌什么</h2>
+
+<p>顺着推是「发生了 A 所以有 B」。倒过来问：<strong>8 月 28 日收盘的这组价格，说明市场在赌什么？</strong></p>
+
+<p><strong>市场赌的是「这是鹰派，不是信誉」。</strong>证据有三个，而且是三个独立的市场：</p>
+
+<ul>
+<li><strong>外汇市场</strong>：美元指数涨 0.5%。如果市场担心的是美国的偿付能力或美元的长期购买力，美元该跌。</li>
+<li><strong>国债市场内部</strong>：短端涨得多于长端。如果担心的是几十年后的财政，长端该领涨。</li>
+<li><strong>黄金市场</strong>：跌 2.88%。如果这是对纸面资产的信心问题，黄金该涨。</li>
+</ul>
+
+<h3>最脆弱的地方在哪</h3>
+
+<p><strong>脆弱的不是这个判断，而是它的持久性。</strong>「鹰派」和「信誉」这两种叙事，用的是<strong>同一个原始事实</strong>——长端收益率在上升。区别只在于市场把它归因到哪一块。<strong>而归因是可以在几天内翻转的。</strong></p>
+
+<p>英国 2022 年就是这么翻的：mini-budget 之前，英国国债收益率也在上升，当时的解读是「英格兰银行要加息对抗通胀」——鹰派叙事。9 月 23 日之后，同一条上升曲线被重新归因到「这个政府借不起了」——信誉叙事。<strong>价格路径完全变了，尽管「收益率在涨」这句话从头到尾都成立。</strong></p>
+
+<h3>未来要盯什么（具体、可证伪）</h3>
+
+<ol>
+<li><strong>30 年期减 2 年期的利差方向。</strong>目前是短端主导（8/28：2Y +8 vs 30Y +2，利差收窄 6 个基点）。如果哪天变成长端主导、利差走阔，分类就该重做。</li>
+<li><strong>美元指数与长端收益率的同向 / 反向。</strong>收益率涨、美元涨 = 鹰派；收益率涨、美元跌 = 换列了。</li>
+<li><strong>9 月 15–16 日 FOMC</strong>：加息与否，以及点阵图。这直接检验「鹰派」这一列的前提。</li>
+<li><strong>黄金</strong>：如果在收益率继续上行的同时黄金转涨，那是这三个信号里最先叛变的那个。</li>
+</ol>
+
+<h3>自查：这套说法在事情发生之前能用吗</h3>
+
+<ul>
+<li>「本币方向能区分政策路径冲击和风险溢价冲击」——<strong>能</strong>。这是从利率平价推出来的，事前就能写下判据，而且它可以被证伪（出现「收益率涨 + 本币涨 + 后续证明是财政危机」就打脸了）。</li>
+<li>「曲线形状能区分短期政策和长期财政」——<strong>能</strong>。Day 14 已经用算术算过一次加息对不同期限的影响倍数。</li>
+<li>「8/28 三个信号一致，所以是鹰派」——<strong>这是分类，不是预测。</strong>它没有说明天会怎样。任何把它延伸成「所以接下来会……」的话，都是我在编。</li>
+</ul>
+
+<h2>10｜底层思维 + 顶层视角</h2>
+
+<h3>底层思维：用「不该同时发生的两件事」当探针</h3>
+
+<p>今天这条链的方法论内核，剥掉金融外壳是这样一句话：</p>
+
+<div class="calc">
+当理论说 X 和 Y 应该<b>反向</b>，而你观察到它们<b>同向</b>时，<br>
+你不该丢掉理论 —— 你该意识到：<b>有一个你没考虑的第三个变量在动</b>。
+</div>
+
+<p>利率平价说「利率涨 → 本币涨」。观察到「利率涨 + 本币跌」，正确的反应不是说利率平价错了，而是问：<strong>是什么东西在同时推动这两者往反方向走？</strong>答案是风险溢价。<strong>矛盾本身就是探针，它指出了那个隐藏变量。</strong></p>
+
+<p><strong>这个模式在别处也成立：</strong></p>
+<ul>
+<li><strong>你的工作里：</strong>理论说「加机器 → 吞吐上升」。观察到加了机器吞吐反而下降，正确的反应不是「理论不适用」，而是「有一个共享资源被我忽略了」——锁、带宽、某个单点。<strong>反常现象是定位隐藏瓶颈的最快路径。</strong></li>
+<li><strong>医学诊断：</strong>发烧 + 白细胞低（本该高），这个矛盾本身就把诊断从「普通细菌感染」推到了另一类。</li>
+<li><strong>公司财务（F16）：</strong>利润在涨但经营现金流在跌。这两个本该同向，反向就说明中间有一个变量在动（应收账款、存货）。<strong>这是识别财务造假最有力的单一信号。</strong></li>
+</ul>
+
+<h3>顶层视角：这条链在系统里的位置</h3>
+
+<p>今天这条链把四个板块串了一遍，这在课程里不常见，值得指出来：</p>
+
+<ul>
+<li><strong>利率（A）</strong>提供了被观察的量：长端收益率，以及它的两个成分。</li>
+<li><strong>汇率（D）</strong>提供了那个关键的<strong>识别工具</strong>——没有它，你看不出收益率上升来自哪一块。</li>
+<li><strong>信用与稳定性（E）</strong>提供了三杀真正危险的原因：被迫卖出的正反馈回路（英国 LDI）。</li>
+<li><strong>增长（B）</strong>提供了第三条列的对照组，也提供了这些冲击最终会不会自我修复的答案。</li>
+</ul>
+
+<p><strong>一句话总结这个位置：</strong>股债汇三杀之所以值得单独学，是因为它是<strong>唯一一个只能靠跨市场比较才能识别的现象</strong>。任何单一市场的数据都识别不出它——你必须同时看债、看汇、看曲线形状。这本身就是「顶层视角」的一个具体样本：<strong>有些信息不存在于任何一个市场内部，只存在于市场之间的关系里。</strong></p>
+
+<h2>11｜今日新术语卡片</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>一句话大白话</th><th>出现在第几节</th></tr></thead>
+<tbody>
+<tr><td>股债汇三杀 / 三红</td><td>triple whammy / Triple-Red</td><td>股票、债券、本币同时下跌。是市场从业者的诊断标签，不是正式理论概念。</td><td>1</td></tr>
+<tr><td>利率平价</td><td>interest rate parity</td><td>两个国家之间不该有白捡的钱，所以利率高的一方，货币今天要先升上去。</td><td>4.1</td></tr>
+<tr><td>期限溢价</td><td>term premium</td><td>长期国债收益率里，超出"预期政策利率平均值"的那一块，是对锁定长期的风险补偿。</td><td>4.3</td></tr>
+<tr><td>曲线平坦化 / 陡峭化</td><td>flattening / steepening</td><td>短端相对长端涨得多叫平坦化；长端涨得多叫陡峭化。</td><td>4.4</td></tr>
+<tr><td>去杠杆螺旋</td><td>deleveraging spiral</td><td>下跌逼人卖，卖了跌更多，逼更多人卖。没有自然停止点。</td><td>6</td></tr>
+<tr><td>负债驱动投资</td><td>LDI (liability-driven investment)</td><td>养老金为匹配未来给付而用衍生品加杠杆买长债的策略。</td><td>6</td></tr>
+<tr><td>名义双边汇率</td><td>nominal bilateral rate</td><td>只对一种货币、不调整物价的汇率，比如 USD/JPY。</td><td>7</td></tr>
+<tr><td>实际有效汇率</td><td>real effective exchange rate (REER)</td><td>对一篮子贸易伙伴加权、并用物价调整过的汇率。衡量"你的钱在国外能买多少东西"。</td><td>7</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>12｜自测与延伸</h2>
+
+<div class="qbox">
+<details>
+<summary>1. 某国长期国债收益率一周内从 4.0% 涨到 4.8%，同时本币对美元升值 2%，股市跌 3%。这属于指纹表的哪一列？如果本币是贬值 4%，答案变成什么？请说明你用的是哪条推导。</summary>
+<p><strong>第一种情形（本币升 2%）：</strong>落在「通胀/鹰派冲击」列。</p>
+<p>依据是第 4.3 节的拆解：收益率上升 80 个基点，同时本币升值，说明这 80 个基点主要来自<strong>预期政策利率路径</strong>——按第 4.1 节推出的利率平价，真实回报变高会吸引资金流入并推高本币。股市跌 3% 与折现率上升一致（Day 14 的 DDM）。</p>
+<p><strong>第二种情形（本币贬 4%）：</strong>落在「信誉/财政冲击」列，也就是三杀。</p>
+<p>因为收益率上升的同时资金在流出，说明市场把这 80 个基点理解为<strong>风险补偿</strong>而非更高的真实回报。</p>
+<p><strong>还需要什么才能确认？</strong>曲线形状。题目只给了「长期国债」一个期限，无法判断是短端还是长端主导。如果拿到 2 年期的同期变动，就能加一个独立的判据。</p>
+</details>
+
+<details>
+<summary>2. 用第 4.1 节的方法算：A 国利率从 2% 提到 3.5%，B 国维持 2%，市场认为一年后汇率回到原位。A 国货币今天该立刻升值多少？</summary>
+<div class="calc">
+设今天 1 单位 A 国货币 = S 个 B 国货币，一年后回到 1.0000<br><br>
+留 B 国：100 万 × 1.02 = 102 万<br>
+去 A 国：(100 ÷ S) × 1.035 × 1.0000 = 103.5 ÷ S 万<br><br>
+令两者相等：103.5 ÷ S = 102<br>
+　→ S = 103.5 ÷ 102 = <b>1.014706</b><br><br>
+即今天立刻升值 <b>1.47%</b>
+</div>
+<p><strong>验算：</strong>100 ÷ 1.014706 = 98.5507 万 A；× 1.035 = 102.0 万 A；× 1.0000 = 102.0 万 B。正好等于留在 B 国。✓</p>
+<p><strong>顺便注意一个规律：</strong>利差是 1.5 个百分点，升值幅度 1.47%，略小于利差。为什么略小？因为分母是 1.02 而不是 1：1.5 ÷ 1.02 = 1.47。<strong>利差越大、基础利率越高，这个偏差越明显。</strong></p>
+</details>
+
+<details>
+<summary>3. 有人说："美国长端收益率上升是因为财政赤字失控，所以美元会崩。" 你怎么用今天学的东西去检验这句话，而不是接受或反驳它？</summary>
+<p>这句话是一个<strong>可检验的分类主张</strong>：它断言收益率上升来自期限溢价（财政风险），而不是政策路径。所以不要争论，去查三个数：</p>
+<ol>
+<li><strong>美元的实际方向。</strong>如果这句话对，美元应该已经在跌了——因为期限溢价上升的机制里，资金流出和收益率上升是<strong>同时</strong>发生的，不是先后。8/28 美元涨 0.5%，这一项当天不支持该主张。</li>
+<li><strong>曲线形状。</strong>财政叙事应该表现为长端领涨。8/28 是短端领涨（2Y +8 vs 30Y +2），这一项也不支持。</li>
+<li><strong>黄金。</strong>对纸面资产的信心问题应推高金价。8/28 黄金跌 2.88%，第三项还是不支持。</li>
+</ol>
+<p><strong>结论的正确写法：</strong>「就 8 月 28 日这一天的三个跨市场信号而言，这个主张没有得到支持。」<strong>而不是</strong>「这个主张是错的」——因为一天的数据不能否证一个关于多年趋势的判断，而且叙事是可以翻转的（第 9 节的英国例子）。</p>
+<p><strong>这道题真正在练的是：把一个听起来吓人的宏观论断，翻译成三个可以当场查证的数字。</strong></p>
+</details>
+</div>
+
+<h3>今天就能做的一个小动作（15 分钟）</h3>
+
+<p>做一张属于你自己的<strong>诊断卡片</strong>，就四行，存在手机备忘录里：</p>
+
+<div class="box">
+<p style="margin:.3em 0">① 长端收益率方向　② 短端 vs 长端谁动得多　③ 本币方向　④ 黄金方向</p>
+</div>
+
+<p>然后现在就用它跑一遍今天的市场，写下你的分类结论和日期。<strong>下次美联储会议之后再跑一遍，对照你上次写的。</strong>两三次之后你会发现，你不再需要等财经媒体告诉你「今天为什么跌」。</p>
+
+<h3>延伸阅读</h3>
+
+<ul>
+<li><a href="https://www.bankofengland.co.uk/-/media/boe/files/working-paper/2023/an-anatomy-of-the-2022-gilt-market-crisis.pdf">Bank of England, <em>An anatomy of the 2022 gilt market crisis</em>, Staff Working Paper No. 1019 (2023)</a><br>
+<span class="hint">难度：中偏高（有计量部分，但叙事部分可以单独读）。<strong>值得读的理由：</strong>这是极少数由危机当事方（央行自己）写的、带完整数据的事后解剖。读前三节就够——它把「保证金追缴 → 强制卖出 → 收益率上升 → 更多追缴」这个回路用真实数字走了一遍。约 40 分钟。</span></li>
+
+<li><a href="https://www.chicagofed.org/publications/chicago-fed-letter/2023/480">Chicago Fed Letter No. 480, <em>UK Pension Market Stress in 2022</em></a><br>
+<span class="hint">难度：低。<strong>值得读的理由：</strong>比 BoE 论文短得多（几页），而且是从美国视角问「这事会不会在美国重演」。如果只有 15 分钟，读这篇而不是上面那篇。</span></li>
+
+<li><a href="https://www.msci.com/research-and-insights/blog-post/scenario-analysis-when-stocks-bonds-and-the-dollar-fall-together">MSCI, <em>Scenario Analysis: When Stocks, Bonds and the Dollar Fall Together</em></a><br>
+<span class="hint">难度：低。<strong>值得读的理由：</strong>它是站在<strong>外币投资者</strong>角度算的，正好是你的位置。<strong>读的时候请特别注意它对「Triple-Red」的定义方式</strong>——第 8.2 节的推测框就是因为我没拿到这个定义才挂在那里。你读到了，可以直接告诉我，我们把那个框拆掉。</span></li>
+</ul>
+
+<h2>13｜今天查实了什么 / 没查实什么</h2>
+
+<h3>数据出处与口径</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>数据</th><th>口径</th><th>出处</th><th>可信度</th></tr></thead>
+<tbody>
+<tr><td>8/28 美债 2Y/10Y/30Y 变动（+8/+4/+2 bp）</td><td>当日变动，时点未标明</td><td>Yahoo Finance</td><td class="dn">二手；另一来源给 +12/+5.6</td></tr>
+<tr><td>8/27 收益率水平（2Y 4.20 / 10Y 4.67 / 30Y 5.19）</td><td>固定期限收益率，15:30 时点</td><td>美联储 H.15</td><td class="up">一手</td></tr>
+<tr><td>美元指数 99.65 (+0.5%)、黄金 $4,529.90 (−2.88%)</td><td>2026-08-28 收盘</td><td>Investrade</td><td class="dn">二手</td></tr>
+<tr><td>英国 30 年期 +120bp（三天）、450 亿英镑减税</td><td>2022-09-23 起三个交易日</td><td>EFG International</td><td class="dn">二手</td></tr>
+<tr><td>英国「中长期限几天内 &gt;100bp」、互换浮亏 80 亿、净卖出 &gt;360 亿</td><td>2022-09-23 至 10-14</td><td>Bank of England SWP 1019</td><td class="up">一手（央行研究）</td></tr>
+<tr><td>英国 30 年期 +200bp、干预 193 亿英镑</td><td>2022 年 8 月底至 9/27；9/28–10/14</td><td>Chicago Fed Letter 480</td><td class="up">一手（联储刊物）</td></tr>
+<tr><td>GBP/USD 历史低点约 1.035（2022-09-26 盘中）</td><td>盘中最低价</td><td>gbpusd.net</td><td class="dn">二手，汇率数据站</td></tr>
+<tr><td>日本 10Y 2.93%、BOJ 加息概率 87%</td><td>2026-08-28</td><td>Trading Economics</td><td class="dn">二手</td></tr>
+<tr><td>USD/JPY 159.811、同比 −8.65%</td><td>2026-08-31</td><td>Trading Economics</td><td class="dn">二手</td></tr>
+<tr><td>日元实际有效汇率 65.04</td><td>2026 年 7 月，2020=100，未季调，BIS 广义</td><td>FRED (BIS)</td><td class="up">一手数据库</td></tr>
+<tr><td>1974 / 1987 / 2025-04 三红幅度</td><td>外币投资者 60/40 视角</td><td>MSCI</td><td class="dn">二手；定义未见</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>依据类型</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>内容</th><th>依据</th></tr></thead>
+<tbody>
+<tr><td>债券价格 ↔ 收益率反向（永续债算术）</td><td class="up">纯算术，可验算</td></tr>
+<tr><td>增长冲击下股债反向的机制</td><td class="up">推导 + 教科书标准结论</td></tr>
+<tr><td>利率平价：利率 +1pp → 本币立刻升值约 1%</td><td class="up">纯算术，含验算</td></tr>
+<tr><td>收益率拆成政策路径 + 期限溢价，两者对汇率作用相反</td><td>推导；「拆成两块」本身是教科书结论，我今天没有引用具体文献</td></tr>
+<tr><td>曲线形状判据（短端 vs 长端）</td><td class="up">算术（Day 14 已推）+ 8/28 实际数据</td></tr>
+<tr><td>8/28 落在「鹰派」列</td><td>数据有出处；<b>是分类，不是因果证明</b></td></tr>
+<tr><td>英国 2022 LDI 回路</td><td class="up">央行与联储刊物的一手数据</td></tr>
+<tr><td>8.1 组合复合算术</td><td class="up">纯算术；输入为<b>示意数字</b>，已明标</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>今天接不上的地方（明写）</h3>
+
+<ol>
+<li><strong>英国 2022 年的短端（2 年期）数据没查到</strong>，所以第 4.4 节的「曲线形状」判据，我只能在美国那一侧画图，英国那一侧只能引用长端数字，不能断言长端涨得比短端多。</li>
+<li><strong>日本目前的收益率上升，我没有拆成政策路径和期限溢价两部分</strong>，所以第 7 节不给结论，只列出信号矛盾在哪。</li>
+<li><strong>MSCI 对「Triple-Red」的判定标准我没拿到</strong>，因此 2026 年 1 月那个案例与 Janus Henderson 的月度数据冲突，我把它整个装进了推测框，正文没用。</li>
+<li><strong>「日元处于四十年低点」这个说法指的是哪个序列，我没有核对。</strong>我用 REER 65.04 这个硬数据作为替代，但没有独立验证它是否为多数十年低位。</li>
+<li><strong>8/28 的 VIX、信用利差、美国通胀保值国债盈亏平衡通胀率</strong>：都没查到可靠数字，因此全文没有引用。信用利差本来是「鹰派 vs 信誉」判别的第四个独立信号，缺了它，我的分类只有三个信号支撑。</li>
+<li><strong>「股债汇三杀」这个词本身没有学术定义。</strong>我在第 1 节明说了这一点，全文用的是我自己定的口径。<strong>如果你在别处看到这个词，先确认对方说的是不是同一件事。</strong></li>
+</ol>
+
+<div class="guess" style="margin-top:2em">
+<span class="tag">⚠ 整体提醒</span>
+<p>这份加更里<strong>最结实的部分是第 4 节的两条推导</strong>（利率平价的算术、收益率的两块拆解），它们不依赖任何一天的数据，你可以自己验算，也可以拿去用在任何国家任何时点。</p>
+<p><strong>最软的部分是第 5 节那张指纹表用在具体某一天上。</strong>一天的数据、三个信号一致，这在统计上什么都不是——它只是说明「用这套程序去分类，8/28 落在这一列」。它没有预测明天，我也没有假装它能。</p>
+</div>
+
+<footer>
+<p>Day 14 加更 · 跨领域（D 汇率与全球资本流动 × A 利率体系 × E 信用与金融稳定）<br>
+市场数据截至 2026-08-28 美股收盘；日本数据截至 2026-08-31｜成稿 2026-08-31（新加坡）</p>
+<p>本材料为教学分析，不构成投资建议。所有市场数据均标注出处与口径，请在使用前自行核对。</p>
+</footer>
+
+</div>
+</body>
+</html>

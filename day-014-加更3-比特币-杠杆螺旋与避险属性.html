@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>加更三 · 比特币：杠杆螺旋的机械学，以及它为什么不是避险资产</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --fg:#1f2328; --muted:#5b6570; --line:#e2e0dc;
+    --card:#ffffff; --accent:#1d5fbf; --accent-soft:#eaf1fd;
+    --warn:#b45309; --warn-bg:#fff8ec; --warn-line:#e0a750;
+    --good:#0f7a52; --bad:#b4232c;
+    --code-bg:#f2f1ee; --c1:#1d5fbf; --c2:#b4232c; --grid:#dedbd6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --fg:#e6e6e3; --muted:#9aa4ae; --line:#2c3238;
+      --card:#1b1f23; --accent:#7db1ff; --accent-soft:#16233a;
+      --warn:#f0b45c; --warn-bg:#2a2113; --warn-line:#8a6320;
+      --good:#4fc99a; --bad:#ff8a8a;
+      --code-bg:#22262b; --c1:#4a86d8; --c2:#d96a6a; --grid:#333a41;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.85; overflow-x:hidden;}
+  .wrap{max-width:760px; margin:0 auto; padding:32px 20px 90px}
+  header.top{border-bottom:1px solid var(--line); padding-bottom:20px}
+  .kicker{font-size:13px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  h1{font-size:27px; line-height:1.4; margin:.35em 0 .3em; font-weight:700}
+  .sub{color:var(--muted); font-size:15px; margin:0}
+  h2{font-size:21px; margin:2.6em 0 .7em; padding-top:.6em; border-top:1px solid var(--line); font-weight:700}
+  h3{font-size:17.5px; margin:2em 0 .5em; font-weight:700}
+  h4{font-size:16px; margin:1.5em 0 .4em; font-weight:700; color:var(--accent)}
+  p{margin:.85em 0}
+  ul,ol{padding-left:1.35em; margin:.7em 0}
+  li{margin:.4em 0}
+  a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; word-break:break-word}
+  .lead{background:var(--accent-soft); border-radius:10px; padding:16px 18px; margin:1.2em 0}
+  .calc{background:var(--code-bg); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+    padding:12px 16px; margin:1.1em 0; font-size:16.5px; line-height:2.05; overflow-x:auto;}
+  .guess{border:2px dashed var(--warn-line); background:var(--warn-bg); border-radius:10px; padding:14px 18px 16px; margin:1.4em 0}
+  .guess .tag{display:inline-block; background:var(--warn); color:#fff; font-size:12.5px; font-weight:700;
+    padding:2px 10px; border-radius:20px; margin-bottom:8px; letter-spacing:.03em}
+  .guess p{margin:.5em 0; font-size:16px}
+  .src{font-size:13.5px; color:var(--muted); border-top:1px dotted var(--line); padding-top:8px; margin-top:14px}
+  .src b{color:var(--fg)}
+  .box{border:1px solid var(--line); background:var(--card); border-radius:10px; padding:14px 18px; margin:1.2em 0}
+  .qbox{border:1px solid var(--line); border-radius:10px; padding:2px 16px; margin:1em 0; background:var(--card)}
+  .tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0}
+  table{border-collapse:collapse; width:100%; font-size:15px; min-width:520px}
+  th,td{border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  th{font-weight:700; color:var(--muted); font-size:13.5px}
+  td.n{font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+  .up{color:var(--good); font-weight:600}
+  .dn{color:var(--bad); font-weight:600}
+  .hl{background:var(--accent-soft); font-weight:700}
+  figure{margin:1.8em 0}
+  figure svg{width:100%; height:auto; display:block}
+  figcaption{font-size:14px; color:var(--muted); margin-top:10px; line-height:1.7}
+  details{margin:.7em 0; border:1px solid var(--line); border-radius:8px; padding:0 14px; background:var(--card)}
+  details[open]{padding-bottom:8px}
+  summary{cursor:pointer; padding:11px 0; font-weight:600; font-size:16px}
+  .hint{font-size:15px; color:var(--muted)}
+  .dg rect.n{fill:var(--card); stroke:var(--fg); stroke-width:1.6}
+  .dg text{fill:var(--fg)}
+  .dg text.t1{font-size:14.5px; font-weight:700}
+  .dg text.t2{font-size:12.5px; fill:var(--muted)}
+  .dg path{stroke:var(--fg); stroke-width:1.8; fill:none}
+  .dg path.step{stroke:var(--c2); stroke-width:2.4}
+  .dg path.ax{stroke:var(--grid); stroke-width:1.2}
+  .ch text{fill:var(--fg)}
+  .ch .ax{font-size:13px; fill:var(--muted)}
+  .ch .vl{font-size:15px; font-weight:700}
+  .ch .gr{stroke:var(--grid); stroke-width:1}
+  .ch .zero{stroke:var(--fg); stroke-width:1.5}
+  .ch .bpos{fill:var(--c1)}
+  .ch .bneg{fill:var(--c2)}
+  footer{margin-top:3em; padding-top:20px; border-top:1px solid var(--line); font-size:14.5px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 14 · 加更三 · 跨领域（E 杠杆与金融稳定 × G 资产配置 × F 估值框架的边界）</div>
+  <h1>比特币：杠杆螺旋的机械学<br><span style="font-size:20px;font-weight:600;color:var(--muted)">以及它为什么不再是避险资产</span></h1>
+  <p class="sub">成稿 2026-08-31（新加坡）｜市场数据截至 2026-08-28 至 08-31</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<div class="lead">
+<p>你给的链条是「上涨 → 机构风控被迫卖出 → 散户和游资去杠杆 → 踩踏」。<strong>我先要改你这条链的第一环</strong>——不是为了挑刺，是因为改完之后它会变得可以预测。改法在第 1 节。</p>
+<p>然后我们把这条链的每一环拆成机械：交易所的强平引擎<strong>为什么必须发出对价格不敏感的市价卖单</strong>；一家上市公司<strong>在哪个精确的阈值上会从最大买家变成卖家</strong>（这个阈值可以算出来，是一个整数）；以及这两件事如何汇合成踩踏。</p>
+<p>后半部分是你要的深度：<strong>为什么它不再是避险资产。</strong>我不会用「因为它波动大」这种废话来搪塞——那不是理由。我会先给避险资产的严格定义，然后用 2026 年这一整年当成一次天然实验：同样的战争、同样的通胀、同样的鹰派联储，<strong>黄金同比 +28%，比特币跌了三分之一以上。</strong>为什么两个都不产生现金流的资产会分道扬镳，这里有一个可以推导的答案。</p>
+</div>
+
+<h2>1｜先改你那条链的第一环</h2>
+
+<p>你写的是「上涨 → 机构风控被迫卖出」。<strong>中间缺了一环，而缺的那一环恰恰是关键。</strong></p>
+
+<p>上涨本身不会触发风控卖出。上涨的时候大家赚钱，风控指标好看，没人被强平。<strong>上涨做的是另一件事：它让杠杆变便宜、变诱人，于是杠杆在这个过程中被累积起来。</strong></p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>正确的链条是：</strong></p>
+<p style="margin:.5em 0"><strong>上涨阶段：累积燃料</strong>（杠杆、未平仓合约、企业发债买币）<br>
+　　↓<br>
+<strong>某个冲击：扳机</strong>（可以是任何东西——加息预期、关税、一条推文）<br>
+　　↓<br>
+<strong>强平引擎：机械放大</strong>（价格不敏感的卖单）<br>
+　　↓<br>
+<strong>踩踏</strong></p>
+</div>
+
+<p><strong>为什么这个修正重要？</strong>因为它把一个不可预测的问题换成了一个可测量的问题：</p>
+
+<ul>
+<li>「下一次崩盘由什么触发」——<strong>不可预测</strong>。扳机可以是任何东西，事后你总能找到一个。</li>
+<li>「下一次崩盘会有多大」——<strong>可以估计</strong>。因为规模主要由事前累积的燃料决定，而燃料是可以看见的：未平仓合约、杠杆倍数分布、企业的债务结构。</li>
+</ul>
+
+<p>这一课后面所有内容，都是在把「燃料」这个词变成具体的、可以查的数字。</p>
+
+<h2>2｜燃料之一：永续合约与强平引擎</h2>
+
+<h3>2.1　先说什么是「永续合约」</h3>
+
+<p>生活场景：你想赌美元对新元会涨，但你不想真的去买一大笔美元。于是你和交易所约定：<strong>不交割实物，只按价格变动结算差额。</strong>你押 1 万块，约定按 10 倍规模计算盈亏——也就是你在赌 10 万块的价格变动。</p>
+
+<p>这种「不交割实物、只结算差价、而且永远不到期」的合约，<strong>加密市场给它起了个名字，叫永续合约</strong>（perpetual futures，业内简称 perp）。它是加密市场杠杆的主要载体。</p>
+
+<p>关键的两个数字：</p>
+<ul>
+<li><strong>杠杆倍数</strong>：你的押金能撬动多大的头寸。10 倍就是 1 万押金对应 10 万头寸。</li>
+<li><strong>维持保证金率</strong>：账户里必须始终保留的最低押金比例。跌破就被强制平仓。</li>
+</ul>
+
+<h3>2.2　强平价格是算出来的，不是随机的</h3>
+
+<p>你押金 10 万美元，用 10 倍杠杆开多头，头寸 100 万美元。价格跌 1%，你亏 1 万——<strong>是头寸的 1%，但是你押金的 10%。</strong></p>
+
+<div class="calc">
+杠杆 10 倍，价格跌 x% → 押金亏损 = 10 × x%<br><br>
+跌 5% → 押金亏 <b>50%</b><br>
+跌 10% → 押金亏 <b>100%</b>（归零）
+</div>
+
+<p>但交易所不会等你归零才动手——那样它就要承担穿仓的损失。它设一个维持保证金率，比如 <strong>0.5%</strong>（这是示意数字），意思是：押金掉到头寸的 0.5% 以下就强平。</p>
+
+<div class="calc">
+被强平的价格跌幅 ≈ (1 ÷ 杠杆倍数) − 维持保证金率<br><br>
+25 倍：1÷25 − 0.5% = 4% − 0.5% = <b>3.5%</b><br>
+20 倍：1÷20 − 0.5% = 5% − 0.5% = <b>4.5%</b><br>
+10 倍：1÷10 − 0.5% = 10% − 0.5% = <b>9.5%</b><br>
+　5 倍：1÷5 − 0.5% = 20% − 0.5% = <b>19.5%</b>
+</div>
+
+<p class="hint">0.5% 这个维持保证金率是<strong>示意数字</strong>，真实数值因交易所、品种、头寸大小而异（大头寸通常要求更高）。但<strong>结构不受影响</strong>：不同杠杆倍数的人，在不同的价格跌幅上被清算，形成一个阶梯。</p>
+
+<h3>2.3　关键的一步：强平单和普通卖单不是一回事</h3>
+
+<p>你自己想卖的时候，你可以挂一个价格慢慢等。<strong>强平引擎不能等。</strong>它必须在保证金耗尽之前把头寸平掉，否则损失落到交易所头上。所以它发出的是<strong>市价单</strong>——不问价格，只要成交。</p>
+
+<p>一篇 2026 年的学术论文把这个机制描述得很精确：</p>
+
+<div class="box">
+<p style="margin:.3em 0">「头寸是加杠杆的；一个不利的价格变动越过了维持保证金阈值；<strong>交易所的强平引擎发出强制的、对价格不敏感的卖单</strong>；这些卖单的市场冲击把价格推得更低，进入下一批阈值。」</p>
+<p class="hint" style="margin:.5em 0 .3em">—— Garcia Seuma (2026), arXiv:2607.27070</p>
+</div>
+
+<p><strong>「对价格不敏感」（price-insensitive）这个词是全文的钥匙。</strong>回想加更二第 5 节的滑点算术：一个不管价格的大卖单，会一路吃穿订单簿。而它把价格推低之后，恰好触发下一层杠杆的强平线。</p>
+
+<figure>
+<svg class="dg" viewBox="0 0 680 330" role="img" aria-label="强平级联的阶梯示意图">
+  <text x="0" y="16" style="font-size:14.5px;font-weight:700;fill:var(--fg)">强平级联的阶梯（示意图，维持保证金率取 0.5%）</text>
+  <path class="ax" d="M70 50 L70 265"/>
+  <path class="ax" d="M70 265 L650 265"/>
+  <g class="t2">
+    <text x="60" y="60" text-anchor="end" style="font-size:12px">0%</text>
+    <text x="60" y="112" text-anchor="end" style="font-size:12px">−3.5%</text>
+    <text x="60" y="160" text-anchor="end" style="font-size:12px">−4.5%</text>
+    <text x="60" y="212" text-anchor="end" style="font-size:12px">−9.5%</text>
+    <text x="60" y="260" text-anchor="end" style="font-size:12px">−19.5%</text>
+  </g>
+  <path class="ax" d="M70 56 L650 56" stroke-dasharray="3 4"/>
+  <path class="ax" d="M70 108 L650 108" stroke-dasharray="3 4"/>
+  <path class="ax" d="M70 156 L650 156" stroke-dasharray="3 4"/>
+  <path class="ax" d="M70 208 L650 208" stroke-dasharray="3 4"/>
+  <path class="ax" d="M70 256 L650 256" stroke-dasharray="3 4"/>
+  <!-- staircase -->
+  <path class="step" d="M80 56 L180 56 L180 108 L300 108 L300 156 L420 156 L420 208 L540 208 L540 256 L645 256"/>
+  <g class="t2" style="font-size:12.5px">
+    <text x="192" y="102">25 倍杠杆在这里被清空</text>
+    <text x="312" y="150">20 倍杠杆在这里被清空</text>
+    <text x="432" y="202">10 倍杠杆在这里被清空</text>
+    <text x="552" y="250">5 倍…</text>
+  </g>
+  <text class="t2" x="360" y="292" text-anchor="middle">每一级的强平卖单，把价格推到下一级的强平线上</text>
+  <text class="t2" x="360" y="314" text-anchor="middle" style="font-weight:700;fill:var(--warn)">扳机只需要把价格推下 3.5%，剩下的由引擎自己完成</text>
+</svg>
+<figcaption><strong>这是示意图，价位来自第 2.2 节的算术，不是任何真实市场的持仓分布。</strong>它要表达的只有一件事：<strong>下跌的前 3.5% 需要有人卖，之后的每一级都是机器在卖。</strong>这就是你说的「踩踏」的机械来源——它不需要任何人恐慌。</figcaption>
+</figure>
+
+<h3>2.4　还有一个更阴的触发器：抵押品脱锚</h3>
+
+<p>上面假设你的押金是稳定的。<strong>如果押金本身会跌呢？</strong></p>
+
+<p>2025 年 10 月 10 日就发生了这件事。当时一种叫 USDe 的稳定币（设计上应该始终值 1 美元）在币安一度跌到 <strong>$0.65</strong>。</p>
+
+<p><strong>推一下后果：</strong>假设你用 100 万 USDe 做押金，开了 1000 万头寸（10 倍）。比特币价格一分钱没动，但你的押金账面价值变成 65 万——<strong>保证金率从 10% 掉到 6.5%，你被强平了。</strong></p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>注意这个结构你已经见过两次了：</strong></p>
+<p style="margin:.5em 0">Day 14 加更一（英国 LDI）：触发器是<strong>保证金追缴</strong>。<br>
+Day 14 加更二（VaR 限额）：触发器是<strong>波动率上升</strong>。<br>
+今天（抵押品脱锚）：触发器是<strong>押金本身贬值</strong>。</p>
+<p style="margin:.5em 0 .3em"><strong>三个不同的触发器，同一个结构：分子（你的判断）没变，分母（约束）变了，于是你被迫卖出。</strong></p>
+</div>
+
+<div class="src"><b>依据：</b>强平机制描述引自 <a href="https://arxiv.org/html/2607.27070">Garcia Seuma (2026), arXiv:2607.27070</a>（预印本）；USDe 跌至 $0.65 见 <a href="https://www.coindesk.com/research/market-spotlight-the-19-billion-liquidation-that-shook-crypto">CoinDesk Research</a>。强平价格算术为推导，维持保证金率为示意数字。</div>
+
+<h2>3｜真实数据：同一个机制，规模差 40 倍</h2>
+
+<p>把两次真实的级联摆在一起，你会立刻看到「燃料存量」的意义。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th></th><th>2025 年 10 月 10 日</th><th>2026 年 8 月 28 日</th></tr></thead>
+<tbody>
+<tr><td>扳机</td><td>宣布对华 100% 关税</td><td>沃什 Jackson Hole 讲话</td></tr>
+<tr><td><strong>24 小时清算总额</strong></td><td class="dn"><strong>190 亿美元</strong></td><td class="dn"><strong>4.877 亿美元</strong></td></tr>
+<tr><td>比特币价格</td><td>跌至 $106,560</td><td>约 $80,000 → 低点 $76,909（约 −4%）</td></tr>
+<tr><td>山寨币</td><td>前 100 名平均 −58%，部分数分钟内 −75%+</td><td>—</td></tr>
+<tr><td>未平仓合约</td><td>2170 亿 → 1230 亿（<strong>−43%</strong>）</td><td>未查到</td></tr>
+<tr><td>受影响账户</td><td>未查到</td><td>97,691 个</td></tr>
+<tr><td>多空结构</td><td>拥挤的多头</td><td>多头占 3.6 亿以上（约 74%）</td></tr>
+<tr><td>二次触发</td><td>USDe 脱锚至 $0.65</td><td>无</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>190 亿 ÷ 4.877 亿 ≈ 39 倍。</strong></p>
+
+<div class="calc">
+190 亿 ÷ 4.877 亿 = <b>约 39</b>
+</div>
+
+<p>两次都是外部宏观消息，两次都是同一个强平引擎。<strong>差别在哪？</strong>在于事前累积了多少燃料。2025 年 10 月的未平仓合约是 <strong>2170 亿美元</strong>——处在历史高位，而且论述一致地描述为「拥挤的多头」。2026 年 8 月的加密市场已经经历了近一年的下跌（第 4 节会给数字），杠杆早就被清过好几遍了。</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>所以你那条链的第一环——「上涨」——它的作用在这里被量化了：上涨积累未平仓合约，未平仓合约决定崩盘的规模。</strong></p>
+<p style="margin:.5em 0 .3em">而且这给了一个<strong>事前可用</strong>的判据：想知道下一次冲击会有多惨，去看未平仓合约在什么水平，而不是去猜下一条新闻是什么。</p>
+</div>
+
+<h4>再看 8/28 那天的一个细节，它验证了第 2 节的机制</h4>
+
+<p>4.877 亿的清算里，<strong>超过 2 亿是在讲话后一小时内完成的</strong>。</p>
+
+<div class="calc">
+2 亿 ÷ 4.877 亿 = <b>约 41%</b><br>
+<span style="font-size:14px;color:var(--muted)">（24 小时清算量的四成，集中在 1 小时内）</span>
+</div>
+
+<p>而且多头占了 74%。<strong>这两个数字都和阶梯模型一致</strong>：价格下跌清空的是多头，而且是在极短时间内一级一级完成的。</p>
+
+<p class="hint"><strong>数据口径警告：</strong>比特币 8/28 的价格，不同来源给的数字不一样——CoinDesk 说盘中低点 $78,400、反弹到约 $79,700；CryptoSlate 说低点 $76,909、发稿时 $77,712；KuCoin 说跌到 $76,877。差异在 2% 左右，来自不同交易所、不同指数、不同时间戳。<strong>加密市场没有一个像股票那样的官方收盘价</strong>，这本身就是一个需要知道的事实。</p>
+
+<div class="src"><b>依据：</b>2025-10-10 数据见 <a href="https://www.coindesk.com/research/market-spotlight-the-19-billion-liquidation-that-shook-crypto">CoinDesk Research</a>；2026-08-28 数据见 <a href="https://cryptoslate.com/fed-chair-kevin-warsh-triggers-a-488-million-crypto-liquidation-cascade-as-rate-hike-expectations-rise/">CryptoSlate</a> 与 <a href="https://www.coindesk.com/business/2026/08/28/live-updates-bitcoin-options-worth-usd6-4-billion-just-expired-as-prices-hover-near-usd80-000">CoinDesk</a>。<b>均为加密行业媒体，不是交易所或监管机构的原始数据，我无法独立核对清算金额的统计口径。</b></div>
+
+<h2>4｜燃料之二：机构的杠杆长什么样</h2>
+
+<p>你链条里的「机构风控被迫卖出」这一环，2026 年有一个教科书级的活样本。<strong>而且它的触发阈值是一个可以算出来的整数。</strong></p>
+
+<h3>4.1　先把这门生意讲清楚</h3>
+
+<p>有一类上市公司，主营业务就是<strong>持有比特币</strong>——业内叫「数字资产储备公司」（digital asset treasury，DAT）。最大的一家是 Strategy（原 MicroStrategy，代码 MSTR），2020 年用 2.5 亿美元开始买币，目前持有<strong>约 84 万枚比特币</strong>。</p>
+
+<p>它的商业模式听起来像魔法，但其实是一个纯算术：</p>
+
+<p><strong>先定义一个数：</strong>把公司的市值，除以它持有的比特币的市值。这个比值<strong>业内叫 mNAV</strong>（market cap to net asset value）。mNAV = 2 表示市场愿意为「1 块钱的比特币」付 2 块钱。</p>
+
+<h3>4.2　飞轮的算术（正向）</h3>
+
+<p>假设公司持有 <strong>100 枚 BTC</strong>，发行在外 <strong>100 股</strong>。那么<strong>每股含 1 枚 BTC</strong>。</p>
+
+<p>现在 mNAV = 2，也就是每股的市价相当于 2 枚 BTC 的价值。公司增发 10 股：</p>
+
+<div class="calc">
+增发 10 股 × 每股 2 BTC 等值 = 募得 <b>20 BTC</b> 的现金，全部买币<br><br>
+新的持币 = 100 + 20 = 120 BTC<br>
+新的股数 = 100 + 10 = 110 股<br>
+每股含币 = 120 ÷ 110 = <b>1.0909 枚</b><br><br>
+原来每股 1 枚 → 现在 1.0909 枚，<b>增厚 9.09%</b>
+</div>
+
+<p><strong>老股东什么都没做，手里每股对应的比特币变多了。</strong>这就是飞轮：股价高于净值 → 增发买币 → 每股含币上升 → 支撑更高的股价 → 继续增发。</p>
+
+<h3>4.3　同一个算术，在 mNAV 跌破 1 之后反转</h3>
+
+<p>现在假设 mNAV = 0.8（市场只肯为 1 块钱的比特币付 8 毛）。同样增发 10 股：</p>
+
+<div class="calc">
+增发 10 股 × 每股 0.8 BTC 等值 = 募得 <b>8 BTC</b><br><br>
+新持币 = 108 BTC，新股数 = 110 股<br>
+每股含币 = 108 ÷ 110 = <b>0.9818 枚</b><br><br>
+原来 1 枚 → 现在 0.9818 枚，<b>稀释 1.82%</b>
+</div>
+
+<p><strong>增发变成了伤害老股东的事。</strong>那反过来呢？</p>
+
+<div class="calc">
+卖掉 8 枚 BTC 换成现金，用这笔钱回购 10 股（每股值 0.8 BTC）<br><br>
+新持币 = 100 − 8 = 92 BTC<br>
+新股数 = 100 − 10 = 90 股<br>
+每股含币 = 92 ÷ 90 = <b>1.0222 枚</b><br><br>
+原来 1 枚 → 现在 1.0222 枚，<b>增厚 2.22%</b>
+</div>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>这就是那个整数阈值：mNAV = 1。</strong></p>
+<p style="margin:.5em 0">mNAV &gt; 1：<strong>增发买币</strong>对老股东有利 → 公司是买家<br>
+mNAV &lt; 1：<strong>卖币回购股票</strong>对老股东有利 → 公司是卖家</p>
+<p style="margin:.5em 0 .3em">同一个管理层、同一个信仰、同一套激励，<strong>在这条线的两侧做完全相反的事</strong>。而且这不是"背叛信仰"，恰恰是履行对股东的责任——按算术，这时候卖币才是对每股含币最有利的做法。</p>
+</div>
+
+<figure>
+<svg class="dg" viewBox="0 0 680 250" role="img" aria-label="mNAV 阈值两侧的相反行为">
+  <path class="ax" d="M340 30 L340 200" stroke-dasharray="6 5"/>
+  <text class="t1" x="340" y="22" text-anchor="middle">mNAV = 1</text>
+
+  <rect class="n" x="30" y="46" width="280" height="52" rx="8"/>
+  <text class="t1" x="46" y="70">mNAV &gt; 1：增发股票买币</text>
+  <text class="t2" x="46" y="89">每股含币 1 → 1.0909（增厚 9.09%）</text>
+
+  <rect class="n" x="370" y="46" width="280" height="52" rx="8"/>
+  <text class="t1" x="386" y="70">mNAV &lt; 1：增发反而稀释</text>
+  <text class="t2" x="386" y="89">每股含币 1 → 0.9818（稀释 1.82%）</text>
+
+  <rect class="n" x="30" y="130" width="280" height="52" rx="8"/>
+  <text class="t1" x="46" y="154">于是它是市场上最大的买家</text>
+  <text class="t2" x="46" y="173">买入推高价格 → mNAV 维持在 1 以上</text>
+
+  <rect class="n" x="370" y="130" width="280" height="52" rx="8"/>
+  <text class="t1" x="386" y="154">于是它变成卖家</text>
+  <text class="t2" x="386" y="173">卖币回购股票：每股含币 1 → 1.0222</text>
+
+  <path d="M170 98 L170 124"/><path d="M164 116 L170 126 L176 116"/>
+  <path d="M510 98 L510 124"/><path d="M504 116 L510 126 L516 116"/>
+  <text class="t2" x="340" y="228" text-anchor="middle">同一套算术，在阈值两侧给出方向相反的最优行为</text>
+</svg>
+<figcaption>这不是心理学，是算术。<strong>而且阈值是硬的、公开的、可以每天算一遍的</strong>——这使得它成为一个真正能事前用的观察指标。</figcaption>
+</figure>
+
+<h3>4.4　现实中它真的发生了</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>时点</th><th>事实</th></tr></thead>
+<tbody>
+<tr><td>2024 年 11 月</td><td>mNAV 峰值 <strong>3.89 倍</strong>（市值约为持币价值的三倍多）</td></tr>
+<tr><td>2026 年 6 月 29 日</td><td>推出「Digital Credit Capital Framework」，<strong>正式把卖比特币写进用于支付优先股股息和利息、回购证券的框架</strong></td></tr>
+<tr><td>2026 年 6 月 29 日 – 7 月 5 日</td><td>卖出 <strong>3,588 枚</strong> BTC，约 2.16 亿美元</td></tr>
+<tr><td>2026 年 7 月 31 日</td><td>STRC 优先股收于 <strong>$89.46</strong>，比 $100 面值低约 10%</td></tr>
+<tr><td>2026 年 8 月 3 日</td><td><strong>mNAV 一度跌破 1.0</strong></td></tr>
+<tr><td>2026 年 8 月 10 日</td><td>卖出 <strong>1,690 枚</strong> BTC，约 1.09 亿美元（前一周另有 1.05 亿美元的卖出）</td></tr>
+<tr><td>2026 年 8 月 28 日</td><td>MSTR 股价当日 <strong>−6.5%</strong></td></tr>
+<tr><td>2026 年 8 月 30 日</td><td>报道称 mNAV 已在 1.0 以下</td></tr>
+<tr><td>2026 年内累计</td><td>四次卖出，共约 <strong>7,000 枚</strong> BTC；美元现金储备建到 <strong>46.5 亿美元</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>卖出的量其实很小，但这不是重点</h4>
+
+<div class="calc">
+7,000 ÷ 840,000 = <b>0.83%</b>
+</div>
+
+<p>不到百分之一。<strong>重点不是量，是方向变了。</strong>市场上最大的、被认为「永不卖出」的那个买家，现在在卖。</p>
+
+<h3>4.5　真正危险的一环：美元义务是固定的，资产是波动的</h3>
+
+<p>这才是「机构被迫卖出」的核心，而且它有一个可怕的算术。</p>
+
+<p>Strategy 的优先股股息是<strong>用美元支付、金额固定</strong>的（而且报道说已改为每半月支付，现金需求更频繁）。它持有的资产是<strong>比特币，价格波动</strong>的。</p>
+
+<p><strong>当 mNAV &lt; 1、增发不划算时，筹美元的路只剩卖币。</strong>那么：</p>
+
+<div class="calc">
+需要筹 <b>1 亿美元</b>付股息<br><br>
+BTC = $80,000 → 需要卖 100,000,000 ÷ 80,000 = <b>1,250 枚</b><br>
+BTC = $50,000 → 需要卖 100,000,000 ÷ 50,000 = <b>2,000 枚</b><br><br>
+价格跌 (80,000−50,000) ÷ 80,000 = <b>37.5%</b><br>
+要卖的币多了 2,000 ÷ 1,250 − 1 = <b>60%</b>
+</div>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>币价跌得越多，为了付同样的美元账单，需要卖的币就越多。而卖得越多，币价压得越低。</strong></p>
+<p style="margin:.5em 0 .3em">这是一个完整的正反馈回路，和加更一里英国养老金的强制卖出、加更二里的 VaR 减仓，是<strong>同一个数学结构的第三个实例</strong>。三次课，三个市场，一个形状。</p>
+</div>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>上面这个回路在逻辑上成立，但<strong>我没有验证它对 Strategy 现在是否已经紧迫</strong>。相反的证据是明确的：公司持有 <strong>46.5 亿美元现金储备</strong>，而 2026 年全年只卖了约 7,000 枚币（0.83%）。<strong>46.5 亿的缓冲相对于每年的股息义务可能非常充裕</strong>——但我没有查到它的年度优先股股息总额，所以我算不出这个缓冲能撑多久。</p>
+<p><strong>反对的看法：</strong>这类公司的债务多为长期、无维持保证金条款的可转债，与交易所强平的逻辑完全不同——不存在「一天之内被强制平仓」的机制。把 DAT 的卖出和永续合约的强平混为一谈，是加密评论里非常常见的一个错误，我在上面几乎犯了它。</p>
+<p><strong>要判断需要什么材料：</strong>Strategy 的年度优先股股息与利息总额、债务到期结构、契约条款。<strong>这些都在它的 10-K 和 10-Q 里，是公开的，但我今天没有去读。</strong>这是今天最应该补而没补的一块。</p>
+</div>
+
+<div class="src"><b>依据：</b>mNAV 算术为推导，可逐行验算；Strategy 的具体数据见 <a href="https://startupfortune.com/strategy-sold-bitcoin-four-times-this-year-and-its-stock-now-trades-below-nav/">Startup Fortune</a> 与 <a href="https://www.foreignpolicyjournal.com/2026/08/30/strategy-nasdaq-mstr-falls-below-bitcoin-net-asset-value-as-market-premium-collapses/">Foreign Policy Journal (2026-08-30)</a>。<b>两者均为二手媒体报道，我没有核对公司原始申报文件。</b></div>
+
+<h2>5｜燃料之三：ETF 让持有人结构变了</h2>
+
+<p>2024 年 1 月美国批准了现货比特币 ETF。这件事常被讲成「机构入场，利好」。<strong>它确实是机构入场，但「利好」这个词掩盖了一个更重要的后果：持有人的行为方式变了。</strong></p>
+
+<p>ETF 的买家是谁？是财富管理账户、配置组合、量化策略。<strong>这些人有再平衡规则、有风险预算、有季度考核</strong>——也就是加更二第 4 节讲的那一整套约束。</p>
+
+<p>2026 年的数据：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>指标</th><th class="n">数值</th></tr></thead>
+<tbody>
+<tr><td>2026 年 6 月现货比特币 ETF 净流出</td><td class="n dn">40.6 亿美元</td></tr>
+<tr><td>　其中 IBIT（贝莱德）</td><td class="n dn">约 30 亿（约 75%）</td></tr>
+<tr><td>此前单月纪录（2025 年 2 月）</td><td class="n">35.6 亿美元</td></tr>
+<tr><td>6 月最后一周</td><td class="n dn">约 17.9 亿（史上第二大单周流出）</td></tr>
+<tr><td><strong>2026 年全年净流</strong></td><td class="n dn"><strong>史上首次转为负</strong></td></tr>
+<tr><td>当期比特币价格</td><td class="n">跌破 $60,000</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>「史上首次年度净流为负」这一条最值得停一下。</strong>ETF 从 2024 年 1 月开始存在，它一直是一个净买入的通道。2026 年这个通道反向了。</p>
+
+<p class="hint">报道把这次流出形容为「有序、结构化的资本撤离」而非「散户恐慌」，理由是它高度集中在 IBIT 这类大产品上。<strong>这个判断我无法独立核实</strong>——高度集中也可能只是因为 IBIT 本来就占了大部分规模。<strong>我把它当作报道的观点，不当作事实。</strong></p>
+
+<div class="src"><b>依据：</b><a href="https://en.spaziocrypto.com/bitcoin/bitcoin-etf-june-2026-worst-month-record-outflows/">Spazio Crypto</a>（二手媒体）。<b>没有核对 ETF 发行人的官方流量数据。</b></div>
+
+<h2>6｜把三层燃料合成一张图</h2>
+
+<p>你原来的链条现在可以补全了：</p>
+
+<figure>
+<svg class="dg" viewBox="0 0 680 400" role="img" aria-label="比特币螺旋下跌的完整链条">
+  <rect class="n" x="60" y="10" width="560" height="54" rx="8"/>
+  <text class="t1" x="76" y="34">上涨阶段：三层燃料同时累积</text>
+  <text class="t2" x="76" y="53">① 永续合约未平仓量　② DAT 公司发债增发买币　③ ETF 持续净流入</text>
+
+  <rect class="n" x="60" y="88" width="560" height="46" rx="8"/>
+  <text class="t1" x="76" y="112">扳机：任何一个宏观冲击</text>
+  <text class="t2" x="76" y="128" style="font-size:11.5px">关税（2025/10）、加息预期（2026/08）—— 内容不重要，只要能推下最初的几个百分点</text>
+
+  <rect class="n" x="60" y="158" width="265" height="60" rx="8"/>
+  <text class="t1" x="76" y="182">A 交易所强平引擎</text>
+  <text class="t2" x="76" y="200">价格不敏感的市价卖单</text>
+  <text class="t2" x="76" y="214" style="font-size:11.5px">分钟级；一小时内可完成大半</text>
+
+  <rect class="n" x="355" y="158" width="265" height="60" rx="8"/>
+  <text class="t1" x="371" y="182">B 机构的约束触发</text>
+  <text class="t2" x="371" y="200">mNAV &lt; 1、ETF 赎回、风险预算</text>
+  <text class="t2" x="371" y="214" style="font-size:11.5px">天到月级；比 A 慢得多</text>
+
+  <rect class="n" x="60" y="242" width="560" height="46" rx="8"/>
+  <text class="t1" x="76" y="266">踩踏 = A 与 B 的叠加</text>
+  <text class="t2" x="76" y="282" style="font-size:11.5px">A 决定单日的剧烈程度，B 决定下跌能持续多久</text>
+
+  <rect class="n" x="60" y="312" width="560" height="46" rx="8"/>
+  <text class="t1" x="76" y="336">燃料被烧掉 → 未平仓合约收缩 → 下一次同样冲击的破坏力下降</text>
+  <text class="t2" x="76" y="352" style="font-size:11.5px">2025/10 清算 190 亿；2026/08 同样量级的宏观冲击只清算 4.9 亿</text>
+
+  <path d="M340 64 L340 84"/><path d="M334 76 L340 86 L346 76"/>
+  <path d="M340 134 L340 152"/><path d="M334 144 L340 154 L346 144"/>
+  <path d="M192 218 L192 238"/><path d="M186 230 L192 240 L198 230"/>
+  <path d="M488 218 L488 238"/><path d="M482 230 L488 240 L494 230"/>
+  <path d="M340 288 L340 308"/><path d="M334 300 L340 310 L346 300"/>
+</svg>
+<figcaption><strong>A 和 B 的时间尺度差异是这张图的关键</strong>（呼应加更二第 3 节）：强平引擎在分钟内完成，机构约束的传导要几周到几个月。<strong>所以一次大级联之后，价格常常在几小时内反弹（A 结束了），但接下来几个月仍然阴跌（B 还在进行）。</strong>把这两件事当成同一回事，是最常见的误读。</figcaption>
+</figure>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>最后那句「大级联后几小时反弹、几个月阴跌」是我从 A、B 的时间尺度差异<strong>推出来的</strong>，我没有用真实数据检验过它。<strong>要检验它，需要把历次级联事件后的 1 天 / 1 周 / 3 个月收益率统计一遍</strong>——这是一件完全可做的事，但我今天没做。</p>
+<p><strong>反对的看法：</strong>加更二引用的那篇 arXiv 论文的核心发现，恰恰是「不同级联事件之间没有共同的、事件不变的信号」（no event-invariant signal）。如果连预警信号都因事件而异，那么<strong>事后的价格路径大概率也因事件而异</strong>，我这个「先反弹后阴跌」的通式很可能站不住。</p>
+</div>
+
+<h2>7｜深度部分：为什么它不是避险资产</h2>
+
+<p>这一节是你要的重点，所以我从定义开始，一步不跳。</p>
+
+<h3>7.1　先把「避险资产」定义清楚，因为大部分争论输在这一步</h3>
+
+<p>日常说的「避险」常常被理解成「会涨」。<strong>这是错的，而且错得很关键。</strong></p>
+
+<p>生活场景：你买保险，不是因为你觉得保险公司的股票会涨，而是因为<strong>在你出事的时候它会赔钱给你</strong>。保险的价值在于它的赔付和你的倒霉是<strong>反向</strong>的。</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>避险资产的定义：在其他资产下跌的时候，它不跌，或者上涨。</strong></p>
+<p style="margin:.5em 0 .3em">衡量的量不是收益率，是<strong>相关性</strong>——它和你其余持仓一起动，还是反着动。一个长期涨得飞快但和股市同涨同跌的资产，是<strong>好投资</strong>，但<strong>不是避险资产</strong>。这两个词说的是两件事。</p>
+</div>
+
+<p><strong>为什么这个区分是全部争论的关键？</strong>因为「比特币十年涨了一万倍」和「比特币是不是避险资产」<strong>互不相干</strong>。第一句是关于收益，第二句是关于相关性。支持方常常用第一句回答第二句的质疑，而那是答非所问。</p>
+
+<h3>7.2　2026 年提供了一次近乎完美的天然实验</h3>
+
+<p>要检验「避险」，你需要一个真正的危险。<strong>2026 年一次给了三个：</strong>3 月爆发的美以对伊朗战争（加更二第 7 节的完整时间线）、持续高于目标的通胀（7 月 PCE 同比 3.7%）、以及转向鹰派的美联储。</p>
+
+<p>同时，市场上有两个「不产生任何现金流、被认为能抵抗货币贬值」的资产：<strong>黄金和比特币</strong>。它们面对的是<strong>同样的冲击</strong>。</p>
+
+<figure>
+<svg class="ch" viewBox="0 0 660 300" role="img" aria-label="黄金与比特币同期表现对比：黄金同比上涨28.11%，比特币下跌至少33%">
+  <text x="0" y="18" style="font-size:15px;font-weight:700">两个「无现金流、抗贬值」资产，同一年，同样的冲击</text>
+  <text class="ax" x="0" y="38">单位：百分比变化</text>
+  <g class="gr">
+    <line x1="90" y1="70" x2="640" y2="70"/>
+    <line x1="90" y1="110" x2="640" y2="110"/>
+    <line x1="90" y1="190" x2="640" y2="190"/>
+    <line x1="90" y1="230" x2="640" y2="230"/>
+  </g>
+  <g class="ax">
+    <text x="80" y="75" text-anchor="end">+40%</text>
+    <text x="80" y="115" text-anchor="end">+20%</text>
+    <text x="80" y="155" text-anchor="end">0</text>
+    <text x="80" y="195" text-anchor="end">−20%</text>
+    <text x="80" y="235" text-anchor="end">−40%</text>
+  </g>
+  <line class="zero" x1="90" y1="150" x2="640" y2="150"/>
+  <!-- gold: +28.11% -> 150 - 28.11*2 = 93.8 -->
+  <path class="bpos" d="M160 150 L160 98 Q160 94 164 94 L266 94 Q270 94 270 98 L270 150 Z"><title>黄金：同比 +28.11%（2026-08-31）</title></path>
+  <text class="vl" x="215" y="86" text-anchor="middle">+28.1%</text>
+  <!-- btc: -33% -> 150 + 66 = 216 -->
+  <path class="bneg" d="M420 150 L420 212 Q420 216 424 216 L526 216 Q530 216 530 212 L530 150 Z"><title>比特币：同比至少 −33%（区间 −33% 至 −37%）</title></path>
+  <text class="vl" x="475" y="234" text-anchor="middle">−33% 以上</text>
+  <g class="ax">
+    <text x="215" y="264" text-anchor="middle" style="font-size:14px">黄金（同比，2026-08-31）</text>
+    <text x="475" y="264" text-anchor="middle" style="font-size:14px">比特币（同比，约值）</text>
+    <text x="475" y="284" text-anchor="middle" style="font-size:11.5px">柱高按保守端 −33% 画</text>
+  </g>
+</svg>
+<figcaption><strong>黄金的 +28.11% 是查到的确切数字</strong>（Trading Economics，2026-08-31，同比）。<strong>比特币这根柱子是区间的保守端。</strong>我查到的是：2025 年 10 月初见历史高点约 $126,000；2026 年 7 月 1 日低点 $57,950；8 月 28 日在 $77,000–$80,000 区间。<strong>但我没有查到 2025 年 8 月的确切价格</strong>（当年 7 月为 $123,000、10 月为 $126,000），所以精确的同比落在 −33% 到 −37% 之间，我按 −33% 画。<strong>无论取哪一端，结论不变。</strong></figcaption>
+</figure>
+
+<p>同一年、同样的战争、同样的通胀、同样的联储。<strong>一个涨了近三成，一个跌了三分之一以上。</strong></p>
+
+<p>而且看 8 月 28 日<strong>当天</strong>：黄金 −2.88%，比特币约 −4%。<strong>两个同向下跌。</strong>这一天它们表现得像同一类东西（都怕实际利率上升），但拉长到一年，它们完全分道扬镳。<strong>这个「短期同向、长期反向」的组合，正好是理解它们区别的入口</strong>——第 7.4 节回答。</p>
+
+<h3>7.3　学术证据：转折点是 ETF</h3>
+
+<p>2025 年 12 月的一篇论文（华盛顿大学 Olin 商学院，Hong、Feng、Wang、Li）专门检验了现货 ETF 批准前后比特币的对冲属性变化。</p>
+
+<ul>
+<li><strong>方法：</strong>30 日与 60 日滚动相关性、Chow 结构断点检验、ARMA-DCC-GARCH 模型。</li>
+<li><strong>断点：</strong>2024 年 1 月 10 日（SEC 批准现货比特币 ETF）。</li>
+<li><strong>发现一：</strong>比特币与标普 500 的相关性，在批准后从「波动/下行」转为<strong>明显的上行趋势</strong>。</li>
+<li><strong>发现二：</strong>比特币与黄金的相关性<strong>始终偏低，且没有出现显著的正向变化</strong>——直接挑战「数字黄金」的说法。</li>
+<li><strong>发现三：</strong>比特币与美元指数的相关性<strong>始终为负或可忽略</strong>。</li>
+<li><strong>统计：</strong>Chow 检验在 1% 水平确认结构断点（p = 0.0000）。</li>
+<li><strong>结论原文大意：</strong>「金融化」把比特币从一个独立的、投机性的对冲工具，变成了一个<strong>与全球股市同步波动的常规风险资产</strong>。</li>
+</ul>
+
+<p class="hint"><strong>口径警告，很重要：</strong>这篇论文的样本非常短——事件前 2023 年 10 月 1 日至 2024 年 1 月 9 日，事件后 2024 年 1 月 11 日至 2024 年 4 月 30 日，<strong>前后各约三个月</strong>。三个月的滚动相关性能不能支撑「结构性转变」这么强的结论，是可以质疑的。而且它是 arXiv 预印本。<strong>我引用它，是因为它的方向和 2026 年的价格行为一致，而不是因为它本身足够有力。</strong></p>
+
+<h3>7.4　核心问题：为什么黄金能，比特币不能？</h3>
+
+<p>这是本节最该讲透的地方。两个资产都不产生现金流，都被当作抗贬值工具，为什么表现相反？</p>
+
+<h4>第一层：共同点解释了 8/28 当天的同向下跌</h4>
+
+<p>不产生现金流的资产，持有它的代价是<strong>放弃了把这笔钱拿去赚利息</strong>。所以实际利率上升，两者都受损——8 月 28 日加息预期跳升，黄金和比特币<strong>都跌</strong>，完全一致。</p>
+
+<p><strong>所以「无现金流」这个共同点，解释的是它们相同的部分。它解释不了分歧。</strong></p>
+
+<h4>第二层：黄金有一个价格不敏感的买家，比特币没有</h4>
+
+<p>世界黄金协会的数据：<strong>2026 年第一季度全球央行净购金 244 吨</strong>，环比增长 17%，同时高于前一季度和五年均值。买家包括波兰 31 吨（储备达 582 吨）、乌兹别克斯坦 25 吨、哈萨克斯坦 12 吨、中国 7 吨（人民银行储备达 2,313 吨）。</p>
+
+<p><strong>央行这个买家有三个性质，每一个都和这门课前面讲的约束正好相反：</strong></p>
+
+<div class="tw">
+<table>
+<thead><tr><th></th><th>央行买黄金</th><th>比特币的边际买家</th></tr></thead>
+<tbody>
+<tr><td>有杠杆吗</td><td class="up">没有</td><td class="dn">永续合约、DAT 发债，都有</td></tr>
+<tr><td>有考核周期吗</td><td class="up">没有（储备是几十年的事）</td><td class="dn">ETF 背后的账户有季度考核</td></tr>
+<tr><td>跌了会被迫卖吗</td><td class="up">不会</td><td class="dn">会（强平、mNAV、赎回）</td></tr>
+<tr><td>价格敏感吗</td><td class="up">低（按储备政策买）</td><td class="dn">高</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>用加更二的语言说：黄金有一个不受任何强制卖出触发器约束的边际买家，而且这个买家在跌的时候还在买。</strong>世界黄金协会自己的表述是，央行把黄金看作「在极端市场动荡时期可以动用的、不可或缺的储备资产」。</p>
+
+<p>比特币<strong>没有这样一个买家</strong>。它 2024 年之后新增的边际买家（ETF 账户、DAT 公司），恰恰是<strong>约束最多、最容易被迫卖出</strong>的那一类。</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>所以答案是：ETF 和企业储备被普遍当成「比特币被主流接纳」的利好，但从避险属性的角度，它们是负面的——因为它们把比特币的持有人，换成了一群有强制卖出触发器的人。</strong></p>
+<p style="margin:.5em 0 .3em">而避险属性的全部要求，就是<strong>在别人被迫卖的时候你还在</strong>。</p>
+</div>
+
+<h4>第三层：一个我认为对但无法证明的差异</h4>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>我认为还有第三层差异：<strong>黄金作为储备资产的地位，靠的是「所有人都知道所有人都认可它」这个协调点，而这个协调点有几千年历史和一个现存的央行储备存量在支撑</strong>（例如人民银行 2,313 吨）。比特币要成为同类协调点，需要的不是技术，是时间和存量。</p>
+<p><strong>反对的看法（我认为这条相当有力）：</strong>「几千年」不是一个机制，是一个观察。黄金的货币地位在 1971 年布雷顿森林体系瓦解后其实中断过；它今天的央行需求上升，更可能是被具体的、当代的原因驱动的（对美元资产被冻结的担忧、储备多元化），而不是被历史惯性驱动。<strong>如果是这样，那么这些原因原则上同样可以流向别的资产，我这个「年龄」论点就没什么内容。</strong></p>
+<p><strong>要判断需要什么材料：</strong>央行储备管理者的调查（世界黄金协会有做，我没读原文）中关于购金动机的分项数据，以及是否有任何央行把比特币纳入储备的记录。<strong>两样我今天都没查。</strong></p>
+</div>
+
+<h3>7.5　公平起见：它在什么情况下确实起作用</h3>
+
+<p>只讲上面那些是不公平的。<strong>有一类情形，加密资产确实在起避险作用</strong>，而且有数据：</p>
+
+<ul>
+<li><strong>土耳其</strong>：在里拉购买力下跌近 60%、通胀在 2021–2023 年峰值达 85.5% 的背景下，<strong>稳定币购买量达到 GDP 的 4.3%</strong>（截至 2024 年 3 月的一年）。</li>
+<li><strong>阿根廷</strong>：约 500 万日活用户；经济学家把资本管制和汇率限制列为主要原因。</li>
+</ul>
+
+<p><strong>但请仔细看土耳其那条数据的口径——它说的是「稳定币」，不是比特币。</strong></p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>这是整节里最锋利的一个观察：在本币真的崩溃的地方，人们逃向的是「链上的美元」，不是比特币。</strong></p>
+<p style="margin:.5em 0 .3em">也就是说，这个用例证明的是<strong>美元</strong>的避险地位，以及<strong>区块链作为一种支付通道</strong>绕开资本管制的能力。<strong>它并不证明比特币本身是避险资产。</strong>把这两件事混起来讲，是加密叙事里最常见的偷换。</p>
+</div>
+
+<p>另外有一篇学术研究值得知道（Rodriguez 与 Colombo，发表于 Journal of Economics and Business，数据至 2023 年 1 月）：<strong>比特币的通胀对冲属性是「情境特定的，并且很可能随着它被更广泛采用而减弱」。</strong></p>
+
+<p><strong>这个发现和 ETF 那篇论文是同一个方向，而且更根本：</strong></p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>「主流化」和「避险属性」在结构上是互相冲突的。</strong></p>
+<p style="margin:.5em 0 .3em">一个资产之所以能和股市反向，往往正是因为持有它的人和持有股票的人不是同一批。当同一批机构同时持有两者、并用同一套风险预算管理它们时，它们必然开始同向运动。<strong>所以「等机构都进来了它就成熟了」这个期待，和「它能避险」这个期待，不能同时成立。</strong></p>
+</div>
+
+<div class="src"><b>依据：</b>黄金价格与同比见 <a href="https://tradingeconomics.com/commodity/gold">Trading Economics（2026-08-31）</a>；央行购金见 <a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q1-2026/central-banks">World Gold Council, Gold Demand Trends Q1 2026</a>（行业协会一手数据）；ETF 与相关性研究见 <a href="https://arxiv.org/html/2512.12815v1">Hong et al. (2025), arXiv:2512.12815</a>（预印本，样本短）；土耳其/阿根廷数据与 Rodriguez-Colombo 研究见 <a href="https://www.tradingview.com/news/cointelegraph:2e9650cce094b:0-bitcoin-s-role-as-an-inflation-hedge-depends-on-where-one-lives-analyst/">Cointelegraph 转述</a>（<b>二手转述，我没有读 Rodriguez-Colombo 原文</b>）。</div>
+
+<h2>8｜那它到底是什么？用 Day 14 的框架把它逼到墙角</h2>
+
+<p>Day 14 我们从零推导了股利折现模型：<strong>价格 = 明年现金 ÷ (折现率 − 增长率)</strong>。现在把比特币代进去。</p>
+
+<h3>8.1　分子是零</h3>
+
+<div class="calc">
+比特币每年产生的现金流 = <b>0</b><br><br>
+P = 0 ÷ (r − g) = <b>0</b>
+</div>
+
+<p><strong>模型说它值零。</strong>这当然不是结论——它值 7 万多美元，这是事实。<strong>正确的读法是：这个模型对它完全不适用。</strong></p>
+
+<p>而「模型不适用」这件事本身，是有具体后果的，而且后果可以推导。</p>
+
+<h3>8.2　后果一：它是 100% 的终值</h3>
+
+<p>轮值表 F7 讲「终值占比过高的估值脆弱性」——一家公司如果它的估值里，绝大部分来自遥远未来的假设价值、而非可预见的现金流，那么这个估值就极度脆弱。</p>
+
+<p><strong>比特币是这个问题的极限情况：终值占比 100%。</strong>它的全部价值都是「以后有人会用某个价格买走它」。</p>
+
+<h3>8.3　后果二：它没有自动稳定器（这一条最重要）</h3>
+
+<p>这是股票和比特币最根本的结构差异，而且它是纯算术。</p>
+
+<p><strong>一只付股息的股票，价格下跌会自动产生买入的理由：</strong></p>
+
+<div class="calc">
+某股票每年派息 $2<br><br>
+股价 $100 → 股息率 = 2 ÷ 100 = <b>2.0%</b><br>
+股价 $50　→ 股息率 = 2 ÷ 50 = <b>4.0%</b><br>
+股价 $25　→ 股息率 = 2 ÷ 25 = <b>8.0%</b>
+</div>
+
+<p>跌得越多，同样一笔现金回报占价格的比例越高。<strong>到某个点，一定会有一群不关心短期价格、只想要现金流的买家进场</strong>——保险公司、养老金、想吃息的人。这是一个内建的刹车。</p>
+
+<p><strong>比特币：</strong></p>
+
+<div class="calc">
+比特币每年派息 $0<br><br>
+价格 $126,000 → 现金回报率 = 0 ÷ 126,000 = <b>0%</b><br>
+价格 $78,000　→ 现金回报率 = 0 ÷ 78,000 = <b>0%</b><br>
+价格 $10,000　→ 现金回报率 = 0 ÷ 10,000 = <b>0%</b>
+</div>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>无论价格跌到哪里，它的现金回报率恒等于零。价格下跌不会产生任何新的、基于现金流的买入理由。</strong></p>
+<p style="margin:.5em 0 .3em">这不是说它会跌到零——需求可以来自别的地方（叙事、稀缺性、投机、支付需求）。<strong>但它意味着它缺少股票和债券都有的那个自动刹车。</strong>它的下跌在什么价位停下来，取决于「还有多少人相信」，而这个量没有任何算术上的下界。</p>
+</div>
+
+<p class="hint">对照一下上一课的黄金：黄金同样不产生现金流，所以严格说它也没有这个刹车。<strong>但它有一个替代品——央行的储备需求，那是一个不看价格的实物买家（第 7.4 节）。</strong>这两个东西功能相似（都在下跌时提供不依赖情绪的买盘），但一个来自算术，一个来自制度。<strong>比特币两个都没有。</strong></p>
+
+<h3>8.4　所以，诚实的分类</h3>
+
+<p>把上面所有推导汇总，我能<strong>从已有材料推出来</strong>的分类是：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>属性</th><th>判断</th><th>依据</th></tr></thead>
+<tbody>
+<tr><td>产生现金流？</td><td class="dn">否</td><td>定义上如此</td></tr>
+<tr><td>有估值锚？</td><td class="dn">否（DDM 除以零）</td><td>算术</td></tr>
+<tr><td>下跌有自动刹车？</td><td class="dn">否</td><td>算术（8.3 节）</td></tr>
+<tr><td>与股市相关？</td><td class="dn">是，且 ETF 后上升</td><td>学术研究 + 2026 价格</td></tr>
+<tr><td>持有人有强制卖出触发器？</td><td class="dn">是（三层）</td><td>本文第 2、4、5 节</td></tr>
+<tr><td>在本币崩溃地区有用？</td><td class="up">部分是</td><td>土耳其/阿根廷数据，但主要是稳定币</td></tr>
+<tr><td class="hl">是避险资产吗？</td><td class="hl">按第 7.1 节的定义：<strong>否</strong></td><td class="hl">相关性为正且上升</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>如果要给一个正面的定性，我会说它是：<strong>一个高贝塔、无现金流、久期无限的风险资产，外加一份对「现有货币体系严重失序」的看涨期权。</strong></p>
+<p><strong>但我必须指出这个说法今年被检验过而且没通过：</strong>2026 年同时出现了战争、3.7% 的通胀、财政担忧——这些正是那份「期权」应该兑现的场景。<strong>黄金涨了 28%，比特币跌了三分之一以上。</strong>期权没有兑现。</p>
+<p><strong>反对的看法：</strong>持有者会说时间尺度不对——这份期权对应的是几十年尺度的货币体系变化，一年的价格不能证伪它。<strong>这个反驳在逻辑上成立，但它有个代价：一个永远无法在有生之年被证伪的论断，也就不能被用来做任何决策。</strong></p>
+<p><strong>要判断需要什么材料：</strong>坦白说，我不知道什么材料能判断这个。这是一个关于几十年后的制度问题，不是一个可以用数据解决的问题。<strong>我把它明确地留在推测框里，这是我能做到的最诚实的处理。</strong></p>
+</div>
+
+<h2>9｜对你意味着什么</h2>
+
+<p class="hint">以下是教学分析与决策框架，不是针对你个人情况的投资建议，也不是对是否应该持有比特币的建议。</p>
+
+<h3>9.1　相关性决定它在组合里的作用，而不是收益率</h3>
+
+<p>如果它和纳斯达克高度正相关，那么在一个已经持有美股的组合里加入它，<strong>不提供分散化，只提供更高的波动</strong>（G5、G6 会专门拆）。<strong>这不是说不该持有——而是说持有它的理由必须是「我要更高的预期收益并愿意承担波动」，不能是「我要分散风险」。这两个理由通向不同的仓位大小。</strong></p>
+
+<h3>9.2　波动率拖累的算术（这一条最反直觉）</h3>
+
+<p>一个数学事实：<strong>一个资产的长期复合收益，低于它每年收益的简单平均，而且波动越大差得越多。</strong></p>
+
+<p>最简单的例子：涨 50%，再跌 50%。</p>
+
+<div class="calc">
+简单平均 = (+50% − 50%) ÷ 2 = <b>0%</b><br><br>
+实际结果 = 100 × 1.5 × 0.5 = <b>75</b>，即 <b>−25%</b>
+</div>
+
+<p><strong>平均是零，实际亏 25%。</strong>差额来自波动本身。这个损耗<strong>业内叫波动率拖累</strong>（volatility drag），它有一个近似公式：</p>
+
+<div class="calc">
+复合收益 ≈ 平均收益 − (波动率² ÷ 2)
+</div>
+
+<p>代入具体数字：</p>
+
+<div class="calc">
+<b>标普 500</b>（年化波动率取 16%，示意）：<br>
+　0.16² ÷ 2 = 0.0256 ÷ 2 = <b>1.28 个百分点</b><br><br>
+<b>比特币</b>（年化波动率取 60%，示意）：<br>
+　0.60² ÷ 2 = 0.36 ÷ 2 = <b>18 个百分点</b><br><br>
+差距 = 18 ÷ 1.28 = <b>约 14 倍</b>
+</div>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>意思是：比特币每年的平均收益必须比标普高出约 16.7 个百分点，两者的实际复合收益才打平。</strong></p>
+<p style="margin:.5em 0 .3em">这不是观点，是波动率的算术后果。<strong>而且它对仓位大小有直接含义：同样的资产，仓位小一半，你承受的组合波动率也小一半，波动率拖累则小到四分之一</strong>（因为公式里是平方）。</p>
+</div>
+
+<p class="hint">16% 和 60% 都是<strong>示意数字</strong>，用于演示算法的量级。真实的历史波动率随时间变化很大，我今天没有查到 2026 年的具体数值。</p>
+
+<h3>9.3　从前两课直接推出来的三条</h3>
+
+<ol>
+<li><strong>不用杠杆，你就不在第 2 节那张阶梯上。</strong>这在比特币比在股票上重要得多，因为这个市场的杠杆密度高得多——8 月 28 日那种「小型」级联，一天就清掉了 97,691 个账户。</li>
+<li><strong>加更二第 9.2 节那个优势，在这里价值最大。</strong>当强平引擎、mNAV 阈值、ETF 赎回同时在逼别人卖的时候，一个没有触发器的持有人是这个市场里少数不必卖的人。<strong>但同样的前提依然成立：只要用了杠杆，你就把这个优势主动交出去了。</strong></li>
+<li><strong>24 小时交易是一个行为风险，不是一个便利。</strong>加密市场没有收盘。股票市场的收盘钟是一个强制的冷静期，而比特币没有——这意味着「我再看一眼」可以在任何时刻发生。你在新加坡，美国的剧烈时段正好是你的深夜到清晨。<strong>这是一个可以事前用规则解决的问题（例如设定只在固定时间查看），事后靠意志力解决不了。</strong></li>
+</ol>
+
+<h2>10｜反向倒推：现在的价格在赌什么</h2>
+
+<p>把可查到的事实摆出来：</p>
+
+<ul>
+<li>价格约 $77,000–80,000，距 2025 年 10 月的 $126,000 高点约 −38%</li>
+<li>ETF 2026 年<strong>年度净流首次为负</strong>，6 月单月流出 40.6 亿创纪录</li>
+<li>最大的企业买家 mNAV 跌破 1，<strong>已从买家变成卖家</strong>，年内卖出约 7,000 枚</li>
+<li>未平仓合约相比 2025 年 10 月的 2170 亿已大幅收缩</li>
+</ul>
+
+<p><strong>倒过来读：三个主要的边际买家通道——杠杆、ETF、企业储备——同时收缩或反向了。</strong>那么当前价格隐含的假设是什么？</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>市场当前的价格，隐含着「这三个通道会稳住或恢复」这个假设。</strong></p>
+<p style="margin:.5em 0 .3em">因为如果三者继续反向，价格需要找到一批新的、目前还没出现的买家。</p>
+</div>
+
+<h4>最脆弱的假设</h4>
+
+<p>我认为最脆弱的是 <strong>DAT 那一环</strong>，理由不是它的卖出量（0.83%，很小），而是它的<strong>不对称性</strong>：mNAV &gt; 1 时它是买家、mNAV &lt; 1 时它是卖家，<strong>而它的卖出会压低币价、进一步压低 mNAV</strong>。这是一个可以自我维持的方向。</p>
+
+<p>反过来说，这也给了一个明确的观察点：<strong>mNAV 是否重新站上 1</strong>。这个数每天都能算，而且它是一个整数阈值，不是一个模糊的情绪指标。</p>
+
+<h4>具体的、可证伪的观察清单</h4>
+
+<div class="tw">
+<table>
+<thead><tr><th>看什么</th><th>为什么它有信息</th></tr></thead>
+<tbody>
+<tr><td><strong>mNAV 是否回到 1 以上</strong></td><td>第 4 节的算术阈值。回到 1 以上，最大买家就回来了</td></tr>
+<tr><td><strong>ETF 月度净流</strong></td><td>转正说明配置需求恢复；持续为负说明机构在结构性减配</td></tr>
+<tr><td><strong>未平仓合约水平</strong></td><td>第 3 节：它决定下一次冲击的破坏力，不决定方向</td></tr>
+<tr><td><strong>与纳斯达克的滚动相关性</strong></td><td>第 7 节：如果它真的开始下降，那是「避险属性」讨论重启的唯一证据形式</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>自查：这套说法在事情发生之前能用吗</h3>
+
+<ul>
+<li>「mNAV = 1 是买卖方向的阈值」——<strong>能用</strong>。纯算术，事前可算，而且可证伪（如果公司在 mNAV &lt; 1 时仍大举增发买币，这个推导就被打脸）。</li>
+<li>「未平仓合约决定崩盘规模」——<strong>能用</strong>，而且有两个数据点支持（190 亿 vs 4.9 亿）。<strong>但两个点不是统计证据。</strong></li>
+<li>「避险属性和主流化互斥」——<strong>能用</strong>，因为它给出可证伪的预测：机构持有比例上升，相关性应该上升。</li>
+<li>「这次跌到哪里」——<strong>不能用</strong>。第 8.3 节已经说了，无现金流资产没有算术下界。任何人给你一个「底部价位」，问他那个数是怎么来的。</li>
+</ul>
+
+<h2>11｜底层思维 + 顶层视角</h2>
+
+<h3>底层思维：分开「燃料」和「扳机」</h3>
+
+<p>今天全文的方法论内核，就是第 1 节那个修正：</p>
+
+<div class="calc">
+崩盘的<b>时点</b>由扳机决定 —— 不可预测<br>
+崩盘的<b>规模</b>由燃料决定 —— 可测量
+</div>
+
+<p><strong>大部分人把精力花在猜扳机上，而扳机在事后总是显而易见、在事前总是不可知。燃料相反：它枯燥、缓慢、公开、可以量化，而且它才是决定后果大小的那个量。</strong></p>
+
+<p>这个区分在别处一模一样地成立：</p>
+
+<ul>
+<li><strong>你的性能工程工作：</strong>不要去预测「哪个请求会触发雪崩」——那取决于流量的随机性。要测量<strong>队列深度、资源余量、重试放大系数</strong>。这些是燃料。一个队列已经堆到 90% 的系统，任何一个慢查询都是扳机；一个余量充足的系统，同样的慢查询什么都不会发生。<strong>同一个扳机，后果差几个数量级——差别在燃料。</strong></li>
+<li><strong>森林火灾：</strong>不预测哪根火柴，测量可燃物载量。</li>
+<li><strong>信用周期（E25 明斯基）：</strong>不预测什么事件戳破泡沫，测量债务对收入的比率。<strong>明斯基那句「稳定本身孕育不稳定」，说的就是「上涨期在累积燃料」这件事。</strong></li>
+</ul>
+
+<h3>顶层视角：三课的同一个形状</h3>
+
+<p>你可能已经注意到了。三次加更，三个完全不同的市场，同一个结构：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th></th><th>触发器</th><th>被迫卖出的人</th><th>回路</th></tr></thead>
+<tbody>
+<tr><td>英国 2022（加更一）</td><td>保证金追缴</td><td>养老金 LDI</td><td>卖债 → 收益率升 → 更多追缴</td></tr>
+<tr><td>VaR 限额（加更二）</td><td>波动率上升</td><td>各类机构交易台</td><td>减仓 → 波动升 → 更多减仓</td></tr>
+<tr><td>比特币（今天）</td><td>维持保证金 / mNAV / 赎回</td><td>杠杆交易者 / DAT / ETF</td><td>卖币 → 价格跌 → 更多卖出</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>这就是「顶层视角」的具体样子：</strong>不是知道更多的市场，而是认出<strong>不同市场里的同一个结构</strong>。认出来之后，你在一个市场里学到的东西，可以直接搬到另一个市场——你不需要重新学一遍加密，你只需要问「这里的强制卖出触发器是什么」。</p>
+
+<h2>12｜今日新术语卡片</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>一句话大白话</th><th>第几节</th></tr></thead>
+<tbody>
+<tr><td>永续合约</td><td>perpetual futures</td><td>不交割实物、只结算差价、永不到期的杠杆合约。</td><td>2.1</td></tr>
+<tr><td>维持保证金率</td><td>maintenance margin</td><td>账户里必须保留的最低押金比例，跌破就被强制平仓。</td><td>2.1</td></tr>
+<tr><td>强平引擎</td><td>liquidation engine</td><td>交易所自动替你平仓的程序。它发的是不问价格的市价单。</td><td>2.3</td></tr>
+<tr><td>价格不敏感的卖单</td><td>price-insensitive selling</td><td>不管多少钱都要卖掉的单子。它一定会吃穿订单簿。</td><td>2.3</td></tr>
+<tr><td>抵押品脱锚</td><td>collateral depeg</td><td>你的押金本身贬值，导致头寸没动也被强平。</td><td>2.4</td></tr>
+<tr><td>未平仓合约</td><td>open interest</td><td>市场上未平仓的合约总规模。衡量"燃料"存量的主要指标。</td><td>3</td></tr>
+<tr><td>数字资产储备公司</td><td>digital asset treasury (DAT)</td><td>主营业务就是持有加密资产的上市公司。</td><td>4.1</td></tr>
+<tr><td>mNAV</td><td>market cap to NAV</td><td>公司市值 ÷ 持币市值。大于 1 时增发买币增厚，小于 1 时反过来。</td><td>4.1</td></tr>
+<tr><td>避险资产</td><td>safe-haven asset</td><td>在别的东西跌的时候不跌或上涨的资产。看的是相关性，不是收益率。</td><td>7.1</td></tr>
+<tr><td>波动率拖累</td><td>volatility drag</td><td>波动本身造成的复合收益损耗，约等于波动率的平方除以二。</td><td>9.2</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>13｜自测与延伸</h2>
+
+<div class="qbox">
+<details>
+<summary>1. 一家 DAT 公司持有 500 枚 BTC、发行在外 200 股，mNAV = 1.5。它增发 40 股买币。每股含币变成多少？增厚还是稀释？如果 mNAV = 0.6 呢？</summary>
+<div class="calc">
+<b>原始状态：</b>每股含币 = 500 ÷ 200 = <b>2.5 枚</b><br><br>
+<b>情形一：mNAV = 1.5</b><br>
+　每股市价 = 2.5 × 1.5 = 3.75 枚 BTC 等值<br>
+　增发 40 股募得 = 40 × 3.75 = <b>150 枚</b><br>
+　新持币 = 500 + 150 = 650；新股数 = 240<br>
+　每股含币 = 650 ÷ 240 = <b>2.7083 枚</b><br>
+　变化 = 2.7083 ÷ 2.5 − 1 = <b>增厚 8.33%</b><br><br>
+<b>情形二：mNAV = 0.6</b><br>
+　每股市价 = 2.5 × 0.6 = 1.5 枚 BTC 等值<br>
+　增发 40 股募得 = 40 × 1.5 = <b>60 枚</b><br>
+　新持币 = 560；新股数 = 240<br>
+　每股含币 = 560 ÷ 240 = <b>2.3333 枚</b><br>
+　变化 = 2.3333 ÷ 2.5 − 1 = <b>稀释 6.67%</b>
+</div>
+<p><strong>再多想一步：</strong>在 mNAV = 0.6 时，正确的操作是反过来——卖 60 枚币，回购 40 股：新持币 440，新股数 160，每股含币 = 440 ÷ 160 = <strong>2.75 枚</strong>，增厚 10%。<strong>mNAV 越低于 1，卖币回购的增厚效果反而越大——这正是问题所在。</strong></p>
+</details>
+
+<details>
+<summary>2. 某人用 20 倍杠杆做多，维持保证金率 0.5%。价格需要跌多少他会被强平？如果市场上还有 10 倍和 5 倍的多头，一个能把价格推低 5% 的消息，会清掉哪几批？</summary>
+<div class="calc">
+20 倍：1 ÷ 20 − 0.5% = 5% − 0.5% = <b>4.5%</b><br>
+10 倍：1 ÷ 10 − 0.5% = 10% − 0.5% = <b>9.5%</b><br>
+　5 倍：1 ÷ 5 − 0.5% = 20% − 0.5% = <b>19.5%</b>
+</div>
+<p><strong>消息本身推低 5%：</strong>直接清掉 20 倍那一批（阈值 4.5%）。</p>
+<p><strong>但这不是终点。</strong>20 倍那批被清掉时，强平引擎发出的是价格不敏感的市价卖单，这些卖单会进一步压低价格。<strong>如果它们把价格从 −5% 推到 −9.5% 以下，10 倍那批也会被清掉，然后是他们的强平单……</strong></p>
+<p><strong>关键：能不能推到下一级，取决于两件事——20 倍那批的头寸有多大（燃料），以及订单簿有多深（承接能力）。</strong>这两个都是可以事前测量的，而消息内容不可测。<strong>这就是第 1 节那个修正的完整含义。</strong></p>
+</details>
+
+<details>
+<summary>3. 有人说："比特币十年涨了几百倍，说明它是最好的价值储存工具，比黄金强多了。" 用第 7 节的定义拆解这句话。</summary>
+<p>这句话把三个不同的概念混成了一个：</p>
+<ol>
+<li><strong>高收益</strong>（涨了几百倍）——这是关于<strong>收益率</strong>的说法，可能为真。</li>
+<li><strong>避险资产</strong>——这是关于<strong>相关性</strong>的说法。第 7.1 节：避险的定义是"在别的东西跌的时候不跌"，和涨多少无关。<strong>用第 1 点证明第 2 点，是答非所问。</strong></li>
+<li><strong>价值储存</strong>（store of value）——这是关于<strong>购买力稳定性</strong>的说法，要求的是<strong>低波动</strong>。而第 9.2 节的算术显示，波动率 60% 的资产每年被波动本身吃掉约 18 个百分点。<strong>一个一年内可以腰斩的东西，无论长期涨多少，在"储存"这个功能上都是失败的——因为你不知道要用钱的那天它在什么位置。</strong></li>
+</ol>
+<p><strong>怎么正确地反驳这个反驳？</strong>持有者可以说：时间尺度不对，十年尺度上它确实保存了购买力。<strong>这个反驳成立</strong>，但它把结论限制成了「对能持有十年以上、且中途绝不需要动用这笔钱的人」——<strong>这是一个大幅收窄的、而且可以被检验的主张，比原来那句话诚实得多。</strong></p>
+<p><strong>这道题在练的，是把一个模糊的赞美句拆成几个各自可以检验的主张。</strong>拆开之后你会发现，通常有一部分为真、一部分答非所问、一部分为假。</p>
+</details>
+</div>
+
+<h3>今天就能做的一个小动作（15 分钟）</h3>
+
+<p>不管你有没有持有加密资产，做这一件事：<strong>把「相关性」和「收益率」这两个问题在你自己的持仓上分开问一遍。</strong></p>
+
+<div class="box">
+<p style="margin:.3em 0">对你持有的每一类资产，写下两句话：<br>
+① <strong>我持有它，是为了它的预期收益，还是为了它和别的持仓反向？</strong><br>
+② 如果是后者——<strong>我上一次真正跌的时候，它反向了吗？</strong></p>
+</div>
+
+<p><strong>第二个问题是唯一有效的检验。</strong>2026 年正好提供了几次真实的下跌（3 月战争、8 月鹰派重定价），你的持仓在那几天的实际表现，比任何关于「这个资产应该能避险」的理论都更有说服力。</p>
+
+<h3>延伸阅读</h3>
+
+<ul>
+<li><a href="https://arxiv.org/html/2607.27070">Garcia Seuma (2026), <em>Where does the criticality live? Early-warning signals are event-heterogeneous across seven crypto-perpetual liquidation cascades</em>, arXiv:2607.27070</a><br>
+<span class="hint">难度：高（统计部分很重）。<strong>值得读的理由：</strong>不是为了它的方法，是为了它的<strong>否定性结论</strong>——它检验了七次级联，发现<strong>没有任何一个变量能一致地预警所有事件</strong>。这对任何声称能预测崩盘的说法都是一记重击。读引言和结论就够。</span></li>
+
+<li><a href="https://www.coindesk.com/research/market-spotlight-the-19-billion-liquidation-that-shook-crypto">CoinDesk Research, <em>Market Spotlight: The $19 Billion Liquidation That Shook Crypto</em></a><br>
+<span class="hint">难度：低。<strong>值得读的理由：</strong>它把未平仓合约从 2170 亿到 1230 亿的收缩过程写清楚了。<strong>读的时候留意"抵押品脱锚"那一段</strong>——那是本文第 2.4 节的机制，也是最容易被忽略的一环。</span></li>
+
+<li><a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q1-2026/central-banks">World Gold Council, <em>Gold Demand Trends Q1 2026 — Central Banks</em></a><br>
+<span class="hint">难度：低。<strong>值得读的理由：</strong>这是第 7.4 节那个论点的原始数据。<strong>读它是为了看清「一个不受强制卖出约束的买家」在数据上长什么样</strong>——244 吨、跌了还买、按储备政策而非价格行事。看完你会更容易理解比特币缺的是什么。</span></li>
+</ul>
+
+<h2>14｜今天查实了什么 / 没查实什么</h2>
+
+<h3>结实的部分</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>内容</th><th>依据类型</th><th>出处</th></tr></thead>
+<tbody>
+<tr><td>强平级联的机制描述</td><td>学术预印本原文引用</td><td>arXiv:2607.27070 (2026)</td></tr>
+<tr><td>2025-10-10：清算 190 亿、未平仓 2170 亿→1230 亿、USDe 跌至 $0.65</td><td>行业研究</td><td>CoinDesk Research</td></tr>
+<tr><td>2026-08-28：清算 4.877 亿、多头 3.6 亿+、97,691 账户、1 小时内 2 亿+</td><td>行业媒体</td><td>CryptoSlate</td></tr>
+<tr><td>Strategy 2026 年四次卖币约 7,000 枚、持币约 84 万枚、mNAV 8/3 跌破 1</td><td>二手媒体</td><td>Startup Fortune / FPJ</td></tr>
+<tr><td>2026 年 6 月 ETF 流出 40.6 亿、年度净流首次为负</td><td>二手媒体</td><td>Spazio Crypto</td></tr>
+<tr><td>黄金 $4,454.06，同比 +28.11%（2026-08-31）</td><td>数据服务商</td><td>Trading Economics</td></tr>
+<tr><td>央行 Q1 2026 购金 244 吨、环比 +17%、分国别明细</td><td class="up">行业协会一手数据</td><td>World Gold Council</td></tr>
+<tr><td>ETF 批准后 BTC-标普相关性上升、BTC-黄金无显著变化</td><td>学术预印本</td><td>Hong et al., arXiv:2512.12815</td></tr>
+<tr><td>强平价格、mNAV 飞轮、波动率拖累、DDM 除零、股息率自动稳定器</td><td class="up">纯算术，可逐行验算</td><td>示意输入均已标注</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>不结实的部分（已装框或明确标注）</h3>
+
+<ol>
+<li><strong>Strategy 的「被迫卖出」压力有多紧迫</strong>——我没有查它的年度优先股股息总额和债务结构，所以算不出 46.5 亿现金储备能撑多久。<strong>这是今天最应该补而没补的一块，材料就在它的 10-K 里，是公开的。</strong>已装框，并指出「把 DAT 卖出和交易所强平混为一谈」是一个我差点犯的错误。</li>
+<li><strong>「大级联后先反弹、后阴跌」</strong>——从时间尺度差异推出，未用数据检验，且与 arXiv 论文「事件异质性」的结论有冲突。已装框。</li>
+<li><strong>「黄金的协调点靠年龄」</strong>——推测。我自己给出的反对意见（黄金货币地位 1971 年后中断过；今日央行需求可能有当代的具体原因）我认为相当有力。已装框。</li>
+<li><strong>「比特币是一份对货币体系失序的看涨期权」</strong>——推测，且已指出它在 2026 年的检验中没有兑现，同时也给出了持有者一方的反驳及其代价。已装框。</li>
+<li><strong>ETF 流出是「有序的机构撤离」而非「散户恐慌」</strong>——这是报道的判断，我无法独立核实（高集中度也可能只是规模效应）。正文已标为「报道的观点」。</li>
+</ol>
+
+<h3>数据口径问题（三处）</h3>
+
+<ol>
+<li><strong>比特币 8/28 的价格三个来源三个数</strong>（$78,400 / $76,909 / $76,877），差约 2%。<strong>加密市场没有官方收盘价</strong>，这是结构性问题不是个别错误。</li>
+<li><strong>比特币的历史高点，来源之间冲突。</strong>一篇 2026 年 7 月的文章说是「2025 年 1 月的 $109,000」，另两个来源说是「2025 年 10 月的约 $126,000」。<strong>我采用了后者</strong>（两个来源一致，且与 2025 年 7 月 $123,000 的中间路径吻合），但这意味着那篇文章算出的「42% 回撤」是错的，正确值约 50%。</li>
+<li><strong>黄金价格两个来源不一致</strong>：8/28 收 $4,529.90（Investrade），8/31 为 $4,454.06（Trading Economics）。<strong>期间应有下跌，但我没有中间数据核对，可能是现货与期货的口径差异。</strong>第 7.2 节的图只用了同比这一个数字，不受此影响。</li>
+</ol>
+
+<h3>完全没做到的事</h3>
+
+<ol>
+<li><strong>没有查 2025 年 8 月的比特币确切价格</strong>，所以第 7.2 节的同比只能给区间（−33% 至 −37%），图按保守端画。</li>
+<li><strong>没有查 2026 年的比特币与纳斯达克实际滚动相关性数值。</strong>第 7 节的相关性论证，靠的是一篇样本只有六个月的 2025 年论文，加上 2026 年的价格路径。<strong>这是本文第 7 节最薄的一块地基。</strong></li>
+<li><strong>没有查任何交易所或监管机构的原始清算数据。</strong>所有清算金额都来自行业媒体转述，我无法核对统计口径（例如是否只统计部分交易所、是否有重复计算）。<strong>业内公认加密清算数据存在系统性低估，但我今天没有查证这个说法。</strong></li>
+<li><strong>没有查 2026 年的实际年化波动率</strong>，第 9.2 节的 16% / 60% 都是示意数字。</li>
+</ol>
+
+<div class="guess" style="margin-top:2em">
+<span class="tag">⚠ 整体提醒</span>
+<p>这一课最结实的部分是<strong>算术</strong>：强平阶梯、mNAV 阈值、波动率拖累、以及第 8.3 节那个「无现金流资产没有自动刹车」的推导。<strong>这几段不依赖任何一天的数据，你可以自己验算，也可以搬去用在任何有杠杆和无现金流资产的市场上。</strong></p>
+<p>最结实的<strong>事实</strong>是第 7.2 节那个对照：同一年、同样的战争和通胀，黄金 +28%、比特币 −33% 以上。<strong>它不解释原因，但它证伪了「数字黄金」这个说法。</strong>而我给出的原因（持有人的强制卖出触发器）虽然逻辑完整，<strong>严格说仍然是一个未经计量检验的假说。</strong></p>
+</div>
+
+<footer>
+<p>Day 14 加更三 · 跨领域（E 杠杆与金融稳定 × G 资产配置 × F 估值框架的边界）<br>
+市场数据截至 2026-08-28 至 08-31｜成稿 2026-08-31（新加坡）</p>
+<p>本材料为教学分析，不构成投资建议，也不构成对是否持有任何加密资产的建议。所有数据均标注出处与口径，请在使用前自行核对。</p>
+</footer>
+
+</div>
+</body>
+</html>

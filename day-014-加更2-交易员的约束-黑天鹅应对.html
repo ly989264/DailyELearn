@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>加更二 · 交易员在做什么：用约束反推行为</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --fg:#1f2328; --muted:#5b6570; --line:#e2e0dc;
+    --card:#ffffff; --accent:#1d5fbf; --accent-soft:#eaf1fd;
+    --warn:#b45309; --warn-bg:#fff8ec; --warn-line:#e0a750;
+    --good:#0f7a52; --bad:#b4232c;
+    --code-bg:#f2f1ee; --c1:#1d5fbf; --c2:#b4232c; --grid:#dedbd6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --fg:#e6e6e3; --muted:#9aa4ae; --line:#2c3238;
+      --card:#1b1f23; --accent:#7db1ff; --accent-soft:#16233a;
+      --warn:#f0b45c; --warn-bg:#2a2113; --warn-line:#8a6320;
+      --good:#4fc99a; --bad:#ff8a8a;
+      --code-bg:#22262b; --c1:#4a86d8; --c2:#d96a6a; --grid:#333a41;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.85; overflow-x:hidden;}
+  .wrap{max-width:760px; margin:0 auto; padding:32px 20px 90px}
+  header.top{border-bottom:1px solid var(--line); padding-bottom:20px}
+  .kicker{font-size:13px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  h1{font-size:27px; line-height:1.4; margin:.35em 0 .3em; font-weight:700}
+  .sub{color:var(--muted); font-size:15px; margin:0}
+  h2{font-size:21px; margin:2.6em 0 .7em; padding-top:.6em; border-top:1px solid var(--line); font-weight:700}
+  h3{font-size:17.5px; margin:2em 0 .5em; font-weight:700}
+  h4{font-size:16px; margin:1.5em 0 .4em; font-weight:700; color:var(--accent)}
+  p{margin:.85em 0}
+  ul,ol{padding-left:1.35em; margin:.7em 0}
+  li{margin:.4em 0}
+  a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; word-break:break-word}
+  .lead{background:var(--accent-soft); border-radius:10px; padding:16px 18px; margin:1.2em 0}
+  .calc{background:var(--code-bg); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+    padding:12px 16px; margin:1.1em 0; font-size:16.5px; line-height:2.05; overflow-x:auto;}
+  .guess{border:2px dashed var(--warn-line); background:var(--warn-bg); border-radius:10px; padding:14px 18px 16px; margin:1.4em 0}
+  .guess .tag{display:inline-block; background:var(--warn); color:#fff; font-size:12.5px; font-weight:700;
+    padding:2px 10px; border-radius:20px; margin-bottom:8px; letter-spacing:.03em}
+  .guess p{margin:.5em 0; font-size:16px}
+  .src{font-size:13.5px; color:var(--muted); border-top:1px dotted var(--line); padding-top:8px; margin-top:14px}
+  .src b{color:var(--fg)}
+  .box{border:1px solid var(--line); background:var(--card); border-radius:10px; padding:14px 18px; margin:1.2em 0}
+  .qbox{border:1px solid var(--line); border-radius:10px; padding:2px 16px; margin:1em 0; background:var(--card)}
+  .tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0}
+  table{border-collapse:collapse; width:100%; font-size:15px; min-width:520px}
+  th,td{border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  th{font-weight:700; color:var(--muted); font-size:13.5px}
+  td.n{font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+  .up{color:var(--good); font-weight:600}
+  .dn{color:var(--bad); font-weight:600}
+  .hl{background:var(--accent-soft); font-weight:700}
+  figure{margin:1.8em 0}
+  figure svg{width:100%; height:auto; display:block}
+  figcaption{font-size:14px; color:var(--muted); margin-top:10px; line-height:1.7}
+  details{margin:.7em 0; border:1px solid var(--line); border-radius:8px; padding:0 14px; background:var(--card)}
+  details[open]{padding-bottom:8px}
+  summary{cursor:pointer; padding:11px 0; font-weight:600; font-size:16px}
+  .hint{font-size:15px; color:var(--muted)}
+  .dg rect.n{fill:var(--card); stroke:var(--fg); stroke-width:1.6}
+  .dg text{fill:var(--fg)}
+  .dg text.t1{font-size:14.5px; font-weight:700}
+  .dg text.t2{font-size:12.5px; fill:var(--muted)}
+  .dg path{stroke:var(--fg); stroke-width:1.8; fill:none}
+  .dg path.p1{stroke:var(--c1); stroke-width:2.4}
+  .dg path.ax{stroke:var(--grid); stroke-width:1.2}
+  footer{margin-top:3em; padding-top:20px; border-top:1px solid var(--line); font-size:14.5px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 14 · 加更二 · 跨领域（市场微观结构 × 风险管理 × 行为）</div>
+  <h1>交易员在做什么<br><span style="font-size:20px;font-weight:600;color:var(--muted)">——不要问他们在想什么，要问他们必须做什么</span></h1>
+  <p class="sub">成稿 2026-08-31（新加坡）｜市场数据截至 2026-08-28 美股收盘，原油数据截至 2026-08-31</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<div class="lead">
+<p>你问的是交易员的日常、他们的短线长线习惯、以及怎么应对突发事件。<strong>我要先告诉你这一课和前两课不一样：这个题目的可查证据比宏观题目少得多。</strong></p>
+<p>「某某交易员早上五点起床看盘」这类内容，绝大多数来自访谈、回忆录和影视，是无法核实的单个样本。所以我换一个方法：<strong>不复述故事，而是从可查证的约束反推行为。</strong>一个交易员的持仓时间、他在黑天鹅里的动作、他敢不敢加仓，主要不是由性格决定的，而是由他的资金来源、风险限额和考核周期决定的——而这些是有制度文件和学术研究可查的。</p>
+<p>读完你能回答：为什么坏消息之后常常有「第二波」下跌，而且它跟消息本身无关；以及——8 月 28 日沃什讲话<strong>根本不是黑天鹅</strong>，为什么。</p>
+</div>
+
+<h2>1｜先说清楚这一课的证据基础</h2>
+
+<p>这门课的硬规矩是：正文里每一个「A 导致 B」，要么有出处，要么是你能自己算一遍的算术。<strong>「交易员怎么做」这个题目，天然地很难满足这条规矩。</strong>原因很简单：</p>
+
+<ul>
+<li><strong>交易台的实际操作是商业机密。</strong>没有机构会公开自己的持仓规则、限额和模型。</li>
+<li><strong>公开的一手材料几乎全是回忆录和访谈。</strong>它们是 n = 1 的样本，而且写的人有强烈的动机把自己写得更聪明。</li>
+<li><strong>幸存者偏差极严重。</strong>你能读到的交易员故事，是活下来并且愿意讲的那些。</li>
+</ul>
+
+<p>所以我把今天能写的东西限定在三类：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>类别</th><th>例子</th><th>可信度</th></tr></thead>
+<tbody>
+<tr><td><strong>制度与规则</strong></td><td>交易所熔断规则、监管对风险资本的要求</td><td class="up">公开文件，可直接引用</td></tr>
+<tr><td><strong>学术统计结论</strong></td><td>散户日内交易的实证收益、FOMC 公告前的收益异象</td><td class="up">有样本、有方法、可复核</td></tr>
+<tr><td><strong>具体事件的市场数据</strong></td><td>2026 年伊朗战争期间的油价路径、8/28 的各资产变动</td><td>有价格记录，但因果归属另说</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>不在这三类里的东西，我要么不写，要么装进「我的推测」框。</strong>整篇文章里会有好几个这样的框——这一课的推测框比前两课多，这是题目本身决定的，不是我偷懒。</p>
+
+<h2>2｜「华尔街交易员」至少是四种完全不同的人</h2>
+
+<p>这是全文最重要的前置区分。<strong>不做这个区分，后面所有关于「交易员怎么做」的话都是糊的</strong>——因为这四种人的钱从哪来、被什么管着、怕什么，全都不一样。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>类型</th><th>钱怎么赚</th><th>典型持仓时间</th><th>最怕什么</th></tr></thead>
+<tbody>
+<tr><td><strong>做市商</strong><br>market maker</td><td>同时挂买价和卖价，赚中间的<strong>价差</strong>。不赌方向。</td><td>秒 — 分钟</td><td>手里压了货，价格朝一个方向跑</td></tr>
+<tr><td><strong>方向性交易员</strong><br>宏观 / 自营</td><td>判断价格往哪走，下注</td><td>周 — 季度</td><td>判断对了但时间不对，中途被止损</td></tr>
+<tr><td><strong>对冲基金</strong><br>多策略</td><td>各种：套利、事件驱动、量化</td><td>天 — 年，视策略</td><td>客户在最差的时候赎回</td></tr>
+<tr><td><strong>长线资管</strong><br>养老金 / 保险</td><td>长期持有，匹配几十年后的负债</td><td>年 — 十年</td><td>长期通胀，以及被迫在低点卖出</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>先把「做市商」讲清楚，因为它最反直觉</h4>
+
+<p>生活场景：你去换汇店换新元。牌子上写着「买入 1.2700，卖出 1.2760」。<strong>店家同时愿意跟你买、也愿意卖给你，两个价格差 60 点。</strong>他不关心美元会涨还是会跌，他关心的是有人来买、也有人来卖，他赚中间那 60 点。</p>
+
+<p>这个「同时报出买价和卖价、赚中间差额」的角色，<strong>经济学给它起了个名字，叫做市商</strong>（market maker），中间那个差额<strong>叫买卖价差</strong>（bid-ask spread）。</p>
+
+<p><strong>关键：他真正的风险不是方向，是存货。</strong>如果一整天只有人卖给他、没人向他买，他手上就压了一大堆美元。这时候美元一跌，他的价差利润几分钟就被抹掉了。</p>
+
+<div class="calc">
+假设他的价差是 <b>2 个基点</b>（0.02%），这是他每做成一笔来回赚的钱。<br>
+现在价格朝他压货的反方向走了 <b>0.5%</b>。<br><br>
+0.5% ÷ 0.02% = <b>25</b><br>
+<span style="font-size:14px;color:var(--muted)">（这次波动吃掉了他 25 笔交易的利润）</span>
+</div>
+
+<p class="hint">上面的 2 个基点和 0.5% <strong>都是我编的示意数字，只为演示算法</strong>，不代表任何真实市场的报价。真实价差在不同品种、不同时段差异极大。</p>
+
+<p><strong>这个算术直接推出做市商在不确定性上升时的行为</strong>：既然一次不利波动能吃掉几十笔利润，那么当他判断「接下来的价格可能剧烈跳动」时，理性的反应就是<strong>把价差拉宽、把报价的数量缩小</strong>。这不是恐慌，这是算出来的。第 5 节会展开。</p>
+
+<div class="src"><b>依据：</b>做市商的角色定义为公开的市场结构常识；上面的算术为推导，输入数字已标明为示意。<b>我没有引用任何具体做市商的真实价差数据——我没查到可靠的。</b></div>
+
+<h2>3｜时间尺度不是性格，是被算术决定的</h2>
+
+<p>「短线还是长线」听起来像是风格选择。<strong>大部分时候它不是。</strong>下面这个算术说明为什么。</p>
+
+<p>假设来了一条消息，让某个资产的合理价格下降 <strong>2%</strong>。这 2% 对不同的人意味着什么？</p>
+
+<div class="calc">
+<b>对做市商</b>（假设单笔价差 0.02%，示意数字）：<br>
+　2% ÷ 0.02% = <b>100 笔交易的利润</b> —— 这是灾难<br><br>
+<b>对打算持有十年的人：</b><br>
+　把 2% 摊到十年，年化影响 = 0.98<sup>1/10</sup> − 1<br>
+　= −<b>0.20%</b> 每年 —— 这几乎是噪音
+</div>
+
+<p class="hint">验算第二个：0.98 的十次方根。取对数算：ln(0.98) = −0.020203，除以 10 得 −0.0020203，取指数得 0.997982，即 −0.2018%。你也可以反过来验证：0.998<sup>10</sup> ≈ 0.9802，约等于 0.98。✓</p>
+
+<p><strong>同一个 2%，一个人眼里是一百笔生意，另一个人眼里是每年两个基点。</strong>他们对同一条新闻做出完全相反的反应，不是因为一个聪明一个傻，是因为<strong>他们在除以不同的时间</strong>。</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>推论（这一条今天会反复用到）：</strong>问「这条新闻是利好还是利空」之前，必须先问「对谁、在什么时间尺度上」。<strong>没有时间尺度的多空判断是没有意义的。</strong></p>
+</div>
+
+<h4>那么，是什么决定了一个人的时间尺度？</h4>
+
+<p>三样东西，都不是性格：</p>
+
+<ol>
+<li><strong>资金的期限。</strong>养老金的钱三十年后才要付出去，所以它可以持有三十年。对冲基金的客户可能一个季度就能赎回，所以它不能。</li>
+<li><strong>考核的周期。</strong>如果你的奖金按年度盈亏发，那么十二月三十一日的价格对你的意义，远大于三年后的价格。</li>
+<li><strong>资本占用。</strong>持仓过夜要占用资本、要付融资成本。做市商如果每天平仓，他的资本可以周转很多次；如果压着货过夜，同样的资本只能做一笔生意。</li>
+</ol>
+
+<p><strong>这三样都是可以从外部观察的制度事实，不需要猜任何人的心理。</strong>这就是「用约束反推行为」的意思。</p>
+
+<h2>4｜约束一：风险限额，以及它为什么制造「所有人同时卖」</h2>
+
+<p>这一节是全文机制最硬的一段，请慢一点读。</p>
+
+<h3>4.1　先说什么是「风险限额」</h3>
+
+<p>生活场景：你给自己定一条规矩——「我这个月最多亏 5000 块，亏到就停手」。机构做的是同一件事，但它必须把「最多亏多少」写成一个每天都能算出来的数。</p>
+
+<p>最常用的写法是这样一句话：<strong>「在正常情况下，我这个持仓一天最多亏多少钱？」</strong>更精确一点：「有 99% 的把握，明天的亏损不会超过 X 元。」</p>
+
+<p>这个 X，<strong>金融业给它起了个名字，叫风险价值</strong>（Value at Risk，缩写 VaR）。</p>
+
+<h3>4.2　怎么算出这个 X</h3>
+
+<p>需要两个输入：<strong>持仓多大</strong>，以及<strong>这个资产每天大概波动多少</strong>。</p>
+
+<p>「每天大概波动多少」用的是<strong>日波动率</strong>——就是「每日涨跌幅的标准差」。假设某资产的日波动率是 <strong>1%</strong>，意思是：大多数日子它的涨跌在 ±1% 这个量级内。</p>
+
+<p>要从「典型波动 1%」推到「99% 把握不超过多少」，需要一个转换系数。如果假设涨跌幅服从正态分布，<strong>99% 分位对应的系数是 2.33</strong>（也就是 2.33 倍标准差之外，只剩 1% 的概率）。</p>
+
+<div class="calc">
+持仓 1 亿美元，日波动率 1%<br><br>
+99% 单日 VaR = 2.33 × 1% × 1 亿 = <b>233 万美元</b><br>
+<span style="font-size:14px;color:var(--muted)">（读作：有 99% 的把握，明天亏损不超过 233 万）</span>
+</div>
+
+<h3>4.3　现在看关键的一步：波动率变了会怎样</h3>
+
+<p>假设风控给这个交易台的限额就是 <strong>233 万</strong>。他现在正好用满。</p>
+
+<p><strong>然后市场出了大事，日波动率从 1% 涨到 2%。</strong>注意——他<strong>一股都没买</strong>，持仓完全没动。但是：</p>
+
+<div class="calc">
+新的 VaR = 2.33 × <b>2%</b> × 1 亿 = <b>466 万美元</b><br><br>
+限额还是 233 万 → <b>超限一倍</b>
+</div>
+
+<p>他必须减仓。减到多少？</p>
+
+<div class="calc">
+设新持仓 X，要求 2.33 × 2% × X = 233 万<br>
+　2.33 × 0.02 = 0.0466<br>
+　X = 233 万 ÷ 0.0466 = <b>5,000 万美元</b>
+</div>
+
+<p><strong>波动率翻倍，他必须把持仓砍一半。</strong>而且注意这一点：</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>他对市场的看法没有任何改变。他不是被吓到了，他是被规则逼的。</strong></p>
+<p style="margin:.5em 0 .3em">而且这个逻辑对所有用同类限额的机构<strong>同时</strong>成立。他们在同一天、因为同一个波动率上升、被迫卖出同一批资产。</p>
+</div>
+
+<figure>
+<svg class="dg" viewBox="0 0 660 290" role="img" aria-label="波动率上升触发的被动减仓回路">
+  <rect class="n" x="30" y="18" width="255" height="58" rx="8"/>
+  <text class="t1" x="46" y="42">① 出了大事，价格剧烈波动</text>
+  <text class="t2" x="46" y="62">日波动率从 1% 升到 2%</text>
+
+  <rect class="n" x="375" y="18" width="255" height="58" rx="8"/>
+  <text class="t1" x="391" y="42">② 持仓没动，VaR 却翻倍</text>
+  <text class="t2" x="391" y="62">233 万 → 466 万，超限</text>
+
+  <rect class="n" x="375" y="158" width="255" height="58" rx="8"/>
+  <text class="t1" x="391" y="182">③ 按规则必须减仓</text>
+  <text class="t2" x="391" y="202">1 亿 → 5000 万，砍一半</text>
+
+  <rect class="n" x="30" y="158" width="255" height="58" rx="8"/>
+  <text class="t1" x="46" y="182">④ 很多机构同时卖同一批资产</text>
+  <text class="t2" x="46" y="202">价格进一步下跌，波动率再上升</text>
+
+  <path d="M285 46 L367 46"/><path d="M359 40 L369 46 L359 52"/>
+  <path d="M502 76 L502 150"/><path d="M496 142 L502 152 L508 142"/>
+  <path d="M375 186 L293 186"/><path d="M301 180 L291 186 L301 192"/>
+  <path d="M157 158 L157 82"/><path d="M151 90 L157 80 L163 90"/>
+  <text class="t2" x="157" y="124" text-anchor="middle" style="font-size:13px;font-weight:700;fill:var(--warn)">回到 ①</text>
+  <text class="t2" x="330" y="248" text-anchor="middle">这一圈里没有任何人改变了对基本面的看法</text>
+  <text class="t2" x="330" y="270" text-anchor="middle">触发它的是波动率，不是新闻内容 —— 所以它可以在消息公布很久之后才发生</text>
+</svg>
+<figcaption>这就是黑天鹅事件常常有「第二波」的机制来源。<strong>第一波是消息本身被定价；第二波是限额被动减仓，它滞后于消息，而且和消息的好坏无关——只和波动率有关。</strong>上一课英国 LDI 的强制卖出回路，是同一个结构的另一个版本（那里的触发器是保证金，这里是 VaR）。</figcaption>
+</figure>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>我上面写的「限额用满 → 波动率翻倍 → 恰好砍一半」是一个<strong>教学模型</strong>，不是对任何真实交易台的描述。真实世界里：限额通常不会天天用满；波动率的估计有多种方法（历史窗口、指数加权、期权隐含），换一种方法结果差很多；很多机构用的是压力测试或情景限额而不是纯 VaR；减仓也未必是等比例砍。</p>
+<p><strong>反对的看法：</strong>有人会说 VaR 早已被证明在危机中失效（因为它假设正态分布，而危机恰恰是尾部），所以监管和业界已经转向预期损失等指标——如果是这样，我这个模型描述的就是一个过时的机制。</p>
+<p><strong>要判断需要什么材料：</strong>巴塞尔框架现行文本对市场风险资本要求的具体规定，以及关于「基于风险度量的去杠杆是否真的放大了危机」的实证研究。<strong>这两样我今天都没有查。所以这一节的机制，请当作一个能解释现象的模型，不要当作已证实的事实。</strong></p>
+</div>
+
+<div class="src"><b>依据：</b>VaR 的定义与 2.33 这个正态 99% 分位系数为标准统计结论，全部算术可自行验算。<b>「机构因此同时减仓」这一步，我没有引用任何实证研究，它是从规则推出来的，不是观察到的。</b></div>
+
+<h2>5｜约束二：流动性是被理性撤走的，不是「蒸发」的</h2>
+
+<p>财经报道爱说「流动性瞬间蒸发」。这个说法把它写成了一件天气现象。<strong>它不是。它是第 2 节那个算术的直接后果。</strong></p>
+
+<p>回到做市商。他挂出买价，等于向全世界承诺：<strong>你现在要卖，我按这个价接。</strong>问题是——当他不知道下一秒会发生什么时，愿意在这一秒卖给他的人，很可能正是知道点什么的人。</p>
+
+<p>所以他有两个可调的旋钮：</p>
+<ol>
+<li><strong>把价差拉宽</strong>——接货接得更便宜，给自己留缓冲</li>
+<li><strong>把报价的数量缩小</strong>——每档只接一小笔，不让自己一次压太多货</li>
+</ol>
+
+<p>这两件事合起来，从你（下单的人）那一侧看，就是「流动性没了」。<strong>但从他那一侧看，这是完全理性的自保。</strong></p>
+
+<h4>这对你的成交价意味着什么：滑点的算术</h4>
+
+<p>你要卖出 1000 万美元的某个东西。市场不是一个价格，是一叠价格（叫<strong>订单簿</strong>，order book）：第一档有人出这个价买 100 万，第二档价格低一点买 100 万，以此类推。</p>
+
+<div class="calc">
+<b>正常时（示意数字）：</b>每卖 100 万，价格下移 1 个基点<br>
+　卖完 1000 万，最后一笔比第一笔低 10 个基点<br>
+　平均成本 ≈ 5 个基点 = 0.05%　→　1000 万 × 0.05% = <b>5,000 美元</b><br><br>
+<b>压力时（示意数字）：</b>每卖 100 万，价格下移 5 个基点<br>
+　卖完 1000 万，最后一笔比第一笔低 50 个基点<br>
+　平均成本 ≈ 25 个基点 = 0.25%　→　1000 万 × 0.25% = <b>25,000 美元</b>
+</div>
+
+<p><strong>五倍。而且资产本身的价格一分钱没变——变的只是「把它变成现金」的费用。</strong>这个「因为我自己的卖单把价格压下去而多付的成本」，<strong>市场给它起了个名字，叫滑点</strong>（slippage）。</p>
+
+<p class="hint">上面所有数字都是<strong>示意数字，只为演示算法</strong>。真实的订单簿深度和压力时的恶化程度，因品种、时段而异，我今天没有查到可引用的具体数据。</p>
+
+<h4>能查实的部分：2020 年 3 月发生了什么</h4>
+
+<p>纽约联储关于 2020 年 3 月「现金争夺」（dash for cash）的研究给出了两个可引用的事实：</p>
+
+<ul>
+<li>美国、德国、英国、日本的十年期主权债，<strong>买卖价差在 2020 年 2 月底到 3 月普遍扩大</strong>，其中美国国债的标准化价差上升幅度比同类市场更明显。</li>
+<li>各国官方储备管理者的抛售中，<strong>美元资产占了全部储备抛售的 80% 以上</strong>，而美元在全球外汇储备中的份额只有约 60%。</li>
+</ul>
+
+<p><strong>第二条值得停下来想一想。</strong>如果大家只是按持仓比例减仓，那美元资产该占抛售的 60%。实际占了 80% 以上，说明<strong>美元资产被超比例地卖出</strong>。</p>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>我倾向于把这个 80% vs 60% 的差距，解释为「<strong>要现金的时候，先卖最容易卖的</strong>」——美国国债是全球流动性最好的资产，所以在急需美元时它被优先变现，而不是因为大家看空它。</p>
+<p><strong>反对的看法：</strong>还有一个同样成立的解释——当时全球缺的<strong>就是美元</strong>（不是缺现金一般意义上的现金）。要美元，自然卖美元资产，这和流动性排序无关。这两个解释我今天区分不了。而且纽约联储那篇文章<strong>本身并没有说</strong>投资者是按流动性排序抛售的，这是我的读法。</p>
+<p><strong>要判断需要什么材料：</strong>分资产类别、按流动性分层的抛售数据，以及同期非美元流动资产（如德债）的抛售比例。我今天没有。</p>
+</div>
+
+<div class="src"><b>依据：</b><a href="https://libertystreeteconomics.newyorkfed.org/2022/07/the-global-dash-for-cash-in-march-2020">New York Fed Liberty Street Economics, The Global Dash for Cash in March 2020</a>。滑点算术为推导，输入为示意数字。</div>
+
+<h2>6｜三类「意外」，反应模式完全不同</h2>
+
+<p>你把沃什讲话、突发战争、关税并列问，<strong>但这三件事在市场眼里根本不是同一类东西。</strong>区分它们的标准只有两个问题：</p>
+
+<ol>
+<li><strong>时间是不是已知的？</strong></li>
+<li><strong>一旦发生，传导链推不推得出来？</strong></li>
+</ol>
+
+<div class="tw">
+<table>
+<thead><tr><th></th><th>A 类：日程事件</th><th>B 类：突发但可定价</th><th>C 类：突发且链条不明</th></tr></thead>
+<tbody>
+<tr><td>时间已知？</td><td class="up">是</td><td class="dn">否</td><td class="dn">否</td></tr>
+<tr><td>传导链推得出？</td><td class="up">是</td><td class="up">大致可以</td><td class="dn">否</td></tr>
+<tr><td>例子</td><td>FOMC、CPI、财报、<br><strong>沃什 8/28 讲话</strong></td><td>关税公告、<br>监管处罚</td><td><strong>2026 伊朗战争</strong>、<br>系统性事故</td></tr>
+<tr><td>能不能事先调仓</td><td class="up">能，而且一定会</td><td class="dn">不能</td><td class="dn">不能</td></tr>
+<tr><td>价格调整的形态</td><td>公布瞬间完成大部分</td><td>初始反应 + 逐步分化</td><td>大幅跳空 + <strong>反复反转</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg class="dg" viewBox="0 0 680 250" role="img" aria-label="三类事件的价格路径示意图">
+  <text x="0" y="14" style="font-size:14px;font-weight:700;fill:var(--fg)">三类事件的价格路径（示意图，非真实数据）</text>
+  <!-- A -->
+  <path class="ax" d="M20 200 L210 200"/>
+  <path class="p1" d="M20 90 L100 92 L104 150 L210 152"/>
+  <text class="t2" x="115" y="222" text-anchor="middle">A 日程事件</text>
+  <text class="t2" x="115" y="240" text-anchor="middle" style="font-size:11.5px">一步到位，之后基本平</text>
+  <path class="ax" d="M102 60 L102 200" stroke-dasharray="4 4"/>
+  <text class="t2" x="102" y="52" text-anchor="middle" style="font-size:11px">公布</text>
+  <!-- B -->
+  <path class="ax" d="M245 200 L435 200"/>
+  <path class="p1" d="M245 90 L280 90 L284 140 L320 145 L360 155 L400 162 L435 168"/>
+  <text class="t2" x="340" y="222" text-anchor="middle">B 突发但可定价</text>
+  <text class="t2" x="340" y="240" text-anchor="middle" style="font-size:11.5px">跳空后继续朝一个方向消化</text>
+  <path class="ax" d="M282 60 L282 200" stroke-dasharray="4 4"/>
+  <text class="t2" x="282" y="52" text-anchor="middle" style="font-size:11px">发生</text>
+  <!-- C -->
+  <path class="ax" d="M470 200 L660 200"/>
+  <path class="p1" d="M470 90 L500 90 L504 165 L520 100 L545 175 L570 115 L600 178 L630 130 L660 160"/>
+  <text class="t2" x="565" y="222" text-anchor="middle">C 突发且链条不明</text>
+  <text class="t2" x="565" y="240" text-anchor="middle" style="font-size:11.5px">大幅跳空后反复反转</text>
+  <path class="ax" d="M502 60 L502 200" stroke-dasharray="4 4"/>
+  <text class="t2" x="502" y="52" text-anchor="middle" style="font-size:11px">发生</text>
+</svg>
+<figcaption><strong>这是示意图，三条线都是我画的，不是任何真实价格序列。</strong>它要表达的只有一件事：三类事件之后的价格<strong>形态</strong>不同。C 类那条锯齿线不是随手画的——第 7 节会用 2026 年伊朗战争的真实价格路径说明它为什么长这样。</figcaption>
+</figure>
+
+<h3>6.1　A 类：日程事件 —— 沃什讲话不是黑天鹅</h3>
+
+<p><strong>8 月 28 日的 Jackson Hole 讲话，是一年前就排进日历的。</strong>不确定的只是内容。这一条区分很重要，因为它决定了交易员<strong>有没有机会事先做准备</strong>——而他们一定会做。</p>
+
+<p>这里有一个非常反直觉、而且是学术界正式发表过的证据：</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>Lucca 与 Moench 的研究发现：1994 年 9 月到 2011 年 3 月这十七年间，标普 500 在 FOMC 公告前 24 小时内平均上涨 49 个基点。</strong></p>
+<p style="margin:.5em 0">换算成年化：仅靠「公告前 24 小时持有指数」这一个窗口，年化超额收益 <strong>3.89%</strong>；而<strong>其余所有交易日加起来</strong>只有 <strong>0.89%</strong>。作者据此说，这十七年里美国股票风险溢价的<strong>八成以上</strong>是在这些窗口里赚到的。</p>
+</div>
+
+<p class="hint">口径要说清楚：这是<strong>公告前</strong>的 24 小时，不是公告后；是<strong>联邦公开市场委员会的日程会议</strong>，不是任何央行讲话；样本是 1994-09 到 2011-03。作者还指出这些收益<strong>在随后几天没有反转</strong>。</p>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>这个结论对「交易员怎么应对日程事件」有直接含义：它说明<strong>日程事件之前市场就在动</strong>，等公告出来才反应是慢的。但我要提醒两件事：</p>
+<p><strong>第一，我不知道这个异象在 2011 年之后是否还存在。</strong>金融学里有一个反复出现的现象：一个异象被发表之后，收益往往显著衰减甚至消失（因为大家都去交易它了）。这篇论文发表在 2011–2015 年间，<strong>后续十几年的表现我今天没有查。</strong></p>
+<p><strong>第二，我不知道它的成因。</strong>论文本身标题就叫「drift」（漂移），说明作者也没给出一个公认的解释。</p>
+<p><strong>要判断需要什么材料：</strong>2011 年之后的样本外检验，以及后续文献对成因的讨论。<strong>所以：不要把这个当成一个可以照着做的策略，把它当成「日程事件在公布之前就已经在被定价」的证据。</strong></p>
+</div>
+
+<h4>用 8/28 的真实数据看 A 类事件的形态</h4>
+
+<div class="tw">
+<table>
+<thead><tr><th>观察</th><th class="n">8/28 变动</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>9 月加息概率（CME FedWatch）</td><td class="n">约 35.7% → 55.7%</td><td>约 20 个百分点，当天完成</td></tr>
+<tr><td>2 年期国债收益率</td><td class="n dn">+8 bp（另一来源 +12）</td><td>短端主导</td></tr>
+<tr><td>30 年期国债收益率</td><td class="n dn">+2 bp</td><td>长端几乎没动</td></tr>
+<tr><td>美元指数</td><td class="n up">+0.5% 至 99.65</td><td>符合利率平价（上一课）</td></tr>
+<tr><td>标普 500</td><td class="n dn">−0.25%</td><td>幅度不大</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>注意标普只跌了 0.25%。</strong>一个把加息概率从三成多推到五成半的讲话，股指只动了四分之一个百分点。这跟 A 类事件的性质是一致的：<strong>时间已知的事件，市场事先已经把各种可能性都摆进价格了</strong>，真正需要在当天重新定价的只是「哪一种可能性的权重变了」。</p>
+
+<p class="hint">我要明说：<strong>我没有当天的日内数据</strong>，所以我无法证明这些调整是在讲话后几分钟内完成的。上面这句「事先已经摆进价格」是从 A 类事件的定义和 Lucca-Moench 的证据推出来的，不是从 8/28 的日内价格观察到的。</p>
+
+<h3>6.2　B 类：突发但可定价 —— 关税</h3>
+
+<p>关税公告的时间通常不可预知，但一旦公布，<strong>传导链是可以推的</strong>：税率是多少、打在哪些商品上、谁进口这些商品、这些公司的毛利率有多厚、能不能转嫁给消费者。</p>
+
+<p>所以 B 类事件的形态是：<strong>公布瞬间的粗暴反应（先按最坏情况打），然后在接下来几天到几周里分化</strong>——能转嫁成本的公司涨回来，不能转嫁的继续跌。</p>
+
+<p class="hint"><strong>这一节我写得比另外两类短，因为我今天没有查证关税事件的具体数据。</strong>轮值表里 C20（关税战的传导链与最终承担者）和 B34（关税如何进入价格：谁承担）会专门拆这件事，到时候会带真实数据。今天不硬凑。</p>
+
+<h3>6.3　C 类：突发且链条不明 —— 战争</h3>
+
+<p>这是最难的一类，也是最值得学的一类。<strong>它的特征不是「跌得多」，而是「反复反转」。</strong>下一节用真实数据说明。</p>
+
+<h2>7｜2026 年伊朗战争：一次完整的 C 类解剖</h2>
+
+<p>你正好赶上了一个还在进行中的 C 类事件。下面是可查到的时间线。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>日期</th><th>事件</th><th>油价</th></tr></thead>
+<tbody>
+<tr><td>2026 年 3 月初</td><td>战争爆发</td><td>—</td></tr>
+<tr><td>3 月 3–4 日</td><td>—</td><td>Brent $81.49；WTI $74.66</td></tr>
+<tr><td>3 月第一个完整周</td><td>—</td><td>WTI 单周 <strong>+35%</strong> 至 $90.90（该合约 1983 年上市以来最大单周涨幅）；Brent +28% 至 $92.69</td></tr>
+<tr><td>3 月 9 日</td><td>特朗普称考虑接管霍尔木兹海峡</td><td>一度逼近 $120，随后 WTI <strong>−6%</strong> 至 $85.27</td></tr>
+<tr><td>3 月 20 日</td><td>伊拉克宣布不可抗力</td><td>突破 $112；Brent-WTI 价差达 $15（2012 年以来最阔）</td></tr>
+<tr><td>4 月 8 日</td><td>宣布停火</td><td>近六年最大单日跌幅：Brent <strong>−13%</strong>，WTI <strong>−16%</strong></td></tr>
+<tr><td>4 月 17 日</td><td>伊朗外长称海峡开放</td><td>WTI <strong>−12%</strong> 至 $83.85；Brent −9% 至 $90.38</td></tr>
+<tr><td>6 月 24 日</td><td>油轮通行</td><td>WTI 跌破 $70 至 $69.63，为 3 月 2 日以来首次</td></tr>
+<tr><td>7 月 8 日</td><td>美国空袭伊朗</td><td>Brent +3% 至 $76.48</td></tr>
+<tr><td>8 月 28 日</td><td>—</td><td>WTI 收 <strong>$83.40</strong></td></tr>
+<tr><td>8 月 31 日</td><td>美军打击霍尔木兹附近伊朗火箭发射器</td><td>WTI <strong>$84.79</strong>（+1.66%）；同比 +31.18%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="hint"><strong>数据质量警告，必须先说：</strong>这份时间线来自一份二手编年记录，而它<strong>内部有对不上的地方</strong>——例如 4 月 8 日它写「WTI 跌 16% 至 $94.43，Brent 跌 13% 至 $94.75」，反推出跌前 WTI 约 $112.4、Brent 约 $108.9，即 <strong>WTI 高于 Brent</strong>；但 3 月 20 日它又说 Brent-WTI 价差 $15（Brent 更高）。这两条不可能同时对。<strong>所以下面的算术我只用能交叉验证的两个数。</strong></p>
+
+<p><strong>能交叉验证的部分：</strong>8 月 28 日 WTI 收 $83.40（来源 A），8 月 31 日 $84.79 且日涨 1.66%（来源 B）。验算：83.40 × 1.0166 = <strong>84.78</strong>。<strong>两个独立来源精确对上。</strong></p>
+
+<h3>7.1　战争溢价的算术</h3>
+
+<p>战前基准：6 月 24 日那条说「WTI 跌破 $70 至 $69.63，为 3 月 2 日以来首次」——意思是 3 月 2 日之前 WTI 也在 $70 以下。所以<strong>战前基准取 $70</strong>。</p>
+
+<div class="calc">
+8/28 的战争溢价 = 83.40 − 70 = <b>$13.40</b>，约 <b>+19%</b>
+</div>
+
+<p>现在做 Day 14 里那个「概率 × 幅度」的算法，反过来用：</p>
+
+<div class="calc">
+<b>假设</b>（这是我设的示意值，不是查来的）：霍尔木兹完全封锁值 <b>+70%</b><br><br>
+隐含概率 = 19% ÷ 70% = <b>27%</b>
+</div>
+
+<p><strong>但请立刻看这个数字有多不结实</strong>——把那个假设换一换：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>假设「完全封锁」值多少</th><th class="n">推出的隐含概率</th></tr></thead>
+<tbody>
+<tr><td>+50%</td><td class="n">19 ÷ 50 = <b>38%</b></td></tr>
+<tr><td>+70%</td><td class="n">19 ÷ 70 = <b>27%</b></td></tr>
+<tr><td>+100%</td><td class="n">19 ÷ 100 = <b>19%</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>这才是这一节真正的教学点：</strong>「市场隐含概率」这个说法听起来很客观，但它<strong>完全取决于你对最坏情况的估值假设</strong>——而那个假设没有人能查证。同一个 $83.40，我可以说市场认为封锁概率 19%，也可以说 38%。</p>
+<p style="margin:.5em 0 .3em"><strong>所以它是一个思考框架，不是一个可以引用的数字。</strong>任何人告诉你「市场目前定价 X% 的战争概率」，先问他假设的最坏情况值多少。</p>
+</div>
+
+<h3>7.2　C 类事件真正的特征：反转的密度</h3>
+
+<p>把时间线上的<strong>单日大幅变动</strong>挑出来看：</p>
+
+<ul>
+<li>3 月第一周：<strong>+35%</strong>（单周）</li>
+<li>3 月 9 日：<strong>−6%</strong>（在逼近 $120 之后）</li>
+<li>4 月 8 日：<strong>−16%</strong>（近六年最大单日跌幅）</li>
+<li>4 月 17 日：<strong>−12%</strong></li>
+<li>7 月 8 日：<strong>+3%</strong></li>
+</ul>
+
+<p><strong>方向来回换，而且每次的触发都是一句话</strong>——「考虑接管海峡」「宣布停火」「外长称海峡开放」。<strong>没有一次是供给数据变化触发的。</strong></p>
+
+<p>这一点可以说得更硬：8 月 31 日的报道给出了实际供给数字——<strong>每天仍有 600 万到 800 万桶原油通过霍尔木兹</strong>，波斯湾出口已回到每天约 1500 万到 1600 万桶（低于战前水平但已恢复）。也就是说，<strong>实物流量在这几个月里是相对稳定的，而价格在 $69 到 $112 之间来回甩。</strong></p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>这就是 C 类事件的定义性特征：价格波动的驱动力不是事实的变化，而是「关于事实的概率分布」的变化。</strong></p>
+<p style="margin:.5em 0 .3em">而概率分布可以被一句外交辞令改变，实物流量不能。</p>
+</div>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>我推测：在 C 类事件里，<strong>方向性下注的胜率接近抛硬币</strong>——因为决定方向的是下一条头条新闻，而头条新闻本质上不可预测。如果这个推测对，那么在这种环境里持续赚钱的，应该是<strong>不赌方向</strong>的人：做市商（价差在波动时是变宽的）和交易波动率本身的人。</p>
+<p><strong>反对的看法：</strong>这是一个很讨巧但没有证据的说法。反对意见有两条：（1）确实有人靠地缘政治判断长期赚钱，说明方向性判断在这里不是完全无效的；（2）做市商在剧烈波动中同样可能因为压货而巨亏，「波动大 = 做市商赚钱」是个懒惰的推论。</p>
+<p><strong>要判断需要什么材料：</strong>按策略类型分类的基金业绩数据（2026 年 3–8 月），以及做市商在该时段的实际盈亏。<strong>我今天都没有。所以这一段只是推测，请不要据此行动。</strong></p>
+</div>
+
+<div class="src"><b>依据：</b>时间线来自 <a href="https://en.wikipedia.org/wiki/2026%E2%80%932028_world_oil_market_chronology">Wikipedia《2026–2028 world oil market chronology》</a>（<b>二手编年，且内部数字不自洽，已在正文标出</b>）；8/28 WTI $83.40 见 <a href="https://investrade.com/market-review-august-28-2026/">Investrade</a>；8/31 WTI $84.79 与霍尔木兹流量数字见 <a href="https://tradingeconomics.com/commodity/crude-oil">Trading Economics</a>；战况脉络见 <a href="https://www.aljazeera.com/news/2026/7/8/oil-prices-surge-as-us-strikes-iran-reversing-fall-to-pre-war-levels">Al Jazeera 2026-07-08</a>。溢价算术为推导，最坏情况估值为示意假设。</div>
+
+<h2>8｜制度里的「暂停键」：熔断</h2>
+
+<p>市场并不是任由价格自由落体。美国有一套<strong>全市场熔断机制</strong>，规则是公开的：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>级别</th><th>标普 500 单日跌幅</th><th>后果</th></tr></thead>
+<tbody>
+<tr><td>一级</td><td>7%</td><td>下午 3:25 之前触发 → 全市场暂停 15 分钟；3:25 或之后触发 → 不暂停</td></tr>
+<tr><td>二级</td><td>13%</td><td>同上</td></tr>
+<tr><td>三级</td><td>20%</td><td><strong>任何时间触发 → 当日休市</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>触发点位<strong>每个交易日按前一日标普 500 收盘价重新计算</strong>。</p>
+
+<p><strong>为什么值得知道这个？</strong>因为它给了你一个具体的量级感。7% 是一个需要制度出面干预的日跌幅——而 8 月 28 日标普跌了 0.25%，是这个门槛的<strong>二十八分之一</strong>。</p>
+
+<div class="calc">
+7% ÷ 0.25% = <b>28</b>
+</div>
+
+<p class="hint">熔断的设计意图（给人重新思考的时间、让被动清算暂停）是我的理解，不是我从规则文本里读到的——SEC 的页面只写了规则本身。<strong>所以「为什么这么设计」这句话，我按推测处理。</strong></p>
+
+<div class="src"><b>依据：</b><a href="https://www.investor.gov/introduction-investing/investing-basics/glossary/stock-market-circuit-breakers">SEC Investor.gov, Stock Market Circuit Breakers</a>（监管机构公开页面，一手）。</div>
+
+<h2>9｜对你意味着什么</h2>
+
+<p class="hint">以下是教学分析与决策框架，不是针对你个人情况的投资建议。</p>
+
+<h3>9.1　先看清楚你的对手盘是谁：实证数字</h3>
+
+<p>这一段可能不好听，但你说过「最重要的是知识的正确性」，所以我给你查到的原始数字，不加修饰。</p>
+
+<h4>台湾研究（Barber、Lee、Liu、Odean，2004）</h4>
+
+<p>样本是台湾证券交易所 <strong>1995–1999 年全部日内交易者</strong>，每半年平均超过 13 万人。</p>
+
+<ul>
+<li>在一个典型的半年里，<strong>十个日内交易者里有八个以上是亏钱的</strong>（按 7 个基点的佣金假设，净盈利者约占 18–19%）。</li>
+<li>重度日内交易者（半年成交额 9000 万新台币以上）作为一个整体：<strong>扣费前</strong>日均毛利 3640 万新台币，<strong>扣费后</strong>日均净亏 6890 万新台币。</li>
+</ul>
+
+<p><strong>请注意第二条的结构：他们在选股上确实赚到了钱（毛利为正），但交易成本把它吃光还倒欠。</strong>亏损的来源不是判断，是摩擦。</p>
+
+<h4>但同一篇论文还有一个必须一起讲的发现</h4>
+
+<p>论文同时发现：<strong>过去表现最好的那一小撮人，有持续的盈利能力。</strong>「过去标准化收益超过 0.2」的这一组里，<strong>65.9% 在之后仍然赚钱</strong>，半年平均收入超过 100 万新台币；他们买入的股票比卖出的股票<strong>每天跑赢 62 个基点</strong>，足以覆盖交易成本。</p>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>所以正确的结论不是「日内交易一定亏钱」，而是：绝大多数人亏钱，同时技能确实存在并且可以持续。</strong></p>
+<p style="margin:.5em 0 .3em">这两句话都要说。只说前一句是恐吓，只说后一句是诱导。</p>
+</div>
+
+<h4>巴西研究（Chague、De-Losso、Giovannetti，2020）</h4>
+
+<p>样本是 <strong>2013–2015 年间开始做日内交易的 19,646 人</strong>，追踪到 2017 年，市场是巴西迷你 Ibovespa 股指期货。</p>
+
+<ul>
+<li>坚持超过 <strong>300 天</strong>的人当中，<strong>97% 亏钱</strong>。</li>
+<li>只有 <strong>1.1%</strong> 赚得比巴西最低工资多（约 16 美元/天）。</li>
+<li>只有 <strong>0.5%</strong> 赚得比银行柜员起薪多（约 54 美元/天）。</li>
+<li>在坚持 300 天以上的 1,551 人里，<strong>没有发现学习效应</strong>——做得久并没有变好。</li>
+</ul>
+
+<p class="hint">两个研究的口径不同，别混着引用：台湾研究看的是<strong>股票</strong>、<strong>所有</strong>日内交易者、半年窗口；巴西研究看的是<strong>股指期货</strong>、<strong>坚持 300 天以上</strong>的那一批人。「97%」这个数字只适用于后者那个特定人群，不是「所有散户」的比例。<strong>网上把这两个数字混着用的文章非常多。</strong></p>
+
+<h3>9.2　你唯一的结构性优势，可以从第 4 节直接推出来</h3>
+
+<p>把前面的约束反过来读，会得到一个具体的结论。</p>
+
+<p>机构在黑天鹅里被迫卖出，原因我们已经推过：<strong>波动率上升 → VaR 超限 → 必须减仓</strong>。这个动作与他们对基本面的看法无关。上一课的英国 LDI 是同一个结构（触发器换成保证金）。</p>
+
+<p><strong>而你没有这些触发器：</strong></p>
+
+<ul>
+<li>你没有 VaR 限额，波动率翻倍不会有人要求你砍半仓</li>
+<li>你没有月度或年度考核，十二月三十一日的价格对你没有特殊意义</li>
+<li>你没有客户，不会有人在最差的时候要求赎回</li>
+<li>只要不用杠杆，你就没有保证金追缴</li>
+</ul>
+
+<div class="box">
+<p style="margin:.3em 0"><strong>结论：机构被迫卖出的时候，你不必卖。这是个人投资者对机构唯一的、结构性的、不依赖任何技能的优势。</strong></p>
+<p style="margin:.5em 0 .3em">注意最后一句里的<strong>「只要不用杠杆」</strong>——一旦用了杠杆，你就自己给自己装上了保证金触发器，把这个优势主动放弃了。</p>
+</div>
+
+<p class="hint">这个推论是从第 4 节的机制推出来的，我没有引用实证研究来证明「不卖的个人投资者事后确实表现更好」。<strong>它是逻辑上成立的，不是被数据证实的。</strong></p>
+
+<h3>9.3　但劣势也要给全</h3>
+
+<p>公平起见，把另一边也列完整——这些同样是结构性的：</p>
+
+<ol>
+<li><strong>信息</strong>：你比机构晚知道，而且看不到订单流。</li>
+<li><strong>执行</strong>：你的成交价格更差，尤其在波动时（第 5 节的滑点）。</li>
+<li><strong>成本</strong>：佣金、点差、以及对你而言的美国股息 30% 预扣税（Day 14 第 4.2 节）。</li>
+<li><strong>时区</strong>：你在新加坡，美股开盘是你的深夜。<strong>这一条对短线交易是致命的，对长线几乎无关</strong>——它本身就是一个「你该选什么时间尺度」的约束。</li>
+<li><strong>行为</strong>：巴西研究里那 1,551 个坚持 300 天以上的人，没有表现出学习效应。<strong>「多做就会变好」在这个领域没有得到支持。</strong></li>
+</ol>
+
+<h3>9.4　实操：黑天鹅当天的一张预案</h3>
+
+<p>把整篇的推导压成可以执行的东西。<strong>关键是这张表要在事情发生之前写好</strong>，因为事发当天你没有时间做这些推理。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>先判断</th><th>怎么判断</th><th>推出的含义</th></tr></thead>
+<tbody>
+<tr><td>这是 A / B / C 哪一类？</td><td>时间是否在日历上；传导链推不推得出</td><td>A 类基本已被定价，不必动作</td></tr>
+<tr><td>价格动了，事实动了吗？</td><td>找实物/基本面数据（如霍尔木兹的实际流量）</td><td>只有概率分布在动 → 反转概率高</td></tr>
+<tr><td>现在的下跌是消息还是被动减仓？</td><td>看波动率是否已大幅抬升、看是否无差别下跌</td><td>被动减仓与基本面无关，且有终点</td></tr>
+<tr><td>我的时间尺度是什么？</td><td>这笔钱几年后要用</td><td>用第 3 节的算术把跌幅摊到你的持有期</td></tr>
+<tr><td>我有没有被迫卖出的触发器？</td><td>有没有杠杆、有没有短期要用的钱</td><td>没有 → 9.2 节的优势成立；有 → 先解决这个</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>10｜反向倒推：这套框架什么时候会失效</h2>
+
+<p>顺着推是「约束决定行为」。倒过来问：<strong>什么情况下这个框架会给出错误的判断？</strong></p>
+
+<ol>
+<li><strong>当被动卖出不是暂时的。</strong>第 9.2 节的优势建立在「机构被迫卖出，价格因此偏离基本面，之后会修复」。但如果基本面本身真的坏了，那不卖的人只是坐视亏损扩大。<strong>这个框架无法区分「被迫卖出造成的错杀」和「真的坏了」</strong>——它只能告诉你「有一部分卖压与基本面无关」，不能告诉你比例是多少。</li>
+<li><strong>当我的分类本身错了。</strong>A / B / C 三类的边界是模糊的。2026 年 3 月的战争爆发是 C 类；但到了 8 月，霍尔木兹的谈判进展已经部分变成了「可推的传导链」，它在向 B 类漂移。<strong>分类会随时间变化，而我给的是一个静态的表。</strong></li>
+<li><strong>当我把「模型」当成了「事实」。</strong>第 4 节的 VaR 机制是我搭的教学模型，我在框里已经说了它可能过时或不准。<strong>如果真实的机构约束不长这样，那么「第二波是被动减仓」这个解释就是错的</strong>——而且它错的时候看起来仍然很合理，因为它总能解释已经发生的下跌。</li>
+</ol>
+
+<h3>自查：这套说法在事情发生之前能用吗</h3>
+
+<ul>
+<li>「日程事件在公布前已被定价」——<strong>能用</strong>，而且可证伪：如果一个日程事件之后出现巨大的价格跳空，这个说法当天就被打脸。8/28 标普只动 0.25%，与它一致。</li>
+<li>「波动率翻倍 → VaR 约束下仓位减半」——<strong>能算</strong>，但它是模型的推论，不是观察。它预测「第二波下跌」，而这个预测<strong>我今天没有拿任何真实事件去检验</strong>。</li>
+<li>「C 类事件里方向性下注胜率接近抛硬币」——<strong>不能用</strong>。这是我的推测，已装框，没有任何数据支撑。</li>
+<li>「散户日内交易大概率亏钱」——<strong>有实证</strong>，两个独立市场、两个独立团队、结论一致。这是全文最结实的一条。</li>
+</ul>
+
+<h2>11｜底层思维 + 顶层视角</h2>
+
+<h3>底层思维：不要问「他在想什么」，问「他必须做什么」</h3>
+
+<p>今天全文只有一个方法：<strong>行为的可预测部分，来自约束而不是意图。</strong></p>
+
+<p>想搞清楚一个人会怎么做，问「他怎么想的」是最没效率的路径——你猜不到，他也未必说实话，而且他明天可能改主意。问「他被什么约束着」要有效得多，因为约束是外在的、稳定的、常常还是公开的。</p>
+
+<p><strong>这个方法在你自己的工作里是一模一样的：</strong></p>
+
+<ul>
+<li><strong>性能优化</strong>：想知道一个系统在压力下会怎么表现，最没效率的做法是读代码猜逻辑。有效的做法是找<strong>约束</strong>——哪个资源会先耗尽（内存带宽、锁、文件描述符、KV Cache 的显存）。<strong>约束一旦找到，行为就基本确定了，你甚至不需要读完那段代码。</strong>这和「不问交易员怎么想、问他的限额是多少」是同一个动作。</li>
+<li><strong>看一份卖方研报（H44）</strong>：不要先读它的结论，先问写它的人被什么约束着——他的雇主有没有承销这家公司、他的评级分布是不是长期偏多。约束会告诉你结论的可信区间。</li>
+<li><strong>看一项政策（H25）</strong>：不要问决策者「想要什么」，问「他面对什么约束」——预算、选举周期、可用工具。</li>
+</ul>
+
+<h3>顶层视角：这一课在系统里的位置</h3>
+
+<p>前两课讲的是<strong>价格应该是多少</strong>（估值、传导链）。今天这一课讲的是<strong>价格是怎么被实际形成的</strong>——由一群各自被不同约束绑着的人，在有限的流动性里撮合出来的。</p>
+
+<p><strong>这两层的关系是：</strong>估值模型告诉你长期的锚在哪，微观结构告诉你短期为什么会偏离那个锚、以及偏离能有多大。上一课英国 LDI 的强制卖出、今天的 VaR 减仓和滑点，都是「偏离」的来源。<strong>一个只懂估值不懂结构的人，会把每一次偏离都误读成基本面变化；一个只懂结构不懂估值的人，则永远不知道价格该回到哪里。</strong></p>
+
+<h2>12｜今日新术语卡片</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>一句话大白话</th><th>第几节</th></tr></thead>
+<tbody>
+<tr><td>做市商</td><td>market maker</td><td>同时挂买价和卖价、赚中间差额的人。不赌方向，怕压货。</td><td>2</td></tr>
+<tr><td>买卖价差</td><td>bid-ask spread</td><td>同一时刻"卖给你的价"减"从你手上买的价"。</td><td>2</td></tr>
+<tr><td>风险价值</td><td>Value at Risk (VaR)</td><td>"有 99% 把握，明天亏损不超过多少钱"的那个数。</td><td>4</td></tr>
+<tr><td>日波动率</td><td>daily volatility</td><td>每日涨跌幅的标准差，衡量"典型一天动多少"。</td><td>4</td></tr>
+<tr><td>订单簿</td><td>order book</td><td>市场不是一个价格，是一叠不同价格上排队的买卖单。</td><td>5</td></tr>
+<tr><td>滑点</td><td>slippage</td><td>因为自己的单子把价格推走而多付的成本。</td><td>5</td></tr>
+<tr><td>熔断</td><td>circuit breaker</td><td>跌到规定幅度就暂停全市场交易的制度。7% / 13% / 20%。</td><td>8</td></tr>
+<tr><td>FOMC 公告前漂移</td><td>pre-FOMC announcement drift</td><td>1994–2011 年间，美股大部分风险溢价出现在议息公告前 24 小时内的异象。</td><td>6.1</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>13｜自测与延伸</h2>
+
+<div class="qbox">
+<details>
+<summary>1. 某交易台持仓 2 亿美元，标的日波动率 1.5%，风控限额是 99% 单日 VaR 不超过 800 万美元。他现在超限了吗？如果波动率升到 2.5%，他必须减到多少？</summary>
+<div class="calc">
+当前 VaR = 2.33 × 1.5% × 2 亿 = 2.33 × 0.015 × 200,000,000<br>
+　= 0.03495 × 200,000,000 = <b>699 万美元</b><br>
+　699 万 &lt; 800 万 → <b>没有超限</b>，还有约 100 万的余量<br><br>
+波动率升到 2.5%：<br>
+　VaR = 2.33 × 2.5% × 2 亿 = 0.05825 × 200,000,000 = <b>1,165 万美元</b> → <b>超限</b><br><br>
+必须减到 X：2.33 × 2.5% × X = 800 万<br>
+　X = 8,000,000 ÷ 0.05825 = <b>约 1.373 亿美元</b>
+</div>
+<p><strong>也就是要卖掉约 6,270 万美元，占原持仓的 31%。</strong></p>
+<p><strong>顺便注意一个规律：</strong>波动率从 1.5% 涨到 2.5%（涨了 67%），持仓要砍 31%。为什么不是砍 40%（1 − 1.5/2.5）？因为他<strong>原本没有用满限额</strong>——699 万对 800 万，有 14% 的余量先被吃掉了。<strong>限额余量决定了他要被迫卖多少</strong>，这也是为什么同一个波动率冲击，不同机构的被迫卖出量差别很大。</p>
+</details>
+
+<details>
+<summary>2. 8 月 31 日 WTI 收 $84.79。用第 7 节的方法，如果你认为"霍尔木兹完全封锁"会让油价涨到 $140，市场此刻隐含的封锁概率是多少？这个数字可靠吗？</summary>
+<div class="calc">
+战前基准 $70，完全封锁 $140 → 完全封锁的溢价 = $70，即 <b>+100%</b><br>
+当前溢价 = 84.79 − 70 = <b>$14.79</b>，即 14.79 ÷ 70 = <b>+21.1%</b><br><br>
+隐含概率 = 21.1% ÷ 100% = <b>约 21%</b>
+</div>
+<p><strong>可靠吗？不可靠，而且不可靠的原因有三层：</strong></p>
+<ol>
+<li><strong>$140 是你设的。</strong>换成 $110（+57%），隐含概率变成 21.1 ÷ 57 = <strong>37%</strong>。假设变了，答案差近一倍。</li>
+<li><strong>$70 这个战前基准也是推断的</strong>，来自"6 月 24 日跌破 70 为 3 月 2 日以来首次"这句话，不是一个直接查到的收盘价。</li>
+<li><strong>更根本的问题：它假设价格里只有"封锁 / 不封锁"两种情形。</strong>真实价格里还混着全球需求、OPEC+ 产量决定、美元汇率、库存水平。<strong>把整个溢价都归给战争，本身就是一个未经证明的假设。</strong></li>
+</ol>
+<p><strong>这道题真正在练的是：一个看起来很"量化"的数字，可以完全建立在三个没人验证过的假设上。</strong>报出这种数字的人有义务说明假设，说不出的就不要引用。</p>
+</details>
+
+<details>
+<summary>3. 有人对你说："这次跌得这么狠，说明市场知道点我们不知道的事。" 用今天学的东西反驳或限定这句话。</summary>
+<p>这句话把价格下跌<strong>全部</strong>归因于信息。今天的内容给出了至少三个与信息无关的下跌来源：</p>
+<ol>
+<li><strong>被动减仓（第 4 节）：</strong>波动率上升触发 VaR 超限，机构必须卖，与他们知道什么无关。这部分卖压是<strong>机械的</strong>。</li>
+<li><strong>流动性撤走（第 5 节）：</strong>做市商拉宽价差、缩小报价量之后，同样大小的卖单会把价格推得更远。<strong>价格跌得多，可能只是因为承接的人少了，不是因为卖的人多了。</strong></li>
+<li><strong>强制平仓（上一课的 LDI）：</strong>保证金追缴触发的卖出，同样与信息无关。</li>
+</ol>
+<p><strong>但这句话也不能完全反驳</strong>——市场里确实有比你信息更好的人，价格下跌里确实可能包含真实信息。</p>
+<p><strong>正确的说法是：</strong>「下跌里有信息成分，也有机械成分，而我现在无法确定两者的比例。」<strong>然后去找能区分它们的证据：</strong>下跌是不是无差别的（无差别 → 更像机械卖出）？波动率是不是已经大幅上升（是 → 存在 VaR 触发的条件）？成交量集中在哪个时段？</p>
+<p><strong>这道题在练的，正是今天全文的方法：</strong>把一个关于"别人在想什么"的问题，转换成几个关于"什么约束在起作用"的可查问题。</p>
+</details>
+</div>
+
+<h3>今天就能做的一个小动作（20 分钟）</h3>
+
+<p>写一份属于你自己的<strong>「被迫卖出清单」</strong>——也就是把第 9.2 节那个优势，从一句话变成一个你能核对的事实：</p>
+
+<div class="box">
+<p style="margin:.3em 0">① 我的持仓里有没有任何杠杆（融资、保证金、杠杆 ETF）？<br>
+② 未来 24 个月我要用的钱，有多少在市场里？<br>
+③ 如果明天跌 20%，有没有任何人或任何规则能强迫我卖？</p>
+</div>
+
+<p>三个答案都是「没有」，你才真正拥有第 9.2 节说的那个优势。<strong>只要有一个是「有」，那个优势就不成立</strong>——而这件事只能在平静的时候查清楚，事发当天查已经晚了。</p>
+
+<h3>延伸阅读</h3>
+
+<ul>
+<li><a href="https://faculty.haas.berkeley.edu/odean/papers/Day%20Traders/Day%20Trade%20040330.pdf">Barber, Lee, Liu &amp; Odean, <em>Do Individual Day Traders Make Money? Evidence from Taiwan</em> (2004)</a><br>
+<span class="hint">难度：中（有计量表格，但结论部分是白话）。<strong>值得读的理由：</strong>全样本、全市场、五年数据——不是问卷、不是自我报告。<strong>重点读它关于"少数人持续盈利"的那一节</strong>，因为大部分转述文章只引用"八成人亏钱"，把另一半结论砍掉了。约 40 分钟。</span></li>
+
+<li><a href="https://www.bostonfed.org/-/media/Documents/conference/PDF/Lucca_preFOMCDrift.pdf">Lucca &amp; Moench, <em>The Pre-FOMC Announcement Drift</em>, NY Fed Staff Report No. 512</a><br>
+<span class="hint">难度：中偏高。<strong>值得读的理由：</strong>一个由央行研究人员发现的、他们自己也解释不了的异象。读它是为了体会<strong>「有稳健的统计事实，但没有公认的机制」是什么状态</strong>——这在宏观金融里非常常见，而它跟"编一个机制填上去"只有一线之隔。约 45 分钟。</span></li>
+
+<li><a href="https://www.investor.gov/introduction-investing/investing-basics/glossary/stock-market-circuit-breakers">SEC Investor.gov, <em>Stock Market Circuit Breakers</em></a><br>
+<span class="hint">难度：极低（一页）。<strong>值得读的理由：</strong>五分钟读完，但它给你一个量级尺——以后看到"暴跌"两个字，你会先想"离 7% 还有多远"。</span></li>
+</ul>
+
+<h2>14｜今天查实了什么 / 没查实什么</h2>
+
+<p><strong>这一课的推测比例明显高于前两课。</strong>下面把界线画清楚。</p>
+
+<h3>结实的部分（有一手出处或可自行验算）</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>内容</th><th>依据</th><th>出处</th></tr></thead>
+<tbody>
+<tr><td>散户日内交易的实证结果（台湾 1995–1999）</td><td class="up">学术论文，全样本</td><td>Barber, Lee, Liu &amp; Odean (2004)</td></tr>
+<tr><td>散户日内交易的实证结果（巴西 2013–2017）</td><td class="up">学术论文</td><td>Chague, De-Losso &amp; Giovannetti (2020)</td></tr>
+<tr><td>FOMC 公告前 24 小时 +49bp；年化 3.89% vs 其余日 0.89%</td><td class="up">纽约联储工作论文</td><td>Lucca &amp; Moench, Staff Report 512</td></tr>
+<tr><td>熔断规则 7% / 13% / 20% 及时段规定</td><td class="up">监管机构公开页面</td><td>SEC Investor.gov</td></tr>
+<tr><td>2020 年 3 月主权债价差扩大；美元资产占储备抛售 80%+（份额仅约 60%）</td><td class="up">纽约联储研究</td><td>Liberty Street Economics</td></tr>
+<tr><td>VaR 算术、时间尺度算术、滑点算术、油价溢价算术</td><td class="up">纯算术，可逐行验算</td><td>输入数字已标明来源或标为示意</td></tr>
+<tr><td>8/28 WTI $83.40 与 8/31 $84.79（+1.66%）</td><td class="up">两个独立来源精确互验</td><td>Investrade / Trading Economics</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>不结实的部分（已装进推测框或明确标注）</h3>
+
+<ol>
+<li><strong>「机构因 VaR 超限而同时减仓，造成第二波下跌」</strong>——这是从规则推出来的模型，<strong>我没有引用任何实证研究证明它真的发生过</strong>。已装框，并列出了反对意见（VaR 在危机中失效、业界已转向其他指标）。</li>
+<li><strong>「2020 年 3 月是按流动性排序抛售」</strong>——纽约联储那篇文章<strong>没有这么说</strong>，这是我对 80% vs 60% 这个数字的读法。竞争性解释（全球缺的就是美元）同样成立，我区分不了。已装框。</li>
+<li><strong>「C 类事件里方向性下注胜率接近抛硬币」</strong>——纯推测，零证据。已装框。</li>
+<li><strong>「pre-FOMC drift 至今仍然存在」</strong>——<strong>我没有查 2011 年之后的样本外表现。</strong>金融异象在发表后普遍衰减，所以不能假设它还在。已装框。</li>
+<li><strong>熔断的「设计意图」</strong>——SEC 页面只写规则，不写理由。我的解释是推测，已标注。</li>
+<li><strong>2026 伊朗战争的时间线数据</strong>——来自二手编年记录，<strong>且内部不自洽</strong>（4 月 8 日反推出 WTI 高于 Brent，与 3 月 20 日的 Brent-WTI 价差 $15 矛盾）。我已在正文明写，并把定量计算限制在能交叉验证的两个数上。</li>
+</ol>
+
+<h3>今天完全没做到的事</h3>
+
+<ol>
+<li><strong>B 类事件（关税）没有具体数据。</strong>整个 6.2 节只有机制描述，没有一个真实数字。我选择写短而不是硬凑。</li>
+<li><strong>没有任何 8/28 的日内数据</strong>，所以「日程事件的价格调整在几分钟内完成」这个说法，我在文中只作为推论提出，没有当天的证据。</li>
+<li><strong>没有做市商真实价差、订单簿深度的任何数据。</strong>第 2 节和第 5 节的所有数字都是示意数字。</li>
+<li><strong>没有查到任何关于"交易台如何组织一天工作"的可引用材料。</strong>所以本文<strong>完全没有写</strong>作息、会议、晨会这类内容——不是遗漏，是查不实就不写。</li>
+</ol>
+
+<div class="guess" style="margin-top:2em">
+<span class="tag">⚠ 整体提醒</span>
+<p>如果你想从这一课带走一件事，我建议不是任何一条关于交易员的具体说法，而是那个方法：<strong>把"他们在想什么"换成"他们被什么约束着"。</strong>前者你永远查不实，后者常常有公开文件。</p>
+<p>而如果你想带走一个具体的结论，那应该是第 9.2 节：<strong>在别人被规则逼着卖的时候你不必卖，这是你唯一不依赖技能的优势——而杠杆会让你主动放弃它。</strong></p>
+</div>
+
+<footer>
+<p>Day 14 加更二 · 跨领域（市场微观结构 × 风险管理 × 行为金融）<br>
+市场数据截至 2026-08-28 美股收盘；原油数据截至 2026-08-31｜成稿 2026-08-31（新加坡）</p>
+<p>本材料为教学分析，不构成投资建议。所有数据均标注出处与口径，请在使用前自行核对。</p>
+</footer>
+
+</div>
+</body>
+</html>
