@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 14 · 股利折现模型：一台会吐钱的机器，值多少？</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --fg:#1f2328; --muted:#5b6570; --line:#e2e0dc;
+    --card:#ffffff; --accent:#1d5fbf; --accent-soft:#eaf1fd;
+    --warn:#b45309; --warn-bg:#fff8ec; --warn-line:#e0a750;
+    --good:#0f7a52; --bad:#b4232c;
+    --code-bg:#f2f1ee;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --fg:#e6e6e3; --muted:#9aa4ae; --line:#2c3238;
+      --card:#1b1f23; --accent:#7db1ff; --accent-soft:#16233a;
+      --warn:#f0b45c; --warn-bg:#2a2113; --warn-line:#8a6320;
+      --good:#4fc99a; --bad:#ff8a8a;
+      --code-bg:#22262b;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.85; overflow-x:hidden;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:32px 20px 90px}
+  header.top{border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:8px}
+  .kicker{font-size:13px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  h1{font-size:27px; line-height:1.4; margin:.35em 0 .3em; font-weight:700}
+  .sub{color:var(--muted); font-size:15px; margin:0}
+  h2{font-size:21px; margin:2.6em 0 .7em; padding-top:.6em; border-top:1px solid var(--line); font-weight:700}
+  h2:first-of-type{border-top:none}
+  h3{font-size:17.5px; margin:2em 0 .5em; font-weight:700}
+  h4{font-size:16px; margin:1.5em 0 .4em; font-weight:700; color:var(--accent)}
+  p{margin:.85em 0}
+  ul,ol{padding-left:1.35em; margin:.7em 0}
+  li{margin:.4em 0}
+  a{color:var(--accent); text-decoration:underline; text-underline-offset:2px; word-break:break-word}
+  strong{font-weight:700}
+  .lead{background:var(--accent-soft); border-radius:10px; padding:16px 18px; margin:1.2em 0}
+  .calc{
+    background:var(--code-bg); border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0; padding:12px 16px; margin:1.1em 0;
+    font-size:16.5px; line-height:2.05; overflow-x:auto;
+  }
+  .calc b{font-weight:700}
+  .guess{
+    border:2px dashed var(--warn-line); background:var(--warn-bg);
+    border-radius:10px; padding:14px 18px 16px; margin:1.4em 0;
+  }
+  .guess .tag{
+    display:inline-block; background:var(--warn); color:#fff; font-size:12.5px;
+    font-weight:700; padding:2px 10px; border-radius:20px; margin-bottom:8px;
+    letter-spacing:.03em;
+  }
+  .guess p{margin:.5em 0; font-size:16px}
+  .src{
+    font-size:13.5px; color:var(--muted); border-top:1px dotted var(--line);
+    padding-top:8px; margin-top:14px;
+  }
+  .src b{color:var(--fg)}
+  .box{border:1px solid var(--line); background:var(--card); border-radius:10px; padding:14px 18px; margin:1.2em 0}
+  .qbox{border:1px solid var(--line); border-radius:10px; padding:2px 16px; margin:1em 0; background:var(--card)}
+  .tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0}
+  table{border-collapse:collapse; width:100%; font-size:15px; min-width:480px}
+  th,td{border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  th{font-weight:700; color:var(--muted); font-size:13.5px; letter-spacing:.02em}
+  td.n{font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+  .up{color:var(--good); font-weight:600}
+  .dn{color:var(--bad); font-weight:600}
+  figure{margin:1.6em 0}
+  figure svg{width:100%; height:auto; display:block}
+  figcaption{font-size:14px; color:var(--muted); margin-top:10px; line-height:1.7}
+  details{margin:.7em 0; border:1px solid var(--line); border-radius:8px; padding:0 14px; background:var(--card)}
+  details[open]{padding-bottom:8px}
+  summary{cursor:pointer; padding:11px 0; font-weight:600; font-size:16px}
+  .chain rect{fill:var(--card); stroke:var(--fg); stroke-width:1.6}
+  .chain rect.dash{stroke:var(--warn); stroke-dasharray:7 5; fill:var(--warn-bg)}
+  .chain text{fill:var(--fg); font-family:inherit}
+  .chain text.t1{font-size:15px; font-weight:700}
+  .chain text.t2{font-size:12.5px; fill:var(--muted)}
+  .chain line, .chain path{stroke:var(--fg); stroke-width:1.8; fill:none}
+  .chain line.dash, .chain path.dash{stroke:var(--warn); stroke-dasharray:7 5}
+  .chain .num{font-size:12px; font-weight:700; fill:var(--bg)}
+  .chain circle{fill:var(--fg)}
+  .chain circle.dash{fill:var(--warn)}
+  footer{margin-top:3em; padding-top:20px; border-top:1px solid var(--line); font-size:14.5px; color:var(--muted)}
+  .hint{font-size:15px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 14 · 领域 F 股票估值与企业基本面 · 锚点原理 F2</div>
+  <h1>一台会吐钱的机器值多少钱？<br>——股利折现模型，以及它在上周五被现实打了脸</h1>
+  <p class="sub">事件日：2026 年 8 月 28 日（美东，周五）｜ 成稿：2026 年 8 月 31 日（新加坡时间）</p>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<div class="lead">
+<p>上周五，美联储主席在一场年度会议上讲了话，说通胀还是太高。市场听完，把「下个月加息」的概率从三成多抬到了五成半，各期限的美国国债利率当天全部上行，美股收跌。</p>
+<p>今天要讲透的道理只有一个：<strong>一只股票的价格，本质上是把它未来所有的现金分红，一笔一笔折算回今天再加起来。</strong>这个算法有个名字，叫股利折现模型。我们会从零把它推出来，然后用它做一个可以被证伪的预测，再拿周五的真实数据去检验。</p>
+<p>读完你能回答：为什么利率只动了几个基点，股票能跌一个百分点？以及——上周五的数据，到底有没有支持这个说法？</p>
+</div>
+
+<h2>1｜今天的事件</h2>
+
+<p>这一节只写事实。每个数字我都会说清楚<strong>是谁发布的、什么时候、什么口径</strong>。</p>
+
+<p>先解释一个待会儿反复出现的词。利率的变化很小，说「涨了 0.04 个百分点」很啰嗦，所以市场把 <strong>0.01 个百分点</strong>叫作 <strong>1 个基点</strong>（basis point，缩写 bp）。所以「10 年期国债涨了 5 个基点」＝「从 4.67% 涨到 4.72%」。</p>
+
+<h3>1.1　背景：通胀数据（8 月 26 日发布）</h3>
+
+<p>美国经济分析局（BEA）在<strong>美东时间 2026 年 8 月 26 日（周三）上午 8:30</strong> 发布了 2026 年 7 月的《个人收入与支出》报告：</p>
+
+<ul>
+<li><strong>PCE 物价指数</strong>（个人消费支出物价指数，Personal Consumption Expenditures Price Index，美联储盯的那个通胀口径）：7 月比 6 月上涨 <strong>0.2%</strong>（环比、季调），比一年前的同月高 <strong>3.7%</strong>（同比）。</li>
+<li><strong>核心 PCE</strong>（剔除食品与能源）：环比 <strong>0.2%</strong>，同比 <strong>3.3%</strong>。</li>
+<li>个人收入环比 +0.4%（+1151 亿美元），个人消费支出环比 +0.2%（+363 亿美元）。</li>
+</ul>
+
+<p class="hint">口径说明：「环比」是这个月对上个月，已做季节调整（季调＝把每年固定重复的季节性波动，比如年底购物旺季，从数据里扣掉，否则每年 12 月都会假装很热）。「同比」是对一年前同月。美联储的目标是同比 <strong>2%</strong>，所以 3.7% 和 3.3% 都明显偏高。</p>
+
+<div class="src"><b>出处：</b><a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA, Personal Income and Outlays, July 2026</a>（发布日 2026-08-26）</div>
+
+<h3>1.2　触发事件：美联储主席的讲话（8 月 28 日）</h3>
+
+<p>美联储主席 Kevin Warsh 在<strong>美东时间 8 月 28 日（周五）上午 10:00</strong>，于 Jackson Hole 年度经济政策研讨会发表主旨演讲。原文里最关键的几句：</p>
+
+<div class="box">
+<p>「Inflation is running above our 2 percent target. So the Fed's predominant focus right now should be on prices.」<br><span class="hint">（通胀跑在我们 2% 的目标之上。所以美联储当前的首要关注应该是物价。）</span></p>
+<p>「We must be confident that underlying inflation is moving to our objective, clearly and at sufficient speed. <strong>Otherwise, we have work to do.</strong>」<br><span class="hint">（我们必须确信底层通胀正在明确地、以足够的速度走向我们的目标。<strong>否则，我们还有事情要做。</strong>）</span></p>
+<p>「I stand here today committed to a discipline, not to a decision.」<br><span class="hint">（我今天站在这里，承诺的是一种纪律，而不是某个决定。）</span></p>
+</div>
+
+<p>他还提到 PCE 通胀的<strong>六个月年化</strong>读数为 <strong>4.1%</strong>（比 12 个月同比的 3.7% 还高，意思是最近半年比过去一年更差）。</p>
+
+<p class="hint">注意他<strong>没有</strong>说「我们要加息」。他说的是「否则我们还有事情要做」。这是一句留了余地的话。后面第 3 节我们会看到，市场是怎么把这句话翻译成一个具体概率的。</p>
+
+<div class="src"><b>出处：</b><a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">Federal Reserve Board, Keynote remarks by Chairman Warsh at the 2026 Jackson Hole Economic Policy Symposium, 2026-08-28</a></div>
+
+<h3>1.3　当时的政策利率在哪里</h3>
+
+<p>美联储在 <strong>2026 年 7 月 28–29 日</strong>的会议上，把联邦基金利率目标区间维持在 <strong>3.50%–3.75%</strong>，这是连续第五次不动。投票 <strong>9 比 3</strong>，三位反对者（Hammack、Kashkari、Logan）主张<strong>当场加息 25 个基点</strong>。</p>
+
+<p>下一次会议：<strong>2026 年 9 月 15–16 日</strong>，且这次会附带点阵图（对未来利率的预测）。</p>
+
+<div class="src"><b>出处：</b><a href="https://www.advisorperspectives.com/dshort/updates/2026/07/29/feds-interest-rate-decision-july-29-2026">Advisor Perspectives, Fed's Interest Rate Decision: July 29, 2026</a>；<a href="https://fedratecalc.com/fomc-meeting-schedule/">2026 FOMC 会议日程</a>（两者均为二手转述，我今天没有直接核对美联储原始声明，见第 9 节）</div>
+
+<h3>1.4　市场当天的反应</h3>
+
+<h4>加息概率</h4>
+
+<div class="tw">
+<table>
+<thead><tr><th>来源 / 工具</th><th class="n">讲话前</th><th class="n">讲话后</th><th>口径</th></tr></thead>
+<tbody>
+<tr><td>CME FedWatch</td><td class="n">约 35.7%<sup>*</sup></td><td class="n">55.7%–57%</td><td>由联邦基金期货价格反推</td></tr>
+<tr><td>Kalshi 预测市场</td><td class="n">30%</td><td class="n">47%</td><td>事件合约的成交价格</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="hint"><sup>*</sup> 讲话前的 35.7% 不是我查到的原始数字，是我用 CNBC「比前一日高约 20 个百分点」倒推出来的（55.7 − 20）。Yahoo 另给出「35% → 57%」，与倒推值相符，但两者仍可能取自不同时点。</p>
+
+<p><strong>这里必须停一下讲口径。</strong>你会看到不同新闻写不同的数字（55.7%、57%、47%），不是有人写错了，而是<strong>它们来自不同的市场</strong>。CME FedWatch 是从联邦基金期货合约的价格反算出来的；Kalshi 是一个直接交易「9 月会不会加息」这个事件的市场。两个市场的参与者、手续费、流动性都不同，价格自然不同。<strong>引用时必须说清楚是哪一个。</strong></p>
+
+<div class="src"><b>出处：</b><a href="https://news.kalshi.com/p/fed-rate-hike-odds-september-2026-jackson-hole-speech">Kalshi, Fed rate hike odds spike after Warsh's Jackson Hole speech</a>；<a href="https://www.cnbc.com/2026/08/28/-september-fed-decision-now-a-coin-flip-as-rate-hike-odds-increase.html">CNBC, September Fed decision is now a coin flip</a>（标题与摘要，正文我今天未能取得全文）</div>
+
+<h4>国债收益率</h4>
+
+<p>先给一个<strong>有权威出处</strong>的基准：美联储 H.15 每日利率发布，<strong>8 月 27 日（周四）</strong>收盘：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>期限</th><th class="n">8/27 收盘</th></tr></thead>
+<tbody>
+<tr><td>联邦基金有效利率（EFFR）</td><td class="n">3.63%</td></tr>
+<tr><td>2 年期</td><td class="n">4.20%</td></tr>
+<tr><td>10 年期</td><td class="n">4.67%</td></tr>
+<tr><td>30 年期</td><td class="n">5.19%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>8 月 28 日（周五）的官方 H.15 数据在我写这份材料时还没有发布</strong>（H.15 通常在下一个工作日更新，也就是 8 月 31 日）。所以周五的变动我只能引用二手来源，而<strong>它们互相不一致</strong>：</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>期限</th><th>来源 A（Yahoo Finance）</th><th>来源 B（Investrade）</th><th>与 H.15 8/27 对得上吗</th></tr></thead>
+<tbody>
+<tr><td>2 年期</td><td>约 +8 bp</td><td>+12 bp 至 4.35%</td><td class="dn">对不上（4.20+0.12≠4.35）</td></tr>
+<tr><td>10 年期</td><td>+4 bp 至 4.72%</td><td>+5.6 bp 至 4.728%</td><td class="up">大致吻合（4.67→4.72 即 +5bp）</td></tr>
+<tr><td>30 年期</td><td>+2 bp 至 5.21%</td><td>—</td><td class="up">吻合（5.19→5.21 即 +2bp）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>10 年和 30 年两个来源与 H.15 能对上，2 年期对不上。可能的原因是不同来源取的报价时点不同（H.15 取下午 3:30 的固定时点，行情商可能取 5:00 的最后成交）。<strong>我不知道哪个对。</strong>后面做计算时，我会明确说明用的是哪个数、以及换成另一个数结论会不会变。</p>
+
+<div class="src"><b>出处：</b><a href="https://www.federalreserve.gov/releases/h15/">Federal Reserve H.15 Selected Interest Rates (Daily)</a>；<a href="https://finance.yahoo.com/markets/live/stock-market-today-friday-august-28-dow-sp-500-nasdaq-dip-fed-warsh-jackson-hole-speech-081514091.html">Yahoo Finance 8/28 收盘直播</a>；<a href="https://investrade.com/market-review-august-28-2026/">Investrade, Market Review: August 28, 2026</a></div>
+
+<h4>股票与其他资产（8 月 28 日收盘）</h4>
+
+<div class="tw">
+<table>
+<thead><tr><th>标的</th><th class="n">收盘</th><th class="n">当日</th></tr></thead>
+<tbody>
+<tr><td>标普 500</td><td class="n">7,711.76</td><td class="n dn">−0.25%</td></tr>
+<tr><td>道琼斯工业</td><td class="n">53,559.99</td><td class="n dn">−0.02%</td></tr>
+<tr><td>纳斯达克综合</td><td class="n">26,402.42</td><td class="n dn">−0.52%</td></tr>
+<tr><td>罗素 2000（小盘股）</td><td class="n">—</td><td class="n dn">−1.39%</td></tr>
+<tr><td>美元指数 DXY</td><td class="n">99.65</td><td class="n up">+0.5%</td></tr>
+<tr><td>USD/SGD</td><td class="n">1.2736</td><td class="n up">+0.18% 或 +0.28%<sup>†</sup></td></tr>
+<tr><td>WTI 原油</td><td class="n">$83.40</td><td class="n dn">−0.13</td></tr>
+<tr><td>黄金</td><td class="n">$4,529.90</td><td class="n dn">−2.88%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="hint"><sup>†</sup> 同一数据页给出了两个互相矛盾的日变动幅度，我没有替它选一个。第 4.1 节会说明为什么这 0.1 个百分点在今天正好要命。</p>
+
+<h4>今天的主角：六个行业 ETF 的横截面</h4>
+
+<p>「横截面」（cross-section）就是<strong>同一天、不同标的之间的比较</strong>，跟「同一个标的、不同时间」的纵向比较相对。今天整堂课的检验就落在这张表上。</p>
+
+<p>下面六只都是同一家发行商（State Street）的板块 ETF，数据都来自同一个数据源、同一个时点（8 月 28 日美东 16:00 收盘），股息率都是<strong>过去 12 个月已派发股息 ÷ 现价</strong>（trailing twelve months, TTM）——口径统一，才能横着比。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>代码</th><th>板块</th><th class="n">TTM 股息率</th><th class="n">8/28 涨跌</th></tr></thead>
+<tbody>
+<tr><td>XLK</td><td>科技</td><td class="n">0.43%</td><td class="n dn">−1.55%</td></tr>
+<tr><td>SPY</td><td>标普 500 整体</td><td class="n">0.98%</td><td class="n dn">−0.23%</td></tr>
+<tr><td>XLF</td><td>金融</td><td class="n">1.39%</td><td class="n up">+0.38%</td></tr>
+<tr><td>XLP</td><td>日常消费品</td><td class="n">2.57%</td><td class="n up">+0.43%</td></tr>
+<tr><td>XLU</td><td>公用事业</td><td class="n">2.80%</td><td class="n dn">−1.04%</td></tr>
+<tr><td>XLRE</td><td>房地产（REITs）</td><td class="n">3.16%</td><td class="n dn">−0.40%</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="src"><b>出处：</b>stockanalysis.com 各基金页面，均标注 as of Aug 28, 2026 4:00 PM EDT：
+<a href="https://stockanalysis.com/etf/xlk/">XLK</a> ·
+<a href="https://stockanalysis.com/etf/spy/">SPY</a> ·
+<a href="https://stockanalysis.com/etf/xlf/">XLF</a> ·
+<a href="https://stockanalysis.com/etf/xlp/">XLP</a> ·
+<a href="https://stockanalysis.com/etf/xlu/">XLU</a> ·
+<a href="https://stockanalysis.com/etf/xlre/">XLRE</a></div>
+
+<h4>当天板块内部的个股新闻（很重要，别跳过）</h4>
+
+<ul>
+<li><strong>PG&amp;E（PCG，公用事业）跌 7.52% 至 $16.60</strong>，成交量是三个月均量的约 4.9 倍。原因是加州立法机构否决了州长为公用事业公司挡下野火赔偿追索的方案，8 月 31 日是立法截止日。</li>
+<li><strong>爱迪生国际（EIX，公用事业）跌 4.79%</strong>，同样是野火赔偿责任。</li>
+<li>PayPal 跌 12%（Advent 与 Stripe 放弃了 500 亿美元的收购）；Marvell 因业绩指引不及预期下跌。</li>
+</ul>
+
+<p class="hint">记住这一条。它待会儿会把一个看起来很漂亮的结论撕开。</p>
+
+<div class="src"><b>出处：</b><a href="https://www.fool.com/coverage/stock-market-today/2026/08/28/stock-market-today-aug-28-pg-and-e-falls-8-on-wildfire-liability-uncertainty-ahead-of-aug-31-deadline/">The Motley Fool, Stock Market Today, Aug. 28, 2026</a></div>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg class="chain" viewBox="0 0 720 720" role="img" aria-label="从通胀数据到股票横截面的传导链">
+  <!-- boxes -->
+  <g>
+    <rect x="60" y="8" width="600" height="62" rx="8"/>
+    <text class="t1" x="80" y="34">① 通胀数据摆在桌上</text>
+    <text class="t2" x="80" y="55">BEA 7月 PCE：同比 3.7%，核心 3.3%（8/26 发布，目标 2%）</text>
+
+    <rect x="60" y="100" width="600" height="62" rx="8"/>
+    <text class="t1" x="80" y="126">② 美联储主席公开讲话</text>
+    <text class="t2" x="80" y="147">Warsh 8/28：「否则我们还有事情要做」</text>
+
+    <rect x="60" y="192" width="600" height="62" rx="8"/>
+    <text class="t1" x="80" y="218">③ 市场把 9 月加息概率抬高约 20 个百分点</text>
+    <text class="t2" x="80" y="239">CME FedWatch 约 35.7% → 55.7%</text>
+
+    <rect x="60" y="284" width="600" height="62" rx="8"/>
+    <text class="t1" x="80" y="310">④ 各期限国债收益率上行，且短端动得多</text>
+    <text class="t2" x="80" y="331">2Y +8～15bp　10Y +5bp　30Y +2bp</text>
+
+    <rect x="60" y="376" width="600" height="62" rx="8"/>
+    <text class="t1" x="80" y="402">⑤ 折现率上升 → 未来现金流的现值下降</text>
+    <text class="t2" x="80" y="423">股利折现模型（今天的锚点原理）— 纯算术</text>
+
+    <rect x="60" y="468" width="600" height="62" rx="8"/>
+    <text class="t1" x="80" y="494">⑥ 模型给出一个可证伪的截面预测</text>
+    <text class="t2" x="80" y="515">股息率越低的板块，跌幅应该越大 — 纯算术</text>
+
+    <rect class="dash" x="60" y="560" width="600" height="72" rx="8"/>
+    <text class="t1" x="80" y="586">⑦ 拿 8/28 真实横截面去对 —— 大部分对不上</text>
+    <text class="t2" x="80" y="606">6 个板块只有 1 个落在预测位置；XLF、XLP 连方向都相反</text>
+    <text class="t2" x="80" y="624">我无法确认周五的截面是被利率驱动的 → 链条在这里断</text>
+  </g>
+  <!-- arrows -->
+  <g>
+    <path d="M360 70 L360 92"/><path d="M354 86 L360 94 L366 86"/>
+    <path d="M360 162 L360 184"/><path d="M354 178 L360 186 L366 178"/>
+    <path d="M360 254 L360 276"/><path d="M354 270 L360 278 L366 270"/>
+    <path d="M360 346 L360 368"/><path d="M354 362 L360 370 L366 362"/>
+    <path d="M360 438 L360 460"/><path d="M354 454 L360 462 L366 454"/>
+    <path class="dash" d="M360 530 L360 552"/><path class="dash" d="M354 546 L360 554 L366 546"/>
+  </g>
+  <!-- legend -->
+  <g>
+    <line x1="60" y1="660" x2="100" y2="660"/>
+    <text class="t2" x="108" y="665">实线 = 有一手出处，或读者能自己算一遍验证</text>
+    <line class="dash" x1="60" y1="690" x2="100" y2="690"/>
+    <text class="t2" x="108" y="695">虚线 = 我接不上的地方（不是推测出来的结论，是明写的断点）</text>
+  </g>
+</svg>
+<figcaption><strong>用人话把这条链读一遍：</strong>通胀数据摆在那里已经好几个月不达标（①）；主席在一场高关注度的会议上把话说得偏硬（②）；交易员立刻用真金白银把「9 月加息」的赌注抬高了约 20 个百分点（③）；因为加息直接改变的是短期利率，所以 2 年期国债动了十几个基点，30 年期只动了 2 个基点（④）；股票是一串未来的现金流，折现率一抬，这串现金流的今天价值就掉（⑤）；而且模型明确预测：现金给得越晚的股票掉得越狠，也就是<strong>股息率越低的板块跌得越多</strong>（⑥）。然后我拿周五真实的六个板块去核对（⑦）——<strong>对不上</strong>。这条链在最后一环断了，我不打算用推测把它补起来。</figcaption>
+</figure>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>环 ①②→③：从一句话到一个概率</h3>
+
+<p><strong>为什么讲话能改变概率？</strong>因为 9 月 15–16 日那次会议上，利率到底动不动，是由包括主席在内的一群人投票决定的。主席的公开表态，是外界能拿到的、关于这群人怎么想的、最直接的信息。</p>
+
+<p>而且这次不是空穴来风：7 月那次会议已经有<strong>三票反对，理由是应该马上加息</strong>。也就是说，桌上已经坐着三个明确要加的人。主席再往这个方向偏，那么「9 月加息」需要的增量票数就不多了。</p>
+
+<p><strong>这一环会在什么情况下断？</strong>如果讲话内容其实早就被市场猜到了，那么概率就不会动。周五概率跳了约 20 个百分点，说明市场原来的预期和讲话内容有落差。</p>
+
+<div class="src"><b>依据：</b>讲话原文（美联储官网）＋ 7 月会议 9–3 投票（二手来源）＋ 概率变化（CME FedWatch / Kalshi，二手转述）。<b>「主席表态改变概率」这个因果，我没有实验证据，只有时间顺序上的吻合。</b></div>
+
+<h3>环 ③→④：为什么短端动 12 个基点，长端只动 2 个基点</h3>
+
+<p>这一步可以纯算术讲清楚，不需要相信我。</p>
+
+<p>先建立一个直觉。<strong>2 年期国债的利率，大致等于市场预期的「未来两年里，隔夜利率的平均值」。</strong>为什么？因为你有两个选择：买一张 2 年期国债拿着不动；或者买一张隔夜的、每天到期再滚一次，滚两年。如果第一条路的收益明显更高，大家都会去买它，把它的价格买高、收益率压低，直到两条路差不多。</p>
+
+<p class="hint">（严格说这里还差一块，叫<strong>期限溢价</strong>——你锁定两年要承担额外风险，所以要求一点补偿。这块以后单独讲。下面的算术先假设它是 0，得到的是一个「下限」估计。）</p>
+
+<p>好，现在算。市场把 9 月加息 25 个基点的概率，从约 35.7% 抬到 55.7%，涨了约 20 个百分点。那么「预期中的政策利率」立刻上升多少？</p>
+
+<div class="calc">
+概率变化 20% × 加息幅度 25 bp = <b>5 bp</b><br>
+<span style="font-size:14px;color:var(--muted)">（意思是：多出来的 20% 可能性 × 每次加 25 个基点＝预期值上升 5 个基点）</span>
+</div>
+
+<p>如果这 5 个基点从 9 月起一直保持到两年后，那么「未来两年隔夜利率的平均值」就上升 <strong>5 个基点</strong>左右。<strong>实际观察到的 2 年期上行是 8 到 15 个基点。</strong>比算出来的多。</p>
+
+<p>你可能会想：那算错了吗？没有。多出来的部分有一个很自然的解释：<strong>一次加息会让人重新评估后面还有没有第二次、第三次。</strong>如果 9 月加了，12 月再加的概率也会跟着上去。这些额外的可能性也被计入 2 年期利率里。</p>
+
+<p>再看 30 年期。同样多出来的 5 个基点，如果只维持两年，之后回到原样，那对「未来 30 年隔夜利率的平均值」的影响是：</p>
+
+<div class="calc">
+5 bp × (2 年 ÷ 30 年) = <b>0.33 bp</b>
+</div>
+
+<p><strong>实际观察到的 30 年期上行是 2 个基点。</strong>比 0.33 大，但确实比 2 年期的 8～15 个基点小了一个数量级。<strong>「短端动得多、长端动得少」这个结构，被算术解释了。</strong></p>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>30 年期实际动了 2 bp，而不是算出来的 0.33 bp。多出来的约 1.7 bp 从哪来？我的猜想是：一次加息不只是「未来两年利率高一点」，它还改变了市场对<strong>央行长期容忍多高通胀</strong>的判断，而这会影响 30 年期里的通胀补偿部分和期限溢价。</p>
+<p><strong>反对的看法：</strong>2 个基点对 30 年期国债来说本来就在日常噪音范围内，可能根本不需要解释；而且我用的「维持 2 年」是我随手设的，改成维持 5 年就能算出 0.83 bp，改成 10 年就是 1.67 bp——<strong>这个参数是我凑的，不是查来的。</strong></p>
+<p><strong>要判断需要什么材料：</strong>当天的通胀保值国债（TIPS）盈亏平衡通胀率变化，以及模型估算的期限溢价（如纽约联储 ACM 模型）当天的变化。这两个我今天都没查。</p>
+</div>
+
+<div class="src"><b>依据：</b>算术推导（读者可自行验算）＋ 概率与收益率数据的二手出处（见第 1 节）。期限溢价假设为 0，属简化。</div>
+
+<h3 style="border-top:2px solid var(--accent); padding-top:1.4em">环 ④→⑤：今天的主菜 —— 股利折现模型</h3>
+
+<p>这是今天的锚点原理，我们从零开始，一步都不跳。</p>
+
+<h4>第一步：先说一件生活里的事</h4>
+
+<p>假设有人卖给你一台机器。这台机器每年年底会自动吐出 <strong>100 块钱</strong>，永远吐，不会坏。<strong>你愿意花多少钱买它？</strong></p>
+
+<p>你不能说「无限多」，因为钱有时间价值。今天的 100 块和明年的 100 块不一样值钱——今天的 100 块你可以存起来生利息，明年就变成 105 块（假设年利率 5%）。</p>
+
+<p>反过来问：<strong>明年的 100 块，今天值多少？</strong>既然 100 块存一年变 105 块，那要让一笔钱一年后正好变成 100 块，今天得放多少？</p>
+
+<div class="calc">
+今天放 X 元，一年后变成 X × 1.05 = 100<br>
+所以 X = 100 ÷ 1.05 = <b>95.24 元</b>
+</div>
+
+<p>把未来的钱换算成今天的钱，这个动作，<strong>经济学给它起了个名字，叫「折现」（discounting）</strong>，算出来的 95.24 元叫<strong>「现值」（present value）</strong>，那个 5% 叫<strong>「折现率」（discount rate）</strong>。</p>
+
+<p>后年的 100 块呢？要折两次：</p>
+
+<div class="calc">
+100 ÷ 1.05 ÷ 1.05 = 100 ÷ 1.1025 = <b>90.70 元</b>
+</div>
+
+<p>第三年：100 ÷ 1.05³ = 86.38 元。第十年：100 ÷ 1.05¹⁰ = 61.39 元。<strong>越远的钱，今天越不值钱。</strong></p>
+
+<h4>第二步：把无穷多年加起来</h4>
+
+<p>这台机器的价格，就是把每一年的 100 块都折回今天，然后全加起来：</p>
+
+<div class="calc">
+95.24 + 90.70 + 86.38 + 82.27 + 78.35 + … 一直加下去
+</div>
+
+<p>你可能会想：<strong>加无穷多项，不会加到无穷大吗？</strong>不会。因为每一项都是前一项的 1÷1.05 ≈ 0.9524 倍，越来越小，收敛。这种「每项都是前一项固定倍数」的数列求和，有个现成的结果：</p>
+
+<div class="calc">
+每年固定吐 D 元、折现率 r 的永久现金流，现值 = <b>D ÷ r</b><br><br>
+代入：100 ÷ 0.05 = <b>2000 元</b>
+</div>
+
+<p><strong>验算一下这个结果对不对：</strong>如果这台机器值 2000 元，那你花 2000 元买它，每年拿回 100 元，回报率就是 100 ÷ 2000 = 5%。正好等于折现率 5%。<strong>合理。</strong>（这种「永远吐钱」的东西，<strong>经济学给它起了个名字，叫「永续年金」（perpetuity）</strong>。）</p>
+
+<h4>第三步：让吐出来的钱每年增长</h4>
+
+<p>真实公司不是每年吐同样多。好公司的分红会慢慢涨。假设明年吐 100 元，之后<strong>每年比上一年多 3%</strong>：第二年 103 元，第三年 106.09 元，以此类推。</p>
+
+<p>现在每一项相对前一项的倍数变成了：</p>
+
+<div class="calc">
+每年现金多 3% → 分子乘 1.03<br>
+每多折一年 → 分母乘 1.05<br>
+所以每一项是前一项的 1.03 ÷ 1.05 = <b>0.98095 倍</b>
+</div>
+
+<p>还是收敛（0.98095 &lt; 1），还是同一套求和方法，只不过原来分母是「1.05 比 1 多出来的 0.05」，现在变成「1.05 比 1.03 多出来的 0.02」：</p>
+
+<div class="calc">
+现值 = 明年的现金 ÷ (折现率 − 增长率)<br>
+　　 = 100 ÷ (5% − 3%) = 100 ÷ 0.02 = <b>5000 元</b>
+</div>
+
+<p>同样是明年吐 100 块，会增长的机器值 5000 元，不增长的只值 2000 元。<strong>增长值钱。</strong></p>
+
+<p>把「公司」代入「机器」，把「分红」代入「吐出来的钱」，这就是今天的锚点原理。<strong>它有个名字：股利折现模型（Dividend Discount Model，DDM）</strong>；上面这个「固定增长率」的版本叫<strong>戈登增长模型（Gordon Growth Model）</strong>。</p>
+
+<p class="hint">出处：这个模型最早由 John Burr Williams 在 1938 年的《The Theory of Investment Value》提出；固定增长版本由 Myron Gordon 与 Eli Shapiro 于 1956 年发表（Management Science, 3(1), 102–110）。</p>
+
+<h4>第四步：把公式倒过来读 —— 关键的一步</h4>
+
+<p>上面那个公式是「已知 r 和 g，求价格」。但现实中我们<strong>看得到价格，看不到 r 和 g</strong>。所以把它倒过来：</p>
+
+<div class="calc">
+价格 = 明年股息 ÷ (r − g)<br>
+两边同时除以价格、再乘 (r−g)：<br>
+<b>明年股息 ÷ 价格 = r − g</b>
+</div>
+
+<p>左边那个「一年的股息 ÷ 股价」，<strong>就是股息率（dividend yield）</strong>——你在任何行情软件上都能直接看到的数字。</p>
+
+<p><strong>所以：股息率这个你能直接观察到的数，在这个模型里正好等于「折现率减增长率」。</strong>验算：刚才那台机器，明年吐 100，价格 5000，股息率 = 100÷5000 = 2%，而 r−g = 5%−3% = 2%。对上了。</p>
+
+<h4>第五步：折现率涨一点，价格掉多少？</h4>
+
+<p>现在做今天真正要用的那步计算。还是那台机器：明年吐 100 元，r = 5%，g = 3%，价格 5000 元。</p>
+
+<p>现在假设<strong>折现率从 5% 涨到 5.02%</strong>（涨 2 个基点，正好是周五 30 年期国债的实际变动）。g 不变，还是 3%。</p>
+
+<div class="calc">
+原来：100 ÷ (5.00% − 3%) = 100 ÷ 0.0200 = 5000.00 元<br>
+现在：100 ÷ (5.02% − 3%) = 100 ÷ 0.0202 = 4950.50 元<br><br>
+跌幅 = (4950.50 − 5000) ÷ 5000 = <b>−0.99%</b>
+</div>
+
+<p><strong>折现率只涨了 0.02 个百分点，价格掉了将近 1%。放大了约 50 倍。</strong></p>
+
+<p>这个放大倍数从哪来？看分母：分母原来是 2%（也就是 0.02），现在多了 0.0002。<strong>相对于 2% 这个小分母，0.02 个百分点占了 1%。</strong>所以：</p>
+
+<div class="calc">
+跌幅 ≈ 折现率的变动 ÷ 当前的股息率<br>
+　　 = 0.02 ÷ 2.00 = <b>1.00%</b>　（和上面精算的 0.99% 几乎一样）
+</div>
+
+<p><strong>这就是关键的一步，把它记住：</strong>一只股票对利率的敏感程度，取决于它<strong>股息率的倒数</strong>。股息率越低，分母越小，同样的利率变动被放大得越厉害。</p>
+
+<p class="hint">你可能会想：<em>股息率低不是意味着分红少、更差吗？为什么反而更敏感？</em>因为在这个模型里，股息率低 = (r−g) 小 = <strong>增长率 g 很接近折现率 r</strong>，也就是市场预期这家公司未来的现金会长得很快。现金越是集中在遥远的未来，折现的次数就越多，对折现率就越敏感。这个「现金流平均有多远」的概念，<strong>经济学给它起了个名字，叫「久期」（duration）</strong>——低股息率 = 长久期 = 对利率敏感。</p>
+
+<h4>第六步：这个模型的三个假设，以及学界的分歧</h4>
+
+<p>写作铁律要求我把反对意见也讲清楚。这个模型有三条硬假设，每一条都被认真挑战过：</p>
+
+<p><strong>假设一：公司把所有可分配的现金都以「股息」形式发出来。</strong><br>
+这是最严重的问题。现代美国公司大量用<strong>股票回购</strong>（buyback：公司拿现金到市场上买回自己的股票并注销，剩下的每股就更值钱）代替发股息。回购的钱同样是给股东的，但<strong>不计入股息率</strong>。所以对回购为主的公司，你观察到的股息率<strong>严重低估</strong>了真实的股东回报，「股息率 = r − g」这个恒等式就不成立了。</p>
+
+<p><strong>假设二：g 是一个固定的、永远不变的数，且 g &lt; r。</strong><br>
+如果 g ≥ r，分母变成零或负数，公式给出无穷大或负价格——<strong>模型在那里彻底失效</strong>。而 g 越接近 r（股息率越低），结果对 g 的一丁点变化就越敏感。你可以自己试：把上面例子的 g 从 3% 改成 3.5%，价格从 5000 变成 100÷0.015 = 6667 元，涨 33%。<strong>一个你根本无法精确观测的参数，动 0.5 个百分点，答案变三分之一。</strong>这是这个模型最大的软肋。</p>
+
+<p><strong>假设三（学界分歧的核心）：股息政策本身携带价值信息。</strong><br>
+Miller 与 Modigliani 在 1961 年那篇著名论文（<em>Dividend Policy, Growth, and the Valuation of Shares</em>, Journal of Business, 34, 411–433）里论证：在一组理想条件下，<strong>公司发不发股息、发多少，完全不影响公司的价值</strong>——因为公司少发一块钱股息，就多留一块钱在公司里，股价就多涨一块钱；股东想要现金，自己卖一点股票就是了。这被称为<strong>「股利无关性」</strong>。</p>
+
+<p>如果股利无关，那 DDM 岂不是白搭？<strong>不是。</strong>调和的方式是：DDM 里那个 D，<strong>严格讲不该理解成「公司宣布的股息」，而应该是「公司能够分配给股东的自由现金流」</strong>。理解成前者，就会犯今天要讲的那个错；理解成后者，模型就和 MM 不矛盾了。</p>
+
+<p class="hint">这也解释了为什么专业估值更常用「自由现金流折现」（DCF）而不是 DDM——DCF 直接算公司能产生多少现金，绕开了「发不发股息」这个会计选择。DDM 是 DCF 的一个特例。</p>
+
+<div class="src"><b>依据：</b>模型推导为算术，读者可逐行验算；模型出处与已知局限见 <a href="https://en.wikipedia.org/wiki/Dividend_discount_model">Wikipedia: Dividend discount model</a>（含 Williams 1938、Gordon &amp; Shapiro 1956 的准确出处）；MM 1961 出处见 <a href="https://www.scirp.org/reference/referencespapers?referenceid=1315539">期刊引用记录</a>。<b>我今天没有读 MM 1961 原文，只核对了出处信息。</b></div>
+
+<h3>环 ⑤→⑥：模型给出的可证伪预测</h3>
+
+<p>现在把上面第五步的公式，套到周五真实的六个板块上。用<strong>股息率的倒数 × 折现率变动</strong>。</p>
+
+<p>折现率的变动该用哪个数？<strong>不能用 2 年期。</strong>股票是一串永续的现金流，它对应的是<strong>长端</strong>利率。所以我用 <strong>30 年期国债当天的变动：+2 个基点 = +0.02 个百分点</strong>。这是 Yahoo 报的数，也和 H.15 前一天的 5.19% 对得上（5.19 → 5.21）。</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>板块</th><th class="n">股息率</th><th>算式</th><th class="n">模型预测跌幅</th></tr></thead>
+<tbody>
+<tr><td>XLK 科技</td><td class="n">0.43%</td><td>0.02 ÷ 0.43</td><td class="n">−4.65%</td></tr>
+<tr><td>SPY 标普整体</td><td class="n">0.98%</td><td>0.02 ÷ 0.98</td><td class="n">−2.04%</td></tr>
+<tr><td>XLF 金融</td><td class="n">1.39%</td><td>0.02 ÷ 1.39</td><td class="n">−1.44%</td></tr>
+<tr><td>XLP 日常消费</td><td class="n">2.57%</td><td>0.02 ÷ 2.57</td><td class="n">−0.78%</td></tr>
+<tr><td>XLU 公用事业</td><td class="n">2.80%</td><td>0.02 ÷ 2.80</td><td class="n">−0.71%</td></tr>
+<tr><td>XLRE 房地产</td><td class="n">3.16%</td><td>0.02 ÷ 3.16</td><td class="n">−0.63%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>这就是一个真正的预测</strong>，因为它在看结果之前就能写出来：<strong>跌幅排序应该是 XLK &gt; SPY &gt; XLF &gt; XLP &gt; XLU &gt; XLRE，全部下跌，且科技板块跌得最惨。</strong></p>
+
+<div class="src"><b>依据：</b>算术推导。输入的股息率与利率变动见第 1 节出处。</div>
+
+<h3>环 ⑥→⑦：拿真实数据去撞 —— 结果是撞碎了</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>板块</th><th class="n">模型预测</th><th class="n">8/28 实际</th><th>结论</th></tr></thead>
+<tbody>
+<tr><td>XLK 科技</td><td class="n">−4.65%</td><td class="n dn">−1.55%</td><td>方向对，幅度只有预测的三分之一</td></tr>
+<tr><td>SPY 标普整体</td><td class="n">−2.04%</td><td class="n dn">−0.23%</td><td>方向对，幅度只有九分之一</td></tr>
+<tr><td>XLF 金融</td><td class="n">−1.44%</td><td class="n up">+0.38%</td><td class="dn">方向相反</td></tr>
+<tr><td>XLP 日常消费</td><td class="n">−0.78%</td><td class="n up">+0.43%</td><td class="dn">方向相反</td></tr>
+<tr><td>XLU 公用事业</td><td class="n">−0.71%</td><td class="n dn">−1.04%</td><td>方向对，跌得比预测还多</td></tr>
+<tr><td>XLRE 房地产</td><td class="n">−0.63%</td><td class="n dn">−0.40%</td><td>方向对，幅度接近</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>预测的跌幅排序：</strong>XLK &gt; SPY &gt; XLF &gt; XLP &gt; XLU &gt; XLRE<br>
+<strong>实际的跌幅排序：</strong>XLK（−1.55）&gt; XLU（−1.04）&gt; XLRE（−0.40）&gt; SPY（−0.23）&gt; XLF（+0.38）&gt; XLP（+0.43）</p>
+
+<p><strong>六个位置，只有第一名对上了。</strong>两个板块甚至是上涨的。</p>
+
+<p>这是今天最重要的一段，请慢慢读：</p>
+
+<div class="box">
+<p><strong>如果我今天的目的是写一篇好看的文章，我现在有至少三种写法可以把它圆过去：</strong></p>
+<ol>
+<li>只讲 XLK 和 XLRE，说「你看，低股息率跌最多、高股息率跌最少，完美验证了久期效应」——把中间四个删掉。</li>
+<li>说 XLF 上涨是因为「银行受益于加息」，XLP 上涨是因为「避险资金流入防御板块」——这两句话听起来都对，而且<strong>永远都对</strong>，因为无论涨跌我都能给出一套说辞。</li>
+<li>说市场「消化了一部分利空」「情绪主导」——万能句式。</li>
+</ol>
+<p><strong>这三种写法的共同点是：它们都只能解释已经发生的事，事前一个都用不了。</strong>这就是<strong>事后叙事</strong>，是这门课要躲开的头号陷阱。</p>
+</div>
+
+<h4>那么，我能诚实说出口的是什么？</h4>
+
+<p><strong>能说的（有出处或纯算术）：</strong></p>
+<ul>
+<li>DDM 在给定股息率和折现率变动的前提下，会推出上面那张预测表。<strong>这是算术，不容置疑。</strong></li>
+<li>8 月 28 日的实际截面与这张表大部分不吻合。<strong>这是数据，不容置疑。</strong></li>
+<li>公用事业板块当天有一个<strong>明确的、非利率的下跌原因</strong>：PG&amp;E 跌 7.52%、爱迪生国际跌 4.79%，都是加州野火赔偿立法。所以<strong>拿 XLU 的下跌去佐证利率故事，是错的</strong>——哪怕数字看起来很配合。</li>
+<li>模型对 XLK 和 SPY 的<strong>幅度</strong>严重高估（3 倍和 9 倍）。这与「假设一」失效是一致的：科技股和大盘股的现金大量通过<strong>回购</strong>返还，观察到的股息率远低于真实股东回报，所以「股息率 = r − g」这个恒等式在这里不能用。</li>
+</ul>
+
+<p><strong>不能说的（我接不上）：</strong></p>
+<ul>
+<li>我<strong>无法确认</strong>周五各板块的涨跌，有多少来自利率重定价、多少来自个股新闻、多少来自月末调仓。要拆开需要做事件研究（把每只股票对利率变化的历史敏感度估出来，再算残差），我今天没做。</li>
+<li>我<strong>无法确认</strong> XLF 和 XLP 上涨的原因。「银行受益于加息」是一个有理论依据的说法（E4 净息差），但我今天没有任何当天的数据支持它是周五的实际驱动因素。</li>
+<li>一天、六个观测点，在统计上<strong>什么都不是</strong>。就算全部对上了，也不构成证据。</li>
+</ul>
+
+<div class="guess">
+<span class="tag">⚠ 这是我的推测，不是定论</span>
+<p>我怀疑模型幅度高估的主要原因是：<strong>我把 30 年期国债 +2bp 直接当成了股票折现率的变动，但股票的折现率 = 无风险利率 + 股权风险溢价</strong>。如果当天无风险利率涨了 2bp，而股权风险溢价同时缩小了 1.5bp（比如因为加息被解读成"经济足够强"），那净变动只有 0.5bp，预测跌幅立刻缩小到四分之一，就和 XLK 的实际值接近了。</p>
+<p><strong>反对的看法：</strong>股权风险溢价不可直接观测，任何用它来解释残差的做法都有「万能变量」的嫌疑——我总能找到一个让残差归零的溢价变化。这本身就是一种事后叙事。</p>
+<p><strong>要判断需要什么材料：</strong>当天的高收益债信用利差、VIX 变动、以及跨多日的回归而非单日。这三样我今天都没查。</p>
+</div>
+
+<div class="src"><b>依据：</b>预测表＝算术；实际数据＝stockanalysis.com（8/28 收盘）；PG&amp;E/EIX 原因＝Motley Fool（8/28）；<b>因果归属＝接不上，明写断链。</b></div>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="hint">下面是教学分析和决策框架，不是针对你个人情况的投资建议。你的实际决定取决于你的收入结构、时间跨度、税务身份和风险承受能力，这些我没有完整信息，也不适合替你判断。</p>
+
+<h3>4.1　你的收入是 SGD，资产是 USD，所以你看到的涨跌不是新闻上那个</h3>
+
+<p>周五标普 500 跌 0.25%，同时美元对新元升值，USD/SGD 收在 <strong>1.2736</strong>。你的资产以美元计价，但你花钱用新元。<strong>用新元衡量，你那天赚了还是亏了？</strong></p>
+
+<p><strong>先说一个必须先解决的问题：我查到的数据自相矛盾。</strong>同一个数据页面上同时写了「上涨 0.0023」和「上涨 0.28%」。这两个说法对不上：</p>
+
+<div class="calc">
+如果绝对变动是 +0.0023，那么百分比变动 = 0.0023 ÷ 1.2736 = <b>+0.18%</b><br>
+但页面同时又写着 <b>+0.28%</b>
+</div>
+
+<p>差 0.1 个百分点，看起来微不足道。<strong>但今天正好是它决定答案正负号的场合。</strong>两种情况都算一遍：</p>
+
+<div class="calc">
+<b>情形 A：美元涨 0.28%</b><br>
+　前一日汇率 = 1.2736 ÷ 1.0028 = 1.27004<br>
+　前一日：100 美元 × 1.27004 = 127.004 新元<br>
+　周　五：100 × (1 − 0.0023) = 99.77 美元；99.77 × 1.2736 = 127.071 新元<br>
+　新元口径 = (127.071 − 127.004) ÷ 127.004 = <b>+0.05%</b><br><br>
+<b>情形 B：美元涨 0.18%</b><br>
+　前一日汇率 = 1.2736 − 0.0023 = 1.2713<br>
+　前一日：100 × 1.2713 = 127.130 新元<br>
+　周　五：99.77 × 1.2736 = 127.071 新元<br>
+　新元口径 = (127.071 − 127.130) ÷ 127.130 = <b>−0.05%</b>
+</div>
+
+<p><strong>正负号相反。</strong>所以诚实的结论只能是这样：</p>
+
+<ul>
+<li><strong>能说的：</strong>美元升值几乎完全抵消了标普 500 的下跌。用新元衡量，你那天的涨跌<strong>接近于零，绝对值不超过 0.05%</strong>。</li>
+<li><strong>不能说的：</strong>到底是小赚还是小亏。<strong>我的数据源精度不够，答不了。</strong></li>
+</ul>
+
+<p class="hint">这一段本身就是一课：<strong>当两个效应几乎抵消时，你需要的数据精度会突然变高。</strong>平时 0.1 个百分点的误差无所谓，在这里它就是全部答案。看到「差不多抵消」的结论时，先检查你的数字够不够精确再下判断。</p>
+
+<p><strong>但方向上的结构是确定的，而且比正负号重要得多：</strong>把加息预期抬高，通常同时压低美股、推高美元。<strong>这两个效应对你是相互抵消的。</strong>反过来，如果哪天美联储转向降息，美股涨、美元跌，你用新元看到的涨幅会比新闻上小。这个「货币错配」是你画像里最结构性的一件事（对应轮值表 D29 / G29，以后会专门拆）。</p>
+
+<div class="src"><b>依据：</b>算术推导；SPY 涨跌见第 1 节；USD/SGD 见 <a href="https://tradingeconomics.com/singapore/currency">Trading Economics, Singapore Currency（2026-08-28）</a>——<b>该页面自身给出了互相矛盾的两个变动幅度，我两种都算了，没有替它选一个。</b>前一日汇率均为我反算，不是查得的收盘价。</div>
+
+<h3>4.2　DDM 里那个 D，对你来说要先被切掉一块</h3>
+
+<p>今天整堂课的核心是「股价 = 未来股息折现」。那么<strong>对你而言，实际拿到手的股息是多少？</strong></p>
+
+<p>新加坡与美国<strong>没有</strong>所得税协定。根据美国国内税收法典第 871 条，付给非居民外国人的股息，预扣税率是 <strong>30%</strong>。而爱尔兰注册的 UCITS ETF，因为有美国—爱尔兰的双重征税协定，在基金层面只被预扣 <strong>15%</strong>。</p>
+
+<div class="calc">
+SPY 的 TTM 股息率 0.98%（美国注册）<br>
+　你实际到手：0.98% × (1 − 30%) = <b>0.686%</b><br><br>
+同样持仓、爱尔兰注册的等价 ETF<br>
+　你实际到手：0.98% × (1 − 15%) = <b>0.833%</b><br><br>
+每年差距 = 0.833% − 0.686% = <b>0.147 个百分点</b>
+</div>
+
+<p>0.147 个百分点听起来很小。放到 20 年看：</p>
+
+<div class="calc">
+每年少 0.147% 的复利拖累，20 年后累计 = 1.00147<sup>20</sup> − 1 = <b>约 2.98%</b><br>
+在 10 万美元本金上，约 <b>2,980 美元</b>
+</div>
+
+<p class="hint">注意这个数字是在当前<strong>不到 1% 的股息率</strong>下算的。如果你持有的是股息率 3% 的资产（比如 XLRE），同样的 15 个百分点税率差，每年的差距会变成 3% × 15% = 0.45 个百分点，是上面的三倍。<strong>股息率越高的资产，注册地选择越重要。</strong>这是一个纯算术结论。</p>
+
+<p><strong>回到 DDM 的框架看，这件事的位置很清楚：</strong>预扣税不改变市场价格（价格是全球投资者共同定的），它只改变<strong>你这个特定投资者拿到的 D</strong>。所以同一只股票，对你和对一个美国投资者，内在价值是不一样的。</p>
+
+<p class="hint">另外要说清楚：爱尔兰 ETF 不是全面更优。它通常流动性较低、买卖价差较大、可选品种少，而且这只是股息一项——遗产税暴露、资本利得处理是另外的话题（轮值表 G26–G28 会单独拆）。<strong>我今天只核实了预扣税率这一项。</strong></p>
+
+<div class="src"><b>依据：</b>税率见 <a href="https://www.stashaway.sg/r/dividend-withholding-tax-estate-tax-us-equities-singapore">StashAway Singapore, Dividend Withholding Tax and Estate Tax on US Equities [2026]</a>（引用 IRC §871 与美爱税收协定）；复利计算为算术推导。<b>这是理财平台的科普内容，不是 IRS 原始条文，我今天没有核对原始法条。</b></div>
+
+<h3>4.3　今天这条链，给你留下的可操作认知</h3>
+
+<ol>
+<li><strong>「利率涨一点股票就跌一片」这个说法，量级上要自己算，不能听人说。</strong>算法就是：折现率变动 ÷ 股息率。算完你会发现它经常算出一个大到不合理的数字，这时候要怀疑的是「股息率 = r − g」这个假设，而不是市场。</li>
+<li><strong>看到「加息利空高股息板块」这类说法，先去看数据。</strong>周五就有一篇市场综述写「公用事业、电信、REITs 这些高股息板块被打得很惨」，但 XLRE 当天只跌 0.40%，是六个板块里跌得第二少的。<strong>这句话是错的。</strong></li>
+<li><strong>你的组合真正的利率敏感度，不看新闻怎么说，看你持仓的股息率结构。</strong>股息率越低，久期越长，对长端利率越敏感。</li>
+</ol>
+
+<h2>5｜反向倒推</h2>
+
+<p>前面几节是<strong>顺着推</strong>：发生了 A，所以会有 B。现在<strong>倒过来问</strong>：市场此刻的价格，说明大家心里在赌什么？</p>
+
+<h3>市场已经定价了什么</h3>
+
+<p><strong>假设一：9 月大概率加息，而且不止一次。</strong></p>
+
+<div class="calc">
+联邦基金有效利率（8/27）　　　　= 3.63%<br>
+2 年期国债收益率（8/28，来源 B）= 4.35%<br>
+差额 = <b>0.72 个百分点 = 72 个基点</b>
+</div>
+
+<p>这个 72 个基点在说什么？回到环③→④讲的：2 年期利率 ≈ 未来两年隔夜利率的平均值（＋期限溢价）。如果期限溢价是 0，那么市场认为<strong>未来两年隔夜利率的平均值，要比今天高 72 个基点</strong>。一次加息 25 个基点，72 ÷ 25 ≈ 2.9 次。如果加息集中在前期并一直保持，那大约对应<strong>两到三次加息</strong>。</p>
+
+<p class="hint">这是一个上限估计——期限溢价如果是正的（通常是），那实际隐含的加息次数会比这个少。所以准确的说法是：<strong>市场定价的加息次数不超过三次，很可能是两次左右。</strong></p>
+
+<p><strong>假设二：企业盈利的增长，快到足以支撑一个不到 1% 的股息率。</strong></p>
+
+<p>标普 500 当前股息率的三个来源给出三个数：multpl 的 1.04%（8/28，估算值）、GuruFocus 的 1.056%（8 月）、SPY 基金层面的 0.98%（TTM 分配）。<strong>三个都是「过去 12 个月股息 ÷ 现价」的思路，但分子的口径不同</strong>（指数成分股的股息 vs 基金实际派发的分配，后者有时间滞后）。范围大致是 <strong>0.98%–1.06%</strong>。</p>
+
+<p>用 DDM 的恒等式倒着读：</p>
+
+<div class="calc">
+股息率 = r − g<br>
+1.0% ≈ 折现率 − 增长率
+</div>
+
+<p>意思是：<strong>市场给股票要求的回报率，只比它预期的股息永续增长率高 1 个百分点。</strong>这是一个极窄的缓冲。</p>
+
+<h3>哪个假设最脆弱</h3>
+
+<p><strong>最脆弱的是第二个，而且脆弱得很具体。</strong>因为分母只有 1%，任何对 g 的下修都会被放大。算一遍：</p>
+
+<div class="calc">
+假设 r − g 从 1.00% 变成 1.20%（也就是 g 下修 0.2 个百分点，或 r 上升 0.2 个百分点）<br><br>
+价格变动 = 1.00 ÷ 1.20 − 1 = <b>−16.7%</b>
+</div>
+
+<p><strong>一个 0.2 个百分点的变化，对应 16.7% 的价格变动。</strong>这就是「小分母放大器」的威力。</p>
+
+<p><strong>但——这里必须自己拆自己的台。</strong>上面这个计算<strong>严重夸大了</strong>，因为我们在环⑤第六步已经证明过：由于回购的存在，标普 500 的 0.98% 股息率<strong>不等于</strong> r − g。真实的股东回报率（股息 + 回购）远高于此，所以真实的 (r − g) 也远大于 1%，杠杆没有这么夸张。</p>
+
+<p><strong>正确的说法是：</strong>这个算术给出的是「如果 DDM 的假设成立会怎样」，而我们已知假设不成立。<strong>要得到可信的数字，必须用股东总回报率（股息＋净回购）替代股息率，而这个数我今天没有查。这是今天这条链另一个接不上的地方。</strong></p>
+
+<h3>未来 1–3 个月，什么能证实或证伪</h3>
+
+<ul>
+<li><strong>9 月 15–16 日 FOMC 会议</strong>：加不加息，以及点阵图给出的未来路径。这直接检验「假设一」。</li>
+<li><strong>下一次 CPI 与 PCE 发布</strong>（BLS 与 BEA，具体日期见各自的官方发布日程——<strong>我今天没有核对确切日期，不写具体数字</strong>）：如果核心 PCE 同比从 3.3% 继续往上走，加息路径会被进一步定价；如果掉回 3% 以下，整条链的起点就消失了。</li>
+<li><strong>三季度财报季（10 月起）</strong>：这直接检验「假设二」里的 g。盈利指引下修，是唯一能真正动摇分母的东西。</li>
+</ul>
+
+<h3>自查：这套说法在事情发生之前，能用来做预测吗？</h3>
+
+<p><strong>部分能，部分不能，我逐条说。</strong></p>
+
+<ul>
+<li>「股息率越低对折现率越敏感」——<strong>能</strong>。这是纯算术，事前就能写出预测表，而且周五的数据把它<strong>大部分证伪了</strong>。一个被证伪的预测，仍然是预测。</li>
+<li>「加息预期上升 → 短端利率涨得比长端多」——<strong>能</strong>。这也是算术，而且周五的数据<strong>支持它</strong>。</li>
+<li>「周五 XLF 和 XLP 上涨是因为 XX」——<strong>不能</strong>。任何我现在给出的解释，都只能解释已发生的事。所以我不给。</li>
+</ul>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>底层思维：小分母放大器</h3>
+
+<p>今天整条链的核心，剥掉所有金融术语，就是一个算术事实：</p>
+
+<div class="calc">
+当一个比值的<b>分母很小</b>时，分母的一点点变化，会让结果发生巨大的变化。
+</div>
+
+<p>股息率 1% 的股票，折现率动 0.02 个百分点，价格动 2%。分母是 1%，所以放大 50 倍。</p>
+
+<p><strong>这个模式在完全不同的场合反复出现，识别它比记住 DDM 有用得多：</strong></p>
+
+<ul>
+<li><strong>原油价格。</strong>短期原油需求几乎不随价格变化，弹性只有 0.1 左右。供给少 2%，要让市场重新配平，价格得涨 2% ÷ 0.1 = <strong>20%</strong>。分母（弹性）小，所以放大 10 倍。（轮值表 C1、H5）</li>
+<li><strong>杠杆爆仓。</strong>你用 10 万本金加 90 万借款买 100 万资产，你的净资产（分母）是 10 万。资产跌 10%，你的净资产跌 100%。分母小，所以放大 10 倍。（轮值表 G37）</li>
+<li><strong>政府债务可持续性。</strong>债务占 GDP 比重会不会失控，取决于「利率 r 减增长率 g」这个差。r 和 g 越接近，差越小，一点点利率上行就能让债务轨迹从收敛变发散。<strong>注意这个 r − g 和今天股票里的 r − g 是同一个数学结构。</strong>（轮值表 B37）</li>
+</ul>
+
+<p><strong>一个能带走的判断习惯：</strong>看到任何「A 除以 B」形式的结论，先问 B 有多大。B 小，结论就脆；B 小到接近零，那个模型在那里就不能用了。</p>
+
+<h3>顶层视角：这条链在整个系统里的位置</h3>
+
+<p>今天这条链是<strong>「利率 → 股票」</strong>这一段。它在四大板块里的咬合方式是：</p>
+
+<ul>
+<li><strong>与利率（A 板块）：</strong>今天的起点。折现率不是凭空来的，它 = 无风险利率 + 风险补偿。无风险利率由央行政策路径决定。<strong>这是唯一一条从政策直通所有资产价格的通道。</strong></li>
+<li><strong>与增长（B 板块）：</strong>今天的分子和 g。折现率上升如果同时伴随盈利增长上修（经济更强），两个效应可以抵消。<strong>加息在什么时候是股票利空，取决于它是因为经济太热（分子也涨），还是因为通胀失控（只有分母涨）。</strong>周五这次显然是后者。</li>
+<li><strong>与信用（E 板块）：</strong>今天没碰。但折现率里的风险补偿部分，和信用利差是同一个东西的两个侧面。</li>
+<li><strong>与汇率（D 板块）：</strong>第 4.1 节碰了一下。同一个加息预期，压股票的同时抬美元，这两个效应对你这样的跨货币投资者是对冲关系。</li>
+</ul>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>一句话大白话</th><th>出现在哪一环</th></tr></thead>
+<tbody>
+<tr><td>基点</td><td>basis point (bp)</td><td>0.01 个百分点。利率变动的常用单位。</td><td>①–④</td></tr>
+<tr><td>折现 / 现值</td><td>discounting / present value</td><td>把未来的钱换算成今天的钱。</td><td>⑤ 第一步</td></tr>
+<tr><td>折现率</td><td>discount rate</td><td>换算时用的那个比例，反映"等一年"要多少补偿。</td><td>⑤ 第一步</td></tr>
+<tr><td>永续年金</td><td>perpetuity</td><td>永远每年吐同样一笔钱的东西。现值 = 每年金额 ÷ 折现率。</td><td>⑤ 第二步</td></tr>
+<tr><td>股利折现模型</td><td>Dividend Discount Model (DDM)</td><td>股价 = 未来所有分红折回今天再加总。</td><td>⑤ 今日锚点</td></tr>
+<tr><td>戈登增长模型</td><td>Gordon Growth Model</td><td>DDM 的固定增长版：价格 = 明年股息 ÷ (折现率 − 增长率)。</td><td>⑤ 第三步</td></tr>
+<tr><td>股息率</td><td>dividend yield</td><td>一年股息 ÷ 股价。在 DDM 里正好等于"折现率 − 增长率"。</td><td>⑤ 第四步</td></tr>
+<tr><td>久期</td><td>duration</td><td>现金流平均有多远。越远越怕利率上升。</td><td>⑤ 第五步</td></tr>
+<tr><td>股票回购</td><td>share buyback</td><td>公司拿现金买回自家股票注销，是股息之外的另一种还钱方式。</td><td>⑤ 第六步</td></tr>
+<tr><td>股利无关性</td><td>dividend irrelevance (MM 1961)</td><td>理想条件下，发不发股息不影响公司价值。</td><td>⑤ 第六步</td></tr>
+<tr><td>横截面</td><td>cross-section</td><td>同一天、不同标的之间的比较。</td><td>⑥⑦</td></tr>
+<tr><td>期限溢价</td><td>term premium</td><td>锁定长期要承担额外风险，因此要求的额外补偿。</td><td>④（简化为 0）</td></tr>
+<tr><td>事后叙事</td><td>post-hoc narrative</td><td>先看结果，再找一个听起来合理的理由。永远成立，永远没用。</td><td>⑦</td></tr>
+<tr><td>季调</td><td>seasonal adjustment</td><td>把每年固定重复的季节性波动从数据里扣掉。</td><td>①</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<div class="qbox">
+<details>
+<summary>1. 一家公司明年分红 2 元，市场认为它的分红以后每年增长 4%，投资者要求 7% 的回报。这只股票该值多少？如果要求回报升到 7.5%，价格变成多少？跌了百分之几？</summary>
+<div class="calc">
+原来：2 ÷ (7% − 4%) = 2 ÷ 0.03 = <b>66.67 元</b><br>
+之后：2 ÷ (7.5% − 4%) = 2 ÷ 0.035 = <b>57.14 元</b><br><br>
+跌幅 = (57.14 − 66.67) ÷ 66.67 = <b>−14.3%</b>
+</div>
+<p>用速算法验证：折现率涨了 0.5 个百分点，原来的股息率是 2 ÷ 66.67 = 3%，所以跌幅 ≈ 0.5 ÷ 3 = 16.7%。速算给 16.7%，精算给 14.3%，<strong>速算偏大</strong>。为什么？因为速算是对「很小的变动」才准确的近似；0.5 个百分点相对 3% 的分母不算小（占了六分之一），近似就失效了。这本身是个重要教训：<strong>速算公式只在小变动时可用。</strong></p>
+</details>
+
+<details>
+<summary>2. A 股票股息率 5%，B 股票股息率 1%。如果两家公司都不做回购、都符合 DDM 假设，市场对哪一家的"未来增长"预期更高？请用公式说明，别用直觉。</summary>
+<p>用恒等式：股息率 = r − g，所以 <strong>g = r − 股息率</strong>。</p>
+<div class="calc">
+假设两家的要求回报率都是 8%（同样风险）：<br>
+A：g = 8% − 5% = <b>3%</b><br>
+B：g = 8% − 1% = <b>7%</b>
+</div>
+<p>所以市场对 B 的增长预期高得多。<strong>但注意这个推导用了一个隐含假设：两家的 r 相同。</strong>如果 B 的风险更高、r 是 12%，那 g = 12% − 1% = 11%，预期更高；如果 B 的风险更低、r 是 6%，那 g = 5%，只比 A 高一点。<strong>股息率低，可能是因为增长预期高，也可能是因为风险低——单看股息率分不出来。</strong>这正是 DDM 只有两个方程、三个未知数的困境。</p>
+</details>
+
+<details>
+<summary>3. 假设你在周五讲话之前，只知道 DDM 和各板块的股息率，你会写下什么预测？周五收盘之后，你应该怎么修正自己对这个模型的信心？错在哪一步最关键？</summary>
+<p><strong>事前的预测：</strong>全部下跌，跌幅排序 XLK &gt; SPY &gt; XLF &gt; XLP &gt; XLU &gt; XLRE，XLK 跌约 4.65%。</p>
+<p><strong>事后的核对：</strong>六个位置只有第一名对上；XLF、XLP 方向相反；XLK 幅度只有预测的三分之一。</p>
+<p><strong>最关键的错在哪一步？</strong>不在最后一步，在<strong>第四步那个恒等式「股息率 = r − g」</strong>。这个恒等式成立的前提是「公司把所有可分配现金都以股息发出」。XLK 和 SPY 里大量公司主要用回购还钱，所以它们真实的 (r − g) 远大于观察到的 0.43% 和 0.98%，分母被我算小了，放大倍数就被我算大了。</p>
+<p><strong>对模型信心的正确修正：</strong>不是「DDM 没用」，而是<strong>「DDM 的 D 必须是股东总回报，不能是会计股息」</strong>。这恰好就是 Miller-Modigliani 那篇论文的核心洞见——所以那场 1961 年的学术争论，在 2026 年 8 月 28 日的行情里是有价格后果的。</p>
+</details>
+</div>
+
+<h3>今天就能做的一个小动作（10 分钟）</h3>
+
+<p>打开你自己持仓里任意一只股票或 ETF，查到它的 TTM 股息率。然后算：<strong>0.02 ÷ 股息率</strong>。这个数就是「如果长端利率涨 2 个基点，DDM 认为它该跌多少」。</p>
+
+<p>然后做两件事：<strong>（a）</strong>去查它过去 12 个月的股票回购金额；如果有明显回购，说明这个数字被高估了，你需要把回购加进分子重算一次。<strong>（b）</strong>把这个数记在你的投资日志里，等下一次美联储会议之后，回来对一次实际值。</p>
+
+<p class="hint">重点不是算准，而是<strong>养成「先写下预测、再对答案」的习惯</strong>。这是唯一能把事后叙事从你的思维里赶出去的方法。</p>
+
+<h3>延伸阅读</h3>
+
+<ul>
+<li><a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">Warsh 8/28 Jackson Hole 讲话全文（美联储官网）</a><br>
+<span class="hint">难度：中。<strong>值得读的理由：</strong>今天整条链的起点。读原文而不是新闻摘要，你会发现他其实没说要加息——这个落差本身就是一课：市场定价的是概率，不是承诺。约 20 分钟。</span></li>
+
+<li><a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA《个人收入与支出》2026 年 7 月（原始发布）</a><br>
+<span class="hint">难度：低（但表格多）。<strong>值得读的理由：</strong>练习看官方数据发布的口径标注。重点看它怎么区分「环比 / 同比」「季调 / 未季调」「名义 / 实际」。这个习惯以后会帮你避开大部分数据引用的坑。约 15 分钟。</span></li>
+
+<li>Miller, M. H. &amp; Modigliani, F. (1961). <em>Dividend Policy, Growth, and the Valuation of Shares.</em> The Journal of Business, 34(4), 411–433.<br>
+<span class="hint">难度：高（有正式的数学，但逻辑是可以跟的）。<strong>值得读的理由：</strong>今天第 ⑤ 环第六步的学界分歧就出自这里。如果你只读一节，读它论证「股东可以自己制造股息」的那一段——它会永久改变你看待分红股的方式。<strong>提醒：我今天没有读原文，只核对了出处信息，所以这条推荐是基于它的学界地位，不是基于我今天的阅读。</strong></span></li>
+</ul>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p>这不是免责声明，是给你的可信度地图。<strong>你可以据此决定这份材料的哪些部分可以直接用、哪些要自己再查一遍。</strong></p>
+
+<h3>数据出处与口径清单</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>数据</th><th>口径</th><th>出处</th><th>可信度</th></tr></thead>
+<tbody>
+<tr><td>PCE 同比 3.7% / 核心 3.3%</td><td>2026 年 7 月，季调，12 个月同比</td><td>BEA 官方发布（8/26）</td><td class="up">一手</td></tr>
+<tr><td>Warsh 讲话引文</td><td>2026-08-28 演讲全文</td><td>美联储官网</td><td class="up">一手</td></tr>
+<tr><td>2Y/10Y/30Y 8月27日收盘</td><td>固定期限收益率（CMT），下午 3:30 时点</td><td>美联储 H.15</td><td class="up">一手</td></tr>
+<tr><td>8月28日收益率变动</td><td>不明（各来源时点不同）</td><td>Yahoo / Investrade</td><td class="dn">二手，且互相矛盾</td></tr>
+<tr><td>联邦基金目标 3.50–3.75%，7月 9–3 投票</td><td>2026-07-29 FOMC</td><td>Advisor Perspectives 等</td><td class="dn">二手转述</td></tr>
+<tr><td>9月加息概率</td><td>CME FedWatch（期货反推）/ Kalshi（事件合约）</td><td>Kalshi 博客、CNBC 标题</td><td class="dn">二手，口径不同</td></tr>
+<tr><td>六个板块 ETF 涨跌与 TTM 股息率</td><td>2026-08-28 16:00 EDT 收盘；股息率为过去 12 个月派发 ÷ 现价</td><td>stockanalysis.com</td><td>二手，但同源同时点，横向可比</td></tr>
+<tr><td>PG&amp;E −7.52% / EIX −4.79% 及原因</td><td>2026-08-28 收盘</td><td>Motley Fool</td><td class="dn">二手</td></tr>
+<tr><td>USD/SGD 1.2736</td><td>2026-08-28 收盘</td><td>Trading Economics</td><td class="dn">二手，且日变动幅度自相矛盾（见 4.1）</td></tr>
+<tr><td>美国股息预扣税 30% / 爱尔兰 15%</td><td>非居民外国人，IRC §871；美爱税收协定</td><td>StashAway 科普文</td><td class="dn">二手，未核对原始法条</td></tr>
+<tr><td>DDM / Gordon 模型出处</td><td>Williams 1938；Gordon &amp; Shapiro 1956</td><td>Wikipedia（含期刊页码）</td><td>二手，出处信息可交叉验证</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>每一环的依据类型</h3>
+
+<div class="tw">
+<table>
+<thead><tr><th>环</th><th>内容</th><th>依据</th></tr></thead>
+<tbody>
+<tr><td>①②</td><td>通胀数据 + 讲话</td><td class="up">一手出处</td></tr>
+<tr><td>③</td><td>加息概率跳升</td><td>二手数据（三个来源数字不同，已列出）</td></tr>
+<tr><td>③→④</td><td>短端动得多、长端动得少</td><td class="up">算术推导 + 数据核对，读者可验算</td></tr>
+<tr><td>⑤</td><td>DDM 全部推导</td><td class="up">纯算术，逐行可验算</td></tr>
+<tr><td>⑥</td><td>截面预测表</td><td class="up">纯算术</td></tr>
+<tr><td>⑦</td><td>预测 vs 实际的对照</td><td>数据有出处；<b class="dn">因果归属接不上</b></td></tr>
+<tr><td>4.1</td><td>SGD 口径的收益换算</td><td class="up">算术推导（前一日汇率为反算，非查得）</td></tr>
+<tr><td>4.2</td><td>预扣税对 D 的影响</td><td>税率二手 + 算术推导</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>今天接不上的地方（明写）</h3>
+
+<ol>
+<li><strong>最主要的断点：</strong>我无法确认 8 月 28 日各板块的涨跌中，有多少来自利率重定价。要拆开需要事件研究方法，我今天没做。所以本文<strong>没有</strong>断言「加息预期导致了周五的股票走势」，只断言了「DDM 的预测与当天数据大部分不符」。</li>
+<li><strong>XLF、XLP 上涨的原因</strong>：完全未知。我没有给解释，因为任何解释在今天都只能是事后叙事。</li>
+<li><strong>标普 500 的股东总回报率（股息 + 净回购）</strong>：第 5 节需要它才能给出可信的估值敏感度，我今天没查到。所以那一节的 16.7% 是「模型内的算术」，不是对现实的估计，我已在文中标出。</li>
+<li><strong>30 年期国债多动的那 1.7 个基点</strong>：只有推测，已装进推测框。</li>
+<li><strong>8 月 28 日的 VIX、信用利差、Brent 收盘价</strong>：未查到可靠数字，因此本文没有引用（第 1 节表格里也没有列）。</li>
+<li><strong>下一次 CPI / PCE 的确切发布日期</strong>：未核对，因此第 5 节只写了"下一次"而没写日期。</li>
+<li><strong>MM 1961 原文</strong>：未读，只核对出处。文中对它的转述是教科书层面的通行理解。</li>
+</ol>
+
+<div class="guess" style="margin-top:2em">
+<span class="tag">⚠ 整体提醒</span>
+<p>今天这一课的价值，不在于给了你一个"周五发生了什么"的解释——<strong>我没有给，因为我查不实</strong>。价值在于两件事：一，你现在能自己从零推出股利折现模型，并且知道它的三条假设分别在什么时候会失效；二，你看到了一次<strong>用真实数据把自己的模型证伪</strong>的完整过程。第二件事比第一件更重要。</p>
+</div>
+
+<footer>
+<p>Day 14 · 领域 F（股票估值与企业基本面）· 锚点原理 F2（股利折现模型与其假设）<br>
+事件日 2026-08-28（美东）｜成稿 2026-08-31（新加坡）</p>
+<p>本材料为教学分析，不构成投资建议。所有市场数据均标注出处与口径，请在使用前自行核对。</p>
+</footer>
+
+</div>
+</body>
+</html>
