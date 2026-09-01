@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>加更 · 央行那个利率，和美债的利率，到底什么关系</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1c1b19; --muted:#5f5b54; --rule:#ddd8ce;
+  --card:#ffffff; --accent:#8a4b1f; --accent-soft:#f4ece3;
+  --guess-bg:#fff8e6; --guess-bd:#c9962a; --guess-fg:#6b4d05;
+  --break-bg:#f2f0ff; --break-bd:#6b5bd2; --break-fg:#3b2f8f;
+  --code:#f2efe9;
+  --s1:#2a78d6; --s2:#eb6834; --grid:#e4e0d8; --axis:#9a958c;
+  --tip-bg:#ffffff; --tip-bd:#c9c4ba;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16161a; --fg:#e8e6e1; --muted:#a29d94; --rule:#33323a;
+    --card:#1e1e24; --accent:#e0a06a; --accent-soft:#2a2118;
+    --guess-bg:#2a2312; --guess-bd:#c9962a; --guess-fg:#f0d493;
+    --break-bg:#1e1c33; --break-bd:#8b7ded; --break-fg:#c4bcf5;
+    --code:#24242b;
+    --s1:#3987e5; --s2:#d95926; --grid:#2e2e36; --axis:#6f6a63;
+    --tip-bg:#24242b; --tip-bd:#44434d;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Serif CJK SC","Source Han Serif SC","Songti SC",Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.85; overflow-x:hidden}
+.wrap{max-width:760px; margin:0 auto; padding:32px 20px 96px}
+h1{font-size:1.66em; line-height:1.35; margin:.2em 0 .1em; letter-spacing:-.01em}
+h2{font-size:1.26em; margin:2.6em 0 .6em; padding-top:1.1em; border-top:2px solid var(--rule)}
+h3{font-size:1.06em; margin:1.9em 0 .5em; color:var(--accent)}
+h4{font-size:1em; margin:1.4em 0 .4em}
+p{margin:.85em 0}
+a{color:var(--accent); text-underline-offset:2px}
+.sub{color:var(--muted); font-size:.92em; line-height:1.7; margin-top:.4em}
+.tldr{border:2px solid var(--accent); border-radius:10px; padding:16px 18px; margin:22px 0 30px; background:var(--accent-soft)}
+.tldr b.k{display:inline-block; background:var(--accent); color:var(--bg); font-size:.72em; font-weight:700; letter-spacing:.1em; padding:3px 9px; border-radius:4px; margin-bottom:8px; font-family:system-ui,sans-serif}
+.tldr p{margin:.5em 0}
+.calc{background:var(--code); border-left:3px solid var(--accent); border-radius:0 6px 6px 0;
+  padding:12px 16px; margin:1.1em 0; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:.87em; line-height:2.0; overflow-x:auto; white-space:pre}
+.guess{background:var(--guess-bg); border:2px dashed var(--guess-bd); border-radius:10px; padding:14px 18px; margin:1.6em 0}
+.guess .tag{display:inline-block; background:var(--guess-bd); color:#fff; font-size:.72em; font-weight:700; letter-spacing:.08em; padding:3px 9px; border-radius:4px; margin-bottom:8px; font-family:system-ui,sans-serif}
+.guess p{color:var(--guess-fg); margin:.5em 0; font-size:.95em}
+.brk{background:var(--break-bg); border:2px solid var(--break-bd); border-radius:10px; padding:14px 18px; margin:1.6em 0}
+.brk .tag{display:inline-block; background:var(--break-bd); color:#fff; font-size:.72em; font-weight:700; letter-spacing:.08em; padding:3px 9px; border-radius:4px; margin-bottom:8px; font-family:system-ui,sans-serif}
+.brk p{color:var(--break-fg); margin:.5em 0; font-size:.95em}
+.src{font-size:.82em; color:var(--muted); border-top:1px dotted var(--rule); padding-top:6px; margin-top:1.1em}
+.src b{color:var(--fg)}
+.box{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px 18px; margin:1.4em 0}
+.box>:first-child{margin-top:0} .box>:last-child{margin-bottom:0}
+table{width:100%; border-collapse:collapse; margin:1.2em 0; font-size:.9em; font-family:system-ui,-apple-system,sans-serif}
+th,td{border:1px solid var(--rule); padding:7px 10px; text-align:left; vertical-align:top}
+th{background:var(--accent-soft); font-weight:600}
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0}
+.scroll table{margin:0; min-width:520px}
+figure{margin:1.8em 0}
+figure svg{display:block; width:100%; height:auto}
+figcaption{font-size:.85em; color:var(--muted); margin-top:8px; line-height:1.7}
+details{border:1px solid var(--rule); border-radius:8px; padding:10px 16px; margin:1em 0; background:var(--card)}
+summary{cursor:pointer; font-weight:600; font-size:.95em}
+details[open] summary{margin-bottom:.6em; padding-bottom:.5em; border-bottom:1px solid var(--rule)}
+ul,ol{padding-left:1.4em; margin:.85em 0}
+li{margin:.45em 0}
+.q{font-weight:600; color:var(--accent); margin-top:1.5em}
+hr{border:0; border-top:1px solid var(--rule); margin:2.4em 0}
+.small{font-size:.88em; color:var(--muted)}
+.viz{position:relative; background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 10px 10px}
+.legend{display:flex; gap:18px; flex-wrap:wrap; font-family:system-ui,sans-serif; font-size:.84em; color:var(--muted); padding:2px 8px 10px 12px}
+.legend i{display:inline-block; width:22px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px}
+#tip{position:absolute; pointer-events:none; opacity:0; transition:opacity .1s; background:var(--tip-bg);
+  border:1px solid var(--tip-bd); border-radius:7px; padding:7px 10px; font-family:system-ui,sans-serif;
+  font-size:12.5px; line-height:1.6; color:var(--fg); box-shadow:0 3px 10px rgba(0,0,0,.13); white-space:nowrap; z-index:5}
+#tip b{font-weight:700}
+.sw{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:baseline}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>加更 · 央行控制的那个利率，和美债的利率，到底什么关系</h1>
+<p class="sub">补第 15 天留下的一个洞：那份材料里同时用了政策利率 3.625% 和 30 年期美债 5.25%，中间差 160 个基点，没解释。这一期把这 160 个基点拆开。</p>
+
+<div class="tldr">
+<b class="k">TL;DR</b>
+<p><b>央行只控制曲线最左端那一个点</b>——隔夜、无抵押、只有银行能参与的那个利率。美债利率不是一个数，是一整条从隔夜延伸到 30 年的曲线，央行控制的是它的起点。</p>
+<p><b>起点之外的部分由两样东西决定</b>：一是市场对"未来这些年里，那个隔夜利率平均会是多少"的预期；二是<b>期限溢价</b>——因为长债价格波动大，持有人要额外的补偿。用官方模型实测：2026 年 8 月 21 日，10 年期收益率 4.80% 里，3.94% 是预期，0.87% 是期限溢价。</p>
+<p><b>所以"央行加息，长期利率就会跟着涨"是错的</b>，而且有过著名的反例：2004 年 6 月到 2005 年 12 月，美联储把政策利率从 1% 抬到 4.25%，长期国债收益率<b>反而下跌</b>。</p>
+</div>
+
+<h2>1｜先把问题问准：这里其实有三样不同的东西</h2>
+
+<p>"利率"这个词在日常语言里是一个词，在金融里是<b>一族</b>数字。你问的这个问题之所以值得单开一期，是因为它逼着我们把这一族拆开。先摆出三样：</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th></th><th>是什么</th><th>谁决定</th><th>2026-08-31 的值</th></tr></thead>
+<tbody>
+<tr><td><b>政策利率</b><br>（前几节课讲的那个）</td><td>银行之间<b>隔夜</b>互相拆借的利率</td><td>央行设目标区间，再用工具把它挤进去</td><td>目标区间 3.50%–3.75%<br>实测 3.63%</td></tr>
+<tr><td><b>美债收益率</b></td><td>把钱借给美国政府 <b>N 年</b>能拿到的年化回报</td><td>市场买卖出来的价格，央行不直接设定</td><td>2 年 4.34%<br>10 年 4.75%<br>30 年 5.25%</td></tr>
+<tr><td><b>你实际面对的利率</b></td><td>房贷、车贷、信用卡、公司债</td><td>在美债收益率之上，各自加一层价差</td><td>美国 30 年期固定房贷 6.66%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>你的问题问的是第一样和第二样之间的关系。<b>答案的骨架只有一句：央行控制这条曲线的起点，市场决定它往右怎么走。</b>下面把这句话拆到每一步都可验算。</p>
+
+<h2>2｜央行到底控制的是哪一个点</h2>
+
+<p>回到最开始那两节课的结论，这里用一句话把它接上：央行控制的那个利率有三个很窄的限定条件，缺一不可。</p>
+
+<ol>
+<li><b>期限是一天。</b>联邦基金利率是<b>隔夜</b>拆借的价格——今晚借，明早还。它不是"一年期利率"，也不是任何长于一天的利率。</li>
+<li><b>参与者只有银行（以及少数机构）。</b>它是银行之间调剂准备金的市场价格。你我不能在这个市场借钱。</li>
+<li><b>央行不"规定"它，是"挤"它。</b>央行公布的是一个<b>目标区间</b>（现在是 3.50%–3.75%），然后用准备金利率和逆回购工具做成一条走廊，把实际成交的利率挤在区间里。所以每天真实成交出来的那个数，叫<b>有效联邦基金利率</b>（Effective Federal Funds Rate，EFFR）。</li>
+</ol>
+
+<p>2026 年 8 月 27 日的 EFFR 是 <b>3.63%</b>，而目标区间中点是 (3.50+3.75)÷2 = 3.625%。<b>差 0.5 个基点。</b>这说明走廊挤得很准——这正是前几节课讲的机制在起作用。</p>
+
+<p class="src"><b>出处</b>：<a href="https://fred.stlouisfed.org/series/EFFR">FRED 系列 EFFR</a>（纽约联储发布）。<b>口径</b>：EFFR 是按 FR 2420 报表中隔夜联邦基金交易的<b>成交量加权中位数</b>计算的，非季调，日频。2026-08-21 至 08-27 每日均为 3.63%。目标区间出自 <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">FOMC 2026 年 7 月 29 日声明</a>。</p>
+
+<div class="box">
+<p><b>你可能会想：既然只有银行能参与，一天期，那这个利率跟我有什么关系？</b></p>
+<p>关系全部是<b>间接</b>的，而这一期剩下的内容就是在讲这个"间接"具体怎么走。但先给一个直觉：这个利率是所有美元借贷的<b>零点</b>。因为任何人借出美元时，心里都有一个替代方案——"我不借给你，我把钱放在最安全、最短的地方"。那个替代方案的收益率就是这个隔夜利率。所以它一动，所有人的比价基准都跟着动。</p>
+</div>
+
+<h2>3｜美债不是一个利率，是一条曲线</h2>
+
+<p>美国财政部借钱不是只借一种期限。它同时发行 1 个月、3 个月、6 个月、1 年、2 年、3 年、5 年、7 年、10 年、20 年、30 年的债。<b>每一种期限有自己的价格，也就有自己的收益率。</b></p>
+
+<p>把这些点按期限从左到右画出来，连成一条线，就叫<b>收益率曲线</b>（yield curve）。下面这条是真实的：</p>
+
+<figure>
+<div class="viz" id="curveviz">
+<div class="legend">
+  <span><i style="background:var(--s1)"></i>2026-08-31</span>
+  <span><i style="background:var(--s2)"></i>2026-08-21</span>
+</div>
+<svg viewBox="0 0 680 372" role="img" aria-labelledby="ct cd">
+<title id="ct">2026 年 8 月 31 日与 8 月 21 日的美国国债收益率曲线</title>
+<desc id="cd">横轴为期限，从隔夜到 30 年；纵轴为年化收益率。两条线均自左向右上行，从 3.63% 升至约 5.25%。完整数值见下方表格。</desc>
+<style>.gl{stroke:var(--grid);stroke-width:1}.ax{stroke:var(--axis);stroke-width:1.2}.tk{fill:var(--muted);font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:12px}.tkc{text-anchor:middle}.tkr{text-anchor:end}.ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.dl{font-family:system-ui,sans-serif;font-size:13px;font-weight:700}.an{fill:var(--muted);font-family:system-ui,sans-serif;font-size:12px}.ld{stroke:var(--axis);stroke-width:1;fill:none}</style>
+<line class="gl" x1="62" y1="310" x2="656" y2="310"/>
+<text class="tk tkr" x="54" y="314">3.5%</text>
+<line class="gl" x1="62" y1="240" x2="656" y2="240"/>
+<text class="tk tkr" x="54" y="244">4.0%</text>
+<line class="gl" x1="62" y1="170" x2="656" y2="170"/>
+<text class="tk tkr" x="54" y="174">4.5%</text>
+<line class="gl" x1="62" y1="100" x2="656" y2="100"/>
+<text class="tk tkr" x="54" y="104">5.0%</text>
+<line class="gl" x1="62" y1="30" x2="656" y2="30"/>
+<text class="tk tkr" x="54" y="34">5.5%</text>
+<line class="ax" x1="62" y1="310" x2="656" y2="310"/>
+<line class="gl" x1="62.0" y1="310" x2="62.0" y2="315"/>
+<text class="tk tkc" x="62.0" y="330">隔夜</text>
+<line class="gl" x1="115.1" y1="310" x2="115.1" y2="315"/>
+<text class="tk tkc" x="115.1" y="330">1 月</text>
+<line class="gl" x1="168.2" y1="310" x2="168.2" y2="315"/>
+<text class="tk tkc" x="168.2" y="330">3 月</text>
+<line class="gl" x1="221.3" y1="310" x2="221.3" y2="315"/>
+<text class="tk tkc" x="221.3" y="330">6 月</text>
+<line class="gl" x1="274.4" y1="310" x2="274.4" y2="315"/>
+<text class="tk tkc" x="274.4" y="330">1 年</text>
+<line class="gl" x1="327.5" y1="310" x2="327.5" y2="315"/>
+<text class="tk tkc" x="327.5" y="330">2 年</text>
+<line class="gl" x1="380.5" y1="310" x2="380.5" y2="315"/>
+<text class="tk tkc" x="380.5" y="330">3 年</text>
+<line class="gl" x1="433.6" y1="310" x2="433.6" y2="315"/>
+<text class="tk tkc" x="433.6" y="330">5 年</text>
+<line class="gl" x1="486.7" y1="310" x2="486.7" y2="315"/>
+<text class="tk tkc" x="486.7" y="330">7 年</text>
+<line class="gl" x1="539.8" y1="310" x2="539.8" y2="315"/>
+<text class="tk tkc" x="539.8" y="330">10 年</text>
+<line class="gl" x1="592.9" y1="310" x2="592.9" y2="315"/>
+<text class="tk tkc" x="592.9" y="330">20 年</text>
+<line class="gl" x1="646.0" y1="310" x2="646.0" y2="315"/>
+<text class="tk tkc" x="646.0" y="330">30 年</text>
+<text class="tk tkc" x="359" y="358">借款期限（非等距刻度，仅按顺序排列）</text>
+<polyline class="ln" style="stroke:var(--s2)" points="62.0,291.8 115.1,268.0 168.2,256.8 221.3,247.0 274.4,235.8 327.5,206.4 380.5,196.6 433.6,179.8 486.7,160.2 539.8,136.4 592.9,65.0 646.0,62.2"/>
+<polyline class="ln" style="stroke:var(--s1)" points="62.0,291.8 115.1,261.0 168.2,252.6 221.3,241.4 274.4,217.6 327.5,192.4 380.5,184.0 433.6,171.4 486.7,153.2 539.8,135.0 592.9,66.4 646.0,65.0"/>
+<circle cx="62.0" cy="291.8" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="115.1" cy="268.0" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="168.2" cy="256.8" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="221.3" cy="247.0" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="274.4" cy="235.8" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="327.5" cy="206.4" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="380.5" cy="196.6" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="433.6" cy="179.8" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="486.7" cy="160.2" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="539.8" cy="136.4" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="592.9" cy="65.0" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="646.0" cy="62.2" r="4" fill="var(--s2)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="62.0" cy="291.8" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="115.1" cy="261.0" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="168.2" cy="252.6" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="221.3" cy="241.4" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="274.4" cy="217.6" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="327.5" cy="192.4" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="380.5" cy="184.0" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="433.6" cy="171.4" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="486.7" cy="153.2" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="539.8" cy="135.0" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="592.9" cy="66.4" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<circle cx="646.0" cy="65.0" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>
+<path class="ld" d="M80,176 L68,284"/>
+<text class="dl" style="fill:var(--s1)" x="84" y="150">隔夜 3.63%</text>
+<text class="an" x="84" y="169">央行控制的就是这一个点</text>
+<text class="dl" style="fill:var(--s1)" x="638.0" y="51" text-anchor="end">5.25%</text>
+<text class="dl" style="fill:var(--s1)" x="539.8" y="156" text-anchor="middle">4.75%</text>
+<line x1="650.0" y1="291.8" x2="650.0" y2="65.0" stroke="var(--axis)" stroke-width="1" stroke-dasharray="4 4"/>
+<text class="an" x="644.0" y="196" text-anchor="end">相差 162 bp</text>
+<rect class="hit" data-i="0" x="35.5" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="1" x="88.5" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="2" x="141.6" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="3" x="194.7" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="4" x="247.8" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="5" x="300.9" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="6" x="354.0" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="7" x="407.1" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="8" x="460.2" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="9" x="513.3" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="10" x="566.4" y="28" width="53.1" height="286" fill="transparent"/>
+<rect class="hit" data-i="11" x="619.5" y="28" width="53.1" height="286" fill="transparent"/>
+<line id="cross" x1="0" y1="28" x2="0" y2="314" stroke="var(--axis)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>
+</svg>
+<div id="tip"></div>
+</div>
+<figcaption>
+美国国债平价收益率曲线（Daily Treasury Par Yield Curve Rates），来源为美国财政部。最左端的"隔夜"不是国债，是当日的有效联邦基金利率（EFFR，3.63%），放在这里是为了让你看到曲线的起点在哪。横轴按期限顺序等距排列，不是按年数等比例——这是收益率曲线的通行画法。鼠标移到图上可看每个点的数值。
+</figcaption>
+</figure>
+
+<div class="scroll">
+<table>
+<caption class="small" style="text-align:left; padding-bottom:6px">图中数据（单位：%，年化）</caption>
+<thead><tr><th>日期</th><th>隔夜</th><th>1 月</th><th>3 月</th><th>6 月</th><th>1 年</th><th>2 年</th><th>3 年</th><th>5 年</th><th>7 年</th><th>10 年</th><th>20 年</th><th>30 年</th></tr></thead>
+<tbody>
+<tr><td>2026-08-31</td><td>3.63</td><td>3.85</td><td>3.91</td><td>3.99</td><td>4.16</td><td>4.34</td><td>4.40</td><td>4.49</td><td>4.62</td><td>4.75</td><td>5.24</td><td>5.25</td></tr>
+<tr><td>2026-08-21</td><td>3.63</td><td>3.80</td><td>3.88</td><td>3.95</td><td>4.03</td><td>4.24</td><td>4.31</td><td>4.43</td><td>4.57</td><td>4.74</td><td>5.25</td><td>5.27</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>现在你的问题变成了一个非常具体的问题</b>：为什么这条线从 3.63% 一路爬到 5.25%？中间那 162 个基点是什么？</p>
+
+<p class="src"><b>出处</b>：<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202608">U.S. Department of the Treasury — Daily Treasury Par Yield Curve Rates, August 2026</a>。<b>口径</b>：par yield（平价收益率），按年计，取自纽约联储采集的二级市场收盘报价，精度到 1 个基点。第 7 节会说明"par yield"这个限定为什么重要。EFFR 见上一节出处。</p>
+
+<h2>4｜第一座桥：预期</h2>
+
+<h3>先讲一件生活里的事</h3>
+
+<p>你有一笔钱要存两年，银行给你两个方案：</p>
+<ul>
+<li><b>方案甲</b>：直接存两年定期，年利率 4.34%。</li>
+<li><b>方案乙</b>：先存一年定期，年利率 4.16%；一年后到期，再按<b>那时候</b>的一年期利率续存一年。</li>
+</ul>
+
+<p>你会怎么选？这取决于你觉得一年后的一年期利率会是多少。<b>存在一个数，使得两个方案正好一样好。</b>把它算出来。</p>
+
+<div class="calc">方案甲：100 元存两年
+  100 × 1.0434 × 1.0434 = 100 × 1.088684 = 108.8684 元
+
+方案乙：100 元先存一年，再以未知利率 r 存一年
+  100 × 1.0416 = 104.16 元
+  104.16 × (1 + r) = ?
+
+令两者相等：
+  104.16 × (1 + r) = 108.8684
+  1 + r = 108.8684 ÷ 104.16 = 1.04520
+  r = 4.52%</div>
+
+<p><b>4.52% 就是那个分水岭</b>：如果你认为一年后的一年期利率会高于 4.52%，方案乙更划算；低于 4.52%，方案甲更划算。</p>
+
+<p>这个从两个不同期限的现有利率里<b>反解</b>出来的未来利率，金融学给它起了个名字，叫<b>远期利率</b>（forward rate）。它不是任何人报出来的价格，是算出来的。</p>
+
+<h3>为什么市场会把它推到这个水平：套利</h3>
+
+<p>上面那个 4.52% 目前只是"你个人的分水岭"。为什么它会变成<b>市场共识</b>？因为如果偏离了，有人可以无风险赚钱。把这一步走完，不跳步：</p>
+
+<p>假设市场上所有人都确信一年后的一年期利率会是 5.00%（高于 4.52%）。那么现在的两年期利率 4.34% 就太低了。一个交易员可以：</p>
+<ol>
+<li><b>借</b>两年期的钱，成本 4.34%；</li>
+<li>拿这笔钱先买一年期，收 4.16%；</li>
+<li>一年后到期，再买一年期，按大家确信的 5.00% 收；</li>
+<li>两年下来他收到 1.0416 × 1.05 = 1.09368，而他要还 1.088684。<b>净赚 0.0050，即每 100 元赚 0.50 元，且没有承担利率风险</b>——因为第 3 步的利率是"大家确信"的。</li>
+</ol>
+
+<p>所有人都会去做这笔交易。做的人一多，第 1 步的"借两年期"需求上升，把两年期利率推高；第 2 步的"买一年期"需求上升，把一年期利率推低。<b>两边一起动，直到那 0.50 元的差消失。</b>而差消失的位置，正好就是远期利率等于大家预期的那个位置。</p>
+
+<p>这个"长期利率应该等于未来一系列短期利率的平均"的说法，经济学给它起了个名字，叫<b>预期假说</b>（expectations hypothesis）。</p>
+
+<h3>用它来读今天的曲线</h3>
+
+<p>如果预期假说完全成立，那么：</p>
+
+<div class="calc">2 年期 4.34%  →  市场预期未来两年，隔夜利率平均 4.34%
+10 年期 4.75% →  市场预期未来十年，隔夜利率平均 4.75%
+30 年期 5.25% →  市场预期未来三十年，隔夜利率平均 5.25%
+
+而今天的隔夜利率是 3.63%。</div>
+
+<p>读到第三行你应该觉得不对劲。<b>市场真的认为未来三十年的隔夜利率平均会是 5.25%，比今天高出 162 个基点？</b>这需要美联储在未来几十年里长期把利率维持在一个远高于现在的水平。这不是不可能，但把它当成曲线上行的<b>唯一</b>解释，说服力很弱。</p>
+
+<p>所以预期这一座桥是对的，但它不够。<b>缺了一块。</b></p>
+
+<p class="src"><b>本节依据</b>：远期利率计算 = <b>纯算术</b>，输入是财政部 2026-08-31 的 1 年期 4.16% 与 2 年期 4.34%，你可以自己核对。套利论证 = 标准教科书推导（例如 Hull《Options, Futures, and Other Derivatives》利率篇），此处为简化版本：<b>它忽略了交易成本、借贷利差与保证金要求</b>，真实套利的边界比这里宽。</p>
+
+<h2>5｜第二座桥：期限溢价</h2>
+
+<h3>先讲一件生活里的事</h3>
+
+<p>你要把钱借给同一个人，他信用极好，肯定会还。他给你两个选择：借一天，或者借三十年。利率一样。你会选哪个？</p>
+
+<p>大多数人会选借一天，理由很朴素：三十年里会发生什么谁知道，我可能中途要用钱。</p>
+
+<p>注意这里的风险<b>不是</b>"他会不会赖账"——我们假设了他肯定还。风险是别的东西。把它讲清楚，因为这正是长期利率高于短期利率的核心原因。</p>
+
+<h3>那个风险是什么：中途卖出的价格</h3>
+
+<p>国债可以随时在市场上卖掉。但卖掉时能拿多少钱，取决于<b>那时候</b>的利率。</p>
+
+<p>为什么？因为债券的票息是发行时定死的。假设你买了一张 30 年期国债，票息 5.25%，每年付 5.25 元，一百元面值。一年后市场利率涨到 6.25%——新发的债每年付 6.25 元。<b>那没有人会用一百元买你手上那张只付 5.25 元的债了。</b>你必须降价，降到"用更低的价格买入、拿 5.25 元票息、到期收回一百元"这整笔账算下来的年化回报也等于 6.25% 为止。</p>
+
+<p>降到多少？这是可以算的（用第 15 天讲过的折现，把所有票息和本金按 6.25% 折回来）：</p>
+
+<div class="calc">同样是利率上升 1 个百分点，不同期限的债价格变动：
+
+  2 年期（票息 4.34%）  4.34% → 5.34%   价格 −1.87%
+ 10 年期（票息 4.75%）  4.75% → 5.75%   价格 −7.53%
+ 30 年期（票息 5.25%）  5.25% → 6.25%   价格 −13.47%</div>
+
+<p><b>同一个利率变动，30 年期的账面损失是 2 年期的七倍多。</b>这就是第 15 天讲的<b>久期</b>：这三张债的久期分别约为 1.9 年、7.9 年、15.0 年（这里用的是修正久期，即"利率变动 1 个百分点，价格变动百分之几"）。</p>
+
+<p>所以持有长债的人承担了一个短债持有人不承担的风险：<b>如果他中途需要卖出，而那时利率上升了，他会亏钱。</b></p>
+
+<h3>于是他要求补偿</h3>
+
+<p>推理到这里就自然了：既然长债有这个额外风险，那要让人愿意持有长债，就必须给他比"单纯的利率预期"更高的收益率。多出来的那一块补偿，经济学给它起了个名字，叫<b>期限溢价</b>（term premium）。</p>
+
+<p>于是第 4 节那个不完整的等式，补上第二块就完整了：</p>
+
+<div class="calc">长期收益率  =  预期的未来短期利率平均  +  期限溢价
+              └────第 4 节────┘      └──第 5 节──┘</div>
+
+<h3>这两块各占多少：有官方模型给出的实测值</h3>
+
+<p>问题来了：<b>这两块没法直接观察。</b>市场只报出一个 4.75%，没人告诉你其中多少是预期、多少是溢价。要拆开必须用模型。</p>
+
+<p>美联储理事会公开发布一套这样的估计，用的是 Kim 与 Wright（2005）的三因子无套利期限结构模型。它同时给出两个数：模型拟合的收益率，和其中的期限溢价。用同一天、同一模型的两个数相减，就得到预期那一块：</p>
+
+<figure>
+<div class="viz">
+<svg viewBox="0 0 680 172" role="img" aria-labelledby="dt dd">
+<title id="dt">10 年期收益率拆成"预期"与"期限溢价"两部分</title>
+<desc id="dd">2026 年 8 月 21 日，Kim-Wright 模型给出的 10 年期零息收益率 4.80%，其中 3.94 个百分点是市场预期的未来十年隔夜利率平均值，0.87 个百分点是期限溢价。当日实际隔夜利率为 3.63%。</desc>
+<style>.lb{fill:var(--fg);font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:15px;font-weight:700;text-anchor:middle}
+.ls{fill:var(--muted);font-family:system-ui,sans-serif;font-size:12.5px;text-anchor:middle}
+.lr{fill:var(--fg);font-family:system-ui,sans-serif;font-size:13.5px;font-weight:700;text-anchor:end}
+.ll{fill:var(--muted);font-family:system-ui,sans-serif;font-size:13px;text-anchor:end}</style>
+<text class="ll" x="118" y="67">10 年期</text>
+<rect x="130.0" y="40" width="393.6" height="44" rx="4" fill="var(--s1)"/>
+<rect x="525.6" y="40" width="86.8" height="44" rx="4" fill="var(--s2)"/>
+<line x1="493.0" y1="26" x2="493.0" y2="94" stroke="var(--card)" stroke-width="2.5" stroke-dasharray="5 4"/>
+<line x1="493.0" y1="26" x2="493.0" y2="38" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text class="ls" x="493.0" y="20">今天的隔夜利率 3.63%</text>
+<text class="lr" x="612" y="32">合计 4.80%</text>
+<text class="lb" x="326.8" y="110">3.94%</text>
+<text class="lb" x="568.0" y="110">0.87%</text>
+<text class="ls" x="326.8" y="130">预期：未来十年隔夜利率的平均值</text>
+<text class="ls" x="568.0" y="130">期限溢价</text>
+<text class="ls" x="568.0" y="146">（风险补偿）</text>
+</svg>
+</div>
+<figcaption>
+2026 年 8 月 21 日，10 年期<b>零息</b>国债的模型拟合收益率与期限溢价拆解。数据为美联储理事会依 Kim–Wright（2005）模型发布，经 FRED 转载。虚线是当日实际的隔夜利率。
+</figcaption>
+</figure>
+
+<div class="calc">2026-08-21，同一模型、同一天、同一种债券：
+
+  模型拟合的 10 年期零息收益率   4.8044%
+  减：模型估计的期限溢价        0.8682%
+                              ─────────
+  得：市场预期的未来十年隔夜利率平均  3.9362%
+
+对照当日实际隔夜利率（EFFR）：      3.63%
+差额：3.9362 − 3.63 = 0.31 个百分点</div>
+
+<p><b>把这个结果读一遍，它回答了你最初的问题。</b>10 年期比隔夜高出的那 1.17 个百分点，不是一块，是两块：</p>
+
+<ul>
+<li><b>0.31 个百分点</b>来自"市场认为未来十年隔夜利率的平均值会比今天高一点"。这一块是<b>对央行未来行为的预期</b>——也就是说，央行仍然在通过"市场怎么猜我"影响这个数。</li>
+<li><b>0.87 个百分点</b>是期限溢价。这一块<b>和央行未来会怎么做没有关系</b>，它是市场对承担利率波动风险的报价。</li>
+</ul>
+
+<p><b>也就是说，10 年期收益率高出隔夜利率的部分里，大约四分之三来自央行管不着的那一块。</b>这就是"央行控制曲线的起点、市场决定它往右怎么走"这句话的定量版本。</p>
+
+<div class="box">
+<p><b>必须说清楚的三条限定，否则这个拆解会被当成事实。</b></p>
+<ol>
+<li><b>这是模型估计值，不是观测值。</b>市场上没有任何一个价格叫"期限溢价"。换一个模型，数会不一样：纽约联储另有一套 ACM 模型（Adrian、Crump、Moench），同一天的估计通常和 Kim-Wright 有可观的差异。所以"0.87%"应该读作"在这一类模型下大约不到一个百分点"，不是一个精确数。</li>
+<li><b>期限溢价可以是负的。</b>如果买长债的人不是为了收益、而是为了对冲（比如养老金必须持有长久期资产来匹配它的负债），需求会把长端价格推高、收益率压低，溢价就变成负的。历史上出现过多年为负的时期。</li>
+<li><b>这里用的是零息收益率，不是第 3 节那条曲线上的数。</b>下一节专门讲这个区别。</li>
+</ol>
+</div>
+
+<p class="src"><b>出处</b>：<a href="https://fred.stlouisfed.org/series/THREEFY10">FRED 系列 THREEFY10（Fitted Yield on a 10 Year Zero Coupon Bond）</a>、<a href="https://fred.stlouisfed.org/series/THREEFYTP10">FRED 系列 THREEFYTP10（Term Premium on a 10 Year Zero Coupon Bond）</a>，两者均由<b>美联储理事会</b>发布，同一模型、同一发布批次（页面显示更新时间同为 2026-08-25 14:04 CDT），2026-08-21 数值分别为 4.8044 与 0.8682。模型出处：Kim, D. H., &amp; Wright, J. H. (2005)，"a simple three-factor arbitrage-free term structure model"。价格变动 = <b>纯算术</b>（按半年付息平价债券折现计算）。ACM 模型见 <a href="https://www.newyorkfed.org/research/data_indicators/term-premia-tabs">纽约联储 Treasury Term Premia</a>；<b>我今天没有取到 ACM 的当日数值</b>，所以上面只说"通常有可观差异"，没有给具体差多少。</p>
+
+<h2>6｜一个必须说清楚的口径：平价收益率 vs 零息收益率</h2>
+
+<p>细心的话你会发现一个不一致：第 3 节的表里，2026-08-21 的 10 年期是 <b>4.74%</b>；第 5 节的拆解里，同一天的 10 年期是 <b>4.8044%</b>。差了 6.4 个基点。</p>
+
+<p><b>这不是数据打架，是两种不同的债。</b></p>
+
+<ul>
+<li><b>平价收益率</b>（par yield）：财政部公布的那条曲线。它回答的是"如果今天发行一张 10 年期、每半年付息、价格正好等于面值的国债，票息该定多少"。这张债在到期前会付 20 次利息。</li>
+<li><b>零息收益率</b>（zero-coupon yield）：Kim-Wright 模型用的。它回答的是"如果一张债中途<b>一分钱不付</b>，只在第 10 年末还你一笔，那它的年化回报是多少"。</li>
+</ul>
+
+<p><b>为什么在上行的曲线上，零息收益率会高于平价收益率？</b>把逻辑走完：付息债券的 20 笔现金流分布在第 0.5 年到第 10 年之间，其中大部分（那 20 笔利息）在第 10 年<b>之前</b>就收到了。而在一条上行的曲线上，早于 10 年的钱适用的利率<b>更低</b>。所以付息债券实际上是"一堆短期利率和一个 10 年期利率的加权平均"，自然低于纯粹的 10 年期。零息债没有这个稀释，它是干净的 10 年。</p>
+
+<p>推论：<b>曲线越陡，两者差得越多；曲线倒挂时，方向相反</b>（零息收益率会低于平价收益率）。</p>
+
+<p><b>所以正确的做法</b>是：拆解期限溢价时，用模型自己那套零息收益率去减模型自己的期限溢价——同一模型、同一种债、同一天。用财政部的 4.74% 去减 Kim-Wright 的 0.8682，会得到 3.87%，看起来也很合理，<b>但那是把两个不同口径的数相减，结果没有意义</b>。这类错误在图表里几乎看不出来，这就是为什么口径要写在纸上。</p>
+
+<h2>7｜反过来：这条曲线怎么变成你的房贷</h2>
+
+<p>到这里我们回答了"政策利率和美债利率什么关系"。但还差最后一段——美债利率之所以重要，是因为其他所有人的借贷成本都挂在它上面。</p>
+
+<p><b>为什么会挂上去？</b>逻辑很短：美国国债被视为美元世界里违约风险最低的资产。任何一个把钱借出去的人，心里都有"我可以改买国债"这个替代方案。所以要让他借给别人，收益率必须<b>高于</b>同期限的国债——高出的那部分，就是这个借款人相对于美国政府的额外代价。这个差额叫<b>利差</b>（spread）。</p>
+
+<div class="calc">2026-08-27：
+  美国 30 年期固定房贷平均利率   6.66%
+  同日 10 年期国债收益率         4.67%
+                              ───────
+  利差                          1.99 个百分点</div>
+
+<div class="box">
+<p><b>你可能会问：为什么 30 年期的房贷要和 10 年期国债比，不和 30 年期国债比？</b></p>
+<p>因为 30 年期房贷的实际存续时间远不到 30 年。借款人可以随时提前还款——卖房搬家要还，利率下降时重新贷款也要还。所以一笔 30 年期房贷的实际现金流，平均而言在远早于 30 年的时候就结束了。行业惯例因此拿它和 10 年期国债做对照。</p>
+<p class="small">这是教科书与业界的标准解释。<b>我今天没有核对当前的实际平均存续期数值</b>，所以只说"远不到 30 年"，不给具体年数。</p>
+</div>
+
+<p><b>那 1.99 个百分点是什么构成的？</b>至少包括：借款人可能违约的风险、上面说的提前还款这个"期权"（借款人有权提前还，这个权利是贷款人卖给他的，要收钱）、贷款发放与服务的成本、以及抵押贷款证券相对国债的流动性差异。</p>
+
+<div class="brk">
+<span class="tag">✕ 这里我给不出拆解</span>
+<p>上面四项各占那 1.99 个百分点的多少，<b>我今天没有查到可靠的分解数据</b>，所以只列构成项，不给数字。市面上有些文章会给一套百分比，但那些通常来自特定模型或特定机构的估算，口径各异。E23（住房抵押贷款证券化机制）那天会正经处理这件事。</p>
+</div>
+
+<p class="src"><b>出处</b>：房贷利率 = <a href="https://fred.stlouisfed.org/series/MORTGAGE30US">FRED 系列 MORTGAGE30US</a>，来源为 Freddie Mac 首次抵押贷款市场调查（Primary Mortgage Market Survey），<b>周频、每周四结束</b>，2026-08-27 当周为 6.66%。国债收益率为同日财政部数据 4.67%。<b>口径提醒</b>：房贷数是一周的调查平均，国债数是单日收盘，两者严格说不同频，相减得到的 1.99 是近似值。</p>
+
+<h2>8｜央行控制力的边界：一个著名的反例</h2>
+
+<p>如果长期利率里有一大块是央行管不着的期限溢价，那就必然存在一种可能：<b>央行加息，长期利率不动，甚至下跌。</b>这不是理论推演，历史上发生过，而且是被时任美联储主席本人当成"谜"提出来的。</p>
+
+<div class="box">
+<p>旧金山联储 2017 年的经济通讯写道：</p>
+<p>“Between June 2004 and December 2005, the Federal Open Market Committee (FOMC) substantially tightened monetary policy by increasing the federal funds rate from 1% to 4.25%. Over this same period, long-term Treasury yields, which typically move in the same direction as short-term rates, did not follow suit and instead declined.”</p>
+<p class="small">（2004 年 6 月至 2005 年 12 月间，FOMC 大幅收紧货币政策，把联邦基金利率从 1% 提高到 4.25%。同一时期，通常与短期利率同向变动的长期国债收益率并未跟随，反而下跌。）</p>
+</div>
+
+<p><b>把这组数字读清楚</b>：政策利率上调了 <b>325 个基点</b>，而长期国债收益率<b>方向相反</b>。格林斯潘在 2005 年 2 月的国会作证中把这称为一个"conundrum"（谜），这个词从此成了这段历史的代称。</p>
+
+<p><b>用第 4、5 节的框架，这件事一点也不神秘。</b>长期收益率 = 预期 + 期限溢价。政策利率上调只直接改变"今天的短期利率"这一个点。如果同时发生了下面任何一件事，长端就可以不动甚至下跌：</p>
+
+<ul>
+<li>市场认为这轮加息会把通胀压住，因而<b>下调</b>了对未来十年短期利率的预期；</li>
+<li>或者，期限溢价因为别的原因下降了——比如全球对长期美债的需求增加，把长端价格买高、收益率买低。</li>
+</ul>
+
+<p>圣路易斯联储 2021 年的一篇研究给出了更强的说法：当各国央行改为以短期利率为操作目标之后，政策利率与长期主权债收益率之间的相关性"下降到实际为零"。作者的解释是，联邦基金利率只在决策者主动调整目标时才动，而长期国债收益率每天都在对新信息作出反应——两者本来就是不同频率、不同驱动的两个变量。</p>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><b>推测内容</b>：上面那两条解释里，哪一条是 2004–2005 年的主因，我没有下结论。学界对此有长期争论，常见的候选解释包括"全球储蓄过剩"（Bernanke 提出的 global saving glut）、外国官方机构对美债的大规模购买、以及美联储自身可信度提高压低了通胀风险溢价。</p>
+<p><b>需要什么材料才能判断</b>：那一时期期限溢价与预期成分的逐月分解、外国官方持有美债的流量数据、以及当时的通胀预期序列。我今天只查了这段史实本身，没有查这些。所以这一期只用它来说明"这种事会发生"，不解释"为什么那次会发生"。</p>
+</div>
+
+<p class="src"><b>出处</b>：<a href="https://www.frbsf.org/research-and-insights/publications/economic-letter/2017/11/new-conundrum-in-bond-market/">Federal Reserve Bank of San Francisco, “A New Conundrum in the Bond Market?”, FRBSF Economic Letter, November 2017</a>（引文为该文原句）；<a href="https://www.stlouisfed.org/publications/review/2021/11/16/further-evidence-on-greenspans-conundrum">Federal Reserve Bank of St. Louis Review, “Further Evidence on Greenspan's Conundrum” (2021)</a>——该文另记载，格林斯潘在 2005 年 2 月的国会作证中提出此问题，并指出自 2004 年 6 月起政策利率已上调 150 个基点而 10 年期收益率"基本未变"。<b>注意两处口径不同</b>：150 个基点对应到 2005 年 2 月，325 个基点对应到 2005 年 12 月，不是矛盾。</p>
+
+<h2>9｜一张总图</h2>
+
+<figure>
+<svg viewBox="0 0 680 428" role="img" aria-labelledby="st sd">
+<title id="st">从央行的目标区间到你的房贷利率</title>
+<desc id="sd">六个步骤：央行设定目标区间，走廊机制把隔夜利率挤进去，市场再加上预期与期限溢价形成十年期国债收益率，最后加上房贷利差。央行的控制力沿着这条链逐级减弱。</desc>
+<style>.b{fill:var(--card);stroke:var(--fg);stroke-width:1.5;rx:8}.bk{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.4;rx:8}.t{fill:var(--fg);font-family:system-ui,-apple-system,"PingFang SC",sans-serif;font-size:14px;font-weight:600}.v{fill:var(--muted);font-family:system-ui,sans-serif;font-size:12.5px}.c{fill:var(--muted);font-family:system-ui,sans-serif;font-size:11px}.a{stroke:var(--fg);stroke-width:1.8;fill:none}</style>
+<defs><marker id="m1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--fg)"/></marker></defs>
+<rect class="b" x="16" y="8" width="436" height="56"/>
+<text class="t" x="32" y="32">① 央行开会，设定目标区间</text>
+<text class="v" x="32" y="52">3.50% – 3.75%</text>
+<path class="a" d="M234.0,64 L234.0,76" marker-end="url(#m1)"/>
+<text class="c" x="470" y="30">央行控制力</text>
+<rect x="470" y="38" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="492" y="38" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="514" y="38" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="536" y="38" width="17" height="9" rx="2" fill="var(--s1)"/>
+<text class="c" x="470" y="61">直接设定</text>
+<rect class="b" x="16" y="78" width="436" height="56"/>
+<text class="t" x="32" y="102">② 走廊机制把隔夜利率挤进区间</text>
+<text class="v" x="32" y="122">EFFR = 3.63%</text>
+<path class="a" d="M234.0,134 L234.0,146" marker-end="url(#m1)"/>
+<text class="c" x="470" y="100">央行控制力</text>
+<rect x="470" y="108" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="492" y="108" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="514" y="108" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="536" y="108" width="17" height="9" rx="2" fill="var(--s1)"/>
+<text class="c" x="470" y="131">机制上牢牢挤住</text>
+<rect class="b" x="16" y="148" width="436" height="56"/>
+<text class="t" x="32" y="172">③ ＋ 市场对未来十年隔夜利率的预期</text>
+<text class="v" x="32" y="192">+0.31 个百分点 → 3.94%</text>
+<path class="a" d="M234.0,204 L234.0,216" marker-end="url(#m1)"/>
+<text class="c" x="470" y="170">央行控制力</text>
+<rect x="470" y="178" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="492" y="178" width="17" height="9" rx="2" fill="var(--s1)"/>
+<rect x="514" y="178" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="536" y="178" width="17" height="9" rx="2" fill="var(--grid)"/>
+<text class="c" x="470" y="201">只能靠「市场怎么猜我」</text>
+<rect class="b" x="16" y="218" width="436" height="56"/>
+<text class="t" x="32" y="242">④ ＋ 期限溢价（承担价格波动的补偿）</text>
+<text class="v" x="32" y="262">+0.87 个百分点</text>
+<path class="a" d="M234.0,274 L234.0,286" marker-end="url(#m1)"/>
+<text class="c" x="470" y="240">央行控制力</text>
+<rect x="470" y="248" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="492" y="248" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="514" y="248" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="536" y="248" width="17" height="9" rx="2" fill="var(--grid)"/>
+<text class="c" x="470" y="271">基本管不着</text>
+<rect class="bk" x="16" y="288" width="436" height="56"/>
+<text class="t" x="32" y="312">⑤ ＝ 10 年期国债收益率</text>
+<text class="v" x="32" y="332">4.80%（零息口径，2026-08-21）</text>
+<path class="a" d="M234.0,344 L234.0,356" marker-end="url(#m1)"/>
+<rect class="b" x="16" y="358" width="436" height="56"/>
+<text class="t" x="32" y="382">⑥ ＋ 房贷相对国债的利差</text>
+<text class="v" x="32" y="402">→ 30 年期固定房贷 6.66%</text>
+<text class="c" x="470" y="380">央行控制力</text>
+<rect x="470" y="388" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="492" y="388" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="514" y="388" width="17" height="9" rx="2" fill="var(--grid)"/>
+<rect x="536" y="388" width="17" height="9" rx="2" fill="var(--grid)"/>
+<text class="c" x="470" y="411">再隔一层</text>
+</svg>
+<figcaption>
+从央行的会议室到你的房贷账单。左侧方块是每一步加进来的东西，右侧的四格条是我对央行在该步骤上控制力的<b>定性</b>标注（不是测量值）。橙色框是本期的落点。数据日期：EFFR 为 2026-08-27，收益率拆解为 2026-08-21，房贷为 2026-08-27 当周。
+</figcaption>
+</figure>
+
+<h3>一句话总结</h3>
+
+<p class="box" style="font-size:1.05em"><b>央行手里只有曲线最左边那一个点。</b>往右每走一步，它的影响就从"直接设定"退化成"被市场猜测"，再退化成"完全管不着"。所以政策利率和美债利率不是一根杠杆的两端，而是一条链的首尾——中间隔着市场对未来的预期，和市场对风险的报价。</p>
+
+<h2>10｜术语卡片</h2>
+
+<div class="scroll">
+<table>
+<thead><tr><th>术语</th><th>一句话大白话</th><th>出现在第几节</th></tr></thead>
+<tbody>
+<tr><td>有效联邦基金利率<br>EFFR</td><td>银行之间隔夜拆借实际成交出来的那个利率，按成交量加权中位数算。央行设区间，这是区间里的实际值。</td><td>2</td></tr>
+<tr><td>收益率曲线<br>yield curve</td><td>把同一个发行人、不同期限的借款利率按期限排开画成的一条线。</td><td>3</td></tr>
+<tr><td>远期利率<br>forward rate</td><td>从两个不同期限的现有利率里反解出来的"未来某段时间的利率"。它不是报价，是算出来的。</td><td>4</td></tr>
+<tr><td>预期假说<br>expectations hypothesis</td><td>长期利率应该等于这段时间内未来一系列短期利率的平均。靠套利论证支撑，但单靠它解释不了实际曲线。</td><td>4</td></tr>
+<tr><td>期限溢价<br>term premium</td><td>长债价格波动大，持有人为承担这个风险而要求的额外收益。它不能直接观察，只能靠模型估计，而且可以是负的。</td><td>5</td></tr>
+<tr><td>修正久期<br>modified duration</td><td>利率变动 1 个百分点，债券价格变动百分之几。30 年期约 15，2 年期约 1.9。</td><td>5</td></tr>
+<tr><td>平价收益率<br>par yield</td><td>一张按面值发行、定期付息的债券，票息该定多少。财政部公布的就是这条曲线。</td><td>6</td></tr>
+<tr><td>零息收益率<br>zero-coupon yield</td><td>中途一分钱不付、到期一次还清的债券的年化回报。在上行的曲线上高于同期限的平价收益率。</td><td>6</td></tr>
+<tr><td>利差<br>spread</td><td>某个借款人的利率高出同期限国债的那一部分，是他相对于美国政府的额外代价。</td><td>7</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>11｜三道自测题</h2>
+
+<p class="q">第 1 题　用 2026-08-31 的数据：2 年期 4.34%，10 年期 4.75%。市场隐含的"第 3 年到第 10 年这八年间的平均利率"是多少？算出来之后，和 10 年期本身比较，说明了什么？</p>
+
+<details>
+<summary>参考答案</summary>
+<p>思路和第 4 节完全一样，只是把"1 年 + 1 年 = 2 年"换成"2 年 + 8 年 = 10 年"。</p>
+<div class="calc">10 年的总增长必须等于「2 年的增长」乘以「后 8 年的增长」：
+
+  (1.0475)^10 = (1.0434)^2 × (1 + f)^8
+
+左边： 1.0475^10 = 1.59052
+右边第一项： 1.0434^2 = 1.088684
+
+  (1 + f)^8 = 1.59052 ÷ 1.088684 = 1.46096
+  1 + f = 1.46096^(1÷8) = 1.04853
+  f = 4.853%</div>
+<p><b>说明了什么</b>：市场隐含的后八年平均利率 4.85%，明显高于 10 年期整体的 4.75%，也远高于前两年的 4.34%。原因是算术上的必然——如果整体平均是 4.75%，而前面一段只有 4.34%，那后面一段必须高于 4.75% 才能把平均拉上来。<b>一条上行的曲线，隐含的远期利率一定高于即期利率。</b></p>
+<p><b>但关键的一句在后面</b>：这个 4.85% <b>不等于</b>市场预期后八年利率是 4.85%。按第 5 节，它是"预期 + 期限溢价"。期限溢价越大，远期利率就越高估真实预期。所以不能把远期利率直接读成预测。</p>
+</details>
+
+<p class="q">第 2 题　假设明天美联储意外宣布加息 50 个基点，而市场此前完全没有预期到。按第 4、5 节的框架，你预期 2 年期和 30 年期分别会怎么动？为什么两者的反应幅度会不同？在什么情况下 30 年期会不动甚至下跌？</p>
+
+<details>
+<summary>参考答案</summary>
+<p><b>2 年期</b>：反应大。因为 2 年期约等于"未来 24 个月每天的隔夜利率的平均"。今天就抬高 50 个基点，这 50 个基点会持续影响其中相当长的一段，所以对这个平均值的拉动很直接。</p>
+<p><b>30 年期</b>：反应小得多。同样的 50 个基点，摊到 360 个月的平均里，权重被稀释得极小。用一个粗略的算术看这个稀释：如果这次加息只持续一年就回落，那么它对 30 年平均值的贡献大约是 50 × (1÷30) ≈ 1.7 个基点。</p>
+<p><b>什么情况下 30 年期会不动甚至下跌</b>：如果市场把这次意外加息解读为"央行比想象中更强硬，通胀会被更早压住"，那么对<b>更远期</b>短期利率的预期反而下调，而这一段占 30 年平均的绝大部分权重。此外，如果加息让市场认为经济会走弱，期限溢价也可能下降。两者叠加，长端完全可能反向。第 8 节的历史反例就是这个机制的现实版本。</p>
+<p class="small">上面 50÷30 的算法是一个刻意粗糙的示意，用来展示"稀释"这个直觉，不是正确的定价方法。严格做法需要对每一段远期利率分别定价。</p>
+</details>
+
+<p class="q">第 3 题　第 5 节说期限溢价可以是负的。如果某一天 10 年期期限溢价是 −0.50%，而 10 年期零息收益率是 3.00%，那么市场预期的未来十年隔夜利率平均是多少？这种情况说明了市场上正在发生什么？</p>
+
+<details>
+<summary>参考答案</summary>
+<div class="calc">收益率 = 预期 + 期限溢价
+  3.00% = 预期 + (−0.50%)
+  预期 = 3.00% + 0.50% = 3.50%</div>
+<p><b>注意这一步的方向</b>：期限溢价为负时，预期成分<b>高于</b>观察到的收益率。很容易在这里符号搞反。</p>
+<p><b>说明了什么</b>：市场愿意接受一个比"单纯持有一串短债"更低的回报，也要持有 10 年期国债。也就是说，长债对这些买家而言不是风险，而是<b>避险或对冲工具</b>。典型的原因有两类：一是养老金和保险公司有长期负债，必须买长久期资产来匹配，这是刚性需求而非收益驱动；二是央行的大规模购债（量化宽松）直接把长债从市场上买走，压低了其收益率。A13 会专门讲后者的机制。</p>
+</details>
+
+<h2>12｜今天查实了什么 / 没查实什么</h2>
+
+<div class="scroll">
+<table>
+<thead><tr><th>数据</th><th>数值</th><th>口径</th><th>来源等级</th></tr></thead>
+<tbody>
+<tr><td>联邦基金目标区间</td><td>3.50%–3.75%</td><td>2026-07-29 会议决定</td><td><b>一手</b>（FOMC 声明）</td></tr>
+<tr><td>有效联邦基金利率</td><td>3.63%</td><td>2026-08-27，成交量加权中位数，非季调</td><td><b>一手</b>（纽约联储，经 FRED）</td></tr>
+<tr><td>国债收益率曲线</td><td>见第 3 节表</td><td>par yield，2026-08-21 与 08-31，纽约联储采集的收盘报价</td><td><b>一手</b>（美国财政部）</td></tr>
+<tr><td>10 年期零息拟合收益率</td><td>4.8044%</td><td>2026-08-21，Kim-Wright 三因子模型</td><td><b>一手</b>（美联储理事会，经 FRED）</td></tr>
+<tr><td>10 年期期限溢价</td><td>0.8682%</td><td>同上，同一模型同一批次</td><td><b>一手，但是模型估计值不是观测值</b></td></tr>
+<tr><td>预期成分 3.9362%</td><td>—</td><td>上面两个数相减</td><td><b>算术</b></td></tr>
+<tr><td>远期利率 4.52% / 4.853%</td><td>—</td><td>由财政部 1Y、2Y、10Y 反解</td><td><b>算术</b></td></tr>
+<tr><td>债券价格变动与久期</td><td>−1.87% / −7.53% / −13.47%</td><td>半年付息平价债券，收益率各上行 100 bp</td><td><b>算术</b></td></tr>
+<tr><td>30 年期固定房贷</td><td>6.66%</td><td>2026-08-27 <b>当周</b>，Freddie Mac PMMS 调查平均</td><td><b>一手</b>（Freddie Mac，经 FRED）</td></tr>
+<tr><td>2004–2005 政策利率与长端</td><td>1% → 4.25%，长端反而下跌</td><td>2004 年 6 月至 2005 年 12 月</td><td><b>一手</b>（旧金山联储经济通讯原句）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>没查实、或明确不给的</h3>
+
+<ol>
+<li><b>ACM 模型的当日期限溢价数值我没取到。</b>纽约联储的页面没有把数值渲染出来。所以第 5 节只说"两套模型通常有可观差异"，<b>没有给差多少</b>。</li>
+<li><b>房贷利差 1.99 个百分点的构成没有拆解。</b>只列了构成项，不给各项占比——我没有找到口径可靠的分解。</li>
+<li><b>30 年期房贷的实际平均存续期没有具体数字。</b>只说"远不到 30 年"。</li>
+<li><b>2004–2005 那次"谜"的成因我没有下结论。</b>只用它说明"这种事会发生"，成因放进了推测框并列出了需要什么材料才能判断。</li>
+<li><b>房贷利差 1.99 是不同频数据相减</b>：房贷是一周的调查平均，国债是单日收盘。这是近似值。</li>
+<li><b>第 4 节的套利论证是简化版</b>：忽略了交易成本、借贷利差与保证金要求。真实的无套利边界比推导中宽。</li>
+<li><b>总图右侧的"央行控制力"四格条是我的定性标注</b>，不是任何测量值。唯一有数据支撑的是第 5 节那个 0.31 / 0.87 的比例。</li>
+</ol>
+
+<h3>这一期和第 15 天的关系</h3>
+
+<p>第 15 天那份材料里用了两个数：政策利率 3.625%（目标区间中点）和 30 年期实际收益率 2.96%（TIPS）。当时把后者直接当作"折现率"用了，没有解释它为什么比前者高。这一期补上了这段：<b>那个差额里有一块是市场对未来政策的预期，另一块是期限溢价。</b></p>
+
+<p>还有一条顺带的确认：第 15 天曾说"10 年期普通美国国债久期大约是 8 年"，并标注为量级估计。这一期用半年付息平价债券算出来是 <b>7.89 年</b>（修正久期），那个量级估计是对的。</p>
+
+<hr>
+<p class="small">加更一期 · 领域 A 货币政策与利率体系（对应 A1–A5、A15 的交叉内容）｜ 数据截至 2026-08-31，期限溢价拆解截至 2026-08-21。<br>本材料为教学分析，不构成投资建议。</p>
+
+</div>
+<script>
+(function(){
+  var svg=document.querySelector('#curveviz svg'); if(!svg) return;
+  var box=document.getElementById('curveviz'), tip=document.getElementById('tip');
+  var cross=svg.querySelector('#cross');
+  var L=["隔夜","1 月","3 月","6 月","1 年","2 年","3 年","5 年","7 年","10 年","20 年","30 年"];
+  var A=[3.63,3.85,3.91,3.99,4.16,4.34,4.40,4.49,4.62,4.75,5.24,5.25];
+  var B=[3.63,3.80,3.88,3.95,4.03,4.24,4.31,4.43,4.57,4.74,5.25,5.27];
+  var X0=62,X1=646,N=12,step=(X1-X0)/(N-1);
+  function show(i,ev){
+    var r=box.getBoundingClientRect();
+    var sr=svg.getBoundingClientRect();
+    var sx=sr.width/680;
+    var px=(X0+step*i)*sx+(sr.left-r.left);
+    cross.setAttribute('x1',X0+step*i); cross.setAttribute('x2',X0+step*i);
+    cross.setAttribute('opacity','1');
+    tip.innerHTML='<b>'+L[i]+'</b><br><span class="sw" style="background:var(--s1)"></span>08-31：'+A[i].toFixed(2)+'%<br><span class="sw" style="background:var(--s2)"></span>08-21：'+B[i].toFixed(2)+'%'
+      +(i===0?'<br><span style="color:var(--muted)">（EFFR，非国债）</span>':'');
+    tip.style.opacity='1';
+    var w=tip.offsetWidth, left=px-w/2;
+    if(left<4) left=4; if(left+w>r.width-4) left=r.width-w-4;
+    tip.style.left=left+'px';
+    tip.style.top=Math.max(6,(sr.top-r.top)+40*sx)+'px';
+  }
+  function hide(){ tip.style.opacity='0'; cross.setAttribute('opacity','0'); }
+  svg.querySelectorAll('.hit').forEach(function(h){
+    var i=+h.getAttribute('data-i');
+    h.addEventListener('mouseenter',function(e){show(i,e)});
+    h.addEventListener('mousemove',function(e){show(i,e)});
+    h.addEventListener('touchstart',function(e){show(i,e)},{passive:true});
+  });
+  svg.addEventListener('mouseleave',hide);
+  box.addEventListener('mouseleave',hide);
+})();
+</script>
+</body>
+</html>

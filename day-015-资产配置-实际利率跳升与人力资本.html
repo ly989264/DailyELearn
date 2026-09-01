@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 15 天 · 实际利率跳了 8 个基点，和你的工资有什么关系</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1c1b19; --muted:#5f5b54; --rule:#ddd8ce;
+  --card:#ffffff; --accent:#8a4b1f; --accent-soft:#f4ece3;
+  --guess-bg:#fff8e6; --guess-bd:#c9962a; --guess-fg:#6b4d05;
+  --break-bg:#f2f0ff; --break-bd:#6b5bd2; --break-fg:#3b2f8f;
+  --ok:#2e6b45; --code:#f2efe9;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16161a; --fg:#e8e6e1; --muted:#a29d94; --rule:#33323a;
+    --card:#1e1e24; --accent:#e0a06a; --accent-soft:#2a2118;
+    --guess-bg:#2a2312; --guess-bd:#c9962a; --guess-fg:#f0d493;
+    --break-bg:#1e1c33; --break-bd:#8b7ded; --break-fg:#c4bcf5;
+    --ok:#7fc79b; --code:#24242b;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Serif CJK SC","Source Han Serif SC","Songti SC",Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.85; overflow-x:hidden;
+}
+.wrap{max-width:760px; margin:0 auto; padding:32px 20px 96px}
+h1{font-size:1.72em; line-height:1.35; margin:.2em 0 .1em; letter-spacing:-.01em}
+h2{font-size:1.28em; margin:2.6em 0 .6em; padding-top:1.1em; border-top:2px solid var(--rule); letter-spacing:-.005em}
+h3{font-size:1.08em; margin:2em 0 .5em; color:var(--accent)}
+h4{font-size:1em; margin:1.5em 0 .4em}
+p{margin:.85em 0}
+a{color:var(--accent); text-decoration:underline; text-underline-offset:2px}
+.sub{color:var(--muted); font-size:.92em; line-height:1.7; margin-top:.4em}
+.meta{font-size:.85em; color:var(--muted); border:1px solid var(--rule); border-radius:8px; padding:10px 14px; margin:18px 0 28px; background:var(--card)}
+.meta b{color:var(--fg)}
+.calc{
+  background:var(--code); border-left:3px solid var(--accent); border-radius:0 6px 6px 0;
+  padding:12px 16px; margin:1.1em 0; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:.88em; line-height:2.0; overflow-x:auto; white-space:pre;
+}
+.guess{background:var(--guess-bg); border:2px dashed var(--guess-bd); border-radius:10px; padding:14px 18px; margin:1.6em 0}
+.guess .tag{display:inline-block; background:var(--guess-bd); color:#fff; font-size:.72em; font-weight:700; letter-spacing:.08em; padding:3px 9px; border-radius:4px; margin-bottom:8px; font-family:system-ui,sans-serif}
+.guess p{color:var(--guess-fg); margin:.5em 0; font-size:.95em}
+.brk{background:var(--break-bg); border:2px solid var(--break-bd); border-radius:10px; padding:14px 18px; margin:1.6em 0}
+.brk .tag{display:inline-block; background:var(--break-bd); color:#fff; font-size:.72em; font-weight:700; letter-spacing:.08em; padding:3px 9px; border-radius:4px; margin-bottom:8px; font-family:system-ui,sans-serif}
+.brk p{color:var(--break-fg); margin:.5em 0; font-size:.95em}
+.src{font-size:.82em; color:var(--muted); border-top:1px dotted var(--rule); padding-top:6px; margin-top:1.1em}
+.src b{color:var(--fg)}
+.box{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px 18px; margin:1.4em 0}
+.box>:first-child{margin-top:0} .box>:last-child{margin-bottom:0}
+table{width:100%; border-collapse:collapse; margin:1.2em 0; font-size:.9em; font-family:system-ui,-apple-system,sans-serif}
+th,td{border:1px solid var(--rule); padding:8px 10px; text-align:left; vertical-align:top}
+th{background:var(--accent-soft); font-weight:600}
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:1.2em 0}
+.scroll table{margin:0; min-width:520px}
+figure{margin:1.8em 0}
+figure svg{display:block; width:100%; height:auto}
+figcaption{font-size:.85em; color:var(--muted); margin-top:8px; line-height:1.7}
+details{border:1px solid var(--rule); border-radius:8px; padding:10px 16px; margin:1em 0; background:var(--card)}
+summary{cursor:pointer; font-weight:600; font-size:.95em}
+details[open] summary{margin-bottom:.6em; padding-bottom:.5em; border-bottom:1px solid var(--rule)}
+ul,ol{padding-left:1.4em; margin:.85em 0}
+li{margin:.45em 0}
+.q{font-weight:600; color:var(--accent); margin-top:1.5em}
+.lead{font-size:1.05em}
+hr{border:0; border-top:1px solid var(--rule); margin:2.4em 0}
+.kbd{font-family:ui-monospace,Menlo,monospace; background:var(--code); padding:1px 5px; border-radius:3px; font-size:.9em}
+.small{font-size:.88em; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>实际利率跳了 8 个基点，和你的工资有什么关系</h1>
+<p class="sub">第 15 天 · 领域 G 资产配置与个人财务 · 锚点原理 G2：人力资本作为资产，及其行业相关性</p>
+
+<div class="meta">
+<b>今日坐标</b>　Day 15 ｜ 领域索引 6（G）｜ 该领域第 2 条原理<br>
+<b>数据截止</b>　美国 2026-08-31 收盘；新加坡时间 2026-09-01 早晨<br>
+<b>选题说明</b>　今天属于领域 G。过去 72 小时里，G 领域本身没有发生可靠一手材料支撑的独立事件（美国 8 月非农就业报告要到 9 月 4 日才发布，新加坡人力部第二季度完整劳动力市场报告也未出）。所以我选了 8 月 28 日至 31 日债券市场的一次重定价作为起点——它发生在利率端，但它改变的第一样东西，恰好是 G2 这条原理要讲的那个资产。链条必然穿过领域 G。
+</div>
+
+<h2>0｜今天你会学到什么</h2>
+
+<p class="lead">上周五，美国国债市场上有一个数字动了一下：借钱给美国政府 10 年，扣掉物价上涨之后能拿到的回报，从 2.34% 变成了 2.42%。听起来小得可以忽略。</p>
+
+<p class="lead">今天要讲明白的道理是：这个数字是用来把「未来的钱」换算成「今天的钱」的换算率。而对一个还要工作三十年的人来说，他名下最值钱的东西，恰恰是一笔还没到手的未来的钱——他未来三十年的工资。所以这个数字一动，他最大的一笔资产就重新标了价，只是没人给他寄对账单。</p>
+
+<p class="lead">读完之后你应该能回答：我未来的工资值多少钱？这笔"资产"更像债券还是更像股票？为什么这个问题在学术界吵了二十年还没吵完？以及，如果我的收入和我的投资押在同一件事情上，这算不算一个问题。</p>
+
+<h2>1｜今天的事件</h2>
+
+<h3>事实一：美联储主席在 8 月 28 日说了什么</h3>
+
+<p>2026 年 8 月 28 日，美联储主席 Kevin Warsh 在杰克逊霍尔（Jackson Hole）经济政策研讨会上发表了题为《In Our Time》的主旨演讲。这是他担任主席后的第一次杰克逊霍尔讲话。</p>
+
+<p>他在讲话中给了两个通胀数字，原文是：</p>
+
+<div class="box">
+<p>“The Fed's preferred measure of inflation, the 12-month change in the PCE price index, stands at 3.7 percent, while the six-month change is 4.1 percent.”</p>
+<p class="small">（美联储偏好的通胀指标，即 PCE 物价指数的 12 个月变化，目前是 3.7%；而 6 个月变化是 4.1%。）</p>
+</div>
+
+<p><b>这两个数字的口径必须说清楚，否则它们只是两个数字：</b></p>
+<ul>
+<li><b>指标</b>：PCE 物价指数（Personal Consumption Expenditures Price Index，个人消费支出物价指数），由美国经济分析局（BEA）发布。它和更常听到的 CPI 是两个不同的指数，编制方法和篮子权重都不一样。美联储的 2% 目标盯的是 PCE，不是 CPI。</li>
+<li><b>整体还是核心</b>：Warsh 说的是 “the PCE price index”，没有加 “core”，所以是<b>整体</b>口径，包含食品和能源。</li>
+<li><b>12 个月变化</b>：把最新一个月的指数和一年前同月的指数比，即同比。3.7%。</li>
+<li><b>6 个月变化</b>：把最新一个月和半年前比，然后<b>年化</b>（换算成"如果这个速度持续一整年会是多少"）。4.1%。</li>
+</ul>
+
+<p><b>为什么要同时给这两个数？</b>因为它们讲的不是同一件事。同比 3.7% 里，有一半的数据是半年前甚至更早的。而 6 个月年化 4.1% 只用最近半年的数据。当短期口径高于长期口径时，说明<b>最近这半年的涨价速度比过去一年的平均值更快</b>——通胀不是在往下走，是在往上走。Warsh 把这两个数并排放，是在提醒听众看后面那个。</p>
+
+<p>关于政策，他没有承诺任何路径，只给了一个条件句：</p>
+
+<div class="box">
+<p>“We must be confident that underlying inflation is moving to our objective, clearly and at sufficient speed. Otherwise, we have work to do.”</p>
+<p class="small">（我们必须确信底层通胀正在朝目标移动，方向清楚，速度足够。否则，我们还有工作要做。）</p>
+</div>
+
+<p class="src"><b>出处</b>：<a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">Federal Reserve Board, “In Our Time” — Keynote remarks by Chairman Warsh at the 2026 Jackson Hole Economic Policy Symposium, August 28, 2026</a>（美联储官网原文）。当前联邦基金利率目标区间为 3.50%–3.75%，出自 <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm">FOMC 2026 年 7 月 29 日会议声明</a>。下次会议为 <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">2026 年 9 月 15–16 日</a>，会附带经济预测摘要（SEP）。</p>
+
+<h3>事实二：同一天，美国国债收益率曲线动了</h3>
+
+<p>美国财政部每个交易日下午 3:30 前后发布一组「国债收益率曲线利率」（Daily Treasury Par Yield Curve Rates），数据来自纽约联储采集的二级市场报价。这是一手数据，任何人都可以直接查。</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>日期</th><th>3 个月</th><th>2 年</th><th>5 年</th><th>10 年</th><th>30 年</th></tr></thead>
+<tbody>
+<tr><td>2026-08-27（周四）</td><td>3.84%</td><td>4.20%</td><td>4.38%</td><td>4.67%</td><td>5.19%</td></tr>
+<tr><td><b>2026-08-28（周五）</b></td><td><b>3.90%</b></td><td><b>4.34%</b></td><td><b>4.48%</b></td><td><b>4.73%</b></td><td><b>5.22%</b></td></tr>
+<tr><td>2026-08-31（周一）</td><td>3.91%</td><td>4.34%</td><td>4.49%</td><td>4.75%</td><td>5.25%</td></tr>
+<tr><td class="small">28 日单日变动</td><td class="small">+6 bp</td><td class="small">+14 bp</td><td class="small">+10 bp</td><td class="small">+6 bp</td><td class="small">+3 bp</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>先解释单位。</b>金融里说利率变动，不说"涨了 0.14 个百分点"，说"涨了 14 个基点"。<b>基点</b>（basis point，缩写 bp）就是万分之一，也就是 0.01 个百分点。4.20% 涨到 4.34%，差 0.14 个百分点，就是 14 个基点。为什么要造这个词？因为"利率从 4.2% 涨到 4.34%，涨了 0.14%"这句话有歧义——0.14% 是绝对差还是相对涨幅（0.14/4.20 = 3.3%）？说"14 个基点"就没有歧义，它永远指绝对差。</p>
+
+<p>把上面这行读一遍：<b>2 年期涨得最多（14 bp），30 年期涨得最少（3 bp）。</b>这个形状本身有信息，第 3 节会用到。</p>
+
+<h3>事实三：同一批日期的实际收益率</h3>
+
+<p>财政部还发布另一条曲线，叫「实际收益率曲线」（Daily Treasury Real Yield Curve Rates），来自 TIPS 的报价。TIPS 是什么、这条曲线为什么关键，第 3 节从零讲起。这里先把数摆上：</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>日期</th><th>5 年（实际）</th><th>10 年（实际）</th><th>30 年（实际）</th></tr></thead>
+<tbody>
+<tr><td>2026-08-27</td><td>2.07%</td><td>2.34%</td><td>2.92%</td></tr>
+<tr><td><b>2026-08-28</b></td><td><b>2.18%</b></td><td><b>2.42%</b></td><td><b>2.96%</b></td></tr>
+<tr><td class="small">单日变动</td><td class="small">+11 bp</td><td class="small">+8 bp</td><td class="small">+4 bp</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="src"><b>出处</b>：<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202608">U.S. Department of the Treasury — Daily Treasury Par Yield Curve Rates, August 2026</a>；<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve&amp;field_tdr_date_value_month=202608">Daily Treasury Par Real Yield Curve Rates, August 2026</a>。<br><b>口径</b>：par yield（平价收益率）、按年计、来自纽约联储采集的二级市场收盘报价。<b>我没查到的</b>：8 月 31 日的实际收益率我在写这份材料时未能从财政部页面读到（名义曲线读到了，实际曲线只读到 28 日）。所以下面所有涉及实际利率的计算都用 <b>8 月 28 日</b> 的数，不用 8 月 31 日。</p>
+
+<h3>事实四：同期的其他市场读数</h3>
+
+<div class="scroll">
+<table>
+<thead><tr><th>读数</th><th>数值</th><th>日期与口径</th><th>出处</th></tr></thead>
+<tbody>
+<tr><td>标普 500</td><td>7,711.76</td><td>2026-08-28 收盘</td><td>FRED 系列 SP500</td></tr>
+<tr><td>标普 500</td><td>7,684.37（−0.36%）</td><td>2026-08-31 收盘</td><td>Invezz 报道</td></tr>
+<tr><td>纳斯达克综合</td><td>26,360.91（−0.16%）</td><td>2026-08-31 收盘</td><td>Invezz 报道</td></tr>
+<tr><td>道琼斯工业</td><td>53,179.77（−0.71%）</td><td>2026-08-31 收盘</td><td>Invezz 报道</td></tr>
+<tr><td>VIX</td><td>14.51</td><td>2026-08-27 收盘</td><td>FRED 系列 VIXCLS</td></tr>
+<tr><td>美元兑新元</td><td>1.2692 新元 / 1 美元</td><td>2026-08-21，未季调</td><td>FRED 系列 DEXSIUS</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="src"><b>出处与可靠度</b>：<a href="https://fred.stlouisfed.org/series/SP500">FRED SP500</a>、<a href="https://fred.stlouisfed.org/series/VIXCLS">FRED VIXCLS</a>、<a href="https://fred.stlouisfed.org/series/DEXSIUS">FRED DEXSIUS</a>（圣路易斯联储数据库，转载自各交易所与联储 H.10）。8 月 31 日的股指收盘价 FRED 尚未更新，我用的是 <a href="https://invezz.com/news/2026/08/31/dow-falls-380-pts-as-iran-conflict-lifts-oil-prices-and-rate-hike-concerns/">Invezz 于 8 月 31 日 16:17 发布的收盘报道</a>——这是<b>媒体二手数据</b>，不是交易所一手数据。我做了一次交叉核对：该报道给出的道指跌幅 −380.22 点 / −0.71%，反推前收盘为 53,559.99；标普 7,684.37 相对 FRED 记录的 8 月 28 日收盘 7,711.76 恰好是 −0.355%，与报道的 −0.36% 吻合；纳指同理吻合。三个指数都能对上，我才用它。另一家媒体（24/7 Wall St.）给出的标普是 7,694.00，且其纳指数字明显是错的（写成了七位数），我没有采用。<br>汇率那一行请注意：FRED 的 DEXSIUS 更新有滞后，1.2692 是 <b>8 月 21 日</b>的值，不是今天的值。</p>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 680 916" role="img" aria-label="从美联储主席讲话到人力资本重新定价的传导链">
+<style>
+  .bx{fill:var(--card); stroke:var(--fg); stroke-width:1.6; rx:8}
+  .bxk{fill:var(--accent-soft); stroke:var(--accent); stroke-width:2.6; rx:8}
+  .bxb{fill:var(--break-bg); stroke:var(--break-bd); stroke-width:2; stroke-dasharray:7 5; rx:8}
+  .t{fill:var(--fg); font-family:system-ui,-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif; font-size:15px}
+  .tb{font-weight:700}
+  .tm{fill:var(--muted); font-size:12.5px}
+  .num{fill:var(--accent); font-weight:700; font-size:15px; font-family:system-ui,sans-serif}
+  .ar{stroke:var(--fg); stroke-width:2; fill:none}
+  .ard{stroke:var(--guess-bd); stroke-width:2.4; fill:none; stroke-dasharray:8 6}
+  .lb{fill:var(--muted); font-size:11.5px; font-family:system-ui,sans-serif}
+  .lbd{fill:var(--guess-bd); font-size:11.5px; font-weight:600; font-family:system-ui,sans-serif}
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--fg)"/></marker>
+  <marker id="ahd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--guess-bd)"/></marker>
+</defs>
+
+<rect class="bx" x="20" y="8" width="640" height="58"/>
+<text class="t tb" x="38" y="32"><tspan class="num">①</tspan> 8 月 28 日：美联储主席说通胀 3.7%，「否则我们还有工作要做」</text>
+<text class="tm" x="38" y="52">美联储官网演讲原文</text>
+<path class="ard" d="M340,66 L340,104" marker-end="url(#ahd)"/>
+<text class="lbd" x="352" y="90">时间吻合，但一天只是一个观察，不是因果检验</text>
+
+<rect class="bx" x="20" y="106" width="640" height="58"/>
+<text class="t tb" x="38" y="130"><tspan class="num">②</tspan> 同一天，2 年期国债收益率 +14 bp，10 年期 +6 bp</text>
+<text class="tm" x="38" y="150">美国财政部当日曲线数据</text>
+<path class="ar" d="M340,164 L340,202" marker-end="url(#ah)"/>
+<text class="lb" x="352" y="188">减法</text>
+
+<rect class="bx" x="20" y="204" width="640" height="58"/>
+<text class="t tb" x="38" y="228"><tspan class="num">③</tspan> 拆开看：涨的全是实际利率（+8 bp），通胀预期反而略降（−2 bp）</text>
+<text class="tm" x="38" y="248">名义 4.73 − 实际 2.42 = 2.31，前一日为 4.67 − 2.34 = 2.33</text>
+<path class="ar" d="M340,262 L340,300" marker-end="url(#ah)"/>
+<text class="lb" x="352" y="286">定义</text>
+
+<rect class="bx" x="20" y="302" width="640" height="58"/>
+<text class="t tb" x="38" y="326"><tspan class="num">④</tspan> 实际利率就是把「未来的钱」折成「今天的钱」的那个换算率</text>
+<text class="tm" x="38" y="346">折现的定义，可自行验算</text>
+<path class="ar" d="M340,360 L340,398" marker-end="url(#ah)"/>
+<text class="lb" x="352" y="384">算术</text>
+
+<rect class="bx" x="20" y="400" width="640" height="58"/>
+<text class="t tb" x="38" y="424"><tspan class="num">⑤</tspan> 你未来三十年的工资，就是一笔现值可算、久期约 13 年的资产</text>
+<text class="tm" x="38" y="444">年金现值公式，逐步代数字</text>
+<path class="ar" d="M340,458 L340,496" marker-end="url(#ah)"/>
+<text class="lb" x="352" y="482">文献</text>
+
+<rect class="bxk" x="20" y="498" width="640" height="72"/>
+<text class="t tb" x="38" y="522"><tspan class="num">⑥</tspan> 锚点：这笔资产的风险，长得像债券还是像股票？</text>
+<text class="tm" x="38" y="542">学界二十年未有定论：三篇代表性论文，结论正好相反</text>
+<text class="tm" x="38" y="560">MBS 1992 · CGM 2005 · BCG 2007</text>
+<path class="ar" d="M340,570 L340,608" marker-end="url(#ah)"/>
+<text class="lb" x="352" y="594">证据</text>
+
+<rect class="bx" x="20" y="610" width="640" height="72"/>
+<text class="t tb" x="38" y="634"><tspan class="num">⑦</tspan> 「行业相关性」不是假想：AI 高暴露职业的年轻人</text>
+<text class="t tb" x="38" y="654">就业已比低暴露同龄人少 19%</text>
+<text class="tm" x="38" y="672">斯坦福数字经济实验室，ADP 薪资数据，2026 年 8 月版</text>
+<path class="ar" d="M340,682 L340,720" marker-end="url(#ah)"/>
+<text class="lb" x="352" y="706">算术</text>
+
+<rect class="bx" x="20" y="722" width="640" height="72"/>
+<text class="t tb" x="38" y="746"><tspan class="num">⑧</tspan> 若收入与持仓押在同一件事上，等于同一个赌注下了两次</text>
+<text class="tm" x="38" y="766">IVV 信息技术权重 37.54%；CPF 利率下限 2.5% / 4%</text>
+<text class="tm" x="38" y="784">iShares 与 CPF 局官网</text>
+<path class="ard" d="M340,794 L340,832" marker-end="url(#ahd)"/>
+
+<rect class="bxb" x="20" y="834" width="640" height="72"/>
+<text class="t tb" x="38" y="858">✕ 链条在这里断了</text>
+<text class="tm" x="38" y="878">「Dylan 个人的收入与科技股之间的相关系数是多少」</text>
+<text class="tm" x="38" y="896">——这个数我查不到也测不出。任何具体数值都会是我编的。</text>
+</svg>
+<figcaption>
+<b>图例</b>　实线箭头 = 这一步要么有一手出处，要么是你能自己验算的算术；虚线箭头 = 我接不上的地方，只是推测或干脆断掉。粗边框的橙色框是今天的锚点原理。紫色虚线框是链条的终点，不是结论。
+</figcaption>
+</figure>
+
+<h3>把这条链用人话读一遍</h3>
+
+<p>8 月 28 日，美联储主席在一年一度的杰克逊霍尔会议上说，通胀还在 3.7%，而且最近半年跑得比过去一年更快；他没说要加息，但说了"否则我们还有工作要做"。同一天，美国国债的收益率跳了一下，短端跳得比长端多。</p>
+
+<p>把这个跳动拆开会发现一件有意思的事：国债收益率可以分成两块，一块是"扣掉物价上涨后的真实回报"，一块是"市场认为未来物价会涨多少"。这一天涨的<b>全是前一块</b>，后一块甚至还降了一点点。也就是说，市场并没有变得更害怕通胀，它只是认为借钱的真实代价要变高了。</p>
+
+<p>而"借钱的真实代价"这个数，有一个远超出债券市场的用途：它是把未来的钱换算成今天的钱的换算率。任何一笔未来才会到手的钱，都要用它来打折。</p>
+
+<p>接下来是今天的关键一跳：<b>你未来三十年的工资，就是一大笔未来才会到手的钱。</b>所以它也能被算出一个"今天值多少"。算出来你会发现，对一个三十岁上下、有正经工作的人来说，这个数通常是他证券账户里数字的好几倍甚至几十倍。他资产负债表上最大的一项，从来不在券商 App 里。</p>
+
+<p>既然它是一笔资产，就得问它的风险属性：它更像一张利息固定的债券，还是更像一只随行业起落的股票？这个问题学界吵了三十多年，两边都有严肃的论文，结论完全相反——今天最厚的一节就花在这里。</p>
+
+<p>最后落到实处：如果一个人的工资和他的投资组合押在同一个行业上，那他实际上是把同一个赌注下了两次。斯坦福的数据说明这种行业分化正在发生；指数基金的持仓说明大多数人的组合确实是集中的。但到了"你个人的收入和科技股相关性到底多少"这一步，我没有任何办法测出一个数来。链条就断在这里，我不会用推测把它接上。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>环 ①→②　讲话与收益率跳升之间，是不是因果？</h3>
+
+<p>先把这一环单独拎出来处理，因为它是整条链上最容易出事的地方，也是这门课最该警惕的错误类型。</p>
+
+<p>事实是两条：8 月 28 日主席讲了话；8 月 28 日 2 年期收益率涨了 14 个基点。把它们连成"因为讲话，所以收益率涨"，听起来天衣无缝。但这句话有一个致命的性质：<b>它只能解释已经发生的事，不能提前做预测。</b>如果那天收益率跌了，我同样可以写"市场认为主席的措辞比预期温和，所以收益率下行"——两种结果都能被同一套说辞覆盖的解释，不是机制，是叙事。</p>
+
+<p>那有没有能提高可信度的东西？有三条，但都不是证明：</p>
+
+<ol>
+<li><b>时间点是事先定好的。</b>杰克逊霍尔的日程几个月前就公布了，主席在 8 月 28 日讲话不是随机事件，市场知道那天会有信息。这让"当天的价格变动含有对这条信息的反应"这一说法，比随便挑一天要可信。金融学里管这种做法叫<b>事件研究</b>（event study）：在一个事先已知的信息时点前后看价格。</li>
+<li><b>跳动的形状和内容对得上。</b>2 年期涨 14 bp、30 年期只涨 3 bp。2 年期对"未来两年内央行会怎么做"最敏感，30 年期几乎不受近期政策影响。一条关于近期政策的信息，本来就该主要打在短端。</li>
+<li><b>拆解结果和内容也对得上</b>（下一环会算）：涨的是实际利率而不是通胀预期，这正是"央行要收紧"该有的样子，而不是"通胀要失控"该有的样子。</li>
+</ol>
+
+<p>但这三条加起来仍然只是<b>一天、一个观察</b>。当天还有别的事情在发生（原油因中东局势大涨），无法排除。所以这一环我画成虚线。</p>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><b>推测内容</b>：8 月 28 日收益率曲线的上移，主要由 Warsh 的讲话驱动。</p>
+<p><b>反对的看法</b>：同日原油价格因中东冲突大幅上涨（多家媒体报道布伦特原油升至 90 美元附近）。油价上涨本身就会推高名义收益率。另有一种看法是杰克逊霍尔讲话通常已被充分预期，真正的信息量很小。</p>
+<p><b>需要什么材料才能判断</b>：（1）当日分钟级的国债期货或收益率数据，看跳动是否集中在讲话发布的那几分钟；（2）讲话前的市场一致预期（例如主要交易商的事前调查），用来衡量"意外"有多大；（3）足够多的历史杰克逊霍尔讲话样本做统计。这三样我今天都没有。</p>
+</div>
+
+<p class="src"><b>本环依据</b>：讲话与日期 = <a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">美联储官网</a>；收益率 = <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202608">美国财政部</a>；因果归属 = <b>我的推测</b>。</p>
+
+<h3>环 ②→③　把一个收益率拆成两半</h3>
+
+<h4>先讲一件生活里的事</h4>
+
+<p>假设你有 10,000 新元闲钱，打算存一年。银行给你 4%。一年后你拿到 10,400 新元。</p>
+
+<p>问题来了：你真的多了 4% 吗？如果这一年里你常买的东西平均涨了 3%，那你手上的 10,400 新元，买到的东西只比今天的 10,000 新元多一点点。多多少？粗算是 4% − 3% = 1%。</p>
+
+<p>所以同一笔存款有两个回报率：</p>
+<ul>
+<li><b>4%</b>：钞票数量的增长。经济学给它起了个名字，叫<b>名义利率</b>（nominal interest rate）。</li>
+<li><b>约 1%</b>：购买力的增长。它叫<b>实际利率</b>（real interest rate）。</li>
+</ul>
+
+<p>两者的关系，粗略地写就是：</p>
+
+<div class="calc">名义利率  ≈  实际利率  +  通胀率
+   4%     ≈     1%      +     3%</div>
+
+<p>（严格式子是 (1+名义) = (1+实际) × (1+通胀)，代进去是 1.04 = 1.01 × 1.03 = 1.0403，差 0.03 个百分点。在这些数量级下，直接加减够用。这个关系叫<b>费雪方程</b>（Fisher equation），以经济学家 Irving Fisher 命名，A6 那天会专门讲。）</p>
+
+<h4>问题：实际利率没法直接观察，因为未来的通胀还没发生</h4>
+
+<p>你可能会想：那我把国债收益率减去当前通胀不就行了？<b>不行</b>，而且这是个常见错误。你今天买一张 10 年期国债，影响你购买力的是<b>未来 10 年</b>的通胀，不是过去 12 个月的通胀。过去的数已经发生了，和你这笔投资无关。</p>
+
+<h4>解决办法：美国政府发了一种本金跟着物价走的债券</h4>
+
+<p>这种债券叫 <b>TIPS</b>（Treasury Inflation-Protected Securities，通胀保值国债）。它的规则是这样的：</p>
+
+<ul>
+<li>你买一张面值 1,000 美元的 TIPS。</li>
+<li>每个月，财政部按 CPI 的实际变化调整这张债券的本金。如果一年里 CPI 涨了 3%，年末这张债券的本金就变成 1,030 美元。</li>
+<li>票息按调整后的本金付。到期还调整后的本金。</li>
+</ul>
+
+<p><b>为什么这样一来它的报价利率就是实际利率？</b>因为通胀那一块已经被本金调整自动补给你了，不需要体现在利率里。你看到的 2.42%，是<b>在通胀之外</b>你还能多拿的部分。这正是实际利率的定义。</p>
+
+<p>所以：普通国债的报价 = 名义利率；TIPS 的报价 = 实际利率。两条曲线，同一天，同一个发行人，同一个期限。</p>
+
+<h4>把两个数相减，得到第三个数</h4>
+
+<p>现在做减法。用 8 月 27 日和 28 日的 10 年期：</p>
+
+<div class="calc">8 月 27 日   名义 4.67%  −  实际 2.34%  =  2.33%
+8 月 28 日   名义 4.73%  −  实际 2.42%  =  2.31%
+                                        ─────────
+                            这个差变动了：  −2 bp</div>
+
+<p><b>这个差是什么意思？</b>推一遍。你现在有两个选择，都是借给美国政府 10 年：</p>
+
+<ul>
+<li><b>选择 A</b>：买普通国债，每年确定拿 4.73%。</li>
+<li><b>选择 B</b>：买 TIPS，每年拿 2.42% + 实际发生的通胀。</li>
+</ul>
+
+<p>什么情况下这两个选择一样好？当实际发生的通胀正好等于 4.73% − 2.42% = 2.31% 的时候。通胀高于 2.31%，B 更划算；低于 2.31%，A 更划算。</p>
+
+<p>所以 2.31% 就是那个<b>让你在两种债券之间无所谓的通胀率</b>。经济学给它起了个名字，叫<b>盈亏平衡通胀率</b>（breakeven inflation rate）。</p>
+
+<div class="box">
+<p><b>重要的限定，不能省。</b>盈亏平衡通胀率<b>不等于</b>市场的通胀预期。它里面至少还混了两样东西：</p>
+<ul>
+<li><b>通胀风险溢价</b>：普通国债的持有人承担了通胀不确定的风险，会要求一点额外补偿，这会把名义收益率抬高，从而把盈亏平衡抬高。</li>
+<li><b>TIPS 流动性溢价</b>：TIPS 市场比普通国债市场小得多，不好买卖，持有人会要求补偿，这会把 TIPS 收益率抬高，从而把盈亏平衡<b>压低</b>。</li>
+</ul>
+<p>两者方向相反，净效应不确定。所以正确的说法是"市场隐含的通胀补偿是 2.31%"，而不是"市场预期通胀 2.31%"。A37 那天会讲通胀预期的三种测量方法及其差别。</p>
+</div>
+
+<h4>拆完之后看到了什么</h4>
+
+<div class="scroll">
+<table>
+<thead><tr><th>期限</th><th>名义变动</th><th>实际变动</th><th>盈亏平衡变动</th></tr></thead>
+<tbody>
+<tr><td>5 年</td><td>+10 bp</td><td>+11 bp</td><td>−1 bp</td></tr>
+<tr><td>10 年</td><td>+6 bp</td><td>+8 bp</td><td>−2 bp</td></tr>
+<tr><td>30 年</td><td>+3 bp</td><td>+4 bp</td><td>−1 bp</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>三个期限，同一个结论：<b>8 月 28 日的收益率上行，全部来自实际利率；市场隐含的通胀补偿不但没升，还微微下降了。</b></p>
+
+<p>这个结果值得停一下。当天的新闻标题是"美联储主席警告通胀过高"。一个直觉的推论是"那市场应该更担心通胀了"。数据说的正好相反：市场对未来通胀的定价没动，动的是"钱的真实价格"。</p>
+
+<p><b>这两件事是一致的，不是矛盾。</b>把逻辑补全：一个更强硬的央行意味着更高的真实政策利率；而更高的真实政策利率，正是用来把通胀压回目标的工具。所以"央行更强硬"应该同时导致<b>实际利率上升</b>和<b>通胀预期不变或下降</b>。数据显示的就是这个组合。反过来，如果当天是实际利率不动、盈亏平衡大涨，那才是坏消息——那意味着市场认为央行控制不住通胀了。</p>
+
+<p><b>这一环什么情况下会断？</b>如果 TIPS 市场当天出现流动性异常（例如某个大机构被迫抛售 TIPS），实际收益率会因为流动性溢价而跳升，那这个"实际利率上升"就是假象，和货币政策无关。用一天的数据分不出来。要分开需要看更长的窗口，或者看 TIPS 与普通国债之间的价差指标。</p>
+
+<p class="src"><b>本环依据</b>：数据 = <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve&amp;field_tdr_date_value_month=202608">美国财政部实际收益率曲线</a> + 名义曲线；拆解 = <b>纯算术</b>（一次减法，你可以自己核对）；"央行强硬 → 实际利率升、通胀预期降"的解释 = 教科书标准结论，但对<b>这一天</b>的适用性是我的判断。</p>
+
+<h3>环 ③→④　为什么"实际利率"是一个换算率</h3>
+
+<h4>先讲一件生活里的事</h4>
+
+<p>有人欠你 10,000 新元。他给你两个选项：今天还，或者一年后还 10,000。你选哪个？</p>
+
+<p>显然选今天。为什么？不是因为"钱早点拿到心里踏实"这种模糊的理由，而是因为一个具体的、可以算的理由：<b>今天拿到这 10,000，你可以把它存起来，一年后它会变成更多。</b></p>
+
+<p>假设无风险的年利率是 4%。今天的 10,000 存一年变成 10,400。所以"今天的 10,000"严格优于"一年后的 10,000"，优出来的部分正好是 400。</p>
+
+<h4>反过来问：一年后的 10,000，相当于今天的多少？</h4>
+
+<p>设这个数是 X。X 存一年应该正好变成 10,000：</p>
+
+<div class="calc">X × 1.04 = 10,000
+X = 10,000 ÷ 1.04 = 9,615.38</div>
+
+<p>验算：9,615.38 × 1.04 = 10,000.00。对上了。</p>
+
+<p>所以"一年后的 10,000 新元"和"今天的 9,615.38 新元"是同一笔钱的两种说法。把未来的钱换算成今天的钱，这个动作叫<b>折现</b>（discounting）；换算出来的数叫<b>现值</b>（present value，简称 PV）；用来换算的那个利率叫<b>折现率</b>（discount rate）。</p>
+
+<p>两年后的 10,000 呢？要除两次：</p>
+
+<div class="calc">10,000 ÷ 1.04 ÷ 1.04 = 10,000 ÷ 1.0816 = 9,245.56</div>
+
+<p>三十年后的 10,000：</p>
+
+<div class="calc">10,000 ÷ 1.04³⁰ = 10,000 ÷ 3.2434 = 3,083.19</div>
+
+<p>停一下看这个数。三十年后的 10,000，今天只值 3,083。<b>不是因为通胀</b>（我们等一下会把通胀单独处理），纯粹是因为这三十年里你本来可以拿这笔钱去生息。</p>
+
+<h4>一串钱怎么办：每一笔单独折，然后加起来</h4>
+
+<p>如果不是一笔，而是"从明年起，每年年底给你 10,000，连续三年"，那就是：</p>
+
+<div class="calc">第 1 年： 10,000 ÷ 1.04      =  9,615.38
+第 2 年： 10,000 ÷ 1.04²     =  9,245.56
+第 3 年： 10,000 ÷ 1.04³     =  8,889.96
+                              ──────────
+                    合计现值 = 27,750.90</div>
+
+<p>这样一笔"每年固定金额、持续若干年"的现金流，有个名字叫<b>年金</b>（annuity）。逐年加太麻烦，有个等价的简写：</p>
+
+<div class="calc">现值 = 每年金额 × [ 1 − (1+r)^(−n) ] ÷ r
+
+逐项翻译：
+  r = 折现率（小数形式，4% 就写 0.04）
+  n = 年数
+  (1+r)^(−n) = 1 除以 (1+r) 的 n 次方
+  
+代入验算：
+  (1.04)^(−3) = 1 ÷ 1.124864 = 0.888996
+  [1 − 0.888996] ÷ 0.04 = 0.111004 ÷ 0.04 = 2.77510
+  10,000 × 2.77510 = 27,751.0</div>
+
+<p>和逐年加出来的 27,750.90 一致（末位差是四舍五入）。这个公式后面会反复用。</p>
+
+<h4>现在把通胀塞进来：两套记账法，不能混</h4>
+
+<p>问题：如果我说"未来三十年每年 10 万"，这个 10 万指的是什么？</p>
+
+<ul>
+<li><b>记账法一（实际口径）</b>：每年都按<b>今天的购买力</b>记。"每年 10 万"意思是"每年买得到今天 10 万块能买的东西"。如果工资跟着物价涨，实际口径下它就是不变的 10 万。</li>
+<li><b>记账法二（名义口径）</b>：每年按<b>当年的钞票</b>记。工资每年涨 3% 的话，第 1 年 10 万，第 2 年 10.3 万，第 30 年 23.6 万。</li>
+</ul>
+
+<p><b>规则只有一条，但违反它必错：实际的现金流配实际的折现率，名义的现金流配名义的折现率。</b></p>
+
+<p>为什么？因为通胀在两个地方都出现了一次。用名义现金流（已经含通胀）配实际折现率（已经剔除通胀），等于把通胀算了一次却没扣一次，结果会系统性偏高。反过来则偏低。</p>
+
+<p>我们要回答的问题是"我未来的工资能买到多少东西"，所以用<b>实际口径</b>更自然：现金流写成不变的 10 万，折现率用实际利率。</p>
+
+<p>而实际的无风险利率，我们刚刚已经有了现成的观测值：<b>TIPS 收益率</b>。8 月 28 日 10 年期 2.42%，30 年期 2.96%。</p>
+
+<p class="src"><b>本环依据</b>：折现的定义与年金公式 = 任何一本公司金融教科书的第一章（例如 Brealey, Myers &amp; Allen《Principles of Corporate Finance》第 2 章）；上面所有数字 = <b>纯算术</b>，你可以用计算器逐步核对。实际利率的观测值 = 美国财政部一手数据。</p>
+
+<h3>环 ④→⑤　你未来的工资值多少钱</h3>
+
+<h4>把公式用在自己身上</h4>
+
+<p>下面这组数字是<b>示意数字，只为演示算法</b>，不是任何人的真实收入。我用一个整数好算：</p>
+
+<ul>
+<li>每年税后可支配收入（按今天购买力）：<b>100,000 新元</b></li>
+<li>剩余工作年数：<b>30 年</b></li>
+<li>实际折现率：先用 <b>2.34%</b>（8 月 27 日 10 年期 TIPS 收益率）</li>
+</ul>
+
+<div class="calc">现值 = 100,000 × [ 1 − (1.0234)^(−30) ] ÷ 0.0234
+
+  (1.0234)^30    = 2.001531
+  (1.0234)^(−30) = 1 ÷ 2.001531 = 0.499617
+  1 − 0.499617   = 0.500383
+  0.500383 ÷ 0.0234 = 21.38387
+  100,000 × 21.38387 = 2,138,387 新元</div>
+
+<p><b>约 214 万新元。</b>这就是"未来三十年、每年 10 万"这串现金流在今天的价值。</p>
+
+<p>经济学给这个东西起了个名字，叫<b>人力资本</b>（human capital）——你未来劳动收入的现值。它和你的房子、你的股票一样，是你资产负债表上的一项资产；区别只是没有人给它报价，也没有一个 App 每天给你看它的涨跌。</p>
+
+<div class="box">
+<p><b>你可能会想：这个数是不是虚的？我又不能把它卖掉。</b></p>
+<p>你确实不能把它卖掉——法律不允许把未来的劳动收入打包出售（这是人力资本区别于其他资产的一个根本性质，经济学里叫<b>不可交易</b>，non-tradable）。但"不能卖"不等于"没有价值"，也不等于"不影响决策"。两个理由：</p>
+<p><b>第一</b>，它每年确实产生现金流，而且是你目前绝大部分开销的来源。一项每年吐出 10 万新元的资产，不会因为不能挂牌交易就不存在。</p>
+<p><b>第二，也是今天真正的重点</b>：正因为你不能卖掉它、不能对它做任何调整，你能调整的<b>只有</b>你的金融资产。如果这 214 万有某种风险暴露，唯一能用来平衡它的工具就是那部分你能动的钱。所以它必须进入配置决策。</p>
+</div>
+
+<h4>现在把利率变动代进去：这笔资产对利率有多敏感</h4>
+
+<p>把折现率换成 8 月 28 日的 2.42%，其他不变：</p>
+
+<div class="calc">  (1.0242)^30    = 2.049006
+  (1.0242)^(−30) = 0.488042
+  1 − 0.488042   = 0.511958
+  0.511958 ÷ 0.0242 = 21.15531
+  100,000 × 21.15531 = 2,115,531 新元
+
+变动：2,115,531 − 2,138,387 = −22,856 新元
+百分比：−22,856 ÷ 2,138,387 = −1.069%</div>
+
+<p><b>8 个基点的实际利率上行，把这笔资产的现值抹掉了约 2.3 万新元，跌幅 1.07%。</b>一天之内，没有任何人通知你。</p>
+
+<h4>为什么跌幅是利率变动的十三倍</h4>
+
+<p>注意这个比值：利率变动 0.08 个百分点，价值变动 1.069 个百分点。</p>
+
+<div class="calc">1.069% ÷ 0.08% = 13.36</div>
+
+<p>这个"利率每变动 1 个百分点，价值变动百分之几"的比值，金融学给它起了个名字，叫<b>久期</b>（duration）。这笔人力资本的久期约为 13.4 年。</p>
+
+<p><b>为什么会有这个放大？</b>因为现值是三十笔钱加起来的，而越靠后的那几笔，被除的次数越多。第 30 年那笔 10 万，在 2.34% 下折成 49,962；在 2.42% 下折成 48,804，跌了 2.32%。而第 1 年那笔，从 97,714 变成 97,638，只跌了 0.08%。整体跌幅是这三十笔跌幅的加权平均，而权重偏向那些跌得多的远期。</p>
+
+<p>验证一下这个说法：把年数从 30 改成 10，其他不变：</p>
+
+<div class="calc">10 年、r=2.34%：现值 = 882,487
+10 年、r=2.42%：现值 = 878,835
+跌幅 = 3,652 ÷ 882,487 = 0.414%
+久期 = 0.414% ÷ 0.08% = 5.17 年</div>
+
+<p>三十年的流久期 13.4，十年的流久期 5.2。<b>剩余工作年数越长，你的人力资本对利率越敏感。</b>一个 25 岁的人和一个 55 岁的人，面对同一个 8 个基点，前者的账面损失是后者的两倍多。</p>
+
+<div class="box">
+<p><b>一个对照，帮你建立量感。</b>一张 10 年期的普通美国国债，久期大约是 8 年（票息越高久期越短，这里是粗略量级）。所以上面那笔三十年的人力资本，比一张 10 年期国债<b>更长久期</b>。你名下最大的资产，同时也是你名下利率敏感度最高的资产之一。</p>
+</div>
+
+<p><b>这一环什么情况下会断？</b>三种情况：</p>
+<ol>
+<li><b>如果你的实际收入不是水平的。</b>真实的收入路径通常是先升后平、退休前可能下降。如果收入随年龄增长，现值会更大、久期也更长；如果职业生涯中途中断，则相反。上面用水平流只是为了让算术透明。</li>
+<li><b>如果该用的折现率不是无风险实际利率。</b>工资不是无风险的，理论上应该在无风险利率之上加一个风险补偿。加多少？下一环就是在吵这件事。加了之后折现率更高，现值更低、久期更短。</li>
+<li><b>如果实际利率的变动同时改变了现金流本身。</b>我们上面把分子（工资）和分母（折现率）当成互相独立的。如果实际利率上升是因为经济过热、工资也在加速上涨，那分子分母同时变大，净效应不确定。<b>这是一个真实的漏洞，我在这里没有处理它。</b></li>
+</ol>
+
+<p class="src"><b>本环依据</b>：全部是<b>纯算术</b>，示意数字已标明。久期的定义 = 标准金融教科书（例如 Bodie, Kane &amp; Marcus《Investments》债券篇）。10 年期国债久期约 8 年是<b>量级估计</b>，不是精确值。</p>
+
+<h3 style="border-left:5px solid var(--accent); padding-left:12px">环 ⑤→⑥　【今日锚点 G2】这笔资产，长得像债券还是像股票？</h3>
+
+<p>上一环把人力资本当成一笔<b>确定的</b>现金流来折现。这是个方便的简化，但它显然不对：工资不是保证的。公司会裁人，行业会衰退，技能会过时。</p>
+
+<p>所以要问的下一个问题是：<b>这笔资产的风险，具体是什么形状的？</b></p>
+
+<p>这个问题不是学究式的，它直接决定一件事：你剩下那部分能自由支配的钱，应该怎么放。</p>
+
+<h4>先把"像债券"和"像股票"这两个词说清楚</h4>
+
+<p>说一项资产"像债券"，意思是它的回报<b>不太跟着股市走</b>——股市大跌那年，它照样付你钱。说它"像股票"，意思是它<b>跟着股市一起动</b>——股市跌的时候，它也跌。</p>
+
+<p>为什么这个区别重要？因为你真正在乎的从来不是单项资产的波动，而是<b>你全部身家一起波动的幅度</b>。一项在别人都跌的时候还能给你现金的资产，比一项在别人都跌的时候也跌的资产，价值高得多——哪怕它们的平均回报一模一样。</p>
+
+<h4>"一起动"这件事怎么量：相关系数</h4>
+
+<p>用一个<b>示意数字</b>的例子。假设过去五年，全球股市的年回报和两个人的工资变动如下（这些数字是我编来演示算法的，不是真实数据）：</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>年份</th><th>股市回报</th><th>A 的工资变动<br><span class="small">（公立学校教师）</span></th><th>B 的工资变动<br><span class="small">（科技公司，含奖金与股票）</span></th></tr></thead>
+<tbody>
+<tr><td>第 1 年</td><td>+25%</td><td>+2%</td><td>+12%</td></tr>
+<tr><td>第 2 年</td><td>−15%</td><td>+3%</td><td>−8%</td></tr>
+<tr><td>第 3 年</td><td>+10%</td><td>+3%</td><td>+5%</td></tr>
+<tr><td>第 4 年</td><td>−5%</td><td>+2%</td><td>0%</td></tr>
+<tr><td>第 5 年</td><td>+20%</td><td>+3%</td><td>+15%</td></tr>
+<tr><td><b>平均</b></td><td><b>+7%</b></td><td><b>+2.6%</b></td><td><b>+4.8%</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>肉眼就能看出 B 跟着股市走、A 不跟。现在把这个直觉变成一个数，分三步。</p>
+
+<p><b>第一步：算每一年偏离自己平均值多少。</b></p>
+
+<div class="calc">股市：25−7=+18   −15−7=−22   10−7=+3   −5−7=−12   20−7=+13
+A  ：2−2.6=−0.6  3−2.6=+0.4  3−2.6=+0.4  2−2.6=−0.6  3−2.6=+0.4
+B  ：12−4.8=+7.2 −8−4.8=−12.8 5−4.8=+0.2 0−4.8=−4.8 15−4.8=+10.2</div>
+
+<p><b>第二步：把每一年的两个偏离量相乘，再取平均。</b>如果两个量总是同号（同时正、或同时负），乘积是正的；总是异号，乘积是负的；毫无规律，正负会互相抵消掉。</p>
+
+<div class="calc">股市 × A：
+  18×(−0.6)=−10.8   (−22)×0.4=−8.8   3×0.4=+1.2
+  (−12)×(−0.6)=+7.2  13×0.4=+5.2
+  合计 −6.0，除以 5 = −1.2
+
+股市 × B：
+  18×7.2=+129.6   (−22)×(−12.8)=+281.6   3×0.2=+0.6
+  (−12)×(−4.8)=+57.6   13×10.2=+132.6
+  合计 +602.0，除以 5 = +120.4</div>
+
+<p>这个平均乘积叫<b>协方差</b>（covariance）。A 是 −1.2，接近 0；B 是 +120.4，明显为正。</p>
+
+<p><b>第三步：把它标准化，好让不同尺度的东西能比较。</b>协方差的数值大小同时取决于两边的波动幅度，所以 120.4 本身没法直接解读。除掉两边各自的波动幅度（标准差）之后，得到的数一定落在 −1 到 +1 之间：</p>
+
+<div class="calc">股市的标准差 = 15.03    A 的标准差 = 0.49    B 的标准差 = 8.28
+
+A：−1.2 ÷ (15.03 × 0.49) = −1.2 ÷ 7.36   = −0.16
+B：+120.4 ÷ (15.03 × 8.28) = 120.4 ÷ 124.5 = +0.97</div>
+
+<p>这个 −1 到 +1 之间的数，叫<b>相关系数</b>（correlation coefficient）。<b>+1 = 完全同向，0 = 毫无关系，−1 = 完全反向。</b></p>
+
+<p>结论：A 的人力资本相关系数 −0.16，接近 0，而且他工资的波动本身就只有 0.49 个百分点——两个理由都说明它"像债券"。B 的相关系数 +0.97，且工资波动 8.28 个百分点——它"像股票"，而且像得厉害。</p>
+
+<h4>现在进入真正的争论：真实世界里，人力资本更接近 A 还是更接近 B？</h4>
+
+<p>这是一个实证问题，而且是一个<b>至今没有共识</b>的实证问题。三篇代表性文献，结论跨度极大。我把三边都讲，包括我不倾向的那一边。</p>
+
+<div class="box">
+<h4 style="margin-top:0">观点一：像债券。（Merton, Bodie &amp; Samuelson 1992；Cocco, Gomes &amp; Maenhout 2005）</h4>
+<p><b>论证</b>：绝大多数人的工资，年度波动远小于股市，而且和股市同涨同跌的程度很弱。Cocco、Gomes 与 Maenhout 用美国 PSID（收入动态追踪调查）估计了三个教育组的收入过程，把它放进一个包含借贷约束的生命周期模型里求解。在他们的校准中，劳动收入的风险主要是<b>个体特有</b>的（你被裁员，和整个市场无关），而不是<b>系统性</b>的。</p>
+<p><b>推论</b>：既然你已经持有一大笔"类债券资产"（你的人力资本），而且它在你年轻时占比最大，那你剩下那点金融资产就应该<b>几乎全部买股票</b>，才能让总资产的股债比例合理。而且年纪越轻、人力资本占比越大，股票比例就该越高。这就是"年轻人该多持股、随年龄递减"这条广为流传的建议的理论来源，也是市面上目标日期基金（target-date fund）下滑轨道的依据。</p>
+<p class="src"><b>出处</b>：<a href="https://academic.oup.com/rfs/article-abstract/18/2/491/1599892">Cocco, J. F., Gomes, F. J., &amp; Maenhout, P. J. (2005). “Consumption and Portfolio Choice over the Life Cycle.” <i>The Review of Financial Studies</i>, 18(2), 491–533.</a>　<a href="https://www.sciencedirect.com/science/article/pii/016518899290044F">Bodie, Z., Merton, R. C., &amp; Samuelson, W. F. (1992). “Labor Supply Flexibility and Portfolio Choice in a Life Cycle Model.” <i>Journal of Economic Dynamics and Control</i>, 16(3–4), 427–449.</a></p>
+</div>
+
+<div class="box">
+<h4 style="margin-top:0">观点二：像股票，而且年轻人应该做空股票。（Benzoni, Collin-Dufresne &amp; Goldstein 2007）</h4>
+<p><b>论证的关键在于时间尺度。</b>上面那个 −0.16 是<b>逐年</b>算的。但工资和企业利润在长期是被同一样东西拴住的：它们都来自同一块产出。工资在国民收入中的份额不可能永远上升或永远下降；企业利润份额同理。短期里两者可以各走各的，长期却会被拉回来。</p>
+<p>统计学给这种"短期各走各的、长期被一根看不见的橡皮筋拴在一起"的关系起了个名字，叫<b>协整</b>（cointegration）。协整的特点正是：<b>看得越短，越像没关系；看得越长，越像同一件事。</b></p>
+<p>Benzoni 等人把这个长期约束写进模型后，结论翻转了：对一个还有三四十年工作年限的年轻人，他的人力资本因为协整而变成<b>"股票型"</b>的——他等于已经隐含持有了一大笔股票。于是最优解是，他的金融资产不但不该买股票，反而应该<b>持有相当规模的股票空头</b>，用来抵消这份隐含暴露。而临近退休的人剩余年限太短，协整来不及发挥作用，他的人力资本反而是"债券型"的。</p>
+<p><b>推论</b>：股票配置比例应该随年龄呈<b>倒 U 形</b>（先升后降），而不是单调递减。作者指出这与实证中观察到的家庭持股模式更吻合。</p>
+<p class="src"><b>出处</b>：<a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2007.01271.x">Benzoni, L., Collin-Dufresne, P., &amp; Goldstein, R. S. (2007). “Portfolio Choice over the Life-Cycle when the Stock and Labor Markets Are Cointegrated.” <i>The Journal of Finance</i>, 62(5), 2123–2167.</a>（免费工作论文版见 <a href="https://www.chicagofed.org/publications/working-papers/2007/wp-11">芝加哥联储 WP-2007-11</a>）</p>
+</div>
+
+<div class="box">
+<h4 style="margin-top:0">观点三：这个问题没有统一答案，因人而异。</h4>
+<p>两派的差别，很大程度上是"平均的人"和"具体的人"的差别。Cocco 等人估计的是全体样本的平均收入过程。但一个终身教职的公立学校教师、一个新加坡的公务员、一个拿大量股权激励的科技公司工程师、一个自己开公司的老板——这四个人的人力资本，风险形状完全不同。对第四个人，收入和资产价格的相关性可能接近 1。</p>
+<p><b>这一点对今天最重要</b>：G2 这条原理的标题是"人力资本作为资产<b>及其行业相关性</b>"。行业相关性正是把"平均的人"拆成"具体的人"的那把刀。争论的不是"人力资本平均而言像什么"，而是"<b>你的</b>人力资本像什么"，而后者主要由你的行业决定。</p>
+</div>
+
+<h4>我怎么看这个分歧，以及我的边界在哪</h4>
+
+<p>三点，都限定得很死：</p>
+
+<ol>
+<li><b>协整这个机制在逻辑上是站得住的</b>，因为它依赖的是一个会计恒等式级别的约束（工资份额 + 利润份额 ≈ 1）。这不是拟合出来的规律。</li>
+<li><b>但从"机制存在"到"所以年轻人该做空股票"，中间有一大段是模型假设，不是数据。</b>协整关系的"橡皮筋"有多紧、需要多少年拉回来，估计误差极大——因为可用的长期数据只有几十年，而协整的收敛周期本身可能就是几十年。样本量太小。</li>
+<li><b>而且这个建议在现实中基本不可执行。</b>三十年的股票空头需要持续保证金、承担融资成本、并且在市场上涨时不断补钱。G37（杠杆的数学）会讲为什么这类头寸的爆仓风险远高于直觉。所以即使模型对，落地的版本也只能是"少买一点"，不是"做空"。</li>
+</ol>
+
+<div class="guess">
+<span class="tag">这是我的推测，不是定论</span>
+<p><b>推测内容</b>：对一个在 AI 基础设施行业工作、且组合以美国科技股为主的人来说，其人力资本的行业相关性显著高于全体样本的平均水平，因此"年轻就该满仓股票"这条来自观点一的通行建议，对他的适用性弱于对平均人的适用性。</p>
+<p><b>反对的看法</b>：（1）Cocco 等人的实证结果说明，即使在高暴露行业，特有风险（个人被裁）通常仍远大于系统性风险（全行业同时萎缩），所以对冲系统性部分收益有限；（2）行业内部差异极大，"科技行业"不是一个同质的风险因子；（3）人力资本的最大风险可能根本不是与股市的相关性，而是技能过时，那是一个和股价无关的风险。</p>
+<p><b>需要什么材料才能判断</b>：本人历年真实税前收入（含奖金与股权兑现），至少 10 年，与同期行业指数回报做回归。我没有这个数据，任何人也不该凭一个模型的默认参数替另一个人假设这个数。</p>
+</div>
+
+<p class="src"><b>本环依据</b>：相关系数的算法 = <b>纯算术</b>（示意数字已标明）；三派观点 = 上面三个链接的原文；对分歧的评价 = <b>我的判断</b>，已单独标出。</p>
+
+<h3>环 ⑥→⑦　「行业相关性」不是一个假想的变量</h3>
+
+<p>上一环的争论听起来很抽象。有没有正在发生的、可观测的证据，说明人力资本的价值确实会按<b>职业</b>分化？有，而且是今年的。</p>
+
+<p>斯坦福数字经济实验室的 Erik Brynjolfsson、Bharat Chandar 和 Ruyu Chen 有一个持续更新的研究，标题是《Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence》（《矿井里的金丝雀？关于人工智能近期就业影响的六个事实》），2026 年 8 月发布了更新版。</p>
+
+<h4>数据与方法（先说清楚装置，否则后面的数字对你只是数字）</h4>
+
+<ul>
+<li><b>数据来源</b>：ADP 的匿名薪资数据。ADP 是美国最大的薪资外包服务商之一，它替企业发工资，因此掌握逐月的雇佣记录。这是<b>行政数据</b>，不是抽样调查——它记录的是实际发生的发薪事件，不是受访者的回忆。</li>
+<li><b>样本</b>：每月 350 万至 500 万名雇员的平衡面板。样本期 2021 年 1 月至 <b>2026 年 6 月</b>（扩展分析回溯到 2018 年 1 月）。</li>
+<li><b>"AI 暴露度"怎么定的</b>：主要用 Eloundou 等人（2024）基于 GPT-4 打分的职业暴露度评级，把职业按暴露度排成五等分；辅以 Anthropic Economic Index（Handa 等人，2025）区分"替代型"用途与"增强型"用途。</li>
+</ul>
+
+<h4>六个事实</h4>
+
+<ol>
+<li>没有发现全经济范围的、大规模的岗位替代。（原文：“We find no evidence of widespread, economy-wide job displacement”）</li>
+<li><b>22–25 岁</b>、处于高 AI 暴露职业的年轻人，就业水平比"如果跟上低暴露同龄人的步伐本该有的水平"低约 <b>19%</b>。有经验的年长工作者没有可比的缺口。</li>
+<li>这个分化自 2025 年 8 月首次记录以来持续扩大（从当时的 15% 扩大到 19%）。</li>
+<li>缺口主要来自<b>招聘减少</b>，而不是裁员增加。（原文：“operates primarily through reduced hiring...rather than increased separations”）</li>
+<li>下降集中在 AI 主要<b>替代</b>人类任务的地方；在 AI 主要<b>补充</b>人类的地方，就业持平或上升。</li>
+<li>调整发生在就业数量上，还没有发生在基本工资上。</li>
+</ol>
+
+<h4>那个 19% 是怎么算出来的</h4>
+
+<p>这个数字最容易被误读成"这些年轻人的就业少了 19%"。不是。原文给的是：</p>
+
+<div class="calc">2022 年 11 月 → 2026 年 6 月
+
+  暴露度最高的两个五等分组，22–25 岁就业：  −11%
+  暴露度最低的三个五等分组，同龄段就业：    +10%
+                                        ────────
+                          两者的差距：      21 个百分点
+
+  换算成相对水平：以低暴露组为基准 110，高暴露组为 89
+                  89 ÷ 110 = 0.809，即低 19%</div>
+
+<p>所以"低 19%"是<b>相对于同龄的低暴露组</b>的缺口，不是绝对下降。绝对下降是 11%。这两个数不能混用，而它们在新闻标题里经常被混用。</p>
+
+<h4>作者自己列出的七条局限（这一段不能省）</h4>
+
+<p>研究者在原文中明确写道："We caution that this work does not estimate a causal impact of AI: these are descriptive facts."（我们提醒，本研究并未估计 AI 的因果影响：这些是描述性事实。）具体的局限包括：</p>
+
+<ul>
+<li>ADP 面板中的分化<b>比全国性调查基准更明显</b>，方向一致但幅度更大；</li>
+<li>高暴露与低暴露职业在 ChatGPT 出现<b>之前</b>就已有一些分化趋势（存在前趋势）；</li>
+<li>控制教育程度后，结果会<b>衰减</b>；</li>
+<li>ADP 样本<b>高估大企业占比</b>，也<b>高估高 AI 暴露职业占比</b>；</li>
+<li>使用 ADP 的企业本身可能存在选择性；</li>
+<li>薪资数据只含基本工资，<b>不含奖金、加班费、佣金、股权和小费</b>——而这些恰恰是科技行业收入波动的主要来源；</li>
+<li>观察到的变化是一般均衡的结果，不能直接读成某个单一原因的效应。</li>
+</ul>
+
+<p><b>第六条对今天特别关键。</b>如果一个行业的收入波动主要来自奖金和股权，而这份数据看不见奖金和股权，那么它系统性地<b>低估</b>了该行业人力资本与股市的相关性——因为股权收入几乎按定义就是和股价同向的。这一条会让实际的相关性比数据显示的更高，但高多少，这份材料回答不了。</p>
+
+<p><b>这一环什么情况下会断？</b>如果"AI 暴露度"这个分类本身分错了——它是用 GPT-4 对职业描述打分得到的，不是对实际工作内容的观测。一个被归入"高暴露"的职业名称，实际工作可能与 AI 高度互补。事实 5 恰恰说明这个区分很重要，而做出这个区分靠的是另一套数据。</p>
+
+<p class="src"><b>本环依据</b>：<a href="https://digitaleconomy.stanford.edu/app/uploads/2026/08/Canaries_August2026.pdf">Brynjolfsson, E., Chandar, B., &amp; Chen, R. (2026). “Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence.” Stanford Digital Economy Lab, August 2026 版（PDF）</a>；概述页见 <a href="https://digitaleconomy.stanford.edu/news/canariesaug26/">Stanford Digital Economy Lab</a>。<b>时点说明</b>：这是 2026 年 8 月发布的更新版，数据截至 2026 年 6 月，不是过去 72 小时的新闻。我用它是作为<b>证据</b>，不是作为今天的事件。</p>
+
+<h3>环 ⑦→⑧　同一个赌注下两次</h3>
+
+<h4>先把两边的规模摆在一起</h4>
+
+<p>沿用前面的示意数字：人力资本现值 2,115,531 新元。再假设金融资产 200,000 新元（同样是<b>示意数字</b>）。</p>
+
+<div class="calc">总资产 = 2,115,531 + 200,000 = 2,315,531
+人力资本占比 = 2,115,531 ÷ 2,315,531 = 91.4%</div>
+
+<p><b>你资产负债表上 91% 的部分，在你的券商账户之外。</b>这是 G2 这条原理最直接的推论。它意味着：讨论"我的组合该 60/40 还是 80/20"，在没有把那 91% 算进来之前，讨论的其实是一个占总资产 8.6% 的东西的内部结构。</p>
+
+<h4>如果两边同时挨打</h4>
+
+<p>做一个<b>示意</b>的情景（不是预测）：某个冲击让这个人未来的实际收入预期下调 20%，同时科技股下跌 30%。看两种金融资产配置下的结果：</p>
+
+<div class="calc">情景 A：金融资产全部是科技股权重高的全球股票
+  人力资本：2,115,531 × 0.80 = 1,692,425
+  金融资产：  200,000 × 0.70 =   140,000
+  总资产：                     1,832,425   （−20.9%）
+
+情景 B：金融资产全部放在 CPF / 现金 / 短债，价格不动
+  人力资本：2,115,531 × 0.80 = 1,692,425
+  金融资产：  200,000 × 1.00 =   200,000
+  总资产：                     1,892,425   （−18.3%）
+
+两种配置的差距：60,000 新元，2.6 个百分点</div>
+
+<p><b>这个结果有两层含义，第二层比第一层重要。</b></p>
+
+<p><b>第一层</b>：把金融资产从相关资产换成不相关资产，确实少亏了 6 万，2.6 个百分点。方向是对的。</p>
+
+<p><b>第二层，也是反直觉的那层</b>：即使把 100% 的金融资产都换成完全不相关的东西，总损失也只从 20.9% 降到 18.3%。<b>因为分母里 91% 是人力资本，金融资产那 8.6% 再怎么调，也调不动大局。</b></p>
+
+<p>再算一遍就更清楚了。要完全抵消人力资本那 20% 的损失，需要一个能赚出 423,106 新元（= 2,115,531 × 20%）的对冲头寸。而全部金融资产只有 200,000。</p>
+
+<div class="calc">所需对冲规模 ÷ 可用金融资产 = 423,106 ÷ 200,000 = 2.12 倍</div>
+
+<p>你需要一个规模是你全部金融资产 2.12 倍的反向头寸，才能把人力资本的这次损失抹平。这就是 Benzoni 等人模型里"年轻人应该持有股票空头"结论在算术上的样子——<b>以及为什么它在现实中不可执行</b>：那是一个杠杆头寸。</p>
+
+<h4>所以正确的推论是什么</h4>
+
+<p>不是"把组合调整成反向对冲"，而是三条更朴素的：</p>
+
+<ol>
+<li><b>不要主动加大同向暴露。</b>你无法对冲那 91%，但你可以选择不再往同一个方向押。雇主股票、行业主题基金、同行业的集中持仓，都是在原有的暴露上再叠一层。这是唯一一个成本为零、且完全在你控制之内的调整。</li>
+<li><b>那 8.6% 的第一职能是"缓冲"，不是"对冲"。</b>人力资本最现实的风险不是"现值下跌 20%"这种账面事件，而是"接下来六个月没有工资进来"这种现金流事件。而应对现金流中断的工具不是相关性低的资产，是<b>在需要时价格是确定的</b>资产。这两者不是一回事：一个和股市不相关但自己波动很大的资产，仍然可能在你需要用钱的那个月正好在低点。</li>
+<li><b>对人力资本本身的投资，回报率的量级远高于对组合的微调。</b>那 91% 上哪怕 1% 的改善，就是 21,155 新元；而 8.6% 上的配置优化，全部潜在收益也就是几千块的量级。</li>
+</ol>
+
+<div class="brk">
+<span class="tag">✕ 链条在这里断了</span>
+<p>要把上面这些从"结构性的道理"变成"具体该配多少"，缺的那个数是：<b>某个具体的人，其劳动收入与其持仓资产之间的相关系数</b>。</p>
+<p>这个数我查不到，也算不出来。它需要那个人至少十年的真实收入序列（含奖金与股权兑现），与同期资产回报做回归。而且即使有了十年数据，样本量对估计一个相关系数来说仍然偏小，标准误会很大。</p>
+<p>市面上任何一个给出"你的人力资本股票 β 是 0.4，所以你的股票配置应该降到 55%"的工具，那个 0.4 都不是测出来的，是模型的默认参数。我不会给出这样一个数。<b>链条到这里为止。</b></p>
+</div>
+
+<p class="src"><b>本环依据</b>：全部是<b>纯算术</b>，示意数字已标明；"金融资产规模不足以对冲人力资本"这一结论是算术的直接结果，不是引用。</p>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="small" style="border:1px solid var(--rule); border-radius:8px; padding:10px 14px; background:var(--card)"><b>先说明性质。</b>这一节是教学分析和决策框架，<b>不是个性化投资建议</b>。我不知道你的收入、负债、家庭状况或风险承受能力，也不该在不知道的情况下给出配置数字。下面每一条都是"这个框架怎么用在你这个画像上"，不是"你应该怎么做"。</p>
+
+<h3>一、你的资产负债表上，最大的一项是新元计价的</h3>
+
+<p>你的收入以新元为主，投资以美元资产为主。把这件事翻译成资产负债表的语言：</p>
+
+<ul>
+<li><b>人力资本</b>：新元计价，长久期（取决于剩余工作年数），风险属性取决于行业。</li>
+<li><b>金融资产</b>：美元计价，规模远小于前者。</li>
+</ul>
+
+<p>这里有一个容易被漏掉的推论。日常讨论"要不要对冲汇率"时，通常问的是"我的美股组合要不要对冲"。但如果人力资本占总资产 90%，那么<b>你整体的货币敞口本来就压倒性地偏向新元</b>——持有美元资产实际上是在给一个高度集中于新元的资产负债表做分散，而不是在制造风险。</p>
+
+<p>这个说法有明确的边界：它只在"你未来会一直在新加坡生活和消费"的前提下成立。如果你的长期消费地不是新加坡，结论会变。D23（新加坡投资者持有美股的汇率暴露）和 D30（是否对冲汇率）会专门处理，今天只指出这个视角的存在。</p>
+
+<p class="src"><b>数据</b>：美元兑新元 1.2692（<a href="https://fred.stlouisfed.org/series/DEXSIUS">FRED 系列 DEXSIUS</a>，<b>2026 年 8 月 21 日</b>，未季调，单位为"每 1 美元兑多少新元"）。请注意这个值有一周多的滞后，不是今天的汇率。</p>
+
+<h3>二、CPF 是你资产负债表上的"债券腿"，而且它的利率有法定下限</h3>
+
+<p>2026 年 7 月 1 日至 9 月 30 日适用的 CPF 利率：</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>账户</th><th>利率下限</th><th>额外利息（55 岁以下）</th></tr></thead>
+<tbody>
+<tr><td>普通账户 OA</td><td>2.5% / 年</td><td rowspan="2">合并余额首 6 万新元额外 +1%</td></tr>
+<tr><td>特别 / 保健储蓄 / 退休账户 SA、MA、RA</td><td>4% / 年</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>为什么这在今天这条链里重要？</b>因为整条链的驱动变量是"折现率"，而 CPF 提供的是一个<b>不随市场折现率波动的名义回报下限</b>。当美国 30 年期实际利率在 2.92% 到 2.96% 之间跳动、你的人力资本现值随之波动 1% 的时候，CPF 那部分的名义利率完全没动——它是行政定价，不是市场定价。</p>
+
+<p>用前面的语言说：<b>CPF 在你的资产负债表上扮演的正是"像债券"的那一腿</b>，而且是一条相关性极低的腿（它和美股几乎没有价格传导渠道）。</p>
+
+<div class="box">
+<p><b>但有一个我今天没查的东西，必须说明。</b>上面这些是<b>名义</b>利率。要知道 CPF 的<b>实际</b>回报（即购买力增长），需要减去新加坡的通胀率。新加坡的 CPI 由新加坡统计局发布，我今天没有去核对最新数值，所以我<b>不给</b>"CPF 的实际回报是多少"这个数。这是本节的一处空白。</p>
+</div>
+
+<p class="src"><b>出处</b>：<a href="https://www.cpf.gov.sg/member/infohub/news/news-releases/cpf-interest-rates-from-1-july-to-30-september-2026">CPF Board, “CPF interest rates from 1 July to 30 September 2026”</a>，发布日期 2026 年 5 月 26 日。<b>口径</b>：年化名义利率下限；额外利息规则如表所述。</p>
+
+<h3>三、真正需要量化的不是相关系数，是"没有工资的月份"能撑多久</h3>
+
+<p>环 ⑧ 的算术已经说明：金融资产规模不足以对冲人力资本的价值波动。那它的第一职能是什么？是撑过收入中断的那段时间。</p>
+
+<p>这个"多久"在新加坡有一个可查的数：</p>
+
+<div class="box">
+<p>新加坡人力部《2026 年第一季度劳动力市场报告》：<b>"被裁退居民在六个月内重新就业的比率，连续第二个季度改善，从 2025 年第四季度的 57.4% 升至 2026 年第一季度的 60.7%。"</b></p>
+</div>
+
+<p>把它反过来读：</p>
+
+<div class="calc">100% − 60.7% = 39.3%
+
+即：约每 10 个被裁退的本地居民中，有 4 个
+    在六个月后仍未重新就业。</div>
+
+<p><b>这个数直接决定应急金的量级。</b>如果六个月的再就业率只有六成，那么"存三个月开销"这个常见的口号，对应的是一个明显偏乐观的假设。这不是一个观点，是一个可以对着数据核的算术：你要选的是自己愿意落在分布的哪个位置。</p>
+
+<p>同期的其他背景数字，用来判断这个 60.7% 是在什么环境下取得的：</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>指标</th><th>数值</th><th>期间与口径</th></tr></thead>
+<tbody>
+<tr><td>裁退人数</td><td>4,500 人（初值）</td><td>2026 年第二季度；发生率 1.9 / 每千名雇员</td></tr>
+<tr><td>裁退人数（上一季）</td><td>3,830 人</td><td>2026 年第一季度；发生率 1.6 / 每千名雇员</td></tr>
+<tr><td>总就业增长</td><td>+10,700 人（初值）</td><td>2026 年第二季度，连续第 19 个季度增长</td></tr>
+<tr><td>整体失业率</td><td>2.0%（初值）</td><td>2026 年 6 月，<b>季调</b></td></tr>
+<tr><td>居民失业率</td><td>2.9%（初值）</td><td>2026 年 6 月，季调</td></tr>
+<tr><td>职位空缺</td><td>73,300 个</td><td>2026 年 3 月</td></tr>
+<tr><td>空缺 / 失业人数比</td><td>1.46</td><td>2026 年第一季度</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>这组数是矛盾的，而矛盾本身是信息。</b>一边是就业连续 19 个季度增长、失业率 2.0%、职位空缺仍多于失业人数；另一边是裁退人数一个季度内从 3,830 升到 4,500，且六个月再就业率只有六成。</p>
+
+<p>这两件事可以同时为真：<b>总量健康，不代表结构不痛。</b>如果新增的岗位和被裁掉的岗位不在同一批技能上，那么总量的空缺比再多，也不会自动接住被裁的那个人。这正是环 ⑦ 那个 19% 缺口在讲的同一件事——它讲的从来不是总量。</p>
+
+<p class="src"><b>出处</b>：再就业率与空缺数 = <a href="https://www.mom.gov.sg/newsroom/press-releases/2026/0615-lmr-1q-2026">新加坡人力部《Labour Market Report 1Q 2026》，2026 年 6 月 15 日发布</a>；裁退人数、就业增长、失业率 = <a href="https://www.mom.gov.sg/newsroom/press-releases/2026/0731-labour-market-advance-release-2q-2026">《2Q 2026 Labour Market Advance Release》，2026 年 7 月 31 日发布</a>（<b>初值</b>，会修订）。<b>未查到</b>：第二季度的再就业率——人力部在预发布中说明该数据将在完整的《第二季度劳动力市场报告》中给出，该报告尚未发布。所以 60.7% 是<b>第一季度</b>的数，不是最新的。</p>
+
+<h3>四、如果你的组合是宽基美股指数，你的行业集中度比你以为的高</h3>
+
+<p>很多人认为买了标普 500 就等于"分散"。看一下实际的行业权重：</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>GICS 行业</th><th>权重</th></tr></thead>
+<tbody>
+<tr><td><b>信息技术</b></td><td><b>37.54%</b></td></tr>
+<tr><td>金融</td><td>12.31%</td></tr>
+<tr><td>通信服务</td><td>9.60%</td></tr>
+<tr><td>医疗保健</td><td>9.27%</td></tr>
+<tr><td>可选消费</td><td>9.16%</td></tr>
+<tr><td>工业</td><td>8.36%</td></tr>
+<tr><td>必需消费</td><td>4.49%</td></tr>
+<tr><td>能源</td><td>3.39%</td></tr>
+<tr><td>公用事业</td><td>2.00%</td></tr>
+<tr><td>原材料</td><td>1.83%</td></tr>
+<tr><td>房地产</td><td>1.81%</td></tr>
+<tr><td>现金及衍生品</td><td>0.24%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>口径必须说清楚，否则这个 37.54% 会被高估也会被低估。</b></p>
+
+<ul>
+<li>这是 <b>iShares Core S&amp;P 500 ETF（代码 IVV）</b>的行业敞口，日期为 <b>2026 年 8 月 28 日</b>。IVV 跟踪标普 500，所以这近似于指数本身的权重，但严格说是基金的持仓，不是指数公司发布的官方权重。</li>
+<li>分类标准是 <b>GICS</b>（全球行业分类标准）。GICS 的"信息技术"<b>不包含</b>几家最大的互联网公司——按 GICS，Alphabet 和 Meta 属于"通信服务"，Amazon 和 Tesla 属于"可选消费"。所以如果你心里的"科技股"是日常语义上的那个概念，实际暴露<b>高于</b> 37.54%。</li>
+<li>反过来，"信息技术"里也包含大量与 AI 无关的软件与硬件公司，所以如果你关心的是"AI 相关暴露"，这个数又<b>不等于</b>那个。</li>
+</ul>
+
+<p><b>这一节和今天的锚点是同一件事的两面。</b>如果你的人力资本押在科技行业，而你的"分散化"组合有超过三分之一在同一个 GICS 行业上，那么按环 ⑧ 的框架，这不是分散，是加仓。这里没有对错，只有一个需要被看见的事实：<b>那个决定是你在有意识地做，还是它自己发生了。</b></p>
+
+<p class="src"><b>出处</b>：<a href="https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf">iShares Core S&amp;P 500 ETF (IVV) — Sector Exposure，截至 2026 年 8 月 28 日</a>。<b>未查到</b>：前十大持仓的合计权重，我没能从该页读到，因此本节不给这个数。</p>
+
+<h2>5｜反向倒推</h2>
+
+<p><b>先说这一节在干什么。</b>前面四节是顺着推的：发生了 A，所以会有 B，所以会有 C。现在把方向倒过来问一个不同的问题：<b>市场此刻的价格，说明大家心里在赌什么？</b></p>
+
+<p>为什么要倒过来问？因为价格是所有人下注之后的结果，它把一堆假设压缩成了一个数。把这个数拆开，你就知道"共识"具体是什么。而知道共识是什么，才谈得上判断它哪里脆弱。</p>
+
+<h3>市场已经定价的三件事</h3>
+
+<h4>第一：未来十年，通胀平均回到 2.3% 附近</h4>
+
+<div class="calc">10 年期名义 4.73%  −  10 年期实际 2.42%  =  2.31%
+30 年期名义 5.22%  −  30 年期实际 2.96%  =  2.26%
+ 5 年期名义 4.48%  −  5 年期实际 2.18%  =  2.30%
+                                （均为 2026-08-28）</div>
+
+<p><b>为什么这个差能反映这个假设</b>，环 ②→③ 已经完整推过：它是让普通国债和 TIPS 两种选择变得等价的那个通胀率。三个期限给出的数几乎一样（2.26% 到 2.31%），说明市场并不认为通胀问题是"先高后低"或"先低后高"的，而是认为它会比较平稳地落在 2.3% 上下。</p>
+
+<p><b>把它和同一天美联储主席引用的数并排放：</b></p>
+
+<div class="scroll">
+<table>
+<thead><tr><th></th><th>数值</th><th>口径</th></tr></thead>
+<tbody>
+<tr><td>已发生的通胀（12 个月）</td><td>3.7%</td><td>PCE 物价指数整体口径，同比</td></tr>
+<tr><td>已发生的通胀（6 个月年化）</td><td>4.1%</td><td>PCE 物价指数整体口径</td></tr>
+<tr><td>市场隐含的未来通胀补偿</td><td>约 2.3%</td><td>10 年期盈亏平衡，含风险溢价</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>这个落差是今天整份材料里最值得盯住的一个数。</b>当前跑在 4.1%，市场却按 2.3% 定价了未来十年。市场押的是：现在这个 4.1% 是暂时的，会被压回去。</p>
+
+<p>需要立刻加一句限定：这两个数不完全可比。一个是过去六个月的<b>已实现</b>整体通胀，另一个是未来十年的<b>平均</b>补偿。未来十年的平均值本来就该比任何一个短窗口更接近长期中枢，所以两者有落差是正常的，不是矛盾。真正的问题不是"为什么有落差"，而是"这个落差是不是太大了"。</p>
+
+<h4>第二：短端已经定价了某种程度的加息</h4>
+
+<p>当前联邦基金利率目标区间 3.50%–3.75%，中点 3.625%。而 8 月 31 日的 3 个月期国债收益率是 <b>3.91%</b>，比中点高 28.5 个基点。</p>
+
+<p>做一个<b>示意性</b>的推算，看这 28.5 个基点相当于什么。从 8 月 31 日往后数 91 天到 11 月 30 日，这期间有两次 FOMC 会议：9 月 15–16 日（新利率约 9 月 17 日生效）和 10 月 27–28 日（约 10 月 29 日生效）。三段的天数是 17 天、42 天、32 天。</p>
+
+<div class="calc">情形一：完全不动
+  91 天平均利率 = 3.625%
+
+情形二：9 月加息 25 bp，之后不动
+  = 3.625% + 0.25% × (74 ÷ 91)
+  = 3.625% + 0.203%  =  3.828%
+
+情形三：9 月与 10 月各加 25 bp
+  = 3.625% + 0.25% × (42 ÷ 91) + 0.50% × (32 ÷ 91)
+  = 3.625% + 0.115% + 0.176%  =  3.916%
+
+实际观测到的 3 个月收益率：3.91%</div>
+
+<div class="box">
+<p><b>这个巧合不能被过度解读，理由有三条，每一条都足以让结论失效：</b></p>
+<ol>
+<li>3 个月国债的收益率<b>不等于</b>市场对隔夜利率的预期平均值。它还包含期限溢价，以及国库券自身的供求（财政部发行量的多少会直接影响其收益率）。</li>
+<li>有效联邦基金利率通常并不精确等于区间中点，会有几个基点的偏离。我今天没有核对它的实际数值，上面直接用了中点。</li>
+<li>这个算法把"确定会发生"和"有概率发生"混为一谈。真实的定价是各种路径的概率加权，同一个 3.91% 可以由"100% 概率加两次"得到，也可以由"更高概率加一次 + 少量概率加三次"得到。要分开必须用联邦基金期货或 OIS 曲线逐月拆解，那是 A36 的内容。</li>
+</ol>
+<p>所以正确的说法是：<b>短端定价与"未来三个月内有加息"是相容的</b>，但具体几次、多大概率，用这组数据分不出来。有媒体报道称讲话后 9 月加息的市场隐含概率升至约 62%（此前约 40%），我没有核对到该概率的原始来源，因此只作为<b>他人报道</b>列出，不作为本材料的依据。</p>
+</div>
+
+<h4>第三：最长期限的实际折现率定在 2.96%</h4>
+
+<p>30 年期实际收益率 2.96%，是市场给"最安全、最长久期的美元现金流"定的价。任何一笔三十年后的钱，包括你三十年后的那份工资，都躲不开这个数量级的折现。它是整个链条的分母。</p>
+
+<h3>哪个假设最脆弱</h3>
+
+<p><b>就是第一个：通胀在十年里平均落到 2.3%。</b></p>
+
+<p>它脆弱的理由不是"我觉得通胀会更高"——那是观点，不是分析。理由是这个假设的<b>结构</b>：它要求当前 4.1% 的六个月年化速度是暂时的。而这个"暂时"目前没有被数据确认，它是被<b>假定</b>的。用 Warsh 自己的话说，过去两年的进展是"modest"（有限的）。</p>
+
+<p><b>如果它错了，价格该怎么走？</b>把逻辑走完，不跳步：</p>
+
+<ol>
+<li>如果后续几个月的通胀数据继续在 4% 附近，那么按 2.3% 定价的盈亏平衡就太低了。持有普通国债的人会发现自己的实际回报被侵蚀，于是要求更高的名义收益率——<b>盈亏平衡上升，名义收益率上升</b>。</li>
+<li>同时，美联储为了把通胀压回去，需要把真实政策利率抬得更高——<b>实际收益率也上升</b>。</li>
+<li>两者同时上升，意味着<b>名义收益率上升的幅度大于其中任何一块</b>。</li>
+<li>而实际收益率上升，按环 ④→⑤ 的算术，会直接压低所有长久期资产的现值：长债、成长股（F6 会专门讲）、以及你的人力资本。</li>
+<li>注意第 4 步里最反直觉的部分：<b>通胀预期上升本身，并不会救你的人力资本。</b>因为折现未来实际工资用的是<b>实际</b>利率，而在这个情景里实际利率也在上升。你的名义工资可能跟着通胀涨，但那只是让分子和通胀同步，分母那边的实际利率上升是净损失。</li>
+</ol>
+
+<p>反过来，如果通胀真的迅速回落到 2% 附近，实际利率下行，同一个算术反着走：长久期资产（包括你的人力资本）现值上升。</p>
+
+<h3>用那个检验问一遍：这套说法在事情发生之前能不能做预测？</h3>
+
+<p>这是这门课的自查工具，今天必须对自己用一次。</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>说法</th><th>能否事前预测</th><th>判定</th></tr></thead>
+<tbody>
+<tr><td>"Warsh 讲话导致了 8 月 28 日的收益率上行"</td><td><b>不能。</b>如果那天收益率下跌，同一套框架可以说"措辞比预期温和"。它只能解释已发生的事。</td><td>叙事，不是机制。已画成虚线并单列在推测框中。</td></tr>
+<tr><td>"盈亏平衡 2.3% 与已实现通胀 4.1% 之间存在落差"</td><td><b>能。</b>这个落差今天就能观测到，它对未来做出了可证伪的陈述：若后续通胀持续在 4% 上方，则盈亏平衡必须上调。</td><td>可用于预测的结构性陈述。</td></tr>
+<tr><td>"实际利率上升会压低长久期资产的现值"</td><td><b>能。</b>这是恒等式级别的算术，方向事前确定，幅度可由久期估算。</td><td>机制。</td></tr>
+<tr><td>"人力资本的行业相关性影响最优配置"</td><td><b>部分能。</b>方向可预测，但幅度依赖一个我测不出来的参数。</td><td>结构成立，参数缺失。</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>未来 1–3 个月，哪些具体事件会证实或证伪</h3>
+
+<ol>
+<li><b>2026 年 9 月 4 日</b>：美国劳工统计局发布 8 月就业报告（非农就业、失业率）。看的是环 ⑦ 那个"招聘减少而非裁员增加"的模式在总量数据上是否可见——尤其看<b>招聘率</b>而非只看净增就业。</li>
+<li><b>2026 年 9 月 15–16 日</b>：FOMC 会议，且附带经济预测摘要（SEP，含点阵图）。这是把"市场怎么想"和"委员们怎么想"直接对照的时点。若 SEP 的利率路径高于当前市场定价，短端还有上行空间。</li>
+<li><b>随后的每月 CPI 与 PCE 发布</b>：直接检验"4.1% 是暂时的"这个假设。看的是<b>六个月年化</b>是否掉头向下，而不只是看同比。</li>
+<li><b>盈亏平衡通胀率本身</b>：这是最省事的实时检验，每个交易日财政部两条曲线一减就有。如果它开始从 2.3% 往上爬，说明市场正在放弃那个假设。</li>
+<li><b>新加坡人力部《2026 年第二季度劳动力市场报告》</b>（完整版，通常在预发布后约一个半月）：将给出第二季度的裁退后再就业率。60.7% 是否继续改善，直接关系到第 4 节第三条的应急金量级。</li>
+<li><b>斯坦福 AI 经济指标的后续更新</b>：作者明确说明他们提供了一套公开的持续追踪指标。那个 19% 是继续扩大还是收敛，是环 ⑦ 的直接检验。</li>
+</ol>
+
+<p class="src"><b>本节依据</b>：盈亏平衡与短端推算 = <b>纯算术</b>，基于美国财政部一手数据与 FOMC 声明的目标区间，所有假设已逐条列出；FOMC 日期 = <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">美联储官网会议日历</a>；"62% 加息概率" = <b>他人报道，未核实</b>；对脆弱性的判断 = <b>我的分析</b>，依赖的推理链已完整写出，可逐步反驳。</p>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>今天这条链体现的思维方式：把任何东西都拆成"现金流 + 久期 + 相关性"</h3>
+
+<p>今天从一个 8 个基点的利率变动，一路走到"要不要买雇主的股票"，中间靠的其实是同一套三步动作，反复用了三次：</p>
+
+<ol>
+<li><b>这个东西未来会产生什么现金流？</b>——把对象翻译成一串带时点的数字。</li>
+<li><b>这串数字有多长？</b>——久期。它决定这个东西对折现率有多敏感。</li>
+<li><b>它和我已经持有的其他东西是不是一起动？</b>——相关性。它决定这个东西是分散了风险还是叠加了风险。</li>
+</ol>
+
+<p>这三步的威力在于，它把"工资""股票""房子""退休金"这些看起来毫不相干的东西，放进了同一个坐标系里，因而可以互相比较、互相抵消。凡是不能被放进同一个坐标系的东西，你就没法回答"这两个哪个更重要"。</p>
+
+<h4>换个场合用一次：租房还是买房</h4>
+
+<p>这个问题常见的争论方式是"租房是给房东打工"对"买房被套牢"。用三步法就变成一个可算的问题：</p>
+
+<ul>
+<li><b>现金流</b>：买房是"今天付首付 + 未来三十年付月供，换来未来三十年免租金居住 + 期末一套房子"；租房是"未来三十年付租金"。两边都翻译成带时点的数字。</li>
+<li><b>久期</b>：房子是一笔极长久期的资产（居住服务流可以持续几十年），所以它的价值对实际利率<b>极其敏感</b>。这就是为什么房价对利率的反应远大于股票——不是因为房地产"特殊"，是因为它久期长。</li>
+<li><b>相关性</b>：你的房子和你的工作在同一个城市。如果本地经济衰退，你的收入和你的房价会一起跌。这是一笔和你人力资本高度相关的资产——这一点在"买房是稳健投资"的通行说法里几乎从来不被提及。</li>
+</ul>
+
+<h4>再换一个场合：一家公司的估值</h4>
+
+<p>F1 到 F7 那几天会展开，这里只指出它是同一套东西：一只股票就是"未来一串自由现金流"，成长股之所以对加息敏感，正是因为它的现金流集中在很远的未来，<b>久期长</b>——和今天算人力资本时"三十年的流久期 13.4、十年的流久期 5.2"是同一个算术。今天你已经把成长股估值最核心的那一步学会了，只是它当时长着"工资"的样子。</p>
+
+<h3>顶层视角：这条链在整个系统里的位置</h3>
+
+<figure>
+<svg viewBox="0 0 680 340" role="img" aria-label="今天这条链在利率、增长、信用、汇率四个板块中的位置">
+<style>
+ .n{fill:var(--card); stroke:var(--fg); stroke-width:1.5; rx:8}
+ .nk{fill:var(--accent-soft); stroke:var(--accent); stroke-width:2.6; rx:8}
+ .nt{fill:var(--fg); font-family:system-ui,-apple-system,"PingFang SC",sans-serif; font-size:14px; font-weight:600; text-anchor:middle}
+ .ns{fill:var(--muted); font-family:system-ui,sans-serif; font-size:11.5px; text-anchor:middle}
+ .ln{stroke:var(--muted); stroke-width:1.6; fill:none}
+ .lt{fill:var(--muted); font-family:system-ui,sans-serif; font-size:11px; text-anchor:middle}
+</style>
+<rect class="nk" x="230" y="130" width="220" height="76"/>
+<text class="nt" x="340" y="158">今天这条链</text>
+<text class="ns" x="340" y="178">实际折现率 → 人力资本</text>
+<text class="ns" x="340" y="196">→ 个人资产负债表</text>
+
+<rect class="n" x="240" y="12" width="200" height="56"/>
+<text class="nt" x="340" y="36">利率 · 货币政策</text>
+<text class="ns" x="340" y="55">折现率从这里来（领域 A）</text>
+<path class="ln" d="M340,68 L340,128"/>
+
+<rect class="n" x="12" y="130" width="196" height="76"/>
+<text class="nt" x="110" y="156">增长 · 通胀</text>
+<text class="ns" x="110" y="176">决定分子：工资涨不涨</text>
+<text class="ns" x="110" y="194">（领域 B）</text>
+<path class="ln" d="M208,168 L228,168"/>
+
+<rect class="n" x="472" y="130" width="196" height="76"/>
+<text class="nt" x="570" y="156">汇率 · 资本流动</text>
+<text class="ns" x="570" y="176">新元收入 vs 美元资产</text>
+<text class="ns" x="570" y="194">（领域 D）</text>
+<path class="ln" d="M452,168 L470,168"/>
+
+<rect class="n" x="240" y="266" width="200" height="60"/>
+<text class="nt" x="340" y="290">信用 · 金融稳定</text>
+<text class="ns" x="340" y="310">收入中断时能否借到钱（领域 E）</text>
+<path class="ln" d="M340,206 L340,264"/>
+
+<text class="lt" x="270" y="100">政策利率是分母的锚</text>
+<text class="lt" x="120" y="122">工资是分子</text>
+<text class="lt" x="565" y="122">计价货币不同</text>
+<text class="lt" x="425" y="242">流动性约束</text>
+</svg>
+<figcaption>四个板块如何咬合到今天这条链上。中间橙色框是今天走过的路径，四周是它必然连接的其他领域。</figcaption>
+</figure>
+
+<p><b>把这张图读一遍</b>：折现率（分母）由货币政策决定，所以领域 A 的任何变化都会重估你的人力资本；工资本身（分子）由增长与通胀决定，所以领域 B 决定这个资产吐出多少现金；因为你的收入和资产计价货币不同，领域 D 决定两边如何换算；而当收入中断时，你能不能借到钱、以什么代价借，属于领域 E——这恰恰决定了你需要多大的缓冲。</p>
+
+<p><b>一个值得记住的结构性事实</b>：领域 A 同时作用于这张图的两端。实际利率上升，一方面压低你人力资本的现值（分母变大），另一方面压低你股票的现值（同样是分母变大）。所以货币紧缩对一个年轻的、有工作的、持有股票的人来说，是<b>同时</b>打在两个口袋上的。这不是巧合，是因为两者被同一个数折现。</p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="scroll">
+<table>
+<thead><tr><th>术语</th><th>一句话大白话</th><th>出现在哪一环</th></tr></thead>
+<tbody>
+<tr><td>基点<br>basis point (bp)</td><td>万分之一，即 0.01 个百分点。说"14 个基点"而不说"0.14%"，是为了避免绝对差和相对涨幅混淆。</td><td>环 ①→②</td></tr>
+<tr><td>名义利率 / 实际利率<br>nominal / real interest rate</td><td>前者是钞票数量的增长，后者是购买力的增长。两者相差一个通胀率。</td><td>环 ②→③</td></tr>
+<tr><td>TIPS<br>通胀保值国债</td><td>本金跟着 CPI 走的美国国债。因为通胀已被本金调整补偿，它的报价利率就是实际利率。</td><td>环 ②→③</td></tr>
+<tr><td>盈亏平衡通胀率<br>breakeven inflation</td><td>让普通国债和 TIPS 一样划算的那个通胀率。等于两者收益率之差。它不等于纯粹的通胀预期。</td><td>环 ②→③、第 5 节</td></tr>
+<tr><td>折现 / 现值 / 折现率<br>discounting / present value / discount rate</td><td>把未来的钱换算成今天的钱；换算出来的数；用来换算的利率。</td><td>环 ③→④</td></tr>
+<tr><td>年金<br>annuity</td><td>每年固定金额、持续若干年的一串现金流。有现成的现值简算公式。</td><td>环 ③→④</td></tr>
+<tr><td>久期<br>duration</td><td>利率每变动 1 个百分点，这项资产的价值变动百分之几。现金流越靠后，久期越长。</td><td>环 ④→⑤</td></tr>
+<tr><td>人力资本<br>human capital</td><td>你未来劳动收入的现值。是你资产负债表上通常最大的一项资产，且不可交易。</td><td>环 ④→⑤（今日锚点）</td></tr>
+<tr><td>协方差 / 相关系数<br>covariance / correlation</td><td>量化"两个东西是不是一起动"。相关系数落在 −1 到 +1 之间：+1 完全同向，0 无关，−1 完全反向。</td><td>环 ⑤→⑥</td></tr>
+<tr><td>协整<br>cointegration</td><td>两条线短期各走各的，长期被一根看不见的橡皮筋拴住。特点是：看得越短越像无关，看得越长越像同一件事。</td><td>环 ⑤→⑥</td></tr>
+<tr><td>特有风险 / 系统性风险<br>idiosyncratic / systematic risk</td><td>只发生在你一个人身上的风险（你被裁）与所有人一起承担的风险（全行业萎缩）。前者可以靠分散化消掉，后者不能。</td><td>环 ⑤→⑥</td></tr>
+<tr><td>事件研究<br>event study</td><td>在一个事先已知的信息时点前后观察价格变动，用来推断这条信息的影响。</td><td>环 ①→②</td></tr>
+<tr><td>GICS</td><td>全球行业分类标准。注意它把 Alphabet、Meta 归入通信服务，把 Amazon、Tesla 归入可选消费，不算"信息技术"。</td><td>第 4 节</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<p class="q">第 1 题　如果实际利率不是从 2.34% 涨到 2.42%，而是从 2.42% <b>跌</b>到 2.10%，那笔"三十年、每年 10 万"的人力资本现值变成多少？变动了百分之几？据此算出的久期是多少？和前面算出的 13.36 一致吗？如果不一致，为什么？</p>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<div class="calc">第一步：算年金系数
+  (1.021)^30    = 1.865401
+  (1.021)^(−30) = 1 ÷ 1.865401 = 0.536078
+  1 − 0.536078  = 0.463922
+  0.463922 ÷ 0.021 = 22.09154
+
+第二步：算现值
+  100,000 × 22.09154 = 2,209,154 新元
+
+第三步：算变动
+  2,209,154 − 2,115,531 = +93,623 新元
+  93,623 ÷ 2,115,531 = +4.426%
+
+第四步：算久期
+  4.426% ÷ 0.32% = 13.83</div>
+<p><b>13.83，和之前的 13.36 不一致。</b>差了约 0.5。</p>
+<p><b>为什么？</b>因为现值和利率之间不是直线关系，是曲线关系。看一眼公式就明白：折现是<b>除法</b>（除以 1+r 的 n 次方），除法的图形是双曲线不是直线。所以"利率降 32 bp 涨的百分比"会略大于"利率升 32 bp 跌的百分比"。</p>
+<p>这个"久期本身会随利率变化"的性质，金融学也起了个名字，叫<b>凸性</b>（convexity）。它的实际含义对持有者有利：利率朝好的方向动时你赚得多一点，朝坏的方向动时你亏得少一点。久期是这条曲线在某一点的斜率，凸性是它的弯曲程度。用久期做估算时，变动越大误差越大，这就是原因。</p>
+</details>
+
+<p class="q">第 2 题　用 8 月 27 日和 28 日的 30 年期数据算盈亏平衡通胀率的变动，并和 5 年期的变动比较。两者的差别（如果有）说明市场在想什么？这个结论的可靠性有多高？</p>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<div class="calc">30 年期：
+  8/27  5.19% − 2.92% = 2.27%
+  8/28  5.22% − 2.96% = 2.26%
+  变动 = −1 bp
+
+5 年期：
+  8/27  4.38% − 2.07% = 2.31%
+  8/28  4.48% − 2.18% = 2.30%
+  变动 = −1 bp
+
+10 年期（正文已算）：变动 = −2 bp</div>
+<p><b>三个期限的盈亏平衡都小幅下降，幅度都在 1–2 个基点。</b>也就是说，市场并没有把这次事件解读成"通胀前景变了"——不论近期还是远期，隐含通胀补偿都基本没动。</p>
+<p><b>但可靠性有限，理由有二。</b>第一，1–2 个基点已经接近这类数据的噪声量级：par yield 报价本身有取整（财政部公布到小数点后两位，即 1 个基点的精度），两个数相减，误差会累加。所以"下降 1 bp"和"没有变化"在统计上是分不开的。第二，5 年期和 10 年期的变动分别是 −1 和 −2 bp，看起来 10 年期降得多一点，但这 1 个基点的差别同样在取整误差之内，不能据此说"市场更看淡中期通胀"。</p>
+<p><b>能得出的最强结论只有一句</b>：这次收益率上行不是由通胀补偿驱动的。更细的结构，这组数据支撑不了。</p>
+</details>
+
+<p class="q">第 3 题　换一个人：55 岁，剩余工作 10 年，每年实际可支配收入同样 10 万新元，但金融资产是 80 万新元。用同样的实际折现率 2.42% 算他的人力资本占总资产的比重。然后套用正文那个"收入预期 −20% 且股票 −30%"的示意情景，算两种配置（全股票 / 全现金）下的总损失差距是多少个百分点。把它和 30 岁那个例子的 2.6 个百分点比较，你能得出什么一般性的结论？</p>
+
+<details>
+<summary>参考答案（含完整推导）</summary>
+<div class="calc">第一步：算人力资本（10 年、r=2.42%）
+  (1.0242)^10    = 1.270129
+  (1.0242)^(−10) = 0.787322
+  1 − 0.787322   = 0.212678
+  0.212678 ÷ 0.0242 = 8.78835
+  100,000 × 8.78835 = 878,835 新元
+
+第二步：占比
+  总资产 = 878,835 + 800,000 = 1,678,835
+  人力资本占比 = 878,835 ÷ 1,678,835 = 52.3%
+
+第三步：情景 A（金融资产全为股票）
+  人力资本 878,835 × 0.80 = 703,068
+  金融资产 800,000 × 0.70 = 560,000
+  合计 = 1,263,068   相对原值 −24.77%
+
+第四步：情景 B（金融资产全为现金）
+  人力资本 703,068
+  金融资产 800,000
+  合计 = 1,503,068   相对原值 −10.47%
+
+第五步：差距
+  24.77% − 10.47% = 14.3 个百分点</div>
+<p><b>对照：30 岁那个例子，同样的冲击，两种配置的差距只有 2.6 个百分点。这里是 14.3。</b>差了五倍多。</p>
+<p><b>一般性结论</b>：金融资产配置的<b>决策重要性</b>，随人力资本在总资产中的占比下降而上升。年轻时人力资本占九成，配置怎么调都撬不动大局，真正的杠杆在人力资本本身（技能、可雇佣性、行业选择）；临近退休时人力资本只剩五成甚至更少，配置决策才成为主要变量。</p>
+<p><b>这一点值得单独记住</b>，因为它和常见的直觉相反。通行的说法是"年轻人风险承受力强所以可以激进，年长者要保守"。上面的算术给出的是一个不同维度的理由：<b>不是年长者更该保守，而是年长者的配置决策后果更大。</b>两件事都可能对，但它们是不同的论证，不该混为一谈。</p>
+<p class="small">注意本题的所有数字都是示意数字，且沿用了正文那个"收入预期 −20%、股票 −30%"的假想冲击。它不是预测，只是用来比较两种结构。</p>
+</details>
+
+<h3>今天就能做的一个小动作（15 分钟）</h3>
+
+<div class="box">
+<p><b>算一次你自己那个占比，只算一次，不用精确。</b></p>
+<ol>
+<li>拿你今年的<b>税后</b>年收入（按今天的购买力，不要预测涨薪）。</li>
+<li>估一个剩余工作年数 n。</li>
+<li>用年金公式，r 就用 2.42%（今天的 10 年期实际收益率）：<span class="kbd">现值 = 年收入 × [1 − 1.0242^(−n)] ÷ 0.0242</span></li>
+<li>把这个数和你目前全部金融资产（含 CPF）相加，算出人力资本占比。</li>
+</ol>
+<p>这个数不需要准，它只需要让你知道自己在"91%"还是"52%"那一档。因为按第 3 题的结论，这一档决定了你接下来一年该把注意力放在哪一侧——是放在提高那 90% 的质量与稳定性上，还是放在优化那 50% 的配置上。</p>
+<p class="small">这只是一个用来建立量感的算术练习，不构成任何投资建议。</p>
+</div>
+
+<h3>延伸阅读</h3>
+
+<div class="scroll">
+<table>
+<thead><tr><th>材料</th><th>为什么值得读</th><th>难度</th></tr></thead>
+<tbody>
+<tr>
+<td><a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">Warsh, “In Our Time”（美联储官网演讲全文）</a></td>
+<td>今天这条链的起点，一手材料。读央行讲话原文和读新闻标题是两回事：原文里的限定词、条件句和数据口径，几乎全部会在转述中丢失。这是一个很好的对照练习——先读新闻标题，再读原文，看差多少。</td>
+<td>低。英文，篇幅不长，无数学。</td>
+</tr>
+<tr>
+<td><a href="https://digitaleconomy.stanford.edu/app/uploads/2026/08/Canaries_August2026.pdf">Brynjolfsson, Chandar &amp; Chen (2026), “Canaries in the Coal Mine?”</a></td>
+<td>值得读的不是那个 19%，而是<b>作者怎么给自己的结论设边界</b>。他们明确写"这不是因果估计"，并逐条列出七项局限。这是一份实证论文该有的样子，也是判断其他研究可信度的参照系。至少读摘要、六个事实和局限那一节。</td>
+<td>中。英文，有图表，但主要结论用文字叙述，不需要计量经济学基础。</td>
+</tr>
+<tr>
+<td><a href="https://www.chicagofed.org/publications/working-papers/2007/wp-11">Benzoni, Collin-Dufresne &amp; Goldstein (2007) 工作论文版（免费）</a></td>
+<td>今天锚点原理那场争论的一方。<b>建议只读引言部分</b>，它把"为什么年轻人的人力资本可能是股票型的"这个直觉讲得很清楚，后面的连续时间模型可以完全跳过。读它的价值在于看到一个反直觉结论是如何从一个朴素的约束推出来的。</td>
+<td>引言部分中等；正文部分高（随机微积分），可跳过。</td>
+</tr>
+<tr>
+<td><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve&amp;field_tdr_date_value_month=202608">美国财政部实际收益率曲线（每日更新）</a></td>
+<td>不是文章，是数据源。值得加书签。把它和名义曲线并排，你每天可以用一次减法得到市场隐含的通胀补偿——这是少数几个不需要任何中介、不需要付费、也不需要相信任何人的市场指标之一。</td>
+<td>低。会做减法即可。</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p>这不是免责声明，是给你的可信度地图。下面每一行都标明了来源与口径，你可以只相信标了一手来源的那些。</p>
+
+<h3>所有数据的出处与口径</h3>
+
+<div class="scroll">
+<table>
+<thead><tr><th>数据</th><th>数值</th><th>口径</th><th>来源等级</th></tr></thead>
+<tbody>
+<tr><td>PCE 通胀</td><td>12 个月 3.7%；6 个月年化 4.1%</td><td>整体（非核心），美联储主席在演讲中引用</td><td><b>一手</b>（美联储官网演讲原文）</td></tr>
+<tr><td>联邦基金目标区间</td><td>3.50%–3.75%</td><td>2026 年 7 月 29 日会议决定</td><td><b>一手</b>（FOMC 声明）</td></tr>
+<tr><td>下次 FOMC</td><td>2026 年 9 月 15–16 日，含 SEP</td><td>—</td><td><b>一手</b>（美联储会议日历）</td></tr>
+<tr><td>名义国债收益率</td><td>见正文表</td><td>par yield，按年，纽约联储采集的收盘报价，8/25–8/31</td><td><b>一手</b>（美国财政部）</td></tr>
+<tr><td>实际（TIPS）收益率</td><td>见正文表</td><td>同上，仅 <b>8/25–8/28</b>；8/31 未读到</td><td><b>一手</b>（美国财政部）</td></tr>
+<tr><td>盈亏平衡通胀率</td><td>5Y 2.30%、10Y 2.31%、30Y 2.26%（8/28）</td><td>名义减实际，含通胀风险溢价与 TIPS 流动性溢价</td><td><b>算术</b>（我做的减法，可自行核对）</td></tr>
+<tr><td>标普 500 / 纳指 / 道指</td><td>8/28 收盘 7,711.76；8/31 收盘 7,684.37 / 26,360.91 / 53,179.77</td><td>指数收盘价</td><td>8/28 = FRED；<b>8/31 = 媒体报道</b>，已与 8/28 收盘交叉核对通过</td></tr>
+<tr><td>VIX</td><td>14.51</td><td>2026-08-27 收盘</td><td>FRED（转载自 Cboe）</td></tr>
+<tr><td>美元兑新元</td><td>1.2692</td><td><b>2026-08-21</b>，未季调，新元/美元</td><td>FRED（有滞后）</td></tr>
+<tr><td>AI 高暴露职业年轻人就业缺口</td><td>相对低 19%（绝对 −11%）</td><td>ADP 薪资数据，22–25 岁，2022/11–2026/06，描述性非因果</td><td><b>一手</b>（斯坦福论文 PDF）</td></tr>
+<tr><td>CPF 利率</td><td>OA 2.5%、SA/MA/RA 4%（下限）</td><td>2026 年 7–9 月适用，<b>名义</b>年率</td><td><b>一手</b>（CPF 局官网）</td></tr>
+<tr><td>新加坡裁退与就业</td><td>2Q26 裁退 4,500；就业 +10,700；失业率 2.0%</td><td>初值，季调（失业率），会修订</td><td><b>一手</b>（人力部预发布）</td></tr>
+<tr><td>裁退后六个月再就业率</td><td>60.7%</td><td><b>2026 年第一季度</b>，居民；非最新</td><td><b>一手</b>（人力部第一季度报告）</td></tr>
+<tr><td>标普 500 行业权重</td><td>信息技术 37.54%</td><td>IVV 基金持仓（非指数公司官方权重），GICS 分类，截至 8/28</td><td>二手偏一手（基金管理人 iShares）</td></tr>
+<tr><td>9 月加息隐含概率 62%</td><td>—</td><td>—</td><td><b>他人报道，我未核实原始来源，未用作依据</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>哪几环有出处、哪几环是算术、哪几环是我的推测</h3>
+
+<div class="scroll">
+<table>
+<thead><tr><th>环</th><th>内容</th><th>依据类型</th></tr></thead>
+<tbody>
+<tr><td>①</td><td>8/28 主席讲话内容与日期</td><td><b>一手出处</b></td></tr>
+<tr><td>①→②</td><td>讲话导致了收益率上行</td><td><b>我的推测</b>（已画虚线，已单列推测框，已给出反对看法）</td></tr>
+<tr><td>②</td><td>8/28 收益率曲线变动</td><td><b>一手出处</b></td></tr>
+<tr><td>②→③</td><td>把名义拆成实际 + 盈亏平衡</td><td><b>算术</b>（一次减法）</td></tr>
+<tr><td>②→③ 的解释</td><td>"央行强硬 → 实际利率升、通胀预期不升"</td><td>教科书标准结论；<b>对这一天的适用性是我的判断</b></td></tr>
+<tr><td>③→④</td><td>折现、现值、年金</td><td><b>算术</b> + 教科书定义</td></tr>
+<tr><td>④→⑤</td><td>人力资本现值与久期</td><td><b>算术</b>（示意数字已标明）</td></tr>
+<tr><td>⑤→⑥</td><td>相关系数的算法</td><td><b>算术</b>（示意数字已标明）</td></tr>
+<tr><td>⑤→⑥</td><td>三派学术观点</td><td><b>一手出处</b>（三篇论文，链接已给）</td></tr>
+<tr><td>⑤→⑥</td><td>"Dylan 的行业相关性高于平均"</td><td><b>我的推测</b>（已单列推测框，已给出反对看法）</td></tr>
+<tr><td>⑥→⑦</td><td>19% 缺口及其局限</td><td><b>一手出处</b>（含作者自述的七项局限）</td></tr>
+<tr><td>⑦→⑧</td><td>占比、双重下注、对冲所需规模</td><td><b>算术</b>（示意数字已标明）</td></tr>
+<tr><td>第 4 节</td><td>新加坡的四组数据</td><td><b>一手出处</b>（CPF 局、人力部、iShares）</td></tr>
+<tr><td>第 5 节</td><td>盈亏平衡与短端推算</td><td><b>算术</b>，所有假设已逐条列出</td></tr>
+<tr><td>第 5 节</td><td>"通胀收敛假设最脆弱"</td><td><b>我的分析</b>，推理链已完整写出</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>接不上的地方</h3>
+
+<ol>
+<li><b>链条的终点断了，而且是硬断。</b>"某个具体的人，其劳动收入与其持仓资产的相关系数是多少"——这个数需要至少十年的个人真实收入序列才能估计，我没有，也不该替任何人假设一个。所以今天只能给出结构和方向，给不出配置数字。</li>
+<li><b>8 月 31 日的实际收益率我没读到。</b>财政部名义曲线读到了 8/31，实际曲线只读到 8/28。所以所有涉及实际利率的计算都停在 8/28，包括第 5 节的盈亏平衡。</li>
+<li><b>8 月 31 日的股指收盘用的是媒体数据，不是交易所一手数据。</b>我做了交叉核对（三个指数相对 8/28 收盘的变动率都能对上），另一家媒体的数字明显有误已被排除，但它仍然是二手来源。</li>
+<li><b>CPF 的实际回报没算。</b>需要新加坡 CPI，我今天没有去核对。所以正文只给了名义利率下限。</li>
+<li><b>标普 500 前十大持仓的合计权重没查到。</b>我从 iShares 页面只读到了行业权重，没读到个股权重，因此第 4 节不给"集中度"这个数。</li>
+<li><b>第二季度的新加坡再就业率还没发布。</b>60.7% 是第一季度的数。</li>
+<li><b>环 ④→⑤ 有一个我没有处理的漏洞</b>：计算中把分子（工资）和分母（折现率）当成互相独立的。如果实际利率上升的原因同时也让工资加速上涨，净效应就不确定。这个问题需要一个联合模型，今天没有做。</li>
+<li><b>"62% 的 9 月加息概率"我没有核实。</b>它出自媒体转述，我未能访问原始的联邦基金期货定价数据，因此在第 5 节明确排除在依据之外。</li>
+</ol>
+
+<hr>
+<p class="small">第 15 天 · 领域 G 资产配置与个人财务 · 锚点原理 G2　｜　材料生成于新加坡时间 2026-09-01 早晨，数据截至美国 2026-08-31 收盘（实际收益率截至 08-28）。<br>本材料为教学分析，不构成投资建议。所有标注为"示意数字"的数值仅用于演示算法，与任何真实收入或资产无关。</p>
+
+</div>
+</body>
+</html>
