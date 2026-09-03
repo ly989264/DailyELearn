@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 17 · 从隔夜利率到房贷：利率传导的第一段</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1e2024; --muted:#5c6470; --line:#dfdcd4;
+  --card:#ffffff; --accent:#0f5d8f; --accent-soft:#e8f1f7;
+  --warn-bg:#fff6e6; --warn-line:#d99a2b; --warn-fg:#6b4a08;
+  --guess-bg:#fdf0f4; --guess-line:#b03a5b; --guess-fg:#7a1f38;
+  --ok-bg:#eef6ee; --ok-line:#4a8a54;
+  --code:#f2f0eb;
+  --svg-node:#ffffff; --svg-stroke:#3a4148; --svg-text:#1e2024; --svg-dim:#8a8f96;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16181b; --fg:#e6e6e4; --muted:#a0a6ad; --line:#333840;
+    --card:#1e2126; --accent:#6fb6e6; --accent-soft:#16303f;
+    --warn-bg:#332a14; --warn-line:#c99a3b; --warn-fg:#f0dcae;
+    --guess-bg:#3a1a24; --guess-line:#e0708f; --guess-fg:#ffd3de;
+    --ok-bg:#1a2a1c; --ok-line:#6fae79;
+    --code:#22262b;
+    --svg-node:#1e2126; --svg-stroke:#9aa1a9; --svg-text:#e6e6e4; --svg-dim:#767c84;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  font-size:17px; line-height:1.85; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:820px; margin:0 auto; padding:32px 20px 96px}
+header.top{border-bottom:2px solid var(--fg); padding-bottom:18px; margin-bottom:28px}
+.kicker{font-size:13px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase}
+h1{font-size:29px; line-height:1.35; margin:10px 0 8px; letter-spacing:-.01em}
+.sub{color:var(--muted); font-size:14.5px; line-height:1.7}
+h2{font-size:22px; margin:52px 0 14px; padding-top:16px; border-top:1px solid var(--line); letter-spacing:-.01em}
+h3{font-size:18px; margin:32px 0 10px}
+h4{font-size:16px; margin:22px 0 8px; color:var(--accent)}
+p{margin:0 0 14px}
+ul,ol{margin:0 0 14px; padding-left:1.4em}
+li{margin:0 0 7px}
+strong{font-weight:650}
+a{color:var(--accent)}
+code,.num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.93em; background:var(--code); padding:1px 5px; border-radius:3px}
+.calc{
+  background:var(--code); border-left:3px solid var(--accent);
+  padding:14px 16px; margin:16px 0; border-radius:0 5px 5px 0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:15px; line-height:2.0; overflow-x:auto; white-space:pre-wrap;
+}
+.calc b{font-weight:700; color:var(--accent)}
+.box{border:1px solid var(--line); background:var(--card); border-radius:7px; padding:16px 18px; margin:18px 0}
+.box .bt{font-size:13px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase; margin-bottom:8px}
+.guess{
+  background:var(--guess-bg); border:2px dashed var(--guess-line);
+  border-radius:7px; padding:16px 18px; margin:22px 0;
+}
+.guess .bt{
+  font-weight:700; color:var(--guess-fg); font-size:15px; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.guess .bt::before{content:"？"; display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:50%; background:var(--guess-line); color:#fff; font-size:14px; font-weight:700}
+.guess p:last-child{margin-bottom:0}
+.warn{background:var(--warn-bg); border-left:4px solid var(--warn-line); padding:14px 16px; margin:18px 0; border-radius:0 5px 5px 0}
+.warn .bt{font-weight:700; color:var(--warn-fg); margin-bottom:6px}
+.src{font-size:13.5px; color:var(--muted); border-top:1px dotted var(--line); padding-top:8px; margin-top:14px}
+.src b{color:var(--fg)}
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:15px; display:block; overflow-x:auto; white-space:nowrap}
+@media(min-width:700px){table{display:table; white-space:normal}}
+th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+th{background:var(--accent-soft); font-weight:650; font-size:14px}
+tbody tr:nth-child(even){background:rgba(128,128,128,.05)}
+figure{margin:26px 0}
+figure svg{display:block; width:100%; height:auto; max-width:100%}
+figcaption{font-size:13.5px; color:var(--muted); margin-top:10px; line-height:1.65}
+.svg-node{fill:var(--svg-node); stroke:var(--svg-stroke); stroke-width:1.5}
+.svg-t{fill:var(--svg-text); font-size:13px; font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif}
+.svg-tb{fill:var(--svg-text); font-size:13.5px; font-weight:650; font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif}
+.svg-s{fill:var(--svg-dim); font-size:11.5px; font-family:ui-monospace,Menlo,monospace}
+.svg-solid{stroke:var(--svg-stroke); stroke-width:2; fill:none}
+.svg-dash{stroke:var(--guess-line); stroke-width:2; stroke-dasharray:7 5; fill:none}
+details{border:1px solid var(--line); border-radius:7px; padding:12px 16px; margin:14px 0; background:var(--card)}
+summary{cursor:pointer; font-weight:650}
+details[open] summary{margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--line)}
+.q{font-weight:650; margin-top:20px}
+.tldr{background:var(--accent-soft); border-radius:7px; padding:18px 20px; margin:0 0 8px}
+.tldr p:last-child{margin-bottom:0}
+hr.soft{border:0; border-top:1px solid var(--line); margin:28px 0}
+.small{font-size:14.5px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Day 17 · 领域 A 货币政策与利率体系 · 原理 A3</div>
+  <h1>从隔夜利率到房贷：利率传导的第一段</h1>
+  <div class="sub">
+    锚点原理：A3 从隔夜利率到房贷 · 事件日期：2026 年 8 月 27 日 – 9 月 2 日（美东）<br>
+    材料生成时间：2026 年 9 月 3 日（新加坡时间）
+  </div>
+</header>
+
+<h2>0｜今天你会学到什么</h2>
+
+<div class="tldr">
+<p>上周五美联储主席在一次演讲里说通胀还是太高，之后三个交易日，美国国债利率明显上行。可是同一段时间里，美联储一次会都没开，隔夜利率一个基点都没动。</p>
+<p>今天要讲明白一件事：<strong>美联储直接控制的那个利率，跟你借房贷时看到的那个利率，中间隔着好几道关卡。</strong> 每一道关卡都会改写信号——有的原封不动传下去，有的先动、有的后动，有的干脆不动。</p>
+<p>读完你能回答：为什么房贷利率会在美联储什么都没做的时候变？以及——我今天会用纯算术推出一个数，<strong>美东时间今天中午十二点就能验证对错</strong>。</p>
+</div>
+
+<h2>1｜今天的事件</h2>
+
+<p>先把事实摆出来。这一节只有事实，没有任何解释。每个数字我都写清楚它是谁发布的、什么口径、哪一天的。</p>
+
+<h3>1.1 美联储现在把利率定在哪里</h3>
+
+<p>2026 年 7 月 28–29 日的联邦公开市场委员会（FOMC）会议决定：<strong>维持联邦基金利率目标区间在 3.50% – 3.75%</strong>（原文写作 "3-1/2 to 3-3/4 percent"）。表决结果 9 票赞成、3 票反对，三位反对者（Beth M. Hammack、Neel Kashkari、Lorie K. Logan）反对的理由是<strong>他们想加息 25 个基点</strong>，不是想降息。</p>
+
+<p>会后美联储没有再开过会。下一次会议是 <strong>2026 年 9 月 15–16 日</strong>，这一次会同时发布经济预测摘要（SEP）。</p>
+
+<div class="src"><b>出处：</b>美联储 2026-07-29 FOMC 声明（federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm）；FOMC 2026 年会议日历（federalreserve.gov/monetarypolicy/fomccalendars.htm）。</div>
+
+<h3>1.2 关键利率读数（2026 年 9 月 1 日）</h3>
+
+<p>下面这组数字全部来自美联储 <strong>H.15《选定利率》日报</strong>，发布日 2026 年 9 月 2 日，数据日 2026 年 9 月 1 日。国债那几行的口径是<strong>固定期限国债收益率（Constant Maturity Treasury，简称 CMT）</strong>，年化、按投资基准报价——这个口径的含义我在第 3 节展开。</p>
+
+<table>
+<thead><tr><th>利率</th><th>2026-09-01 数值</th><th>它是什么</th></tr></thead>
+<tbody>
+<tr><td>联邦基金有效利率（EFFR）</td><td>3.63%</td><td>银行之间隔夜拆借的实际成交利率</td></tr>
+<tr><td>1 个月期国债（CMT）</td><td>3.85%</td><td rowspan="6">不同期限的美国国债利率</td></tr>
+<tr><td>3 个月期国债（CMT）</td><td>3.92%</td></tr>
+<tr><td>1 年期国债（CMT）</td><td>4.18%</td></tr>
+<tr><td>2 年期国债（CMT）</td><td>4.39%</td></tr>
+<tr><td>10 年期国债（CMT）</td><td>4.79%</td></tr>
+<tr><td>30 年期国债（CMT）</td><td>5.27%</td></tr>
+<tr><td>银行最优惠利率（Bank prime loan rate）</td><td>6.75%</td><td>美国银行对最好的企业客户报的基准贷款利率</td></tr>
+</tbody>
+</table>
+
+<div class="src"><b>出处：</b>美联储 H.15 Selected Interest Rates（Daily），发布日 2026-09-02，数据日 2026-09-01（federalreserve.gov/releases/h15/）。</div>
+
+<h3>1.3 上周五发生了什么</h3>
+
+<p>2026 年 8 月 28 日（周五），美联储主席 <strong>Kevin Warsh</strong> 在杰克逊霍尔经济政策研讨会（Jackson Hole Economic Policy Symposium）发表主题演讲，标题《In Our Time》。演讲原文里有这么几句：</p>
+
+<div class="box">
+<div class="bt">演讲原文摘录（2026-08-28）</div>
+<p>"Inflation is running above our 2 percent target. So the Fed's predominant focus right now should be on prices."<br>
+<span class="small">（通胀正运行在我们 2% 的目标之上。所以美联储当前的首要关注应该是物价。）</span></p>
+<p>"We must be confident that underlying inflation is moving to our objective, clearly and at sufficient speed. Otherwise, we have work to do."<br>
+<span class="small">（我们必须确信底层通胀正在清晰地、以足够的速度向我们的目标靠拢。否则，我们还有工作要做。）</span></p>
+<p>"The recent rise in overall commodity prices also bears watching."<br>
+<span class="small">（近期大宗商品价格的整体上涨也值得关注。）</span></p>
+<p style="margin-bottom:0">演讲中还给了一个数字：过去 12 个月里，<strong>PCE 物价指数的构成项中有 54% 涨幅超过 3%</strong>，而疫情前这个比例是 32%。</p>
+</div>
+
+<p>注意 Warsh 在这次演讲里<strong>没有</strong>对 9 月会议给出任何明确指引。他给的是判断标准（"必须确信通胀在向目标靠拢"）和一句条件句（"否则我们还有工作要做"）。</p>
+
+<div class="src"><b>出处：</b>Kevin M. Warsh, "In Our Time," Keynote remarks at the 2026 Jackson Hole Economic Policy Symposium, 2026-08-28（federalreserve.gov/newsevents/speech/warsh20260828a.htm）。</div>
+
+<h3>1.4 国债利率的实际走势</h3>
+
+<p>下面是美国财政部发布的<strong>每日国债到期收益率曲线（Daily Treasury Par Yield Curve Rates）</strong>，我把 8 月 27 日到 9 月 1 日的原始数字抄下来：</p>
+
+<table>
+<thead><tr><th>日期</th><th>2 年期</th><th>10 年期</th><th>30 年期</th><th>当天</th></tr></thead>
+<tbody>
+<tr><td>2026-08-27（周四）</td><td>4.20%</td><td>4.67%</td><td>5.19%</td><td>演讲前一天</td></tr>
+<tr><td>2026-08-28（周五）</td><td>4.34%</td><td>4.73%</td><td>5.22%</td><td><strong>Warsh 演讲当天</strong></td></tr>
+<tr><td>2026-08-31（周一）</td><td>4.34%</td><td>4.75%</td><td>5.25%</td><td></td></tr>
+<tr><td>2026-09-01（周二）</td><td>4.39%</td><td>4.79%</td><td>5.27%</td><td></td></tr>
+</tbody>
+</table>
+
+<p>三个交易日的变化：<strong>2 年期 +0.19 个百分点，10 年期 +0.12 个百分点，30 年期 +0.08 个百分点。</strong> 其中 2 年期在演讲当天一天就跳了 0.14 个百分点。</p>
+
+<div class="src"><b>出处：</b>美国财政部 Daily Treasury Par Yield Curve Rates，2026 年 8 月与 9 月（home.treasury.gov/resource-center/data-chart-center/interest-rates）。</div>
+
+<h3>1.5 房贷利率同期的走势</h3>
+
+<p>房地美（Freddie Mac）每周四发布<strong>初级房贷市场调查（Primary Mortgage Market Survey，简称 PMMS）</strong>。最近三期的 30 年期固定房贷利率：</p>
+
+<table>
+<thead><tr><th>发布日</th><th>30 年期固定</th><th>15 年期固定</th></tr></thead>
+<tbody>
+<tr><td>2026-08-13</td><td>6.67%</td><td>—</td></tr>
+<tr><td>2026-08-20</td><td>6.65%</td><td>5.95%</td></tr>
+<tr><td>2026-08-27</td><td>6.66%</td><td>5.98%</td></tr>
+</tbody>
+</table>
+
+<p>三周里 30 年期房贷利率的总变动幅度是 2 个基点（6.67 → 6.65 → 6.66）。<strong>基点</strong>这个词第一次出现，先说现象再给名字：利率的变动经常小到零点零几个百分点，每次都写"零点零一个百分点"太啰嗦，所以市场把 <span class="num">0.01 个百分点</span> 叫作 <strong>1 个基点（basis point，缩写 bp）</strong>。100 个基点 = 1 个百分点。</p>
+
+<div class="src"><b>出处：</b>Freddie Mac PMMS，2026-08-27 发布（freddiemac.com/pmms）及 PMMS 归档页。</div>
+
+<h3>1.6 同期的其他读数</h3>
+
+<ul>
+<li><strong>ADP 全国就业报告</strong>：2026 年 9 月 2 日发布，覆盖 2026 年 8 月。私营部门就业增加 <strong>38,000 人</strong>；7 月数据从 44,000 上修至 46,000。留存员工（job-stayers）基本工资同比 +3.0%，跳槽者（job-changers）基本工资同比 +4.7%。<span class="small">口径提示：这是 ADP 依据自家薪资处理数据编制的<strong>私营部门</strong>就业变化，不是美国劳工统计局的非农就业。两者口径不同，经常对不上。</span><br>
+<span class="src" style="display:block;border:0;padding:0;margin-top:4px"><b>出处：</b>ADP Media Center, 2026-09-02。</span></li>
+<li><strong>美股 9 月 2 日收盘</strong>：标普 500 报 7,666.60（+35.13 点，+0.5%）；道琼斯 53,061.95（+295.07 点，+0.6%）；纳斯达克综合 26,217.83（+118.05 点，+0.5%）；罗素 2000 报 2,953.17（+33.03 点，+1.1%）。<br>
+<span class="src" style="display:block;border:0;padding:0;margin-top:4px"><b>出处：</b>美联社行情稿（经 ABC News 转载），2026-09-02 收盘。</span></li>
+<li><strong>布伦特原油</strong>：2026 年 9 月 2 日报 95.29 美元/桶，当日 +0.64%。同日美国能源部长 Chris Wright 表示，周一通过霍尔木兹海峡的原油运量为 1,700 万桶，是战事开始以来的单日最高。<br>
+<span class="src" style="display:block;border:0;padding:0;margin-top:4px"><b>出处：</b>Trading Economics 布伦特原油页面，2026-09-02（<strong>二手来源</strong>，非交易所原始数据）。</span></li>
+</ul>
+
+<div class="warn">
+<div class="bt">我没能核实的读数</div>
+<p style="margin-bottom:0">美元指数（DXY）、美元兑新元（USDSGD）、VIX 波动率指数、9 月 2 日的国债收盘收益率——这四项我今天没有找到可靠的一手数据。所以本文<strong>不使用</strong>这四个数字。第 9 节会再列一次。</p>
+</div>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 800 1080" role="img" aria-label="从中东冲突到房贷利率的传导链">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="var(--svg-stroke)"/>
+    </marker>
+    <marker id="ahd" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="var(--guess-line)"/>
+    </marker>
+  </defs>
+
+  <!-- 环0 -->
+  <rect x="230" y="16" width="340" height="58" rx="7" class="svg-node"/>
+  <text x="400" y="40" text-anchor="middle" class="svg-tb">中东冲突 → 原油价格高位</text>
+  <text x="400" y="60" text-anchor="middle" class="svg-s">Brent 95.29 USD/bbl (9/2)</text>
+
+  <path d="M400,74 L400,116" class="svg-dash" marker-end="url(#ahd)"/>
+  <text x="412" y="99" class="svg-s" fill="var(--guess-line)">因果强度我推不出来</text>
+
+  <!-- 环1 -->
+  <rect x="170" y="118" width="460" height="66" rx="7" class="svg-node"/>
+  <text x="400" y="143" text-anchor="middle" class="svg-tb">8/28 美联储主席讲话：通胀是当前首要矛盾</text>
+  <text x="400" y="164" text-anchor="middle" class="svg-s">"Otherwise, we have work to do."</text>
+
+  <path d="M400,184 L400,226" class="svg-solid" marker-end="url(#ah)"/>
+
+  <!-- 环2 -->
+  <rect x="150" y="228" width="500" height="70" rx="7" class="svg-node"/>
+  <text x="400" y="253" text-anchor="middle" class="svg-tb">市场上调「未来隔夜利率会走多高」的预期</text>
+  <text x="400" y="275" text-anchor="middle" class="svg-s">2年期国债 4.20% → 4.39%  (+19bp, 8/27→9/1)</text>
+  <text x="400" y="291" text-anchor="middle" class="svg-s">注意：隔夜利率本身一动没动，仍是 3.63%</text>
+
+  <!-- 分叉 -->
+  <path d="M400,298 L400,326" class="svg-solid"/>
+  <path d="M400,326 L205,326 L205,356" class="svg-solid" marker-end="url(#ah)"/>
+  <path d="M400,326 L610,326 L610,356" class="svg-solid" marker-end="url(#ah)"/>
+  <text x="400" y="320" text-anchor="middle" class="svg-s">同一个隔夜利率，两条长度完全不同的管道</text>
+
+  <!-- 左支：长管道 -->
+  <rect x="60" y="358" width="290" height="64" rx="7" class="svg-node"/>
+  <text x="205" y="381" text-anchor="middle" class="svg-tb">10 年期国债利率</text>
+  <text x="205" y="401" text-anchor="middle" class="svg-s">4.67% → 4.79%  (+12bp)</text>
+  <text x="205" y="416" text-anchor="middle" class="svg-s">涨得比 2 年期少 7bp</text>
+
+  <path d="M205,422 L205,464" class="svg-solid" marker-end="url(#ah)"/>
+  <text x="215" y="447" class="svg-s">＋ 利差 1.976 个百分点</text>
+
+  <rect x="60" y="466" width="290" height="72" rx="7" class="svg-node"/>
+  <text x="205" y="489" text-anchor="middle" class="svg-tb">30 年期固定房贷利率</text>
+  <text x="205" y="509" text-anchor="middle" class="svg-s">8/27 实际: 6.66%</text>
+  <text x="205" y="527" text-anchor="middle" class="svg-s">9/3 我算的: ≈ 6.73%</text>
+
+  <path d="M205,538 L205,580" class="svg-solid" marker-end="url(#ah)"/>
+
+  <rect x="60" y="582" width="290" height="72" rx="7" class="svg-node"/>
+  <text x="205" y="605" text-anchor="middle" class="svg-tb">购房者的每月还款</text>
+  <text x="205" y="625" text-anchor="middle" class="svg-s">50万美元/30年</text>
+  <text x="205" y="643" text-anchor="middle" class="svg-s">$3,213 → $3,236 (+$23)</text>
+
+  <!-- 右支：短管道 -->
+  <rect x="465" y="358" width="290" height="64" rx="7" class="svg-node"/>
+  <text x="610" y="381" text-anchor="middle" class="svg-tb">银行最优惠利率 Prime</text>
+  <text x="610" y="401" text-anchor="middle" class="svg-s">6.75% ＝ 区间上限 3.75% + 3.00</text>
+  <text x="610" y="416" text-anchor="middle" class="svg-s">现在还没动</text>
+
+  <path d="M610,422 L610,464" class="svg-solid" marker-end="url(#ah)"/>
+  <text x="620" y="440" class="svg-s">若 9/16 真的</text>
+  <text x="620" y="455" class="svg-s">加 25bp</text>
+
+  <rect x="465" y="466" width="290" height="72" rx="7" class="svg-node"/>
+  <text x="610" y="489" text-anchor="middle" class="svg-tb">Prime → 7.00%</text>
+  <text x="610" y="509" text-anchor="middle" class="svg-s">1:1，决议当天或次日</text>
+  <text x="610" y="527" text-anchor="middle" class="svg-s">不打折、不提前、不滞后</text>
+
+  <path d="M610,538 L610,580" class="svg-solid" marker-end="url(#ah)"/>
+
+  <rect x="465" y="582" width="290" height="72" rx="7" class="svg-node"/>
+  <text x="610" y="605" text-anchor="middle" class="svg-tb">信用卡 / HELOC 利息</text>
+  <text x="610" y="625" text-anchor="middle" class="svg-s">10万美元 HELOC</text>
+  <text x="610" y="643" text-anchor="middle" class="svg-s">一年多付 $250</text>
+
+  <!-- 断点 -->
+  <path d="M205,654 L205,700" class="svg-dash" marker-end="url(#ahd)"/>
+  <rect x="60" y="702" width="290" height="66" rx="7" class="svg-node" stroke-dasharray="6 4"/>
+  <text x="205" y="726" text-anchor="middle" class="svg-tb" fill="var(--guess-line)">住房需求 → 建筑业 → GDP</text>
+  <text x="205" y="747" text-anchor="middle" class="svg-s" fill="var(--guess-line)">这一环我今天接不上</text>
+
+  <!-- 未接上的股票 -->
+  <rect x="465" y="702" width="290" height="66" rx="7" class="svg-node" stroke-dasharray="6 4"/>
+  <text x="610" y="726" text-anchor="middle" class="svg-tb" fill="var(--guess-line)">股票为什么没跌？</text>
+  <text x="610" y="747" text-anchor="middle" class="svg-s" fill="var(--guess-line)">9/2 标普 +0.5%，我接不上</text>
+
+  <!-- 图例 -->
+  <line x1="60" y1="810" x2="740" y2="810" stroke="var(--svg-dim)" stroke-width="1"/>
+  <text x="60" y="836" class="svg-tb">图例</text>
+  <path d="M60,860 L120,860" class="svg-solid" marker-end="url(#ah)"/>
+  <text x="132" y="865" class="svg-t">实线＝这一环有一手来源，或者是读者能自己验算的算术</text>
+  <path d="M60,894 L120,894" class="svg-dash" marker-end="url(#ahd)"/>
+  <text x="132" y="899" class="svg-t">虚线＝这一环我接不上，或只是推测，不进正文结论</text>
+
+  <rect x="60" y="920" width="680" height="140" rx="7" fill="none" stroke="var(--svg-dim)" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="80" y="948" class="svg-tb">这张图最重要的一句话</text>
+  <text x="80" y="976" class="svg-t">同一个隔夜利率 3.63%，走右边那条管道到信用卡，是 1:1、几天内、不打折；</text>
+  <text x="80" y="1000" class="svg-t">走左边那条管道到房贷，要经过 3 道关卡，每道关卡都会改写信号，</text>
+  <text x="80" y="1024" class="svg-t">而且左边这条已经<tspan font-weight="700">先动了</tspan>——在美联储还什么都没做的时候。</text>
+  <text x="80" y="1048" class="svg-t">所以「利率」不是一个东西，是一族东西。</text>
+</svg>
+<figcaption>传导链全图。实线环有一手来源或可自行验算的算术；虚线环是我接不上的地方，结论不写进正文。</figcaption>
+</figure>
+
+<h3>用人话把这条链读一遍</h3>
+
+<p>中东打仗，油价高位徘徊（布伦特 95 美元附近）。美联储主席在 8 月 28 日的演讲里说，通胀还在 2% 目标之上，现在首要盯的是物价，如果通胀不朝目标走，"我们还有工作要做"。</p>
+
+<p>市场听完这句，把"未来两年隔夜利率平均会有多高"这个预期往上调了。证据是 2 年期国债利率当天跳了 14 个基点，三天累计涨了 19 个基点。<strong>而隔夜利率本身一个基点都没动，因为美联储 7 月 29 日之后压根没开会。</strong></p>
+
+<p>接下来这个上调的预期分两条路往下走。</p>
+
+<p>右边这条短：美国银行的最优惠利率（prime）钉死在联邦基金目标区间上限加 3 个百分点。现在区间上限 3.75%，prime 就是 6.75%——正好对上 H.15 的数。这条路上没有中间人，美联储真加 25 个基点，prime 当天或次日就变 7.00%，挂钩它的信用卡和房屋净值信贷额度下个计息周期就涨。但<strong>现在它一动没动</strong>，因为美联储还没真加。</p>
+
+<p>左边这条长：预期先影响 10 年期国债（涨了 12 个基点），10 年期国债再加上一个利差变成房贷利率。这个利差最近三周稳定在 197 到 198 个基点之间。所以 10 年期涨了，房贷利率就该跟着涨——只是因为房贷利率的统计口径有一周的滞后，<strong>这次上涨还没印出来</strong>。第 3 节我会用算术把它算出来：美东时间 9 月 3 日中午发布的那个数，应该在 6.73% 附近。</p>
+
+<p>再往下两环我接不上，图里画的虚线：房贷利率涨了多少会压掉多少购房需求、进而影响多少 GDP，我今天没查到能给出数量级的材料；股票为什么在利率上行的当天还涨了 0.5%，我也没有能区分各种可能解释的证据。这两处我不编。</p>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>环 1｜先搞清楚：美联储到底控制哪个利率</h3>
+
+<p>这一环是地基。地基歪了，后面全歪。</p>
+
+<h4>生活场景</h4>
+
+<p>假设你和邻居各开一家小店。你店里今天现金多出来 10 万，放着不动一分钱不生；邻居今天现金短了 10 万，明天进货要用。你借给他一晚上，明天他还你 10 万零一点利息。这个"借一晚上"的利息，按年化算出来是多少，就是你俩之间的<strong>隔夜利率</strong>。</p>
+
+<p>美国的银行每天都在干这件事，规模是几千亿美元。所有这些"借一晚上"的交易，按成交金额加权平均，得到一个数——这个数就叫<strong>联邦基金有效利率</strong>（Effective Federal Funds Rate，缩写 EFFR）。9 月 1 日它是 3.63%。</p>
+
+<h4>关键：美联储不是"定"这个数，是"框"这个数</h4>
+
+<p>这里有一个新手最容易搞错的地方，务必停下来看清楚。</p>
+
+<p>美联储开会的产出<strong>不是</strong>一个利率数字，而是<strong>一个区间</strong>。7 月 29 日那次会议的决定是：目标区间 3.50% – 3.75%。</p>
+
+<p>然后美联储用一套工具（超额准备金付息、隔夜逆回购等，这些是 A2 的内容，今天不展开）把实际成交的 EFFR 逼到这个区间里面去。9 月 1 日 EFFR 是 3.63%，确实落在 3.50 到 3.75 之间。</p>
+
+<p>你可能会想：那区间和实际值差那 12 个基点算什么？答：那是市场供求在区间内部的波动，正常状态下它很稳定。今天这一课用不到这个细节，你只要记住<strong>"目标区间"和"实际成交利率"是两个不同的东西</strong>就够了。</p>
+
+<div class="box">
+<div class="bt">这一环的依据</div>
+<p style="margin-bottom:0">美联储 2026-07-29 FOMC 声明（目标区间 3.50–3.75%）；H.15 日报 2026-09-02 发布（EFFR = 3.63%，数据日 9/1）。两项都是一手来源。</p>
+</div>
+
+<h3>环 2｜从隔夜利率到 2 年期国债：市场是怎么"投票"的</h3>
+
+<p>这一环要回答：美联储什么都没做，为什么 2 年期国债利率会跳？</p>
+
+<h4>生活场景</h4>
+
+<p>你手上有 10 万块，打算存两年不动。银行给你两个选择：</p>
+
+<ol>
+<li><strong>方案甲</strong>：买一张两年期的定存单，今天就锁定一个利率，两年不变。</li>
+<li><strong>方案乙</strong>：每天存一天，第二天到期再存一天，这样滚 730 天。每一天拿的是那一天的隔夜利率。</li>
+</ol>
+
+<p>现在问：方案甲的利率应该定在多少，你才会觉得两个方案差不多？</p>
+
+<p>答案很直接：<strong>大约等于你预期未来 730 天里隔夜利率的平均值。</strong></p>
+
+<p>为什么？因为如果方案甲明显更高，所有人都去买定存单，银行发现不用给这么高也有人买，就会把它压下来；如果方案甲明显更低，没人买，银行就得往上提。两边被套利拉平。</p>
+
+<h4>算一遍</h4>
+
+<p>用具体数字走一遍。<span class="small">（下面这组数字是<strong>示意数字，只为演示算法</strong>，不是市场真实预期。）</span></p>
+
+<div class="calc">今天的隔夜利率　　　　＝ 3.63%
+假设市场认为：半年后涨到 3.88%，之后一直保持不变
+
+那么未来两年（24 个月）的隔夜利率长这样：
+　前 6 个月　＝ 3.63%
+　后 18 个月　＝ 3.88%
+
+两年的平均值：
+　3.63% × (6 ÷ 24) ＋ 3.88% × (18 ÷ 24)
+＝ 3.63% × 0.25 ＋ 3.88% × 0.75
+＝ 0.9075% ＋ 2.9100%
+＝ <b>3.8175%</b>
+
+所以在这个预期下，2 年期国债利率应该在 3.82% 附近。</div>
+
+<h4>现在把这个算式倒过来用</h4>
+
+<p>我们观察到 2 年期国债从 8 月 27 日的 4.20% 涨到 9 月 1 日的 4.39%，涨了 <strong>0.19 个百分点</strong>。问：市场把预期改了多少？</p>
+
+<p>假设市场新加进去一次 25 个基点的加息，而且认为加完之后不会再降回来。这次加息只影响未来两年里的<strong>一段</strong>时间——加息之前那段还是老利率。设"新利率覆盖的时间"占两年的比例是 <span class="num">f</span>：</p>
+
+<div class="calc">平均利率的上升幅度 ＝ 0.25 个百分点 × f
+
+我们观察到的上升幅度是 0.19 个百分点，所以：
+　0.25 × f ＝ 0.19
+　f ＝ 0.19 ÷ 0.25 ＝ <b>0.76</b>
+
+f = 0.76 的意思是：未来两年里有 76% 的时间处在新的、更高的利率上。
+　0.76 × 24 个月 ＝ 18.2 个月
+　剩下的 24 − 18.2 ＝ <b>5.8 个月</b>
+
+结论：市场的意思大约是
+「未来大约 6 个月内会多出一次 25 个基点的加息，加完不降回来」。</div>
+
+<p>注意这个结论跟外界报道的方向是一致的。据 CME FedWatch，9 月 16 日会议加息 25 个基点的概率在 9 月 1 日上午约为 65%–68%，而杰克逊霍尔演讲之前约为 36%。<strong>但请注意口径差别</strong>：FedWatch 说的是"9 月这一次会议"的概率，我上面算的是"未来两年的平均利率路径"，两者不是同一个东西，只是方向一致。</p>
+
+<div class="warn">
+<div class="bt">来源等级提示</div>
+<p style="margin-bottom:0">上面那个 65%–68% 是<strong>二手来源</strong>（Tech Times 报道转引 CME FedWatch；摩根大通财富管理给的数字是约 65%）。我今天没能直接读到 CME FedWatch 的原始页面。所以这个数字在本文里<strong>只作为方向印证，不参与任何计算</strong>。第 4 节和第 5 节的算式里没有它。</p>
+</div>
+
+<h4>你可能会想：为什么不直接用水平值算？</h4>
+
+<p>好问题，而且这是一个很容易掉进去的坑。</p>
+
+<p>直觉上你会想这么算：2 年期是 4.39%，隔夜是 3.63%，差 76 个基点，那不就说明市场预期未来两年平均要比现在高 76 个基点吗？</p>
+
+<p><strong>不能这么算。</strong> 我用一个纯算术的反例证明给你看。</p>
+
+<p>看 1 个月期国债：9 月 1 日是 3.85%，比隔夜的 3.63% 高 22 个基点。未来一个月里，美联储只开一次会（9 月 15–16 日）。就算它 100% 会加息、而且加满 25 个基点，加息从 9 月 17 日生效，那么在这一个月的窗口里：</p>
+
+<div class="calc">窗口：9/2 到 10/2，共约 30 天
+加息生效后剩下的天数：9/17 到 10/2，约 15 天
+所以新利率只覆盖了这个窗口的 15 ÷ 30 ＝ 50%
+
+即使加息是 100% 确定的，1 个月期利率最多也只能比隔夜高：
+　0.25 个百分点 × 50% ＝ <b>0.125 个百分点 ＝ 12.5 个基点</b>
+
+可我们实际看到的是 <b>22 个基点</b>。
+22 > 12.5，多出来的 9.5 个基点，无论如何都不可能来自加息预期。</div>
+
+<p>所以水平差里面一定还含有别的东西。这个别的东西是什么？先讲现象：你把钱锁定两年，中间万一利率大涨，你就眼睁睁看着别人拿更高的利息而你动不了。所以你会要求一点<strong>额外补偿</strong>才肯锁。市场给这笔额外补偿起了个名字，叫<strong>期限溢价</strong>（term premium）。</p>
+
+<p>期限溢价的麻烦在于：<strong>它不能被直接观测</strong>。你只能看到 2 年期利率这一个数，看不到它里面哪部分是预期、哪部分是期限溢价。（怎么把它估出来，是后面 A15 的内容。）</p>
+
+<p>那我上面用"变化量"（+19 个基点）而不是"水平"（+76 个基点）算，就是在绕开这个未知数：如果期限溢价这三天没变，它在相减的时候就被消掉了。</p>
+
+<div class="guess">
+<div class="bt">这一步是我的推测，不是定论</div>
+<p><strong>我推测什么：</strong>2 年期这 19 个基点的上行主要来自"预期路径上调"，期限溢价基本没变。</p>
+<p><strong>反对的看法是什么：</strong>有人会说，Warsh 的演讲同时提高了政策的不确定性（他明确说要改革前瞻指引、不给预设路径），而不确定性上升本身就会推高期限溢价。如果是这样，那 19 个基点里可能有相当一部分不是加息预期，而是"看不清所以要更多补偿"。</p>
+<p style="margin-bottom:0"><strong>需要什么材料才能判断：</strong>需要一个期限溢价的估计序列（例如纽约联储的 ACM 模型估计），比较 8 月 27 日和 9 月 1 日的估计值。我今天没有取到这个数据，所以这一步只能是推测。第 4 节和第 5 节里凡是依赖"期限溢价没变"的结论，我都会再标一次。</p>
+</div>
+
+<div class="box">
+<div class="bt">这一环的依据</div>
+<p style="margin-bottom:0">2 年期利率数值：美国财政部日度收益率曲线（一手）。EFFR：H.15（一手）。从利率变化倒推预期变化：<strong>纯算术推导</strong>，你可以自己验算。期限溢价没变：<strong>我的推测</strong>，已单独进框。</p>
+</div>
+
+<h3>环 3｜从 10 年期国债到 30 年房贷 —— 今天的主菜</h3>
+
+<p>这是今天的锚点原理所在。慢慢来。</p>
+
+<h4>先破掉一个非常普遍的错觉</h4>
+
+<p>很多人以为：美联储降息，房贷就变便宜；美联储加息，房贷就变贵。</p>
+
+<p>今天的数据直接把这个说法打掉。看两组事实：</p>
+
+<ul>
+<li><strong>8 月 13 日到 8 月 27 日</strong>：美联储一次会都没开，隔夜利率一个基点没动。可 PMMS 的 30 年房贷利率是 6.67% → 6.65% → 6.66%，一直在动。</li>
+<li><strong>8 月 28 日到 9 月 1 日</strong>：美联储还是一次会都没开，隔夜利率还是一个基点没动。可 10 年期国债涨了 12 个基点。</li>
+</ul>
+
+<p>所以：<strong>房贷利率跟着的不是隔夜利率。</strong></p>
+
+<h4>那它跟着什么？先想想银行的处境</h4>
+
+<p>你去美国的银行借 50 万美元，30 年，固定利率 6.66%，一签就是三十年不变。</p>
+
+<p>银行拿什么钱借给你？如果用储户的活期存款，那银行就有大麻烦了：存款是随时可以取走的、利率随行就市，可你这笔贷款锁死了三十年。利率一涨，银行付给储户的钱涨了，收你的钱一分不涨——直接亏。（这个"借短放长"的结构性风险，就是 E1 和 E7 要讲的银行倒闭的核心，今天先按下。）</p>
+
+<p>所以美国的做法是：<strong>银行不留着这笔贷款，它把贷款卖掉。</strong></p>
+
+<p>具体是这样：成千上万笔房贷被打包在一起，做成一种证券卖给债券投资人。买这个证券的人，拿到的是这一堆房贷未来每个月的还款流。先讲现象再给名字：这种"把一堆房贷的还款流打包成一张可以买卖的债券"的东西，叫<strong>房贷抵押证券</strong>（Mortgage-Backed Security，缩写 MBS）。</p>
+
+<h4>买家怎么给这个证券定价</h4>
+
+<p>一个债券投资人手上有一笔钱，他有两个去处：</p>
+
+<ol>
+<li>买美国国债——美国政府的债，几乎不会违约，现金流也确定。</li>
+<li>买 MBS——拿的是一堆房贷的还款。</li>
+</ol>
+
+<p>MBS 有两个国债没有的麻烦：</p>
+
+<ul>
+<li><strong>提前还款风险</strong>（prepayment risk）：借款人可能搬家把房子卖了、把贷款一次性还清；也可能利率降了就去再融资、把旧贷款还掉换个便宜的。这两种情况下，你原本以为能收三十年的利息，突然断了。而且断的时机专挑对你不利的时候——利率降了他就还，利率涨了他就不还。</li>
+<li><strong>信用风险</strong>：借款人可能还不上。</li>
+</ul>
+
+<p>所以买家会说：你得给我比国债更高的收益率，我才买。这个"更高的部分"就是<strong>利差</strong>（spread）。</p>
+
+<h4>为什么是 10 年期国债，不是 30 年期？</h4>
+
+<p>这个问题一定要问，因为房贷明明是三十年。</p>
+
+<p>答案就在刚才那个"提前还款"里：<strong>30 年期房贷的实际平均寿命远远短于 30 年。</strong> 美国人平均几年就搬一次家，利率一降就去再融资。所以这一堆房贷的现金流，重心大概落在今天往后十年左右的位置——跟 10 年期国债的现金流形态最接近。</p>
+
+<p>房利美（Fannie Mae）的说法是直接的："The 30-year mortgage rate is benchmarked to the rate of the 10-year Treasury note."（30 年房贷利率以 10 年期国债利率为基准。）</p>
+
+<h4>房利美给的拆解公式</h4>
+
+<div class="calc">房贷利率 ＝ 10 年期国债利率 ＋ 二级利差 ＋ 一二级利差
+
+逐项翻译：
+　<b>10 年期国债利率</b>　　基准，无风险的那一层
+　<b>二级利差</b>　　　　　　MBS 收益率 减去 国债收益率
+　　　　　　　　　　　　补偿提前还款风险和信用风险
+　<b>一二级利差</b>　　　　　借款人实际拿到的利率 减去 MBS 收益率
+　　　　　　　　　　　　覆盖服务费、担保费、放贷机构成本和利润</div>
+
+<p>房利美给的历史数值（口径：期间平均，单位百分点）：</p>
+
+<table>
+<thead><tr><th>时期</th><th>二级利差</th><th>一二级利差</th><th>两项合计</th></tr></thead>
+<tbody>
+<tr><td>1995 – 2005</td><td>1.17</td><td>约 0.5（2008 年前）</td><td>约 1.67</td></tr>
+<tr><td>2012 – 2019</td><td>0.71</td><td>约 1.01（危机后）</td><td>约 1.72</td></tr>
+<tr><td>2022/1 – 2024/11</td><td>1.40</td><td>约 1.01</td><td>约 2.41</td></tr>
+</tbody>
+</table>
+
+<p class="small">注意：房利美原文给的一二级利差是"2008 年前约 0.5、危机后约 1.01"两个数，不是逐期间给的。上表第三列的对应关系是我按这个说法拼的，合计列因此是<strong>粗略量级</strong>，不是房利美原文直接给出的数字。</p>
+
+<div class="src"><b>出处：</b>Fannie Mae, "What Determines the Rate on a 30-Year Mortgage?", Housing Insights（fanniemae.com）。</div>
+
+<h4>现在用真实数据把利差算出来 —— 但先得把口径搞对</h4>
+
+<p>这一步是今天最容易出错的地方，所以我要花两段讲口径。</p>
+
+<p>PMMS 不是"周四那天的房贷报价"。房地美在 2022 年 11 月改过方法，现在它是这样做的：</p>
+
+<div class="box">
+<div class="bt">PMMS 口径（2022 年 11 月起）</div>
+<ul style="margin-bottom:0">
+<li><strong>数据来源</strong>：房地美自家的自动核保系统 Loan Product Advisor 收到的贷款申请，不是问卷调查放贷机构。</li>
+<li><strong>覆盖窗口</strong>：原文——"The week of application activity starts at 12:00 a.m. ET the Thursday of last week and goes through 11:59 p.m. ET the following Wednesday."（一周的申请活动从<strong>上周四美东时间 00:00 开始，到本周三 23:59 结束</strong>。）</li>
+<li><strong>发布时间</strong>：每周四美东时间中午 12:00。</li>
+<li><strong>只包含</strong>：符合房利美/房地美标准（conforming）、单户、自住、本土 48 州及华盛顿特区、30 年或 15 年固定利率、贷款价值比 75%–80%、借款人 FICO 信用分 740 及以上、贷款金额在全国合规上限之内的购房贷款。</li>
+</ul>
+</div>
+
+<div class="src"><b>出处：</b>Freddie Mac, Economic &amp; Housing Research Note, 2022 年 10 月（PMMS 方法论变更说明，freddiemac.com/research/pdf/202210-Note-PMMS-12.pdf）。</div>
+
+<p>这个口径带来两个直接后果：</p>
+
+<ol>
+<li>它是<strong>一个七天窗口的平均</strong>，不是某一天的快照。所以要跟它比的国债利率，也必须是<strong>同一个窗口的日均</strong>，否则算出来的利差是假的。</li>
+<li>它有<strong>结构性滞后</strong>。周四中午发布的那个数，最新只包含到周三的申请。周四上午发生的事，要等下周四才会印出来。</li>
+</ol>
+
+<h4>把三周的利差算出来</h4>
+
+<p>我把每一期 PMMS 的窗口对应的 10 年期国债日均算出来。所有 10 年期数值来自美国财政部日度收益率曲线，PMMS 数值来自房地美。</p>
+
+<table>
+<thead><tr><th>PMMS 发布日</th><th>覆盖窗口</th><th>窗口内 10 年期各日数值</th><th>日均</th><th>PMMS 30 年</th><th>利差</th></tr></thead>
+<tbody>
+<tr><td>8/13（四）</td><td>8/6 – 8/12</td><td>4.69, 4.65, 4.72, 4.70, 4.68</td><td>4.688%</td><td>6.67%</td><td><strong>198.2 bp</strong></td></tr>
+<tr><td>8/20（四）</td><td>8/13 – 8/19</td><td>4.63, 4.68, 4.72, 4.71, 4.65</td><td>4.678%</td><td>6.65%</td><td><strong>197.2 bp</strong></td></tr>
+<tr><td>8/27（四）</td><td>8/20 – 8/26</td><td>4.69, 4.74, 4.70, 4.64, 4.66</td><td>4.686%</td><td>6.66%</td><td><strong>197.4 bp</strong></td></tr>
+</tbody>
+</table>
+
+<p>验算第一行给你看：</p>
+
+<div class="calc">(4.69 ＋ 4.65 ＋ 4.72 ＋ 4.70 ＋ 4.68) ÷ 5
+＝ 23.44 ÷ 5
+＝ <b>4.688%</b>
+
+6.67% − 4.688% ＝ 1.982 个百分点 ＝ <b>198.2 个基点</b></div>
+
+<p>三周的利差：<strong>198.2、197.2、197.4 个基点。最大差 1 个基点。</strong></p>
+
+<p>这个稳定程度说明一件很重要的事：这三周房贷利率那点小动静（6.67 → 6.65 → 6.66），<strong>几乎完全是 10 年期国债在动带出来的，利差本身没动。</strong></p>
+
+<h4>做一个明天中午就能验证的预测</h4>
+
+<p>下一期 PMMS 在美东时间 <strong>9 月 3 日周四中午 12:00</strong> 发布，覆盖窗口是 <strong>8 月 27 日到 9 月 2 日</strong>。这个窗口正好把 Warsh 演讲后的利率上行整个装进去了。</p>
+
+<div class="calc">窗口内 10 年期各交易日数值：
+　8/27 = 4.67　8/28 = 4.73　8/31 = 4.75　9/1 = 4.79　9/2 ≈ 4.81
+
+日均 ＝ (4.67 ＋ 4.73 ＋ 4.75 ＋ 4.79 ＋ 4.81) ÷ 5
+　　 ＝ 23.75 ÷ 5
+　　 ＝ <b>4.750%</b>
+
+跟上一期窗口的日均相比：4.750 − 4.686 ＝ <b>＋6.4 个基点</b>
+
+三周利差均值 ＝ (198.2 ＋ 197.2 ＋ 197.4) ÷ 3 ＝ <b>197.6 个基点</b>
+
+假设利差不变，预测下一期 PMMS：
+　4.750% ＋ 1.976 个百分点 ＝ <b>6.726%</b>
+　用三周利差的最小值和最大值给个区间：6.72% – 6.73%</div>
+
+<div class="box" style="border-color:var(--ok-line); background:var(--ok-bg)">
+<div class="bt">可证伪的预测</div>
+<p style="margin-bottom:0"><strong>美东时间 2026 年 9 月 3 日中午发布的 PMMS 30 年期固定房贷利率，应该在 6.70% 到 6.75% 之间，最可能是 6.72% 或 6.73%。</strong><br>
+如果它印出 6.66%（没动）或者 6.85%（跳太多），说明利差变了，那我这条链在这一环就断了。<strong>去看一眼，然后回来算误差是多少个基点。</strong></p>
+</div>
+
+<p>这个预测里唯一不精确的输入是 9 月 2 日的 10 年期数值。我用的 4.81% 来自二手行情（盘中报价），官方的 H.15 数据要到 9 月 3 日才发布。如果实际收盘是 4.79%，日均变成 4.746%，预测值变成 6.72%——影响很小，不改变结论。</p>
+
+<h4>这一环在什么情况下会断</h4>
+
+<p>整个预测挂在一个假设上：<strong>利差是常数。</strong> 它不是常数。会让它变的因素，按房利美的说法主要有这些：</p>
+
+<ul>
+<li><strong>美联储买卖 MBS</strong>。美联储买 MBS 的时候，等于市场上多了一个巨大的、不在乎提前还款风险的买家，二级利差被压窄；美联储缩表、不再买甚至卖出的时候，利差走阔。</li>
+<li><strong>利率的波动率</strong>。提前还款风险的本质是"借款人有权在对他有利的时候还钱"。利率波动越大，这个权利就越值钱，也就是说 MBS 买家吃的亏越大，他要的补偿就越多。（今天正好是波动率在上升的环境，所以这一条值得警惕。）</li>
+<li><strong>放贷机构的产能和竞争</strong>。一二级利差里含着放贷机构的成本和利润。申请量暴增、产能吃紧的时候，机构可以多要一点。</li>
+</ul>
+
+<p>还有两个跟口径有关的断点：</p>
+
+<ul>
+<li><strong>锁利率的时点比申请更早。</strong> PMMS 用的是申请数据，但借款人常常在申请之前就已经锁了利率。这会带来一段额外的、我今天没法量化的滞后。</li>
+<li><strong>PMMS 的口径很窄。</strong> FICO 740 以上、贷款价值比 75–80%、符合合规上限。如果你信用分低一些、首付少一些、或者贷款额超过合规上限（jumbo 贷款）、或者走的是 FHA / VA 这类政府担保项目，走的是另一套利差，跟 PMMS 这个数对不上。</li>
+</ul>
+
+<h4>学界与业界的分歧：利差为什么比历史宽</h4>
+
+<p>按今天算出来的 197.6 个基点，跟房利美给的 2012–2019 年那个量级（二级 0.71 ＋ 一二级约 1.01 ≈ 172 个基点）比，宽了大约 26 个基点；跟 2008 年前的量级（约 167 个基点）比宽了大约 31 个基点。</p>
+
+<p>为什么宽？<strong>这件事没有共识。</strong> 主要的几种说法：</p>
+
+<ol>
+<li><strong>美联储资产负债表</strong>。房利美那篇文章明确点了这一条：美联储 2022 年之后不再增持 MBS，市场上少了一个最大的、对提前还款风险不敏感的买家。</li>
+<li><strong>利率波动率</strong>。这几年利率的波动比 2012–2019 那段大得多，提前还款这个"期权"更值钱，MBS 买家要更多补偿。</li>
+<li><strong>银行的监管资本要求</strong>。银行持有 MBS 要占用资本，资本要求变化会改变它们的持仓意愿。</li>
+</ol>
+
+<div class="guess">
+<div class="bt">这一步是我的推测，不是定论</div>
+<p><strong>我推测什么：</strong>上面三条同时在起作用。</p>
+<p><strong>反对的看法是什么：</strong>只强调其中一条的人都有。强调美联储资产负债表的人会说，利差走阔的时点跟缩表开始的时点对得上；强调波动率的人会反驳说，缩表的规模相对 MBS 存量其实很小，解释不了这么大的利差。</p>
+<p style="margin-bottom:0"><strong>需要什么材料才能判断：</strong>需要一篇把这几个因素做成回归、给出各自贡献度的实证研究。我今天没有读到这样的材料，<strong>所以我不给任何一条权重</strong>。今天你只要知道"利差不是常数、而且它为什么这么宽有争议"就够了。</p>
+</div>
+
+<div class="box">
+<div class="bt">这一环的依据</div>
+<ul style="margin-bottom:0">
+<li>房贷 = 10 年期 + 二级利差 + 一二级利差，以及各期间历史值：Fannie Mae Housing Insights（一手）。</li>
+<li>PMMS 口径与窗口定义：Freddie Mac 2022 年 10 月方法论说明（一手，原文引用）。</li>
+<li>PMMS 数值：Freddie Mac（一手）。10 年期数值：美国财政部（一手）。</li>
+<li>三周利差 198.2 / 197.2 / 197.4，以及 6.73% 的预测：<strong>纯算术推导</strong>，读者可自行验算。</li>
+<li>利差为什么宽于历史：<strong>我的推测</strong>，已单独进框。</li>
+</ul>
+</div>
+
+<h3>环 4｜从房贷利率到每月还款</h3>
+
+<p>这一环是纯算术，没有任何需要相信我的地方。</p>
+
+<h4>先把公式讲清楚</h4>
+
+<p>美国的 30 年固定房贷是<strong>等额本息</strong>：每个月还一样多的钱，前期还的大部分是利息，后期大部分是本金，还满 360 个月刚好还清。</p>
+
+<p>每月还款额的公式是：</p>
+
+<div class="calc">每月还款 ＝ 本金 × i ÷ ( 1 − (1 + i)^(−n) )
+
+逐项翻译：
+　<b>本金</b>　　你借的钱，这里是 500,000 美元
+　<b>i</b>　　　 月利率 ＝ 年利率 ÷ 12
+　<b>n</b>　　　 总月数 ＝ 30 × 12 ＝ 360
+　<b>(1+i)^(−n)</b>　"n 个月之后的 1 块钱，折回今天值多少"
+　　　　　　　（这个动作叫折现，是 F1 的内容，今天只当成一个算术步骤）</div>
+
+<p>代入 6.66% 算一遍：</p>
+
+<div class="calc">i ＝ 6.66% ÷ 12 ＝ 0.555% ＝ 0.00555
+n ＝ 360
+
+(1 + 0.00555)^(−360) ＝ 0.136357
+1 − 0.136357 ＝ 0.863643
+
+500,000 × 0.00555 ＝ 2,775.00
+2,775.00 ÷ 0.863643 ＝ <b>3,213.13 美元 / 月</b></div>
+
+<p>再代入我预测的 6.73%：</p>
+
+<div class="calc">i ＝ 6.73% ÷ 12 ＝ 0.00560833
+(1 + 0.00560833)^(−360) ＝ 0.133539
+1 − 0.133539 ＝ 0.866461
+500,000 × 0.00560833 ＝ 2,804.17
+2,804.17 ÷ 0.866461 ＝ <b>3,236.35 美元 / 月</b></div>
+
+<h4>结果</h4>
+
+<table>
+<thead><tr><th>情形</th><th>房贷利率</th><th>每月还款</th><th>比 6.66% 多</th><th>一年多</th><th>30 年总共多</th></tr></thead>
+<tbody>
+<tr><td>8/27 实际</td><td>6.66%</td><td>$3,213.13</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>9/3 我预测</td><td>6.73%</td><td>$3,236.35</td><td>$23.22</td><td>$279</td><td>$8,356</td></tr>
+<tr><td>若 9/16 加息 25bp 且完整传导</td><td>6.91%</td><td>$3,296.35</td><td>$83.22</td><td>$999</td><td>$29,956</td></tr>
+</tbody>
+</table>
+
+<p class="small">（贷款金额 50 万美元、30 年、等额本息是<strong>示意数字，只为演示算法</strong>；利率 6.66% 是 PMMS 实际值，6.73% 是我的预测值，6.91% 是"6.66% ＋ 25 个基点"。）</p>
+
+<h4>这里有一个陷阱，必须提醒</h4>
+
+<p>上表最后一行写的是"若 9/16 加息 25 个基点<strong>且完整传导</strong>"。这四个字是关键，而且它大概率<strong>不成立</strong>。</p>
+
+<p>原因回到环 2：市场已经把大部分加息预期定价进去了。10 年期国债现在的 4.79%，里面已经包含了"9 月可能加息"这件事。所以真到 9 月 16 日宣布加息那天，10 年期国债<strong>不一定会再涨 25 个基点</strong>——如果加息完全符合预期，它可能一动不动，甚至因为"靴子落地、后面不会再加了"而下跌。</p>
+
+<p>这是债券市场最反直觉的一条规律，今天先埋一个种子：<strong>价格反应的不是"发生了什么"，而是"发生的和之前预期的差多少"</strong>。这一条会在 A11、A12 里展开。</p>
+
+<div class="box">
+<div class="bt">这一环的依据</div>
+<p style="margin-bottom:0"><strong>纯算术推导</strong>。等额本息公式是标准结果，上面每一步的中间值都写出来了，你可以拿计算器复算。</p>
+</div>
+
+<h3>分叉环｜同一个隔夜利率，另一条只有一步的管道</h3>
+
+<p>现在看图右边那条。这一环存在的意义，是让你看清楚左边那条到底"长"在哪里。</p>
+
+<h4>先讲现象</h4>
+
+<p>美国的银行对外报一个<strong>最优惠利率</strong>（prime rate）——名义上是给信用最好的企业客户的贷款利率。信用卡、房屋净值信贷额度（Home Equity Line of Credit，缩写 HELOC）、一部分企业浮动贷款，合同里直接写"利率 = prime + 若干个百分点"。</p>
+
+<h4>它跟美联储的关系</h4>
+
+<p>看两个已经在第 1 节列出来的数：</p>
+
+<div class="calc">FOMC 目标区间上限（2026-07-29 决议）　＝ 3.75%
+H.15 银行最优惠利率（2026-09-01）　　＝ 6.75%
+
+6.75% − 3.75% ＝ <b>3.00 个百分点</b>
+
+严丝合缝。</div>
+
+<p><strong>但请注意</strong>：这个"上限 + 3 个百分点"是美国银行业的<strong>定价惯例</strong>，不是美联储的规定，也不是法律。是各家银行自己这么定、然后互相跟随，形成的稳定关系。我上面只是拿两个已发布的数字做了一次减法，验证了这个关系目前成立。</p>
+
+<h4>所以这条管道有多短</h4>
+
+<p>如果 9 月 16 日美联储真的加 25 个基点，目标区间变成 3.75% – 4.00%，上限变成 4.00%。按上面的惯例，各大银行通常在决议当天或次日把 prime 改成 <strong>7.00%</strong>。</p>
+
+<p>算一下终端影响：</p>
+
+<div class="calc">一笔 100,000 美元的 HELOC，利率跟着 prime 涨 0.25 个百分点：
+　100,000 × 0.0025 ＝ <b>250 美元 / 年</b>
+
+一张欠 10,000 美元的信用卡：
+　10,000 × 0.0025 ＝ <b>25 美元 / 年</b></div>
+
+<h4>两条管道并排看</h4>
+
+<table>
+<thead><tr><th></th><th>右边：到 HELOC / 信用卡</th><th>左边：到 30 年固定房贷</th></tr></thead>
+<tbody>
+<tr><td>中间隔了几环</td><td>1 环（prime）</td><td>3 环（预期路径 → 10 年期 → 利差）</td></tr>
+<tr><td>传导比例</td><td>1:1，25 个基点就是 25 个基点</td><td>不是 1:1，每一环都会打折或放大</td></tr>
+<tr><td>时滞</td><td>决议当天或次日</td><td>预期阶段就先动了，且 PMMS 统计口径还有约一周滞后</td></tr>
+<tr><td>现在动了没有</td><td><strong>没动。</strong>美联储还没真加息</td><td><strong>已经动了。</strong>10 年期 8/27 起涨了 12 个基点</td></tr>
+</tbody>
+</table>
+
+<p>最后这一行是今天整节课最值得记住的对比：<strong>短管道要等真事发生，长管道对预期就有反应。</strong> 结果就是这个看起来反直觉的现象——在美联储什么都没做的这三天里，房贷那条线动了，信用卡那条线没动。</p>
+
+<h4>A3 的核心结论</h4>
+
+<div class="box" style="border-left:4px solid var(--accent)">
+<p style="margin-bottom:0"><strong>不存在一个统称的"利率"。</strong>同一个政策动作，传到不同产品身上的时滞和幅度完全不同，取决于中间隔了几环、每一环是不是 1:1、以及那一环反应的是"事实"还是"预期"。<br><br>
+下次再看到"美联储降息，房贷会便宜吗"这种问题，正确的回应不是猜方向，而是先问：<strong>这个产品的定价挂在哪一环上？</strong></p>
+</div>
+
+<div class="box">
+<div class="bt">这一环的依据</div>
+<p style="margin-bottom:0">prime 6.75% 与目标区间上限 3.75%：均为一手来源（H.15、FOMC 声明）。6.75 − 3.75 = 3.00 是<strong>算术</strong>。HELOC 和信用卡的多付金额是<strong>算术</strong>。"银行通常在决议当天或次日调整 prime"是行业惯例的描述，我今天没有取到一手材料逐次核对，属于常识性描述，请按<strong>较弱的依据</strong>对待。</p>
+</div>
+
+<h3>接不上的地方</h3>
+
+<p>按今天的规则，我把接不上的两处明写出来。</p>
+
+<div class="guess">
+<div class="bt">这一步是我的推测，不是定论</div>
+<p><strong>断点一：房贷利率上行会压掉多少购房需求、进而影响多少 GDP。</strong><br>
+我算出了每月还款多 23 美元。但从"多 23 美元"到"少多少人买房"到"建筑业少多少就业"到"GDP 少多少"，每一步都需要一个弹性数值。我今天没有查到可靠的数量级来源，所以这一段<strong>只画虚线，不给数字</strong>。</p>
+<p><strong>断点二：股票为什么没跌。</strong><br>
+按教科书直觉，加息预期上升应该压制股票。但 9 月 2 日标普 500 涨了 0.5%、罗素 2000 涨了 1.1%。我没有能区分各种可能解释的材料——可能是 ADP 就业偏弱让市场觉得加息不会持续，可能是别的完全无关的原因。<strong>一天的价格变动可以有无数种事后说法，这正是最容易编故事的地方，所以我什么都不说。</strong></p>
+<p style="margin-bottom:0"><strong>断点三：油价与讲话之间的因果。</strong><br>
+Warsh 在演讲里确实说了"大宗商品价格的整体上涨值得关注"，这是原文。但从"油价高"到"他因此更鹰派"到"因此市场重定价"，这条因果链的强度我推不出来。图上这一段是虚线。</p>
+</div>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="small"><strong>先说清楚：这一节是教学分析和判断框架，不是投资建议，也不针对你的具体情况。</strong>下面所有内容的目的是让你看懂机制，不是让你做任何操作。</p>
+
+<h3>4.1 一个结构性差别：新加坡的房贷链条只有一环</h3>
+
+<p>你住新加坡，所以这个对比对你特别有用。</p>
+
+<p>先讲新加坡这边的基准是什么。<strong>SORA</strong>（Singapore Overnight Rate Average，新加坡隔夜利率平均）的官方定义是：新加坡金管局（MAS）在每个新加坡营业日，取当天上午 8 点到下午 6 点 15 分之间所有合格的新元隔夜无担保银行间交易，按<strong>成交量加权</strong>算出的平均利率。次日上午 9 点在 MAS 网站发布。</p>
+
+<p>注意看这个定义：<strong>SORA 就是一个隔夜利率。</strong> 而新加坡的浮动利率房贷，合同里挂钩的是"复合 SORA"——把过去 30 天或 90 天的每日 SORA 按复利滚一遍得到的平均值（分别叫 1 个月复合 SORA 和 3 个月复合 SORA）。</p>
+
+<p>所以两边的链条长度差得非常远：</p>
+
+<table>
+<thead><tr><th></th><th>美国 30 年固定房贷</th><th>新加坡 SORA 挂钩浮动房贷</th></tr></thead>
+<tbody>
+<tr><td>房贷利率挂在哪一环</td><td>10 年期国债 + 利差</td><td>隔夜利率的过去 30 或 90 天平均</td></tr>
+<tr><td>中间有几道关卡</td><td>3 道</td><td>基本上 0 道（就是隔夜利率本身在滚）</td></tr>
+<tr><td>对"预期"敏感吗</td><td>非常敏感，预期一变就动</td><td>不敏感，只有隔夜利率真的变了才动</td></tr>
+<tr><td>签约后利率会变吗</td><td>不变，锁死 30 年</td><td>每个重定价周期跟着复合 SORA 变</td></tr>
+</tbody>
+</table>
+
+<p>这带来一个具体的推论：<strong>美国那边"预期先行"的现象，在新加坡浮动房贷上不会发生。</strong> 复合 SORA 是过去 30 或 90 天已经发生的隔夜利率的滚动平均，它没法对未来的预期做出反应——它只能反映已经发生的事。</p>
+
+<div class="src"><b>出处：</b>MAS SORA 页面（mas.gov.sg/monetary-policy/sora，SORA 定义与发布时间，一手）；复合 SORA 用于房贷的做法是新加坡银行业的普遍合同结构，MAS 页面列出了 1 个月/3 个月/6 个月复合 SORA 的发布，但<strong>没有解释它在贷款中的用法</strong>——这一点我用的是行业通行做法的描述，属于较弱依据。</div>
+
+<h3>4.2 更根本的一层：MAS 根本不设政策利率</h3>
+
+<p>这一点比上面那条更重要，而且新手几乎一定会搞错。</p>
+
+<p>美联储的政策工具是<strong>一个利率区间</strong>。MAS 的政策工具<strong>不是利率</strong>。MAS 的原文表述是：</p>
+
+<div class="box">
+<p style="margin-bottom:0">"MAS implements monetary policy by undertaking foreign exchange operations to keep the Singapore dollar nominal effective exchange rate within a policy band."<br>
+<span class="small">（MAS 通过外汇操作实施货币政策，把新元名义有效汇率保持在一个政策区间之内。）</span></p>
+</div>
+
+<p>翻译成大白话：<strong>美联储管的是钱的价格（利率），MAS 管的是钱对外的价格（汇率）。</strong> 新加坡的利率不是 MAS 定出来的，是在汇率政策既定之后、由市场供求决出来的一个结果。</p>
+
+<p>所以下面这句话是错的，你以后看到有人这么说要能识破：<strong>"美联储加息，新加坡房贷就会涨。"</strong> 这中间没有机械的传导——MAS 不跟随美联储调利率，因为它压根没有一个可调的政策利率。</p>
+
+<div class="guess">
+<div class="bt">这一步是我的推测，不是定论</div>
+<p><strong>那美国利率到底会不会影响新元利率？</strong>会，但走的是完全不同的通道——资本可以自由跨境流动，套利活动会把两边的利率、汇率和远期汇率绑在一起（这是 D3 利率平价的内容）。</p>
+<p style="margin-bottom:0"><strong>但我今天不给这条通道的强度和时滞。</strong>要说清楚它，我需要新元与美元的利差和远期点数据，以及历史上美联储动作后 SORA 的响应统计。这两样我今天都没有。<strong>所以你现在只需要记住"不是机械传导"这一句，别的先不要下结论。</strong></p>
+</div>
+
+<h3>4.3 SORA 目前的水平（来源较弱，请自行核对）</h3>
+
+<div class="warn">
+<div class="bt">这个数字我只有二手来源</div>
+<p style="margin-bottom:0">我查到的复合 SORA 是：1 个月 1.22%、3 个月 1.16%，标注日期 2026 年 7 月 27 日，来源是 MoneySmart 转引 MAS。<strong>我今天没能直接打开 MAS 的数据门户核对</strong>（页面返回 403）。所以这两个数在本文里<strong>不参与任何计算，也不作为任何结论的依据</strong>。你要用的话，请自己去 <span class="num">eservices.mas.gov.sg/statistics/dir/domesticinterestrates.aspx</span> 看当天的官方值。</p>
+</div>
+
+<p>不过就算只看这个量级，有一件事是清楚的：新元的短端利率（1% 出头）和美元的隔夜利率（3.63%）之间存在一个很大的差距。这个差距是什么、它怎么影响持有美元资产的成本和收益，是 D3（利率平价）和 D24（对冲成本从何而来）的内容。<strong>今天不展开，也不给任何结论。</strong></p>
+
+<h3>4.4 今天这条链跟你的美元资产有什么关系</h3>
+
+<p>诚实地说：<strong>今天这条链的终点是美国的房贷和信用卡，不是你的股票组合。</strong> 我不打算硬把它拐到"所以美股会怎样"上去——那正是事后叙事最容易发生的地方。</p>
+
+<p>能说的只有这两条，而且都只是把已经算过的东西复述一遍：</p>
+
+<ul>
+<li><strong>你现在能观察到的事实是：</strong>美国国债利率在上行（10 年期 8/27 到 9/1 涨了 12 个基点），2 年期涨得比 10 年期多 7 个基点，也就是曲线在这几天变平了。这个"变平"意味着什么，是 A4 和 A16 的内容。</li>
+<li><strong>股票当天没跌</strong>（9/2 标普 +0.5%）。这跟"加息预期上升压制股票"的直觉相反，而我说过了，我接不上这一环。<strong>不要因为我在这份材料里讲了加息预期，就默认股票应该跌——这份材料里没有任何一处推出了这个结论。</strong></li>
+</ul>
+
+<h3>4.5 一个你可以直接用的判断框架</h3>
+
+<p>今天真正能带走的，是一个问题清单。以后每次看到"某某利率变了"的新闻，按顺序问：</p>
+
+<ol>
+<li><strong>变的是哪个利率？</strong>是政策目标区间、是隔夜实际成交、是某个期限的国债、还是某个终端产品？</li>
+<li><strong>我关心的那个产品，定价挂在哪一环上？</strong>挂在隔夜（如 prime 系产品），还是挂在长端（如美国房贷），还是挂在过去的平均（如复合 SORA 系产品）？</li>
+<li><strong>这一环到那一环之间有几道关卡？每道关卡是 1:1 吗？</strong></li>
+<li><strong>这个变化是"事实"还是"预期"？</strong>如果是预期，那长端可能已经动完了，等真事发生反而不动。</li>
+<li><strong>中间那个利差，最近稳不稳？</strong>如果稳，链条能算；如果它自己在动，那链条就断了，得先搞清楚利差为什么动。</li>
+</ol>
+
+<h2>5｜反向倒推</h2>
+
+<p>前面几节是<strong>顺着推</strong>：发生了 A，所以会有 B。这一节倒过来问：<strong>市场现在的价格，说明大家心里在赌什么？</strong></p>
+
+<p>这样问的价值在于，价格是很多人真金白银投票的结果，它比任何评论都更直接地告诉你共识在哪里。而知道共识在哪里，你才能问下一个问题：这个共识里哪一块最容易错？</p>
+
+<h3>5.1 现在的价格里已经定了什么</h3>
+
+<h4>（一）市场定了"未来半年内多一次加息，加完不降回来"</h4>
+
+<p>依据：2 年期国债 8/27 到 9/1 涨了 19 个基点。按环 2 的算术，0.19 ÷ 0.25 = 0.76，对应"两年里有 76% 的时间在新利率上"，也就是加息大约发生在 5.8 个月内。</p>
+
+<p><strong>这个数据为什么能反映这个假设：</strong>因为 2 年期国债利率约等于未来两年隔夜利率的预期平均值加上期限溢价。隔夜利率本身这三天没动（还是 3.63%），所以 2 年期的变化只能来自"预期平均值"或"期限溢价"这两块。</p>
+
+<h4>（二）市场定了"这次收紧是短期的，长期利率中枢没跟着抬那么多"</h4>
+
+<p>依据：2 年期涨 19 个基点，10 年期只涨 12 个基点，差 7 个基点。</p>
+
+<p><strong>这个数据为什么能反映这个假设：</strong>10 年期利率约等于未来十年隔夜利率的预期平均值加上期限溢价。如果市场认为这次加息之后利率会一直保持在高位十年，那 10 年期应该跟 2 年期涨得差不多。它涨得少，意味着市场预期这个高利率不会持续那么久。</p>
+
+<p class="small">（上面两条都建立在"期限溢价不变"这个假设上。期限溢价不能直接观测，这是这两条推论的软肋，环 2 的推测框里已经标过。）</p>
+
+<h4>（三）市场还没有把这次利率上行传到房贷上</h4>
+
+<p>依据：最新的 PMMS（8/27 发布）是 6.66%，它的窗口是 8/20 – 8/26，完全在 Warsh 演讲之前。<strong>这不是市场的判断，纯粹是统计口径的滞后。</strong></p>
+
+<h4>（四）加息预期建立在油价维持高位上，而供给还没真断</h4>
+
+<p>依据：布伦特 95 美元附近（二手来源）；同日美国能源部长说霍尔木兹海峡周一的原油运量 1,700 万桶，是战事开始以来单日最高。</p>
+
+<p><strong>这两条并排放很关键</strong>：价格在高位，说明市场在给"可能中断"付钱；运量创新高，说明"实际中断"还没发生。</p>
+
+<h3>5.2 哪个假设最脆弱</h3>
+
+<p>按脆弱程度从高到低排：</p>
+
+<ol>
+<li><strong>"利差恒定 197.6 个基点"</strong> —— 最脆弱，也最快能验证。<strong>美东时间今天中午就见分晓。</strong> 而且现在正好是利率波动率上升的环境，按房利美列的机制，这恰恰是利差最容易走阔的时候。</li>
+<li><strong>"2 年期的移动全是预期、期限溢价没变"</strong> —— 无法直接观测。Warsh 在演讲里明确说要改革前瞻指引、不给预设路径，这本身就可能推高不确定性补偿。这一条我判断不了。</li>
+<li><strong>"加息预期站得住"</strong> —— 依赖油价。运量创新高说明供给还没真断；如果冲突降温、油价回落，整条链会往回退。另外 ADP 只有 3.8 万，如果劳动力市场确实在走弱，加息的理由也会被削弱。</li>
+</ol>
+
+<h3>5.3 如果最脆弱的那个错了，价格该往哪走</h3>
+
+<p>只讲方向，不给幅度——给幅度就需要我没有的弹性估计。</p>
+
+<ul>
+<li><strong>如果利差走阔</strong>（比如从 197.6 走到 210 个基点）：房贷利率会比我算的 6.73% 更高，涨幅超过 10 年期国债的涨幅。这时候"美联储没加息，房贷却涨了不少"的现象会更明显。</li>
+<li><strong>如果加息预期被证伪</strong>（比如 9 月 4 日非农大幅走弱、或者 9 月 11 日 CPI 明显回落）：2 年期应该回落得比 10 年期更多，曲线重新变陡；10 年期回落会顺着同一条链把房贷利率带下来，同样有大约一周的口径滞后。</li>
+<li><strong>如果 9 月 16 日真加息但完全符合预期</strong>：按环 4 末尾埋的那个种子，10 年期<strong>不一定涨</strong>；而 prime 那条会 1:1 立刻涨到 7.00%。两条管道的分化会在那一天最明显——这本身就是一个很好的观察窗口。</li>
+</ul>
+
+<h3>5.4 未来 1–3 个月的证伪节点</h3>
+
+<table>
+<thead><tr><th>日期（美东）</th><th>事件</th><th>检验什么</th></tr></thead>
+<tbody>
+<tr><td>9/3 周四 12:00</td><td>Freddie Mac PMMS</td><td><strong>直接检验环 3。</strong>我预测 6.72%–6.73%</td></tr>
+<tr><td>9/4 周五 08:30</td><td>BLS 8 月就业报告</td><td>ADP 只有 3.8 万，非农是否印证。弱 → 加息逻辑受压</td></tr>
+<tr><td>9/10 周四 12:00</td><td>PMMS</td><td>利差是否仍然稳定</td></tr>
+<tr><td>9/11 周五 08:30</td><td>BLS 8 月 CPI</td><td>油价有没有传进物价，环 0 那条虚线的间接证据</td></tr>
+<tr><td>9/15–16</td><td>FOMC 决议 + 经济预测摘要</td><td>加不加息；点阵图给的路径 vs 市场定的路径</td></tr>
+<tr><td>10/2 周五 08:30</td><td>BLS 9 月就业报告</td><td></td></tr>
+<tr><td>10/27–28</td><td>FOMC 决议</td><td></td></tr>
+</tbody>
+</table>
+
+<p class="small">日期来源：BLS 官方发布日程（bls.gov/schedule）；FOMC 2026 年会议日历（federalreserve.gov）；PMMS 发布时间来自房地美方法论说明。</p>
+
+<h3>5.5 自查：这一节是不是在编事后叙事</h3>
+
+<p>规则里说，这一节最容易滑向事后叙事，写完要用一个检验问一遍：<strong>这套说法在事情发生之前，能不能用来做预测？</strong></p>
+
+<p>答：<strong>能，而且我已经把预测写下来了。</strong></p>
+
+<p>环 3 那个 6.72%–6.73% 是在数据发布<strong>之前</strong>写的，输入全部是公开的、可复核的数字，算法就是"窗口日均 + 三周利差均值"，你可以自己算一遍。它有明确的证伪条件：印出 6.66% 或 6.85% 就是错。</p>
+
+<p>这跟"股票跌了因为加息预期"那种说法的区别在哪？后者<strong>永远成立</strong>——股票涨了也能说成"因为 ADP 疲软所以加息预期降温"。<strong>一个永远成立的说法，就是一个什么都没说的说法。</strong> 所以我在 4.4 节明确拒绝了对股票走势给任何解释。</p>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式：先问管道，再问信号</h3>
+
+<p>今天真正学到的不是几个利率数字，而是这样一个动作：</p>
+
+<p>当你听到"上游发生了变化"的时候，不要立刻去想"下游会怎样"。<strong>先去把上游到下游的那根管道画出来：中间有几段，每一段是什么材质，哪一段会放大、哪一段会衰减、哪一段会延迟。</strong></p>
+
+<p>今天这条链上，同一个上游信号（隔夜利率预期）经过两根管道：</p>
+
+<ul>
+<li>一根管道（prime）几乎没有内部结构，信号原封不动、几乎零延迟地传到终端。</li>
+<li>另一根管道（房贷）有三段，每一段都会改写信号：预期段会<strong>提前</strong>反应，利差段会<strong>加一个可能变化的常数</strong>，统计口径段会<strong>延迟一周</strong>。</li>
+</ul>
+
+<p>结果就是：同一个上游冲击，在两个终端上表现出完全不同的时点和幅度。<strong>如果你只盯着上游，你会两个都猜错。</strong></p>
+
+<h3>6.2 同一个思维方式在别处怎么用</h3>
+
+<h4>例子一：系统性能里的时延传递</h4>
+
+<p>你的专业背景里有一个几乎一模一样的结构。上游来了一波请求突发（burst），下游服务的时延会怎么变？</p>
+
+<ul>
+<li>如果这是一个<strong>同步调用</strong>，没有队列缓冲，上游抖动会 1:1 传到终端时延上——这就是 prime。</li>
+<li>如果中间有一个<strong>带缓冲的队列</strong>，那个突发会被摊平成一段"更长、更矮"的时延抬升，峰值下来了但持续时间拉长了，而且终端看到抬升的时刻比突发实际发生的时刻要晚——这就是房贷。</li>
+</ul>
+
+<p class="small"><strong>这只是一个类比，不是同一个机制。</strong>真实的机制上面已经完整讲过了：房贷那条链之所以有延迟和衰减，是因为 PMMS 的统计窗口、因为利差是一个会变的加数、因为长端反应的是预期而不是事实。队列理论解释不了这三件事中的任何一件。类比的用处只是让你记住这个结构，不是替代机制。</p>
+
+<h4>例子二：供应链的牛鞭效应</h4>
+
+<p>零售端需求波动 5%，经过分销商、批发商、原材料供应商几层库存之后，到最上游可能变成 30% 的波动。方向跟房贷那条链<strong>相反</strong>（放大而不是平滑），但道理是同一个：<strong>中间每一环都不是透明的，每一环都会按自己的逻辑改写信号。</strong></p>
+
+<h3>6.3 这条链在整个系统里的位置</h3>
+
+<p>今天这条链是"利率"板块的主干。它跟另外三个板块的咬合点是这样的：</p>
+
+<figure>
+<svg viewBox="0 0 800 420" role="img" aria-label="今天这条链与四大板块的咬合关系">
+  <rect x="290" y="20" width="220" height="60" rx="8" class="svg-node" stroke-width="2.5"/>
+  <text x="400" y="45" text-anchor="middle" class="svg-tb">今天这条链</text>
+  <text x="400" y="66" text-anchor="middle" class="svg-s">隔夜 → 长端 → 利差 → 房贷</text>
+
+  <line x1="400" y1="80" x2="400" y2="120" class="svg-solid" marker-end="url(#ah2)"/>
+  <defs><marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+    <path d="M0,0 L9,4.5 L0,9 z" fill="var(--svg-stroke)"/></marker>
+    <marker id="ahd2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+    <path d="M0,0 L9,4.5 L0,9 z" fill="var(--guess-line)"/></marker></defs>
+
+  <path d="M400,120 L120,120 L120,158" class="svg-solid" marker-end="url(#ah2)"/>
+  <path d="M400,120 L400,158" class="svg-solid" marker-end="url(#ah2)"/>
+  <path d="M400,120 L680,120 L680,158" class="svg-solid" marker-end="url(#ah2)"/>
+
+  <rect x="20" y="160" width="200" height="96" rx="8" class="svg-node"/>
+  <text x="120" y="184" text-anchor="middle" class="svg-tb">E 信用</text>
+  <text x="120" y="206" text-anchor="middle" class="svg-t">今天算的 197.6bp</text>
+  <text x="120" y="226" text-anchor="middle" class="svg-t">就是一个「利差」</text>
+  <text x="120" y="246" text-anchor="middle" class="svg-s">→ E15 信用利差</text>
+
+  <rect x="300" y="160" width="200" height="96" rx="8" class="svg-node"/>
+  <text x="400" y="184" text-anchor="middle" class="svg-tb">A 利率（主场）</text>
+  <text x="400" y="206" text-anchor="middle" class="svg-t">收益率曲线是什么</text>
+  <text x="400" y="226" text-anchor="middle" class="svg-t">期限溢价怎么估</text>
+  <text x="400" y="246" text-anchor="middle" class="svg-s">→ A4 / A15 / A16</text>
+
+  <rect x="580" y="160" width="200" height="96" rx="8" class="svg-node"/>
+  <text x="680" y="184" text-anchor="middle" class="svg-tb">D 汇率</text>
+  <text x="680" y="206" text-anchor="middle" class="svg-t">美元利率上行</text>
+  <text x="680" y="226" text-anchor="middle" class="svg-t">如何影响新元资产</text>
+  <text x="680" y="246" text-anchor="middle" class="svg-s">→ D3 / D25 / D30</text>
+
+  <path d="M400,256 L400,300" class="svg-dash" marker-end="url(#ahd2)"/>
+
+  <rect x="240" y="302" width="320" height="86" rx="8" class="svg-node" stroke-dasharray="6 4"/>
+  <text x="400" y="326" text-anchor="middle" class="svg-tb" fill="var(--guess-line)">B 增长</text>
+  <text x="400" y="348" text-anchor="middle" class="svg-t" fill="var(--guess-line)">房贷 → 购房需求 → 建筑业 → GDP</text>
+  <text x="400" y="370" text-anchor="middle" class="svg-t" fill="var(--guess-line)">这一段今天接不上，画虚线</text>
+</svg>
+<figcaption>今天这条链在四大板块中的位置。虚线那一段是我今天没有材料支撑的部分。</figcaption>
+</figure>
+
+<h2>7｜今日新术语卡片</h2>
+
+<table>
+<thead><tr><th>术语（中文 / 英文）</th><th>一句话大白话</th><th>出现在哪一环</th></tr></thead>
+<tbody>
+<tr><td>基点<br>basis point, bp</td><td>0.01 个百分点。100 个基点 = 1 个百分点</td><td>全文</td></tr>
+<tr><td>目标区间<br>target range</td><td>美联储开会定的不是一个数，是一个区间（现在 3.50%–3.75%）</td><td>环 1</td></tr>
+<tr><td>联邦基金有效利率<br>EFFR</td><td>银行之间"借一晚上"的实际成交利率，按成交量加权（现在 3.63%）</td><td>环 1</td></tr>
+<tr><td>固定期限国债收益率<br>CMT</td><td>财政部按标准期限（2年、10年…）算出来的国债利率口径</td><td>环 2</td></tr>
+<tr><td>期限溢价<br>term premium</td><td>你把钱锁定更久，要求的那点额外补偿。<strong>不能直接观测</strong></td><td>环 2</td></tr>
+<tr><td>房贷抵押证券<br>MBS</td><td>把一堆房贷的未来还款打包成一张可买卖的债券</td><td>环 3</td></tr>
+<tr><td>提前还款风险<br>prepayment risk</td><td>借款人可以在对他有利的时候提前还清，让你收不到预期的利息</td><td>环 3</td></tr>
+<tr><td>利差<br>spread</td><td>一个利率比另一个基准利率高出来的部分</td><td>环 3</td></tr>
+<tr><td>二级利差<br>secondary spread</td><td>MBS 收益率减去国债收益率，补偿提前还款和信用风险</td><td>环 3</td></tr>
+<tr><td>一二级利差<br>primary-secondary spread</td><td>借款人拿到的利率减去 MBS 收益率，覆盖放贷机构的成本和利润</td><td>环 3</td></tr>
+<tr><td>初级房贷市场调查<br>PMMS</td><td>房地美每周四发的房贷利率，口径是上周四到本周三的申请数据平均</td><td>环 3</td></tr>
+<tr><td>等额本息</td><td>每月还一样多的钱，还满 360 个月刚好还清</td><td>环 4</td></tr>
+<tr><td>银行最优惠利率<br>prime rate</td><td>美国银行的基准贷款利率，按惯例 = 目标区间上限 + 3 个百分点</td><td>分叉环</td></tr>
+<tr><td>房屋净值信贷额度<br>HELOC</td><td>拿房子的净值做抵押的循环额度，利率通常挂钩 prime</td><td>分叉环</td></tr>
+<tr><td>新加坡隔夜利率平均<br>SORA</td><td>MAS 每日发布的新元隔夜银行间成交量加权平均利率</td><td>第 4 节</td></tr>
+<tr><td>名义有效汇率<br>NEER</td><td>一国货币对一篮子贸易伙伴货币的加权汇率。MAS 的政策目标</td><td>第 4 节</td></tr>
+</tbody>
+</table>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<p class="q">第一题</p>
+<p>假设美联储在 9 月 16 日宣布加息 25 个基点，完全符合市场此前的定价。第二天你去看数据，发现 <strong>prime 从 6.75% 涨到了 7.00%，但 10 年期国债利率反而跌了 4 个基点</strong>。这两件事矛盾吗？请用今天讲过的机制解释。</p>
+
+<details>
+<summary>参考答案</summary>
+<p>不矛盾，而且这正是今天这条链预测的典型结果。</p>
+<p><strong>prime 那一边。</strong> prime 按惯例钉在目标区间上限加 3 个百分点。加息后上限从 3.75% 变成 4.00%，所以 prime 变成 7.00%。这条管道反应的是<strong>已经发生的事实</strong>，跟预期完全无关——就算全世界都预料到了，只要事实还没发生，prime 就不会动；事实一发生，它 1:1 立刻动。</p>
+<p><strong>10 年期那一边。</strong> 10 年期利率约等于未来十年隔夜利率的预期平均值加上期限溢价。市场在 9 月 16 日之前就已经把这次加息算进这个"预期平均值"里了（证据就是 8/27 到 9/1 那 12 个基点的上行）。所以宣布加息这件事<strong>没有带来任何新信息</strong>，预期平均值不需要修改，10 年期就不该动。</p>
+<p>那为什么还跌了 4 个基点？因为发布会上可能给出了"这是最后一次加息"之类的信息。这会让市场下调<strong>再往后</strong>的预期路径——虽然眼前的利率高了 25 个基点，但未来几年的路径被压低了，十年的平均值反而下降。</p>
+<p><strong>一句话总结：</strong>短管道反应事实，长管道反应预期的变化。事实符合预期时，短管道动、长管道不动；事实之外还带来了新的预期信息时，长管道甚至可能反向动。</p>
+</details>
+
+<p class="q">第二题</p>
+<p>你在某天看到：10 年期国债 4.79%，PMMS 30 年房贷 6.66%，于是算出利差 187 个基点，比我文中算的 197.6 少了 10 个基点，你据此得出"利差在收窄"的结论。<strong>这个结论错在哪里？</strong></p>
+
+<details>
+<summary>参考答案</summary>
+<p>错在<strong>口径不匹配</strong>——把两个不同时间段的数拿来相减了。</p>
+<p>4.79% 是 9 月 1 日<strong>单日</strong>的 10 年期国债利率。6.66% 是 8 月 27 日发布的 PMMS，它的口径是<strong>8 月 20 日到 8 月 26 日这个七天窗口的申请数据平均</strong>。</p>
+<p>换句话说，你拿"9 月 1 日的国债"减去"8 月 20–26 日的房贷"。这两个数中间隔了 Warsh 演讲和随后的利率上行。你算出来的 187 个基点里，有一大块其实是这段时间差造成的，跟利差本身有没有变化毫无关系。</p>
+<p><strong>正确做法：</strong>找出这一期 PMMS 的窗口（8/20–8/26），把窗口内每个交易日的 10 年期利率取平均（4.69, 4.74, 4.70, 4.64, 4.66，平均 4.686%），再相减：6.66 − 4.686 = 197.4 个基点。利差其实基本没动。</p>
+<p><strong>这道题的意义：</strong>这是本课程"引用数据前必须核对口径"这条规则的具体体现。同一组数字，口径对不上就能得出完全相反的结论，而且从结果上看不出来错在哪。</p>
+</details>
+
+<p class="q">第三题</p>
+<p>一位朋友说："新加坡的房贷利率现在低（1% 出头），美国的高（6.66%），所以在新加坡买房比在美国划算得多。" <strong>用今天学到的东西，指出这句话里至少两个逻辑问题。</strong></p>
+
+<details>
+<summary>参考答案</summary>
+<p><strong>问题一：拿了两个不同性质的利率来比。</strong></p>
+<p>美国的 6.66% 是<strong>30 年固定</strong>——签下去三十年不变，借款人把利率风险完全转嫁出去了。新加坡挂钩复合 SORA 的是<strong>浮动</strong>——每个重定价周期跟着走，利率风险完全由借款人自己扛。</p>
+<p>这两个数不可比，就像"买保险的价格"和"不买保险的价格"不可比一样。固定利率里含着一笔为期三十年的利率保险费，浮动利率里没有。要公平比较，至少得比新加坡的固定利率房贷，或者把浮动的利率风险折算出来。</p>
+<p><strong>问题二：把利率当成了买房成本的全部。</strong></p>
+<p>两地的房价水平、房产税、印花税、交易成本、租金回报、房价走势完全不同。利率只是其中一项。这道题里给的信息根本不足以比较"划算"。</p>
+<p><strong>问题三（进阶）：忽略了利率差本身的含义。</strong></p>
+<p>新元利率低、美元利率高，这个差不是白来的。在资本自由流动的条件下，两个货币之间持续的利差通常跟远期汇率的差异绑在一起（这是 D3 利率平价要讲的）。也就是说，你借新元享受的低利率，可能对应着某种其他形式的成本或风险。<strong>今天这份材料没有讲这个机制，所以这一条只是提示你"这里还有一层，别以为看到了全部"，不是结论。</strong></p>
+</details>
+
+<h3>今天就能做的一个小动作</h3>
+
+<div class="box" style="border-left:4px solid var(--ok-line); background:var(--ok-bg)">
+<p style="margin-bottom:0"><strong>去验我的预测。</strong><br><br>
+新加坡时间 9 月 4 日凌晨（美东 9 月 3 日中午 12:00 之后），打开 <span class="num">freddiemac.com/pmms</span>，看那个 30 年期固定的数字。<br><br>
+把它跟我算的 <strong>6.726%</strong> 相减，算出误差是多少个基点，记下来。<br><br>
+<strong>为什么这个动作值得做：</strong>这是你第一次拿一条自己能完整复算的链条去撞真实数据。误差在 3 个基点以内，说明"窗口日均 + 稳定利差"这个方法在当前环境下站得住；误差超过 10 个基点，说明利差动了，那下一步该问的就是"什么让利差动了"——那正好是环 3 结尾列的那几个机制。<strong>无论哪种结果，你都学到了东西；只有不去看，才什么都没学到。</strong></p>
+</div>
+
+<h3>延伸阅读</h3>
+
+<ol>
+<li><strong>Fannie Mae, "What Determines the Rate on a 30-Year Mortgage?"</strong>（fanniemae.com，Housing Insights 系列）<br>
+<span class="small"><strong>难度：容易。</strong>今天环 3 的骨架就是这篇。它把"房贷利率 = 10 年期 + 二级利差 + 一二级利差"讲得很清楚，还给了各历史时期的数值。<strong>我今天读过全文。</strong></span></li>
+
+<li><strong>Freddie Mac, PMMS 方法论说明</strong>（2022 年 10 月，freddiemac.com/research/pdf/202210-Note-PMMS-12.pdf）<br>
+<span class="small"><strong>难度：容易，很短。</strong>推荐它不是因为内容多深，而是因为它是一次很好的"读口径"练习：一个每周都被媒体引用的数字，它到底覆盖哪些贷款、哪个时间窗口、怎么采集的。养成这个习惯，你以后能躲掉大量数据误读。<strong>我今天读过。</strong></span></li>
+
+<li><strong>Kevin Warsh, "In Our Time"</strong>（2026-08-28 杰克逊霍尔演讲原文，federalreserve.gov/newsevents/speech/warsh20260828a.htm）<br>
+<span class="small"><strong>难度：中等。</strong>价值在于练习读央行原话，看清楚"他实际说了什么"和"媒体报道他说了什么"之间的差距。注意他全程<strong>没有</strong>给 9 月会议任何明确指引，给的是判断标准和条件句。<strong>我今天读过。</strong></span></li>
+
+<li><strong>Richmond Fed, "Mortgage Spreads and the Yield Curve"</strong>（Economic Brief 23-27）<br>
+<span class="small"><strong>难度：中等偏难。</strong><strong>坦白：我今天没有读这篇，只在搜索结果里看到了标题。</strong>推荐它是因为标题正对今天环 3 那个"利差为什么这么宽"的争议，但我无法保证内容质量或结论方向。你自己判断。</span></li>
+</ol>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p class="small">这不是免责声明，是给你的可信度地图。看完这一节，你应该清楚这份材料里哪些地方可以直接引用，哪些地方需要你自己再核。</p>
+
+<h3>9.1 所有数据的出处与口径</h3>
+
+<table>
+<thead><tr><th>数据</th><th>数值</th><th>口径</th><th>来源等级</th></tr></thead>
+<tbody>
+<tr><td>FOMC 目标区间</td><td>3.50%–3.75%</td><td>2026-07-29 决议，9 票赞成 3 票反对（反对方主张加息 25bp）</td><td><strong>一手</strong>（美联储新闻稿）</td></tr>
+<tr><td>EFFR</td><td>3.63%</td><td>数据日 2026-09-01，发布日 09-02</td><td><strong>一手</strong>（H.15）</td></tr>
+<tr><td>银行最优惠利率</td><td>6.75%</td><td>数据日 2026-09-01</td><td><strong>一手</strong>（H.15）</td></tr>
+<tr><td>国债利率（1M/3M/1Y/2Y/5Y/10Y/30Y）</td><td>见 1.2 节表</td><td>固定期限（CMT）口径，日度，数据日 2026-09-01</td><td><strong>一手</strong>（H.15 与财政部，两处交叉一致）</td></tr>
+<tr><td>8 月 2Y/10Y/30Y 日度序列</td><td>见 1.4 节与 3 节表</td><td>Daily Treasury Par Yield Curve Rates</td><td><strong>一手</strong>（美国财政部）</td></tr>
+<tr><td>PMMS 30 年固定</td><td>6.67 / 6.65 / 6.66%</td><td>8/13、8/20、8/27 发布；conforming、单户自住、LTV 75–80%、FICO≥740；窗口为上周四 00:00 ET 至本周三 23:59 ET</td><td><strong>一手</strong>（房地美）</td></tr>
+<tr><td>PMMS 方法论与窗口定义</td><td>—</td><td>2022 年 11 月起改用 Loan Product Advisor 申请数据</td><td><strong>一手</strong>（房地美 2022-10 说明，原文引用）</td></tr>
+<tr><td>房贷利差的三段拆解与历史值</td><td>1.17 / 0.71 / 1.40；0.5 / 1.01</td><td>各期间平均，单位百分点</td><td><strong>一手</strong>（房利美 Housing Insights）</td></tr>
+<tr><td>Warsh 演讲内容与引文</td><td>见 1.3 节</td><td>2026-08-28 杰克逊霍尔主题演讲全文</td><td><strong>一手</strong>（美联储）</td></tr>
+<tr><td>ADP 8 月就业</td><td>+38,000</td><td>私营部门，2026-09-02 发布，7 月由 44,000 上修至 46,000</td><td><strong>一手</strong>（ADP Media Center）</td></tr>
+<tr><td>美股 9/2 收盘</td><td>标普 7,666.60 等</td><td>2026-09-02 收盘</td><td>准一手（美联社行情稿）</td></tr>
+<tr><td>SORA 定义与发布</td><td>—</td><td>成交量加权，8:00–18:15 SGT，次日 09:00 发布</td><td><strong>一手</strong>（MAS）</td></tr>
+<tr><td>MAS 政策框架</td><td>—</td><td>以 S$NEER 政策区间为目标，非利率目标</td><td><strong>一手</strong>（MAS，原文引用）</td></tr>
+<tr><td>BLS 与 FOMC 发布日程</td><td>见 5.4 节表</td><td>2026 年官方日程</td><td><strong>一手</strong>（BLS、美联储）</td></tr>
+<tr><td>布伦特原油</td><td>95.29 美元/桶</td><td>2026-09-02</td><td style="background:var(--warn-bg)"><strong>二手</strong>（Trading Economics）</td></tr>
+<tr><td>9/2 的 10 年期国债</td><td>约 4.81%</td><td>盘中报价，非官方收盘</td><td style="background:var(--warn-bg)"><strong>二手</strong>（Yahoo Finance）</td></tr>
+<tr><td>9 月加息概率</td><td>约 65%–68%（9/1 上午）</td><td>CME FedWatch，转引</td><td style="background:var(--warn-bg)"><strong>二手</strong>，<strong>不参与本文任何计算</strong></td></tr>
+<tr><td>复合 SORA 水平</td><td>1M 1.22% / 3M 1.16%</td><td>标注日期 2026-07-27</td><td style="background:var(--warn-bg)"><strong>二手</strong>（MoneySmart 转引 MAS），<strong>不参与任何计算</strong></td></tr>
+</tbody>
+</table>
+
+<h3>9.2 哪几环有出处、哪几环是算术、哪几环是推测</h3>
+
+<table>
+<thead><tr><th>环</th><th>依据类型</th></tr></thead>
+<tbody>
+<tr><td>环 0：中东冲突 → 油价</td><td style="background:var(--guess-bg)"><strong>我的推测</strong>（油价水平有二手来源；因果强度推不出来）</td></tr>
+<tr><td>环 0→1：油价 → 讲话立场</td><td style="background:var(--guess-bg)"><strong>我的推测</strong>（演讲原文确实提到大宗商品，但因果强度无法判断）</td></tr>
+<tr><td>环 1：美联储控制哪个利率</td><td><strong>一手来源</strong>（FOMC 声明 + H.15）</td></tr>
+<tr><td>环 1→2：讲话 → 预期上调</td><td>时点吻合有一手数据（演讲当天 2Y 跳 14bp）；<strong>但"讲话导致上涨"的独占因果是推测</strong></td></tr>
+<tr><td>环 2：预期 → 2 年期利率</td><td><strong>算术推导</strong>（数据一手，倒推可自行验算）<br><span style="color:var(--guess-fg)">附带推测：期限溢价未变</span></td></tr>
+<tr><td>环 2→3：2 年期 → 10 年期</td><td><strong>一手数据</strong>（两个序列都是财政部原始值）</td></tr>
+<tr><td><strong>环 3：10 年期 → 房贷（锚点）</strong></td><td><strong>一手来源 + 算术推导</strong>（拆解框架来自房利美；口径来自房地美；三周利差与 6.726% 的预测是我自己算的，可完整复核）<br><span style="color:var(--guess-fg)">附带推测：利差为什么宽于历史，三种解释不给权重</span></td></tr>
+<tr><td>环 4：房贷 → 每月还款</td><td><strong>纯算术推导</strong>（中间值全部列出）</td></tr>
+<tr><td>分叉环：隔夜 → prime → HELOC</td><td><strong>一手数据 + 算术</strong>（6.75 − 3.75 = 3.00 是两个已发布数字的减法）<br><span style="color:var(--warn-fg)">较弱：银行"当天或次日"调整 prime，属常识描述，未逐次核对</span></td></tr>
+<tr><td>房贷 → 购房需求 → GDP</td><td style="background:var(--guess-bg)"><strong>接不上，未写入正文</strong></td></tr>
+<tr><td>利率上行 → 股票</td><td style="background:var(--guess-bg)"><strong>接不上，明确拒绝给解释</strong></td></tr>
+<tr><td>美联储动作 → SORA</td><td style="background:var(--guess-bg)"><strong>只写了"不是机械传导"这一个否定结论，正向机制的强度和时滞未写</strong></td></tr>
+</tbody>
+</table>
+
+<h3>9.3 明确的缺口清单</h3>
+
+<ol>
+<li><strong>期限溢价</strong>：没有取到估计序列（如纽约联储 ACM 模型），所以无法把 2 年期那 19 个基点拆成"预期"和"溢价"两块。第 5 节里凡是依赖"期限溢价不变"的推论都受此影响。</li>
+<li><strong>MBS 当期票息收益率</strong>：没有取到，所以无法把我算的 197.6 个基点拆成"二级利差"和"一二级利差"两块。我只能给合计值。</li>
+<li><strong>CME FedWatch 原始页面</strong>：没能直接读到，只有转引。因此加息概率在本文中只作方向印证。</li>
+<li><strong>MAS 数据门户</strong>：返回 403，无法核对当日复合 SORA 官方值。</li>
+<li><strong>DXY、USDSGD、VIX、布伦特原油交易所原始报价、9/2 国债官方收盘</strong>：均未取到一手数据，本文<strong>不使用</strong>或已标注为二手。</li>
+<li><strong>"10 年期创 X 个月新高"这类说法</strong>：我看到的两个二手来源互相矛盾（一个说"19 个月新高"，一个说"2023 年 11 月以来最高"，两者相差十几个月）。我没有 2026 年 1–7 月的完整日度序列来判断，<strong>所以本文完全不使用任何"创新高"的说法</strong>，只给出实际数值。</li>
+</ol>
+
+<div class="box" style="border-left:4px solid var(--accent); margin-top:32px">
+<p style="margin-bottom:0"><strong>这份材料里唯一需要你"相信我"的地方，是我抄数字有没有抄错。</strong>其余部分要么给了链接和口径你可以自己查，要么是你可以拿计算器复算的算术。<br><br>
+而那个 6.726% 的预测，美东时间今天中午就会告诉你这条链是不是真的成立。</p>
+</div>
+
+</div>
+</body>
+</html>
