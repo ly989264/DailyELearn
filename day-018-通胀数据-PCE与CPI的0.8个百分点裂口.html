@@ -1,0 +1,1155 @@
+<meta charset="utf-8">
+<title>Day 18 · 两把尺子量同一个月</title>
+<style>
+:root{
+  --bg:#fbfaf7; --fg:#1c1b18; --muted:#5f5c55; --line:#ddd8cc;
+  --card:#ffffff; --accent:#8a4b1e; --accent2:#1f5d52;
+  --spec-bg:#fff6e8; --spec-border:#c9761a; --spec-fg:#5a3407;
+  --num-bg:#f1f4f2; --num-border:#bcd0c8;
+  --src-bg:#f4f2ec;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#16171a; --fg:#e8e6e1; --muted:#a5a29a; --line:#33353a;
+    --card:#1e2024; --accent:#e2a06a; --accent2:#6fc3ae;
+    --spec-bg:#2b2114; --spec-border:#d08a3a; --spec-fg:#f0d5ac;
+    --num-bg:#1c2422; --num-border:#39514a;
+    --src-bg:#212327;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.85;font-size:17px;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:32px 20px 90px}
+h1{font-size:1.72rem;line-height:1.4;margin:.2em 0 .1em;letter-spacing:-.01em}
+h2{font-size:1.28rem;margin:2.6em 0 .7em;padding-top:1.1em;border-top:2px solid var(--line);letter-spacing:-.01em}
+h3{font-size:1.08rem;margin:2em 0 .5em;color:var(--accent)}
+h4{font-size:1rem;margin:1.5em 0 .4em;color:var(--accent2)}
+p{margin:.85em 0}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.06em;margin:0}
+.sub{color:var(--muted);font-size:.95rem;margin:.5em 0 2em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:1.4em 0}
+.num{background:var(--num-bg);border-left:4px solid var(--num-border);border-radius:0 8px 8px 0;
+  padding:14px 16px;margin:1.2em 0;font-size:.98rem}
+.num .line{font-variant-numeric:tabular-nums;margin:.35em 0}
+.num b{color:var(--accent2)}
+.spec{background:var(--spec-bg);border:2px dashed var(--spec-border);border-radius:10px;padding:14px 17px;margin:1.5em 0;color:var(--spec-fg)}
+.spec .tag{display:inline-block;background:var(--spec-border);color:#fff;font-size:.75rem;
+  padding:2px 9px;border-radius:20px;letter-spacing:.05em;margin-bottom:.5em;font-weight:700}
+.src{font-size:.85rem;color:var(--muted);background:var(--src-bg);border-radius:6px;padding:7px 11px;margin:.8em 0 1.6em}
+.src b{color:var(--fg)}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;word-break:break-word}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.3em 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:460px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--src-bg);font-weight:600}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+figure{margin:1.8em 0;text-align:center}
+svg{max-width:100%;height:auto}
+figcaption{font-size:.85rem;color:var(--muted);margin-top:.7em;text-align:left}
+details{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:.8em 0;background:var(--card)}
+summary{cursor:pointer;font-weight:600}
+blockquote{margin:1.1em 0;padding:.4em 0 .4em 16px;border-left:3px solid var(--accent2);color:var(--muted);font-size:.96rem}
+ul,ol{padding-left:1.4em}
+li{margin:.4em 0}
+.big{font-size:1.1rem;font-weight:700;color:var(--accent)}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+.q{font-size:.95rem;color:var(--muted);font-style:normal}
+</style>
+
+<div class="wrap">
+
+<p class="kicker">DAY 18 · 领域 B 通胀、增长与宏观数据 · 锚点原理 B3</p>
+<h1>两把尺子量同一个七月，差了 0.8 个百分点——而美联储只认其中一把</h1>
+<p class="sub">2026 年 9 月 4 日（新加坡）｜事件：美联储理事 Waller 于 9 月 3 日的公开讲话</p>
+
+<h2>0｜今天你会学到什么</h2>
+
+<div class="card">
+<p>美国政府每个月发布<strong>两个</strong>物价上涨数字。2026 年 7 月这同一个月，一个说涨了 2.5%，另一个说涨了 3.3%。不是谁算错了——两把尺子本来就不一样。</p>
+<p>今天讲明白：这两把尺子差在哪里、为什么美联储偏偏只认那把读数更高的、以及一位美联储理事昨天为什么公开说"这个数字里有一大块根本不是真实的成交价格"。</p>
+<p>读完你能回答：<em>为什么 9 月中旬的美联储会议，会用一份它并不以之为目标的数据来做决定？</em></p>
+</div>
+
+<h2>1｜今天的事件</h2>
+
+<h3>1.1 事件本身</h3>
+
+<p>2026 年 9 月 3 日，美联储理事 Christopher Waller 在华盛顿参加路透社 NEXT 的公开访谈，讲话稿题为 <em>"The Economic Outlook and Some Comments on My Policy Communication"</em>，全文发布在美联储官网上。</p>
+
+<p>他在讲话里说了四件事，我逐条抄原文（英文原句 + 中文直译）：</p>
+
+<blockquote>
+"PCE prices are up 3.7 percent in the past 12 months, and core PCE inflation is 3.3 percent."<br>
+<span class="q">（过去 12 个月 PCE 物价上涨 3.7%，核心 PCE 通胀是 3.3%。）</span>
+</blockquote>
+
+<blockquote>
+"While it is important to acknowledge these 12-month increases for the real-world effect they have had on businesses and consumers, they are not the best guide for where inflation is today."<br>
+<span class="q">（这些 12 个月的涨幅对企业和消费者的真实影响必须承认，但它们不是判断"今天通胀在什么位置"的最好指引。）</span>
+</blockquote>
+
+<blockquote>
+"...nonmarket services prices accounted for approximately half of the increase in core prices." ……"I don't like throwing out specific categories going into the estimate of PCE inflation, but nonmarket services prices have always been an issue for me, since they are imputed and not actual price changes."<br>
+<span class="q">（7 月核心物价的涨幅里，大约一半来自"非市场服务"的价格。……我不喜欢把某些类别从 PCE 通胀里剔掉，但非市场服务价格一直让我不安，因为它们是<strong>推算出来的</strong>，不是真实发生的价格变动。）</span>
+</blockquote>
+
+<blockquote>
+"If there is continued progress toward our 2 percent goal, then I am willing to support holding the policy rate at its current level. But if inflation comes in hot, I would consider a rate hike."<br>
+<span class="q">（如果朝 2% 目标继续取得进展，我愿意支持把政策利率维持在当前水平。但如果通胀读数偏热，我会考虑加息。）</span>
+</blockquote>
+
+<p>注意最后一句的方向：他在权衡的不是"降息还是不降"，而是<strong>"不动还是加息"</strong>。这一点后面会反复用到。</p>
+
+<div class="src"><b>来源：</b><a href="https://www.federalreserve.gov/newsevents/speech/waller20260903a.htm">美联储官网 · Waller 讲话全文，2026-09-03</a></div>
+
+<h3>1.2 事件落在什么数据背景上</h3>
+
+<p>下面这张表是今天全部推理的地基。每个数字我都标了口径——<strong>口径说不清楚的数字不要用</strong>，这是这门课的硬规矩。</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>指标</th><th>数值</th><th>口径（发布机构 / 参考月 / 是否季调 / 同比还是环比）</th></tr>
+<tr><td>CPI 整体</td><td class="n">+3.4%</td><td>美国劳工统计局（BLS），2026 年 7 月，<strong>未季调</strong>，与去年同月相比（同比）</td></tr>
+<tr><td>CPI 整体</td><td class="n">+0.1%</td><td>BLS，2026 年 7 月，<strong>季调后</strong>，比上个月（环比，未年化）</td></tr>
+<tr><td>核心 CPI（剔除食品与能源）</td><td class="n">+2.5%</td><td>BLS，2026 年 7 月，未季调，同比</td></tr>
+<tr><td>CPI 能源分项</td><td class="n">+14.7%</td><td>BLS，2026 年 7 月，未季调，同比</td></tr>
+<tr><td>CPI 住房（shelter）分项</td><td class="n">+3.2%</td><td>BLS，2026 年 7 月，未季调，同比</td></tr>
+<tr><td>PCE 物价指数 整体</td><td class="n">+3.7%</td><td>美国经济分析局（BEA），2026 年 7 月，同比</td></tr>
+<tr><td>核心 PCE（剔除食品与能源）</td><td class="n">+3.3%</td><td>BEA，2026 年 7 月，同比</td></tr>
+<tr><td>核心 PCE</td><td class="n">+0.2%</td><td>BEA，2026 年 7 月，季调后，环比（未年化）</td></tr>
+<tr><td>联邦基金目标区间</td><td class="n">3.50–3.75%</td><td>美联储，2025-12-11 起至今未变；准备金余额利率（IORB）3.65%</td></tr>
+<tr><td>7 月非农就业</td><td class="n">−23,000</td><td>BLS，2026 年 7 月，季调，环比（人数变化）</td></tr>
+<tr><td>7 月失业率</td><td class="n">4.1%</td><td>BLS，2026 年 7 月，季调</td></tr>
+<tr><td>7 月平均时薪</td><td class="n">+3.2%</td><td>BLS，2026 年 7 月，同比（名义，未扣通胀）</td></tr>
+</table>
+</div>
+
+<p><strong>请先盯住这两行看十秒钟：核心 CPI 是 2.5%，核心 PCE 是 3.3%。</strong>同一个国家、同一个 2026 年 7 月、同一件事（物价涨了多少），两个政府机构给出的答案差了 0.8 个百分点。</p>
+
+<p>这不是笔误，也不是哪一方算错。今天整堂课就是拆这 0.8。</p>
+
+<h3>1.3 9 月 3 日当天的市场读数</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>资产</th><th>读数</th><th>口径</th></tr>
+<tr><td>美国 10 年期国债收益率</td><td class="n">4.79%</td><td>美国财政部官方"每日国债收益率曲线"，2026-09-02</td></tr>
+<tr><td>美国 2 年期国债收益率</td><td class="n">4.39%</td><td>同上，2026-09-02</td></tr>
+<tr><td>美国 1 年期国债收益率</td><td class="n">4.16%</td><td>同上，2026-09-02</td></tr>
+<tr><td>美国 3 个月期国债收益率</td><td class="n">3.92%</td><td>同上，2026-09-02</td></tr>
+<tr><td>标普 500</td><td class="n">7,741.28（+1.06%）</td><td>2026-09-03 收盘，年初至今 +19.06%</td></tr>
+<tr><td>纳斯达克 100</td><td class="n">29,342.77（+1.16%）</td><td>2026-09-03 收盘，年初至今 +24.16%</td></tr>
+<tr><td>VIX 波动率指数</td><td class="n">14.32</td><td>2026-09-03</td></tr>
+<tr><td>美元指数 DXY</td><td class="n">99.29（−0.31%）</td><td>2026-09-03</td></tr>
+<tr><td>USD/SGD</td><td class="n">1.2689（−0.18%）</td><td>2026-09-03</td></tr>
+<tr><td>布伦特原油</td><td class="n">94.52 美元/桶</td><td>2026-09-03</td></tr>
+<tr><td>黄金</td><td class="n">4,427.81 美元/盎司</td><td>2026-09-03</td></tr>
+</table>
+</div>
+
+<p class="q">（10 年期、2 年期这类国债数字是财政部官网的 9 月 2 日收盘值——9 月 3 日当天的官方数据在我查证时尚未更新。股票、汇率、商品是 9 月 3 日的读数，来自行情商，不是一手发行方，我在文末的可信度清单里会标出这个差别。）</p>
+
+<div class="src"><b>来源：</b><a href="https://www.bls.gov/news.release/cpi.nr0.htm">BLS · CPI 2026年7月新闻稿</a>｜<a href="https://www.bls.gov/news.release/cpi.t01.htm">BLS · CPI 表1（含权重）</a>｜<a href="https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026">BEA · 个人收入与支出 2026年7月</a>｜<a href="https://www.bls.gov/news.release/empsit.nr0.htm">BLS · 就业形势 2026年7月</a>｜<a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202609">美国财政部 · 每日国债收益率曲线</a>｜<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">美联储 · 2026-07-29 政策执行说明</a></div>
+
+<h2>2｜传导链全图</h2>
+
+<figure>
+<svg viewBox="0 0 400 1230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="从Waller讲话到市场定价的传导链">
+<defs>
+<marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+<path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--muted)"/>
+</marker>
+</defs>
+<style>
+.bx{fill:var(--card);stroke:var(--accent2);stroke-width:1.8;rx:8}
+.bxd{fill:var(--spec-bg);stroke:var(--spec-border);stroke-width:1.8;stroke-dasharray:6 4;rx:8}
+.t{font-family:-apple-system,"Noto Sans SC","PingFang SC",sans-serif;font-size:12.5px;fill:var(--fg)}
+.tb{font-family:-apple-system,"Noto Sans SC","PingFang SC",sans-serif;font-size:12.5px;font-weight:700;fill:var(--fg)}
+.tn{font-family:-apple-system,sans-serif;font-size:11px;fill:var(--muted)}
+.ln{stroke:var(--muted);stroke-width:1.6;marker-end:url(#ar)}
+.lnd{stroke:var(--spec-border);stroke-width:1.6;stroke-dasharray:5 4;marker-end:url(#ar)}
+</style>
+
+<rect class="bx" x="30" y="8" width="340" height="52"/>
+<text class="tn" x="42" y="26">① 事件 · 2026-09-03</text>
+<text class="tb" x="42" y="46">美联储理事 Waller 公开讲话</text>
+<line class="ln" x1="200" y1="60" x2="200" y2="86"/>
+
+<rect class="bx" x="30" y="88" width="340" height="72"/>
+<text class="tn" x="42" y="106">② 同一个 2026 年 7 月</text>
+<text class="t" x="42" y="126">核心 CPI 同比 +2.5%</text>
+<text class="t" x="42" y="144">核心 PCE 同比 +3.3%　→ 差 0.8 个百分点</text>
+<line class="ln" x1="200" y1="160" x2="200" y2="186"/>
+
+<rect class="bx" x="30" y="188" width="340" height="90"/>
+<text class="tn" x="42" y="206">③ 差异从哪来（BLS 官方框架）</text>
+<text class="t" x="42" y="226">权重不同 · 范围不同 · 公式不同 · 其他</text>
+<text class="t" x="42" y="245">历史上 CPI 通常比 PCE <tspan font-weight="700">高</tspan> 约 0.3pp</text>
+<text class="t" x="42" y="264">现在反了过来——这才是新闻</text>
+<line class="ln" x1="200" y1="278" x2="200" y2="304"/>
+
+<rect class="bx" x="30" y="306" width="340" height="72"/>
+<text class="tn" x="42" y="324">④ 关键制度事实</text>
+<text class="t" x="42" y="344">美联储的 2% 目标，白纸黑字写明</text>
+<text class="t" x="42" y="362">是按 <tspan font-weight="700">PCE</tspan> 定义的，不是 CPI</text>
+<line class="ln" x1="200" y1="378" x2="200" y2="404"/>
+
+<rect class="bx" x="30" y="406" width="340" height="90"/>
+<text class="tn" x="42" y="424">⑤ 于是政策看到的距离变了</text>
+<text class="t" x="42" y="444">若看 CPI：2.5% − 2% = 差 0.5pp</text>
+<text class="t" x="42" y="463">若看 PCE：3.3% − 2% = 差 1.3pp</text>
+<text class="t" x="42" y="482">7 月 FOMC 9 比 3 维持，三人要求加息</text>
+<line class="ln" x1="200" y1="496" x2="200" y2="522"/>
+
+<rect class="bx" x="30" y="524" width="340" height="90"/>
+<text class="tn" x="42" y="542">⑥ Waller 的反驳（9/3 讲话）</text>
+<text class="t" x="42" y="562">7 月核心物价涨幅里约一半，来自</text>
+<text class="t" x="42" y="581">"非市场服务"——不是真实成交价，</text>
+<text class="t" x="42" y="600">是统计机构<tspan font-weight="700">推算</tspan>出来的价格</text>
+<line class="ln" x1="200" y1="614" x2="200" y2="640"/>
+
+<rect class="bx" x="30" y="642" width="340" height="108"/>
+<text class="tn" x="42" y="660">⑦ 制度变更 · 2026-09-30 生效</text>
+<text class="t" x="42" y="680">BEA 年度修订：组合管理费不再用</text>
+<text class="t" x="42" y="699">生产者物价指数折算，改用就业数据</text>
+<text class="t" x="42" y="718">推算数量。原方法的问题：管理费 =</text>
+<text class="t" x="42" y="737">费率 × 资产市值，股市涨 → "价格"涨</text>
+<line class="lnd" x1="200" y1="750" x2="200" y2="776"/>
+
+<rect class="bxd" x="30" y="778" width="340" height="72"/>
+<text class="tn" x="42" y="796">⑧ 幅度估计 · 非官方</text>
+<text class="t" x="42" y="816">第三方机构估计将机械下调核心 PCE</text>
+<text class="t" x="42" y="835">约 0.2–0.3pp；BEA 本身未给数字</text>
+<line class="ln" x1="200" y1="850" x2="200" y2="876"/>
+
+<rect class="bx" x="30" y="878" width="340" height="90"/>
+<text class="tn" x="42" y="896">⑨ 当天市场（价格是事实）</text>
+<text class="t" x="42" y="916">标普 +1.06% 收 7741，VIX 14.3</text>
+<text class="t" x="42" y="935">收益率停止上行</text>
+<text class="tn" x="42" y="954">（"因为 Waller"这个归因是叙事，见虚线说明）</text>
+<line class="ln" x1="200" y1="968" x2="200" y2="994"/>
+
+<rect class="bx" x="30" y="996" width="340" height="108"/>
+<text class="tn" x="42" y="1014">⑩ 但曲线仍在定价加息（可自己算）</text>
+<text class="t" x="42" y="1034">3 个月国债 3.92% ＞ 隔夜利率 3.65%</text>
+<text class="t" x="42" y="1053">1 年期 4.16%、2 年期 4.39%</text>
+<text class="t" x="42" y="1072">市场赌的是"往上"，不是"往下"</text>
+<line class="ln" x1="200" y1="1104" x2="200" y2="1130"/>
+
+<rect class="bx" x="30" y="1132" width="340" height="52"/>
+<text class="tn" x="42" y="1150">⑪ 落到你身上</text>
+<text class="t" x="42" y="1170">SGD 收入 · USD 资产 · 长久期持仓</text>
+
+<line x1="30" y1="1200" x2="80" y2="1200" stroke="var(--accent2)" stroke-width="1.8"/>
+<text class="tn" x="88" y="1204">实线 = 有一手出处或纯算术</text>
+<line x1="30" y1="1220" x2="80" y2="1220" stroke="var(--spec-border)" stroke-width="1.8" stroke-dasharray="5 4"/>
+<text class="tn" x="88" y="1224">虚线 = 估计值或我的推测</text>
+</svg>
+<figcaption><strong>怎么读这张图：</strong>一位美联储理事在 9 月 3 日说，他们盯的那个通胀数字被"推算价格"抬高了（①→⑥）。这句话之所以重要，是因为美联储的 2% 目标在制度上就是按 PCE 定义的（④），而 PCE 恰好比另一把尺子 CPI 高出 0.8 个百分点（②→③）；这 0.8 直接决定了 7 月会议上三位委员要求加息（⑤）。9 月 30 日统计口径将改变，可能把这个数字机械压低（⑦→⑧，幅度是估计值，虚线）。当天股市上涨、收益率回落（⑨），但国债曲线本身仍然在为"加息"而不是"降息"定价（⑩）——这一点你可以自己拿计算器验证。</figcaption>
+</figure>
+
+<h2>3｜逐环拆解</h2>
+
+<h3>环 1｜先弄明白：一个"物价指数"到底是怎么造出来的</h3>
+
+<p>在比较两把尺子之前，得先知道尺子是怎么做的。我们从你自己的生活开始。</p>
+
+<p>假设你上个月总共花了 1000 新币：房租 600，吃饭 400。这个月房东涨租 10%，吃饭的东西涨了 5%。你这个月要花多少？</p>
+
+<div class="num">
+<div class="line">房租：600 × 1.10 = <b>660</b></div>
+<div class="line">吃饭：400 × 1.05 = <b>420</b></div>
+<div class="line">合计：660 + 420 = <b>1080</b></div>
+<div class="line">涨幅：(1080 − 1000) ÷ 1000 = <b>8%</b></div>
+</div>
+
+<p>现在换一个算法，答案应该一样：</p>
+
+<div class="num">
+<div class="line">房租占你开销的 600 ÷ 1000 = <b>60%</b></div>
+<div class="line">吃饭占 400 ÷ 1000 = <b>40%</b></div>
+<div class="line">0.60 × 10% + 0.40 × 5% = 6% + 2% = <b>8%</b> ✓</div>
+</div>
+
+<p>两条路算出同一个 8%。第二条路揭示了一件重要的事：<strong>每样东西涨了多少，乘上它在你开销里占的比例，加起来就是"物价涨了多少"。</strong>那个比例，经济学给它起了个名字，叫<strong>权重</strong>（英文 weight）。而"你买的所有东西"的那个集合，叫<strong>一篮子</strong>（英文 basket）。</p>
+
+<p>你可能会想：那既然算法这么简单，两个政府机构怎么会算出不同的答案？</p>
+
+<p>因为算法虽然一样，<strong>但"篮子里放什么"和"权重是多少"，这两件事没有唯一答案。</strong>这就是今天的全部内容。</p>
+
+<h4>先把两个时间口径的词说清楚</h4>
+
+<p>你会反复看到"同比"和"环比"。这两个词今天必须分得清，因为它们的数字差得很远。</p>
+
+<ul>
+<li><strong>环比</strong>：这个月和上个月比。7 月核心 CPI 环比 +0.2%，意思是 7 月的物价比 6 月高 0.2%。英文 month-over-month（缩写 MoM）。</li>
+<li><strong>同比</strong>：这个月和去年同一个月比。7 月核心 CPI 同比 +2.5%，意思是 2026 年 7 月比 2025 年 7 月高 2.5%。英文 year-over-year（缩写 YoY）。</li>
+</ul>
+
+<p>还有一个坑：<strong>年化</strong>（英文 annualized）。把一个月的涨幅"折算成如果照这个速度涨一年会涨多少"。0.2% 的月涨幅，年化不是 0.2 × 12 = 2.4%，而是 1.002<sup>12</sup> − 1 = 2.43%（复利）。今天用到的所有"3 个月核心通胀 3.05%"这类数字，都是<strong>年化后</strong>的，我每次都会标出来。</p>
+
+<p>最后一个词：<strong>基点</strong>（英文 basis point，简写 bp）。1 个基点 = 0.01 个百分点。100 个基点 = 1 个百分点。金融圈用它是因为说"利率降了 0.25 个百分点"容易和"降了 0.25%"（相对幅度）混淆，说"降 25 个基点"就没有歧义。</p>
+
+<div class="src"><b>这一环的依据：</b>纯算术推导，你可以自己验算。</div>
+
+<h3>环 2｜今日锚点原理 B3：为什么同一个七月有两个答案</h3>
+
+<p>这是今天的主菜，也是全文最厚的一节。请慢慢读。</p>
+
+<h4>2.1 两把尺子分别是什么</h4>
+
+<p><strong>第一把尺子。</strong>政府派人去问几千个家庭："你上个月钱花在哪儿了？"根据这些回答定出篮子和权重，然后每个月派调查员去商店、去网站，记录这些东西的标价，算出涨了多少。</p>
+<p>经济学给这把尺子起了个名字，叫<strong>消费者物价指数</strong>，英文 Consumer Price Index，缩写 <strong>CPI</strong>。发布机构是美国劳工统计局（BLS）。</p>
+
+<p><strong>第二把尺子。</strong>政府不去问家庭，而是去问企业："你上个月卖给家庭多少东西、收了多少钱？"再加上政府和保险公司<em>替</em>家庭付掉的部分，凑成一个篮子，再折算出价格涨了多少。</p>
+<p>这把尺子叫<strong>个人消费支出物价指数</strong>，英文 Personal Consumption Expenditures Price Index，缩写 <strong>PCE</strong>。发布机构是美国经济分析局（BEA）。</p>
+
+<p>还有一个前缀你会天天看到：<strong>核心</strong>（英文 core）。意思就是"把食品和能源两项剔掉之后的版本"。为什么剔掉？因为油价和菜价上蹿下跳，主要受天气和地缘政治摆布，而央行的利率工具管不了天气。剔掉它们，是想看清楚"物价里那个比较黏、比较持续的部分"。今天这两把尺子的核心版本，正好是差距最大的地方。</p>
+
+<h4>2.2 先用真实数据自己算一遍，确认你会用权重</h4>
+
+<p>BLS 在 CPI 新闻稿的表 1 里公布每个分项的权重（官方叫"相对重要性"，基期为 2026 年 6 月）。我把它和各分项的同比涨幅放在一起：</p>
+
+<div class="num">
+<div class="line">食品：权重 13.522%，同比 +3.0% → 贡献 0.13522 × 3.0 = <b>0.41 个百分点</b></div>
+<div class="line">能源：权重 7.432%，同比 +14.7% → 贡献 0.07432 × 14.7 = <b>1.09 个百分点</b></div>
+<div class="line">核心：权重 79.047%，同比 +2.5% → 贡献 0.79047 × 2.5 = <b>1.98 个百分点</b></div>
+<div class="line">合计 = 0.41 + 1.09 + 1.98 = <b>3.48%</b></div>
+<div class="line">BLS 公布的整体 CPI 同比 = <b>3.4%</b></div>
+</div>
+
+<p>先看你学到了什么：<strong>能源只占篮子的 7.4%，却贡献了 3.4% 里的 1.09 个百分点——将近三分之一。</strong>原因是它涨了 14.7%。这就是为什么整体 CPI（3.4%）比核心 CPI（2.5%）高出这么多。参照一下同一天的布伦特原油 94.5 美元/桶，你就知道这个 14.7% 不是统计噪音。</p>
+
+<p>再看那个没对上的 0.08。算出 3.48，公布 3.4。差了 8 个基点。<strong>这个小小的不一致，恰好就是今天要讲的东西的预告。</strong></p>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p>我认为这 8 个基点来自"权重的时点"：BLS 公布的相对重要性是<strong>2026 年 6 月</strong>的开销占比，而能源在过去一年涨了 14.7%——涨得快的东西，它在"当期花钱占比"里自然被推高了。用期末权重去回溯一整年，等于给涨得最凶的那一项多算了分量。</p>
+<p>我没有找到 BLS 的官方对账表来证实这个数量级。反对的看法：也可能只是各分项四舍五入的累积。要判断需要 BLS 的分项指数原始数值和月度权重序列——我今天没有拿到。</p>
+<p>但这个思路本身不是猜的：<strong>用哪个时点的权重，会改变答案</strong>——这正是下面"公式效应"的核心。</p>
+</div>
+
+<div class="src"><b>这一环的依据：</b>算术推导 + <a href="https://www.bls.gov/news.release/cpi.t01.htm">BLS CPI 表1 权重与分项同比</a>；括号内的对账解释是我的推测（已标注）。</div>
+
+<h4>2.3 BLS 官方把差异拆成四种效应</h4>
+
+<p>好消息是：这个问题不需要我来猜。BLS 自己写过一篇文章，专门解释这两把尺子为什么不一样，并且把差异拆成四块。我按它的说法逐条讲，每一条都配一个生活里的例子。</p>
+
+<p><strong>第一块：权重效应</strong>（英文 weight effect）。同一样东西，在两个篮子里占的比例不同。</p>
+<p>为什么会不同？因为数据来源不同。BLS 的原话是：CPI 的权重来自 <em>"the Consumer Expenditure Survey, a household survey"</em>（消费者支出调查，一项<strong>家庭</strong>调查），PCE 的权重来自 <em>"business surveys—for example, the Census Bureau's annual and monthly retail trade surveys"</em>（<strong>企业</strong>调查，例如人口普查局的零售贸易调查）。</p>
+<p>问家庭和问企业，得到的比例本来就不会一样。最著名的差别是住房：住房在 CPI 里占 <strong>35.3%</strong>（这是 BLS 表 1 的官方数字），在 PCE 里大约 <strong>16%</strong>（这个 16% 我引自 PIMCO 2026 年 5 月的研究，不是官方发布，我在文末标了）。</p>
+
+<p><strong>第二块：范围效应</strong>（英文 scope effect）。两个篮子装的东西根本不完全是同一批。</p>
+<p>这一块最容易被忽略，但今天它是主角，所以我讲透。BLS 的原话：CPI 衡量的是 <em>"the out-of-pocket expenditures of all urban households"</em>——城市家庭<strong>自己掏钱</strong>付的部分；PCE 衡量的是 <em>"goods and services consumed by all households, and nonprofit institutions"</em>——所有家庭<strong>消费掉</strong>的东西，不管钱是谁付的。</p>
+
+<p>用医疗举例，你立刻会懂：</p>
+<div class="card">
+<p>你去看病，账单 500 美元。保险公司付了 450，你自付 50。</p>
+<p><strong>CPI 只记那 50。</strong>因为 CPI 问的是"你掏了多少钱"。</p>
+<p><strong>PCE 记全部 500。</strong>因为 PCE 问的是"为你消费了多少医疗服务"，雇主买的保险付的、政府 Medicare/Medicaid 付的，全算进去。</p>
+<p>结果：<strong>医疗价格在 PCE 里的分量远大于在 CPI 里的分量。</strong>CPI 表 1 显示"医疗保健服务"权重只有 6.84%。</p>
+</div>
+
+<p><strong>第三块：公式效应</strong>（英文 formula effect）。两把尺子用的数学公式不同。</p>
+<p>先讲生活场景。牛肉涨价了，鸡肉没涨。你会怎么做？大概率少买牛肉、多买鸡肉。</p>
+<p>那么问题来了：算物价指数的时候，应该按"你原来的买法"算，还是按"你换过之后的买法"算？</p>
+<div class="num">
+<div class="line">原来：牛肉 50%，鸡肉 50%。牛肉涨 20%，鸡肉涨 0%。</div>
+<div class="line">按原来的买法算：0.5 × 20% + 0.5 × 0% = <b>10%</b></div>
+<div class="line">你实际换成了牛肉 30%、鸡肉 70%：</div>
+<div class="line">按新买法算：0.3 × 20% + 0.7 × 0% = <b>6%</b></div>
+</div>
+<p>差了 4 个百分点，只因为权重用的是换之前还是换之后。这个"因为涨价而改变购买组合"的行为，经济学给它起了个名字，叫<strong>替代效应</strong>（英文 substitution effect）。</p>
+<p>CPI 用的是固定权重的公式（BLS 原话：<em>"a Laspeyres formula"</em>，中文译作拉氏公式），权重一年才更新一次；PCE 用的是每期都让权重跟着走的公式（BLS 原话：<em>"a Fisher-Ideal formula"</em>，费雪理想公式），BLS 说它 <em>"reflects consumer substitution among detailed items as relative prices change"</em>（反映相对价格变化时消费者在细项之间的替代）。</p>
+<p><strong>结果的方向是确定的：让权重跟着替代走，算出来的通胀会偏低。</strong>所以公式效应系统性地让 PCE 低于 CPI。</p>
+
+<p><strong>第四块：其他效应</strong>（英文 other effects）。剩下的杂项：季节调整方法不同、数据来源不同。</p>
+<p>BLS 给的例子很具体：机票。PCE 的机票价格指数 <em>"based on passenger revenues and the number of miles traveled"</em>（基于旅客收入除以飞行英里数），CPI 则用 <em>"prices charged for air travel for sampled routes"</em>（抽样航线的挂牌票价）。同一个月的机票，两种量法可以给出完全不同的答案。</p>
+<p>记住"其他效应"里藏着这种"用收入除以数量来倒推价格"的做法——环 5 会用到它。</p>
+
+<h4>2.4 BLS 给的历史数字：正常年份，CPI 比 PCE 高约 0.3 个百分点</h4>
+
+<p>BLS 那篇文章给了 2002–2007 年的平均拆解（正数 = 让 CPI 高于 PCE）：</p>
+
+<div class="num">
+<div class="line">权重效应　+0.66 个百分点</div>
+<div class="line">公式效应　+0.17 个百分点</div>
+<div class="line">范围效应　−0.53 个百分点</div>
+<div class="line">其他效应　+0.04 个百分点</div>
+<div class="line">合计：0.66 + 0.17 − 0.53 + 0.04 = <b>+0.34 个百分点</b></div>
+</div>
+
+<p>读出三件事：</p>
+<ol>
+<li><strong>正常情况下 CPI 比 PCE 高，大约高三分之一个百分点。</strong>另一个独立来源（PIMCO 2026 年 5 月）也说这个差历史上是"负 30 到 40 个基点"（他们算的是 PCE 减 CPI，符号相反，量级一致）。两家对上了。</li>
+<li><strong>范围效应是唯一的负号</strong>——也就是说，"PCE 把别人替你付的医疗算进来"这件事，是唯一系统性把 PCE 往上推的力量。</li>
+<li>这些是 2002–2007 的平均值。<strong>它们不是常数。</strong>每一块的大小取决于那几年哪些东西在涨。</li>
+</ol>
+
+<h4>2.5 现在的问题：这个差不但没了，还反了过来</h4>
+
+<div class="num">
+<div class="line">2026 年 7 月：核心 CPI <b>2.5%</b>，核心 PCE <b>3.3%</b></div>
+<div class="line">CPI 减 PCE = 2.5 − 3.3 = <b>−0.8 个百分点</b></div>
+<div class="line">历史常态（BLS，2002–2007 平均） = <b>+0.34 个百分点</b></div>
+<div class="line">摆动幅度 = 0.34 − (−0.8) = <b>1.14 个百分点</b></div>
+</div>
+
+<p>一个通常在 +0.3 附近晃的数字，现在跑到了 −0.8。PIMCO 在 5 月的报告里把这个称为 <em>"one of the largest reversals since 1985"</em>（1985 年以来最大的反转之一）。</p>
+
+<h4>2.6 一个反直觉的发现：住房权重的解释方向是<em>反</em>的</h4>
+
+<p>大部分人第一反应会说："住房在 CPI 里占 35%、在 PCE 里只占 16%，肯定是住房的问题。"</p>
+<p>我们把这句话变成算术，看看它站不站得住。</p>
+
+<p><strong>第一步，先算出核心 CPI 里"住房以外"的部分涨了多少。</strong></p>
+<div class="num">
+<div class="line">住房在整个 CPI 里占 35.304%，核心占 79.047%</div>
+<div class="line">→ 住房在<em>核心</em> CPI 里占 35.304 ÷ 79.047 = <b>44.7%</b></div>
+<div class="line">核心 CPI = 0.447 × 住房涨幅 + 0.553 × 其他涨幅</div>
+<div class="line">2.5 = 0.447 × 3.2 + 0.553 × X</div>
+<div class="line">2.5 = 1.43 + 0.553 X</div>
+<div class="line">X = (2.5 − 1.43) ÷ 0.553 = <b>1.9%</b></div>
+</div>
+
+<p>所以：<strong>核心 CPI 里，住房涨 3.2%，住房以外只涨 1.9%。</strong>住房是那个<em>拖高</em>指数的项目，不是拖低的。</p>
+
+<p><strong>第二步，如果按 PCE 的方式给住房少一点权重，会怎样？</strong>（住房约占 PCE 总量 16%；食品和能源约占 PCE 的 12%，所以住房在<em>核心</em> PCE 里大约 16 ÷ 88 ≈ 18%。这两个数字是我从 PIMCO 的 16% 推出来的示意值，不是官方权重。）</p>
+
+<div class="num">
+<div class="line">把住房权重从 44.7% 降到 18%，其余不变：</div>
+<div class="line">0.18 × 3.2 + 0.82 × 1.9 = 0.58 + 1.56 = <b>2.1%</b></div>
+</div>
+
+<p><span class="big">这就是关键的一步。</span>给住房少一点权重，指数从 2.5% <strong>降</strong>到 2.1%。可是核心 PCE 是 <strong>3.3%</strong>。</p>
+
+<p>换句话说：住房权重这一块，不但没有解释这 0.8 的缺口，反而<strong>让缺口变大了</strong>——从 0.8 变成大约 1.2 个百分点。</p>
+
+<p>那么真正的答案必须在别处：<strong>PCE 篮子里有一批 CPI 篮子里几乎没有、或者量法完全不同的东西，而它们涨得非常凶。</strong>凶到不但抵消了住房权重的 0.4，还倒推出 0.8。</p>
+
+<p>这一整段之所以有价值，不是因为结论，而是因为方法：<strong>我先把"住房权重"这个人人都在说的解释变成算术，然后发现它的符号是反的。</strong>如果我一开始就顺着"住房权重不同所以指数不同"往下写，听起来完全合理，而且永远不会被发现是错的。</p>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>我没能做到的事：</strong>把当前这 0.8 个百分点，按 BLS 的四种效应逐块拆成具体数字。</p>
+<p><strong>为什么做不到：</strong>BLS 那篇文章给的是 2002–2007 和 2010 年四季度的拆解，不是 2026 年 7 月的。我没有找到任何机构公布的当期 CPI–PCE 对账表。</p>
+<p><strong>反对的看法是什么：</strong>我上面用的"住房占核心 PCE 约 18%"是从一份卖方研究的 16% 推算的，如果真实权重不是 16%，第二步的结论幅度会变；另外我假设了"住房以外的部分在两个篮子里涨幅相同"，这肯定不成立——两个篮子的非住房部分本来就装着不同的东西。所以 1.2 这个数字应当被理解为<strong>"缺口至少和 0.8 一样大，方向上还更大"</strong>，而不是一个精确值。</p>
+<p><strong>要判断需要什么材料：</strong>BEA 与 BLS 的当期逐项对账表（历史上 BEA 发表过 CPI–PCE reconciliation 类的研究论文），或者 BEA 公布的 2026 年 PCE 明细权重。</p>
+</div>
+
+<div class="src"><b>这一环的依据：</b><a href="https://www.bls.gov/opub/btn/archive/differences-between-the-consumer-price-index-and-the-personal-consumption-expenditures-price-index.pdf">BLS《CPI 与 PCE 物价指数的差异》</a>（四种效应的定义、原话、2002–2007 数值）+ <a href="https://www.bls.gov/news.release/cpi.t01.htm">BLS CPI 表1</a>（权重与分项）+ <a href="https://www.pimco.com/us/en/insights/us-inflation-measures-tell-two-different-stories">PIMCO《U.S. Inflation Measures Tell Two Different Stories》2026-05-06</a>（住房 16% 与"1985 年以来最大反转之一"，卖方研究，非官方）+ 我自己的算术。</div>
+
+<h4>2.7 学界的分歧：哪把尺子更好？</h4>
+
+<p>这条原理在学界不是一言堂，我必须把两边都讲。</p>
+
+<p><strong>支持 PCE 更好的一方：</strong></p>
+<ul>
+<li>费雪理想公式在指数理论里属于"超越对数级"（BLS 用词：<em>superlative</em>）的一类，它承认人会替代，因此更接近"维持同等生活水平需要多花多少钱"这个真问题。固定权重的拉氏公式会系统性高估。</li>
+<li>范围更全。你享受的医疗服务是 500 美元的服务，不是 50 美元的服务，哪怕你只掏了 50。要衡量"经济体里的物价压力"，500 才是对的。</li>
+<li>它会随新数据修订，因此长期看更准。</li>
+</ul>
+
+<p><strong>支持 CPI 更好的一方：</strong></p>
+<ul>
+<li><strong>它不修订。</strong>已经公布的 CPI 就是那个数，永远不变。所以美国的社保金调整、通胀挂钩国债（TIPS）、大量商业合同全部挂 CPI。一个会被追溯修改的指数没法写进合同。</li>
+<li>它衡量的是"你自己掏了多少钱"。对一个要交房租、要付账单的家庭来说，别人替他付掉的那 450 美元不会出现在他的银行账户里。</li>
+<li><strong>PCE 里有大量"推算价格"</strong>——没有任何一笔交易真的按那个价格发生过。这正是 Waller 9 月 3 日讲话的攻击点，也是环 5 的内容。</li>
+</ul>
+
+<p><strong>还有一个对 Waller 的反驳，我必须写出来。</strong>7 月 FOMC 会议纪要里记录了另一种意见：即便把关税影响和能源影响的项目都剔掉，底层通胀看起来依然顽固地高。而且 Waller 自己也承认了这个方法论上的危险，他的原话是：<em>"I don't like throwing out specific categories going into the estimate of PCE inflation"</em>（我不喜欢把某些类别从 PCE 通胀的估计里剔掉）。</p>
+
+<p>这个警惕是有道理的：<strong>如果每次数字不合心意就找一个分项剔掉，你最终一定能把任何通胀读数讲成 2%。</strong>"剔掉我不喜欢的部分"和"剔掉确实有测量缺陷的部分"，在页面上长得一模一样。区分二者的唯一办法，是看剔除的理由在数字出来<em>之前</em>是否已经成立。Waller 说非市场服务"一直让我不安"（<em>have always been an issue for me</em>）——这句话是在主张他的理由属于前者。这是不是真的，你可以自己去翻他过去几年的讲话来验证，我今天没有验证。</p>
+
+<div class="src"><b>这一环的依据：</b><a href="https://www.bls.gov/opub/btn/archive/differences-between-the-consumer-price-index-and-the-personal-consumption-expenditures-price-index.pdf">BLS 官方说明</a> + <a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20260729.htm">7月 FOMC 会议纪要</a> + <a href="https://www.federalreserve.gov/newsevents/speech/waller20260903a.htm">Waller 讲话</a>；"Waller 过去是否一贯持此立场"我未验证。</div>
+
+<h3>环 3｜美联储的 2% 目标，制度上就是按 PCE 定义的</h3>
+
+<p>到这里你可能会问：既然两把尺子都有道理，美联储用哪一把？</p>
+
+<p>这不是习惯问题，是白纸黑字的制度。美联储的《长期目标与货币政策策略声明》（每年 1 月重申一次，最近一次是 2026 年 1 月 27 日）原话是：</p>
+
+<blockquote>
+"The Committee reaffirms its judgment that inflation at the rate of 2 percent, <strong>as measured by the annual change in the price index for personal consumption expenditures</strong>, is most consistent over the longer run with the Federal Reserve's statutory maximum employment and price stability mandates."<br>
+<span class="q">（委员会重申其判断：<strong>以个人消费支出物价指数的年度变化衡量的</strong> 2% 通胀率，长期看最符合美联储法定的最大就业与物价稳定双重使命。）</span>
+</blockquote>
+
+<p>句子里那一串定语不是修辞，是定义。<strong>2% 这个目标，测量工具在声明里被指定了，就是 PCE。</strong></p>
+
+<p>顺带说明：美联储 1996 年之前更看 CPI，2000 年前后正式转向 PCE，理由大致就是环 2.7 里"支持 PCE"那一栏的内容。</p>
+
+<div class="src"><b>这一环的依据：</b><a href="https://www.federalreserve.gov/monetarypolicy/files/FOMC_LongerRunGoals.pdf">美联储《长期目标与货币政策策略声明》（2026-01-27 重申）</a>。"1996/2000 年前后转向"这句是我的背景知识，今天未查证，你不必采信。</div>
+
+<h3>环 4｜于是同一个七月，政策距离目标的远近差了一倍多</h3>
+
+<p>把环 2 和环 3 接起来，就得到今天最重要的一句话。</p>
+
+<div class="num">
+<div class="line">如果目标定义在 CPI 上：2.5% − 2% = <b>差 0.5 个百分点</b>（50 个基点）</div>
+<div class="line">如果目标定义在 PCE 上：3.3% − 2% = <b>差 1.3 个百分点</b>（130 个基点）</div>
+<div class="line">1.3 ÷ 0.5 = <b>2.6 倍</b></div>
+</div>
+
+<p>同一个国家、同一个月，仅仅因为制度上选了哪把尺子，"离目标还有多远"就相差 2.6 倍。</p>
+
+<p>这不是文字游戏，它有可以观察的后果。2026 年 7 月 28–29 日的 FOMC 会议：</p>
+
+<ul>
+<li>决定维持联邦基金目标区间在 <strong>3.50–3.75%</strong>（自 2025 年 12 月以来一直没动过）</li>
+<li>投票结果 <strong>9 比 3</strong></li>
+<li><strong>三位反对票，主张的是加息 25 个基点</strong>，理由是价格压力面广、政策需要更具限制性</li>
+</ul>
+
+<p>请对照着想一下：如果目标写的是 CPI，那么"通胀 2.5%、离目标 0.5 个百分点、失业率 4.1%、7 月非农还掉了 2.3 万人"——很难想象会有三个人站出来要求加息。<strong>那三张反对票，很大程度上是那 0.8 个百分点的产物。</strong></p>
+
+<p>顺便留意一个信息：会议纪要记载，市场和调查衡量的中长期通胀预期"仍然锚定在 2% 附近"（anchored）。也就是说，虽然实际读数是 3.3%，但公众并不认为它会一直高下去。这一点在后面第 5 节会变成一个关键的脆弱假设。</p>
+
+<div class="src"><b>这一环的依据：</b>算术推导 + <a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20260729.htm">7月 FOMC 会议纪要</a> + <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">政策执行说明</a>。"如果目标写的是 CPI 就不会有三张反对票"这句是我的反事实推断，不是事实陈述。</div>
+
+<h3>环 5｜Waller 的攻击点：那 3.3% 里有一大块，不是真实成交价</h3>
+
+<p>现在回到今天的事件本身。Waller 说的是：<em>7 月核心物价 0.2% 的环比涨幅里，大约一半来自"非市场服务"</em>，而这些价格是 <em>"imputed and not actual price changes"</em>（推算出来的，不是实际的价格变动）。</p>
+
+<div class="num">
+<div class="line">7 月核心 PCE 环比 = <b>+0.2%</b></div>
+<div class="line">其中约一半来自非市场服务 → 约 <b>+0.1 个百分点</b></div>
+<div class="line">剩下的"真实成交价格"部分 → 约 <b>+0.1 个百分点</b></div>
+</div>
+
+<p>要理解这句话的分量，得先弄明白"推算价格"是什么。</p>
+
+<h4>5.1 什么是"推算价格"</h4>
+
+<p>先讲一个你熟悉的例子。你自己买了房子住着，没交房租。国民经济核算要怎么处理？</p>
+<p>统计机构的做法是：假装你把房子租给了自己，估一个市场租金出来，记进 GDP 和物价指数。这笔钱从来没有真的付过，但它必须存在——否则一个国家的居民从租房改成买房，统计上就会显示"住房消费凭空消失了"。</p>
+<p>这种"没有实际交易、由统计机构估算出来的价格"，经济学给它起了个名字，叫<strong>推算价格</strong>（英文 imputed price）。相应地，这类没有明码标价的服务叫<strong>非市场服务</strong>（英文 nonmarket services）。</p>
+<p>推算价格是不可避免的，但它有一个内在的麻烦：<strong>因为没有真实交易可以对照，它的准确性完全取决于估算方法。方法一变，"价格"就变，而现实里什么都没发生。</strong></p>
+
+<h4>5.2 一个具体到可以自己算的例子：给基金经理的管理费</h4>
+
+<p>这是今天全文最值得记住的机制，请慢慢跟着算。</p>
+
+<p><strong>生活场景。</strong>你把 10 万美元交给一位基金经理，约定管理费是每年资产的 1%。</p>
+
+<div class="num">
+<div class="line">第一年：资产 100,000 × 1% = 管理费 <b>1,000 美元</b></div>
+<div class="line">这一年股市涨了 19%，资产变成 <b>119,000 美元</b></div>
+<div class="line">第二年：资产 119,000 × 1% = 管理费 <b>1,190 美元</b></div>
+</div>
+
+<p><strong>问题来了：这项服务的"价格"涨了吗？</strong></p>
+
+<p>从你的角度看：没涨。费率还是 1%，一直是 1%。你没有被多收一分钱的<em>费率</em>。</p>
+<p>从统计的角度看：你付出去的钱从 1,000 变成了 1,190，涨了 19%。</p>
+
+<p>那么统计机构记哪一个？答案取决于它用什么方法。BLS 编制"组合管理"的生产者物价指数（PPI）时，方法说明里写得非常明白：</p>
+
+<blockquote>
+"The management fee is most often based on a percentage of assets under management or a certain number of basis points (<strong>FEE = BP*FV</strong>, where FEE is the management fee, BP is basis points, and FV is fund value)."<br>
+"Price movements for this index are based on <strong>changes in the amount of revenue</strong> a portfolio manager receives for providing investment advice."<br>
+"A mutual fund's assets are held fixed from the beginning of the reporting period, not allowing any inflows or outflows, and <strong>are updated by the rate of return</strong> on a monthly or quarterly basis."
+</blockquote>
+
+<p>逐句翻译成中文，然后代入数字：</p>
+<ul>
+<li>管理费 = 基点数 × 基金市值（FEE = BP × FV）。→ 1% × 100,000 = 1,000</li>
+<li>指数的"价格变动"看的是<strong>管理人收到的收入变了多少</strong>。→ 从 1,000 到 1,190</li>
+<li>基金资产不允许申购赎回（这样就排除了"钱变多了"），但<strong>要按投资回报率更新</strong>。→ 100,000 按 +19% 更新成 119,000</li>
+</ul>
+
+<p><span class="big">把这三句连起来：费率固定，市值按回报更新，指数记录收入变化。所以股市涨 19%，这个"价格指数"就涨 19%。</span></p>
+
+<p>这不是有人算错了。方法本身就是这样设计的——它想衡量的是"管理更多资产是更多的服务"。但副作用是：<strong>股票价格会通过这条管道，直接流进"通胀"这个数字里。</strong></p>
+
+<h4>5.3 这个副作用有多大？</h4>
+
+<p>这里必须小心，因为量级最容易编。我把有出处的和我推算的分开。</p>
+
+<p><strong>有出处的：</strong>研究机构 Employ America 在 7 月 PCE 发布后的分析中给出，组合管理与相关费用这一类对核心 PCE 同比"超出 2% 目标"的部分贡献了大约 <strong>27 个基点</strong>；他们同时预计下个月的修订会从同比核心 PCE 中"削掉约 20–25 个基点"。另一家（Confluence Investment Management，2026 年 8 月 5 日）估计受影响的几个分项合计约占核心 PCE 的 <strong>4%</strong>，而在核心 CPI 里只占 <strong>1% 出头</strong>。</p>
+
+<p><strong>我自己的合理性检验</strong>（下面的数字是<strong>示意数字，只为演示算法</strong>，不是真实权重）：</p>
+<div class="num">
+<div class="line">假设组合管理占核心 PCE 权重 2%（示意）</div>
+<div class="line">假设它的"测得价格"同比涨 15%（示意）</div>
+<div class="line">贡献 = 0.02 × 15% = <b>0.30 个百分点</b> = 30 个基点</div>
+<div class="line">对照 Employ America 公布的 27 个基点 → 量级对得上</div>
+</div>
+<p>请注意这段的性质：我不是"推导"出了 27 个基点，我是<strong>反过来找了一组能凑出 27 个基点的示意数字，检验这个机制在量级上说不说得通。</strong>结论是说得通。但这不构成对 27 这个数字的独立验证。</p>
+
+<p>换个说法，你就知道这件事有多不舒服：<strong>标普 500 今年涨了 19%，而这个涨幅有一部分被记录成了"通货膨胀"，进而让美联储更倾向于维持高利率，从而压制股票。</strong>一个从资产价格通回资产价格的回路。</p>
+
+<div class="src"><b>这一环的依据：</b><a href="https://www.bls.gov/ppi/factsheets/producer-price-index-for-portfolio-management-and-investment-advice-naics-523940.htm">BLS · 组合管理与投资顾问 PPI 方法说明</a>（三段原话）+ 算术推导（FEE = BP × FV）+ <a href="https://www.employamerica.org/core-cast/july-2026-core-cast-post-pce/">Employ America，2026年8月</a>（27bp / 20–25bp，非官方）+ <a href="https://www.advisorperspectives.com/commentaries/2026/08/05/pce-makeover">Confluence，2026-08-05</a>（4% vs 1%，非官方）。<br><b>一个诚实的提醒：</b>我引的 BLS 方法说明里那三句原话是确凿的，"所以股市涨则指数涨"这个结论是我从这三句话推出来的。它得到两处独立佐证（Employ America 称该分项是"股市表现的滞后代理"；以及 BEA 决定停用这个 PPI 作为折算指数——见环 6）。但它终究是我的推理，不是 BLS 的原话。</div>
+
+<h3>环 6｜9 月 30 日，量法要改</h3>
+
+<p>如果这个测量方式有问题，为什么不改？</p>
+
+<p>正在改。BEA 在 2026 年 6 月的《国民经济核算年度修订预览》里公布了三项方法变更，2026 年 9 月 30 日随年度修订生效：</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>分项</th><th>原方法</th><th>新方法</th></tr>
+<tr><td>组合管理服务</td><td>用生产者物价指数（PPI）折算</td><td>改用基于 BLS 就业统计（CES）的"数量外推"，BEA 的理由是要 <em>"better reflect the timing and quantity of services consumed"</em>（更好地反映所消费服务的时点与数量）</td></tr>
+<tr><td>法律服务</td><td>用 CPI 数据（BEA 称其自 2024 年末起波动异常且未再发布）</td><td>改用 BEA 自建的、基于细分 PPI 的复合价格指数</td></tr>
+<tr><td>计算机软件</td><td>单独用 CPI</td><td>改用 CPI（软件及配件）+ PPI（游戏软件出版）+ PPI（IT 基础设施服务）的复合指数</td></tr>
+</table>
+</div>
+
+<p>顺便注意第二行和第三行：<strong>PCE 的很多分项，本来就是拿 CPI 的数据去折算出来的。</strong>这一点非常重要，环 8 会用到——两把尺子并不是彼此独立的，PCE 在相当程度上是用 CPI 和 PPI 的原材料拼出来的。</p>
+
+<p>此外这次年度修订还会：用 2023 年人口普查局综合经济调查、2023 年 IRS 税收统计等新数据源重算，并<strong>重算全部统计量的季节调整因子</strong>，修订区间是 2021 年一季度到 2026 年一季度。</p>
+
+<p>Waller 在讲话里提到的正是这件事：</p>
+<blockquote>
+"One factor that I expect will lower reported inflation a bit is a pending change in the way the Commerce Department estimates the fees paid to stock market traders and related professionals... could lower 12-month PCE inflation by <strong>a few tenths of a percentage point</strong>."<br>
+<span class="q">（我预计有一个因素会让公布的通胀降低一些：商务部即将改变对付给股市交易者及相关专业人士费用的估算方式……可能让 12 个月 PCE 通胀降低<strong>几个十分之一百分点</strong>。）</span>
+</blockquote>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p><strong>幅度到底是多少？</strong>目前有三个来源，全部不是 BEA 官方数字：</p>
+<ul>
+<li>Waller（美联储理事）："几个十分之一百分点"——即 0.2–0.4pp 左右，但他没给精确值</li>
+<li>Employ America：约 20–25 个基点（仅组合管理一项）</li>
+<li>Confluence：软件约 0.1pp + 组合管理约 0.2pp ≈ 合计 0.3pp</li>
+</ul>
+<p><strong>三家的量级一致（0.2–0.3pp），但没有一家是发布机构本身。</strong>BEA 在它的预览文件里描述了方法变更，但据我今天所查，<strong>没有公布对通胀率的量化影响</strong>。</p>
+<p><strong>反对的看法：</strong>这次年度修订同时换了新数据源、重算了全部季节调整因子、并回溯修订到 2021 年。这些变更的净效果<strong>方向不定</strong>——完全可能某些分项被上修，抵消掉组合管理的下修。把"0.3pp 的下调"当成既定事实，是把一个方法变更的<em>已知部分</em>误当成了<em>全部</em>。</p>
+<p><strong>要判断需要什么：</strong>9 月 30 日 BEA 实际发布的修订后数据。这是一个 26 天后就能证实或证伪的预测，不需要争论。</p>
+</div>
+
+<div class="src"><b>这一环的依据：</b><a href="https://apps.bea.gov/scb/issues/2026/06-june/0626-nea-preview.htm">BEA《2026 年国民经济核算年度修订预览》</a> + <a href="https://www.bea.gov/news/blog/2026-08-17/annual-update-gdp-industry-and-state-stats-publicly-available-starting-sept-30">BEA 官方博客，2026-08-17</a> + <a href="https://www.federalreserve.gov/newsevents/speech/waller20260903a.htm">Waller 讲话</a>；幅度估计来自非官方来源（已标注）。</div>
+
+<h3>环 7｜当天市场怎么走的</h3>
+
+<p>9 月 3 日美股收盘：标普 500 涨 1.06% 至 7,741.28，纳斯达克 100 涨 1.16%，VIX 收 14.32，美元指数跌 0.31%。</p>
+
+<p><strong>价格是事实。但"因为 Waller 所以涨"是叙事，不是事实。</strong>我把这一环画成了带虚线说明的格子，理由如下。</p>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p>行情商的当日综述把上涨归因于"收益率停止上行 + Waller 的讲话"。这个归因在时间顺序上说得通（讲话在盘中，指数当天收涨），但它属于典型的<strong>事后叙事</strong>：任何一天的涨跌，你都能在当天的新闻里找到一条与之方向一致的消息。</p>
+<p><strong>检验一下：这条链在事情发生之前能不能用来预测？</strong>"美联储理事说通胀被高估 → 股票涨"——这条规则确实可以事前使用，而且方向明确。所以它<em>不是</em>纯叙事。但 1.06% 的涨幅里有多少来自 Waller、多少来自当天其他事情（业绩、仓位、月初资金流），我完全没有办法拆开。</p>
+<p><strong>我能确定的只有一件事：</strong>市场收盘价是上面那些数字。归因不确定。</p>
+</div>
+
+<div class="src"><b>这一环的依据：</b>价格数据来自行情商（非一手发行方）；归因是我标注过的推测。</div>
+
+<h3>环 8｜可是国债市场并不是在赌降息——这一段你可以自己验算</h3>
+
+<p>股票涨了，但债券市场在说什么？这里有一个可以完全自己算出来的结论，不需要相信任何人。</p>
+
+<h4>8.1 先把工具备齐：短期国债收益率在表达什么</h4>
+
+<p>美联储直接控制的是<strong>隔夜利率</strong>——银行之间借一晚上钱的利率。目前它把这个利率钉在 3.50–3.75% 这个区间里，具体的锚是"准备金余额利率"3.65%（英文 interest on reserve balances，缩写 IORB；这是银行把钱放在美联储账上能拿到的利息，所以银行不会以低于它太多的利率把钱借给别人）。</p>
+
+<p>现在想一个问题：如果你买一张 3 个月后到期的国债，它的收益率应该是多少？</p>
+<p>因为你有另一个选择：把钱按隔夜利率一天一天地滚 3 个月。所以这两条路的回报应该差不多，否则会有人套利。也就是说：</p>
+
+<p style="text-align:center"><strong>3 个月国债收益率 ≈ 未来 3 个月里隔夜利率的平均值</strong></p>
+
+<p>而"未来的隔夜利率"，就是市场对美联储会怎么做的预期。<strong>所以短期国债收益率是市场对美联储的投票结果。</strong></p>
+
+<h4>8.2 现在代入真实数字</h4>
+
+<div class="num">
+<div class="line">现在的隔夜利率（IORB）= <b>3.65%</b></div>
+<div class="line">3 个月国债收益率（9月2日，财政部官方）= <b>3.92%</b></div>
+<div class="line">差 = 3.92 − 3.65 = <b>0.27 个百分点 = 27 个基点</b></div>
+</div>
+
+<p><span class="big">这一步就够了：3.92% 高于 3.65%，说明市场平均预期未来三个月的隔夜利率要<strong>高于</strong>现在。也就是——市场在给"加息"定价，不是"降息"。</span></p>
+
+<p>方向已经确定了。下面这一步算"几次"，精度要差一些，但方法值得学。</p>
+
+<h4>8.3 算一算：市场在赌几次加息</h4>
+
+<p>未来三个月里，美联储有两次议息会议：9 月 15–16 日、10 月 27–28 日。假设每次动就是 25 个基点（这是长期惯例）。从 9 月 2 日算起 91 天：</p>
+
+<div class="num">
+<div class="line">9月17日加息生效 → 91 天里有 <b>76 天</b>处在新利率下，占 76 ÷ 91 = <b>83.5%</b></div>
+<div class="line">10月29日加息生效 → 91 天里有 <b>34 天</b>，占 34 ÷ 91 = <b>37.4%</b></div>
+<div class="line">─────</div>
+<div class="line">若"9月必加一次"：3.65 + 0.25 × 0.835 = <b>3.86%</b></div>
+<div class="line">若"9月、10月各加一次"：3.86 + 0.25 × 0.374 = <b>3.95%</b></div>
+<div class="line">实际读数：<b>3.92%</b></div>
+</div>
+
+<p>3.92 落在 3.86 和 3.95 之间。往回解：</p>
+<div class="num">
+<div class="line">(3.92 − 3.86) ÷ (3.95 − 3.86) = 0.06 ÷ 0.09 = <b>约 65%</b></div>
+<div class="line">→ 大致相当于"9 月加一次是板上钉钉，10 月再加一次的概率约 65%"</div>
+</div>
+
+<p><strong>再用 1 年期国债交叉验证一次</strong>（好的做法是永远用第二个数据检查第一个结论）：</p>
+<div class="num">
+<div class="line">1 年期国债 = <b>4.16%</b>（9月2日，财政部官方）</div>
+<div class="line">9月17日加息 → 365 天里 350 天，占 <b>95.9%</b></div>
+<div class="line">10月29日加息 → 365 天里 308 天，占 <b>84.4%</b></div>
+<div class="line">两次都加：3.65 + 0.25×0.959 + 0.25×0.844 = <b>4.10%</b></div>
+<div class="line">实际 4.16% → 略多于两次加息</div>
+</div>
+
+<p>两条独立的算法指向同一个方向：<strong>市场在为大约两次加息定价。</strong></p>
+
+<h4>8.4 这个算法什么时候会失效——必须讲的三个漏洞</h4>
+
+<ol>
+<li><strong>期限溢价。</strong>把钱锁定更久，投资者会要求一点额外补偿。这个补偿叫<strong>期限溢价</strong>（英文 term premium），它混在收益率里，和"预期"分不开。3 个月的期限溢价很小，可以忽略；1 年期的已经不能完全忽略；2 年期（4.39%）就更不能了。<strong>所以我不用 2 年期来数加息次数。</strong></li>
+<li><strong>国债收益率不等于利率互换。</strong>财政部公布的是国债的到期收益率，报价惯例和"纯利率预期"（专业人士用 OIS 曲线）之间有一个小基差。这会让我算出的次数有几个基点的误差。</li>
+<li><strong>假设了只在例会上、只动 25 个基点。</strong>历史上两条都被打破过。</li>
+</ol>
+
+<p>所以诚实的说法是：<strong>方向（加息而不是降息）是确凿的，因为 3.92% > 3.65% 这个不等式不受上述任何一条影响；"两次"这个数是近似值。</strong></p>
+
+<div class="src"><b>这一环的依据：</b>纯算术推导 + <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&amp;field_tdr_date_value_month=202609">美国财政部官方收益率曲线（2026-09-02）</a> + <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a1.htm">美联储政策执行说明（IORB 3.65%）</a> + <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">FOMC 2026 会议日历</a>。你可以拿计算器把每一步验算一遍。</div>
+
+<h3>环 9｜今天这条链最锋利的那一句</h3>
+
+<p>把三张发布日程表放在一起：</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>日期</th><th>事件</th><th>口径</th></tr>
+<tr><td>2026-09-11</td><td>8 月 CPI 发布</td><td>BLS，8 月数据</td></tr>
+<tr><td>2026-09-15/16</td><td><strong>FOMC 议息会议</strong>（含点阵图）</td><td>——</td></tr>
+<tr><td>2026-09-30</td><td>8 月 PCE 发布 + 年度修订生效</td><td>BEA，8 月数据 + 2021Q1 起回溯修订</td></tr>
+</table>
+</div>
+
+<p><span class="big">9 月的议息会议在 9 月 15–16 日。8 月的 CPI 在会议<strong>前</strong> 4 天出，8 月的 PCE 在会议<strong>后</strong> 14 天出。</span></p>
+
+<p>也就是说：<strong>美联储这次要在只看到 CPI、还没看到 PCE 的情况下，做一个以 PCE 为目标的决定。</strong></p>
+
+<p>你可能会想：那他们不就抓瞎了吗？</p>
+<p>不会，但方式很有意思——<strong>他们会用 CPI 去推算 PCE。</strong>这在技术上完全可行，因为如环 6 所示，PCE 的许多分项本来就是拿 CPI 和 PPI 的数据折算出来的（BEA 自己说法律服务分项原本用的就是 CPI，软件分项原本也是 CPI）。所以美联储的工作人员拿到 9 月 11 日的 CPI 和 9 月的 PPI，就能相当准确地推算出 8 月核心 PCE 大概是多少。</p>
+<p>这也解释了为什么每个月 CPI 发布日市场波动最大，尽管美联储的目标并不是 CPI：<strong>CPI 是原材料，PCE 是成品，而市场等不到成品。</strong></p>
+
+<div class="src"><b>这一环的依据：</b><a href="https://www.bls.gov/schedule/news_release/cpi.htm">BLS CPI 发布日程</a> + <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">FOMC 日历</a> + <a href="https://apps.bea.gov/scb/issues/2026/06-june/0626-nea-preview.htm">BEA 修订预览（证明 PCE 分项使用 CPI 作为源数据）</a>。"美联储工作人员据此推算 PCE"是我从上述事实作出的推断，我没有找到美联储描述其内部 nowcast 流程的文件。</div>
+
+<h2>4｜对你意味着什么</h2>
+
+<p class="q"><strong>先说清楚：下面是教学分析和判断框架，不是个性化投资建议。</strong>我不知道你的持仓、负债、时间表和风险承受能力，也不会给"该买该卖"的结论。我要做的是把机制讲清楚，让你自己能判断。</p>
+
+<h3>4.1 第一个必须纠正的直觉：美国的通胀不是你的通胀</h3>
+
+<p>你收入是新币，生活在新加坡，资产大量是美元。今天讲的 3.3%、2.5%，全都是<strong>美国的</strong>物价。它们和你的生活成本没有直接关系。</p>
+
+<p>那它们和你有什么关系？<strong>它们决定你手上美元资产的价格，而不决定你的生活成本。</strong>这两件事必须分开算。</p>
+
+<p>正确的算法分两步，我用示意数字走一遍：</p>
+
+<div class="num">
+<div class="line"><b>第一步：美元回报换成新元</b></div>
+<div class="line">假设你的美股组合一年赚了 10%（示意数字）</div>
+<div class="line">过去 12 个月新元对美元升值约 1.56%（来自行情商，2026-09-03）</div>
+<div class="line">→ 一年前 USD/SGD 约 1.2887，现在 1.2689（前者由涨跌幅倒推，非直接观察值）</div>
+<div class="line">换回新元的回报 = 1.10 × (1.2689 ÷ 1.2887) − 1</div>
+<div class="line">= 1.10 × 0.9846 − 1 = <b>+8.3%</b></div>
+<div class="line"><b>10% 变成了 8.3%，汇率吃掉了 1.7 个百分点。</b></div>
+</div>
+
+<div class="num">
+<div class="line"><b>第二步：再扣掉<em>新加坡</em>的通胀（不是美国的）</b></div>
+<div class="line">假设新加坡通胀 1.5%（示意数字，我今天没有查证新加坡的 CPI）</div>
+<div class="line">实际回报 ≈ 8.3% − 1.5% = <b>约 6.8%</b></div>
+</div>
+
+<p>这一节要你记住的不是这些数字，而是<strong>顺序</strong>：美元回报 → 换汇 → 扣<em>你消费地</em>的通胀。很多人在第二步用了美国的通胀，那是错的——你不在美国买菜。</p>
+
+<h3>4.2 第二件事：为什么"美联储盯 PCE"会传到你的组合</h3>
+
+<p>链条是这样的，每一步我都写出来：</p>
+
+<ol>
+<li>核心 PCE 3.3%，离 2% 还有 1.3 个百分点 → 美联储不降息，甚至有人要加息（<strong>事实，环 4</strong>）</li>
+<li>不降息 → 短期国债收益率维持在 3.9–4.4%（<strong>事实，环 8</strong>）</li>
+<li>短期利率高 → 长期利率也高：10 年期 4.79%（<strong>事实</strong>）</li>
+<li>10 年期利率是几乎所有资产估值的"分母"（下面解释）</li>
+</ol>
+
+<p><strong>第 4 步需要展开，因为它是全部金融学里最重要的一句话。</strong></p>
+
+<p>先讲生活场景。有人欠你 100 块，说一年后还。这张欠条今天值多少？肯定不到 100，因为你要等一年，而这一年里你本可以把钱拿去赚利息。</p>
+
+<div class="num">
+<div class="line">如果无风险利率是 <b>3%</b>：今天值 100 ÷ 1.03 = <b>97.1 元</b></div>
+<div class="line">如果无风险利率是 <b>5%</b>：今天值 100 ÷ 1.05 = <b>95.2 元</b></div>
+</div>
+
+<p>这个"把未来的钱换算成今天的钱"的动作，经济学给它起了个名字，叫<strong>折现</strong>（英文 discounting），那个利率叫<strong>折现率</strong>（discount rate）。</p>
+
+<p>现在看关键的部分：<strong>等的时间越长，利率变化的影响越大。</strong></p>
+
+<div class="num">
+<div class="line"><b>1 年后的 100 块：</b></div>
+<div class="line">利率 3% → 100 ÷ 1.03 = 97.1</div>
+<div class="line">利率 5% → 100 ÷ 1.05 = 95.2　　跌幅 <b>−2.0%</b></div>
+<div class="line">　</div>
+<div class="line"><b>20 年后的 100 块：</b></div>
+<div class="line">利率 3% → 100 ÷ 1.03<sup>20</sup> = 100 ÷ 1.806 = 55.4</div>
+<div class="line">利率 5% → 100 ÷ 1.05<sup>20</sup> = 100 ÷ 2.653 = 37.7　　跌幅 <b>−31.9%</b></div>
+</div>
+
+<p><span class="big">同样是利率从 3% 涨到 5%，1 年后的钱只跌 2%，20 年后的钱跌了近 32%。差了 16 倍。</span></p>
+
+<p>为什么？因为折现是<strong>连乘</strong>的：1 年只除一次 1.05，20 年要除 20 次。每多一年，那 2 个百分点的差距就被再放大一次。这是复利的镜像。</p>
+
+<p>现在把这个道理挪到股票上。一家公司的股价，本质上是它<strong>未来所有年份</strong>利润折现到今天的总和。那么：</p>
+<ul>
+<li>一家现在就在大把赚钱、增长平稳的公司（比如公用事业、银行），价值主要来自近几年的利润 → 像"1 年后的 100 块" → <strong>对利率不敏感</strong></li>
+<li>一家现在利润很少、故事全在十年后的公司（比如很多科技成长股），价值主要来自很远的未来 → 像"20 年后的 100 块" → <strong>对利率极度敏感</strong></li>
+</ul>
+
+<p>这个"价值有多靠后"的性质，经济学给它起了个名字，叫<strong>久期</strong>（英文 duration）。原本是债券的概念，后来发现股票也适用。</p>
+
+<p><strong>所以对你的实际含义是：</strong>纳斯达克 100 今年涨了 24.16%，跑赢标普 500 的 19.06%。<strong>如果</strong>你的美股仓位集中在长久期的成长型资产上，那么"美联储会不会加息"这个问题对你的影响，会明显大于对一个持有均衡型组合的人。而这个问题的答案，今天我们看到，部分取决于一个统计机构在 9 月 30 日怎么改一个计算公式。</p>
+
+<p>你不需要因此做任何交易。你需要的是<strong>知道自己的风险从哪里来</strong>——这句话本身就是今天最实用的产出。</p>
+
+<h3>4.3 第三件事：把"统计口径风险"加进你的认知清单</h3>
+
+<p>今天这堂课揭示了一类你以前大概没想过的风险：<strong>你持有的资产的价格，部分取决于某个数字是怎么被计算出来的，而计算方法会变。</strong></p>
+
+<p>9 月 30 日不是一次经济事件，是一次<strong>会计事件</strong>。没有任何一家公司的利润会因此改变，没有任何一个家庭的开销会因此改变。但如果它把核心 PCE 从 3.3% 拉到 3.0%，美联储面对的"距离目标 1.3 个百分点"就变成了"1.0 个百分点"，加息派的论据会弱掉四分之一——而这会真实地改变债券收益率和股票估值。</p>
+
+<h3>4.4 新加坡的一个特殊之处</h3>
+
+<div class="spec">
+<span class="tag">这是我的推测，不是定论</span>
+<p>新加坡金管局（MAS）不像美联储那样以利率为主要政策工具，而是通过管理新元的贸易加权汇率区间来实施货币政策。这意味着新加坡的本地利率在相当程度上是被外部（主要是美元）利率<em>带着走</em>的，而不是由 MAS 独立设定。如果这是对的，那么美国利率路径不只影响你的美股，也会影响你在新加坡的房贷利率和存款利率。</p>
+<p><strong>但我今天没有去查证 MAS 的政策框架文件</strong>，上面这段是我的背景知识，属于未核实内容，请不要据此做任何判断。这个主题在课程表里是 D25、D26，到那天我会拿 MAS 的官方文件来讲。</p>
+</div>
+
+<h2>5｜反向倒推：市场现在在赌什么</h2>
+
+<p>前面几节是<strong>顺着推</strong>——发生了 A，所以会有 B。这一节倒过来问：<strong>市场此刻的价格，说明大家心里在赌什么？</strong></p>
+
+<p>方法是这样：每一个价格都是一个赌注。把价格翻译回它隐含的假设，你就看到了共识；然后问哪个假设最脆弱。</p>
+
+<h3>5.1 已经被定价进去的假设</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>价格</th><th>它意味着市场相信什么</th><th>为什么这个价格能反映这个假设</th></tr>
+<tr><td>3 个月国债 3.92% ＞ 隔夜 3.65%</td><td>美联储接下来是往上，不是往下</td><td>短期国债收益率约等于持有期内隔夜利率的平均预期（环 8 已推导）</td></tr>
+<tr><td>1 年期 4.16%</td><td>大约两次加息，然后停住</td><td>同上，用 365 天窗口算（环 8 已推导）</td></tr>
+<tr><td>10 年期 4.79% ＞ 2 年期 4.39%</td><td>不预期近期衰退；曲线正向倾斜 40 个基点</td><td>如果市场预期经济要坏、美联储要大幅降息，长端会跌到短端下面（"倒挂"）。现在没有</td></tr>
+<tr><td>VIX 14.32</td><td>未来一个月股市不会剧烈波动</td><td>VIX 由标普 500 期权价格反推，是市场愿意为"保险"付的价钱。14 属于历史上偏低的区间</td></tr>
+<tr><td>标普 500 年内 +19.06%<br>纳指 100 +24.16%</td><td>企业盈利能顶得住 4.79% 的长期利率</td><td>股价 = 未来利润的折现和。折现率高企而股价创高，只能是分子（盈利预期）足够强</td></tr>
+<tr><td>布伦特 94.5 美元</td><td>能源紧张状态持续</td><td>与 CPI 能源分项同比 +14.7% 相互印证</td></tr>
+<tr><td>黄金 4,427.81 美元</td><td>相当一部分资金在为"某种尾部风险"付费</td><td>黄金不产生现金流，高利率环境下持有它的机会成本很高。价格仍在高位，说明有别的需求在支撑</td></tr>
+</table>
+</div>
+
+<p><strong>把这几行读成一句话：</strong>市场当前的共识是"美联储再加一到两次，通胀慢慢回落，经济不衰退，企业盈利继续增长"——一个相当乐观、而且相当拥挤的组合。</p>
+
+<h3>5.2 哪个假设最脆弱</h3>
+
+<p>我认为最脆弱的是这一条：<strong>"9 月 30 日的口径修订会带来一次免费的通胀下降。"</strong></p>
+
+<p>三个理由：</p>
+
+<ol>
+<li><strong>幅度没有官方来源。</strong>0.2–0.3 个百分点这个数字，来自三家非发布机构的估计。BEA 自己在修订预览里描述了方法变更，但据我今天所查没有公布量化影响。</li>
+<li><strong>这次修订不只改了这一项。</strong>同时换了新的数据源（2023 年人口普查综合经济调查、IRS 数据）、<strong>重算了全部季节调整因子</strong>、并回溯修订到 2021 年一季度。这些的净效果方向不定。把已知的下修当成全部，是标准的选择性关注。</li>
+<li><strong>就算数字真的降了，美联储不一定认账。</strong>这一点最微妙。委员会里那三位主张加息的人，看到"因为改了计算公式所以通胀降了 0.3"，完全可以说这不是真实的反通胀进展。Waller 自己都承认剔除类别是危险的做法。<strong>统计上的好消息不等于政策上的好消息。</strong></li>
+</ol>
+
+<h3>5.3 如果这个假设错了，价格该怎么走</h3>
+
+<p>推理链（这是条件预测，不是预言）：</p>
+<p>修订后核心 PCE 没有明显下降，或者虽然下降但 FOMC 明确表示不视其为进展 → 加息预期上修 → 短端收益率上行 → 长端跟随 → 折现率上升 → <strong>长久期资产（纳指权重股）跌幅大于短久期资产</strong> → VIX 从 14 的低位上行 → 美元走强 → USD/SGD 上行（对你的美元资产是缓冲）。</p>
+
+<p>反方向：修订确实压低了读数，且 9 月 11 日的 8 月 CPI 也偏软 → 加息预期出清 → 曲线整体下移 → 长久期资产受益最大。</p>
+
+<h3>5.4 用那个检验问一遍：这套说法能事前预测吗？</h3>
+
+<p>这一节最容易滑向事后叙事，所以必须自检。检验的问法是：<strong>这条链在事情发生之前，能不能用来做预测？</strong></p>
+
+<p><strong>能。</strong>而且它已经写下了一个具体的、26 天内会被证实或证伪的预测：</p>
+
+<div class="card">
+<p><strong>可证伪的预测（2026-09-04 写下）：</strong></p>
+<ol>
+<li>9 月 30 日 BEA 年度修订后，2026 年年中的核心 PCE 同比读数将被<strong>下修</strong>，幅度在 0.1–0.4 个百分点之间。</li>
+<li>如果下修确实发生，<strong>但</strong> FOMC 在 9 月 16 日声明或 10 月会议中并未据此软化立场（例如仍有加息方向的反对票），那么"免费反通胀"这条链就是错的，短端收益率不会因修订而下行。</li>
+</ol>
+<p>如果 (1) 不成立，说明我今天引用的三家机构的估计全错，环 6 到环 8 的整条推理需要推倒重来。</p>
+</div>
+
+<h3>5.5 未来三个月的证实/证伪日历</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>日期</th><th>事件</th><th>看什么</th></tr>
+<tr><td>2026-09-04（今晚新加坡时间 20:30）</td><td>8 月就业形势报告</td><td>7 月是 −2.3 万。如果 8 月再次为负，"不衰退"这个假设开始动摇，加息定价会松动</td></tr>
+<tr><td>2026-09-11</td><td>8 月 CPI</td><td>核心 CPI 同比是否继续低于 2.5%。这是 FOMC 开会前能看到的最后一份通胀数据</td></tr>
+<tr><td>2026-09-15/16</td><td>FOMC 会议 + 点阵图</td><td>反对票是几张、方向是哪边；点阵图里 2026 年底的中位数利率</td></tr>
+<tr><td>2026-09-30</td><td>BEA 年度修订 + 8 月 PCE</td><td>核心 PCE 被修订了多少，方向是不是下修</td></tr>
+<tr><td>2026-10-27/28</td><td>FOMC 会议</td><td>如果 9 月的修订被 FOMC 认可为"进展"，这次会议的语气会变</td></tr>
+</table>
+</div>
+
+<div class="src"><b>这一节的依据：</b>价格数据见第 1 节来源；发布日程来自 <a href="https://www.bls.gov/schedule/news_release/cpi.htm">BLS</a>、<a href="https://www.bls.gov/news.release/empsit.nr0.htm">BLS 就业报告</a>、<a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">FOMC 日历</a>、<a href="https://www.bea.gov/news/blog/2026-08-17/annual-update-gdp-industry-and-state-stats-publicly-available-starting-sept-30">BEA</a>。"哪个假设最脆弱"与条件预测是我的判断，不是事实陈述。</div>
+
+<h2>6｜底层思维 + 顶层视角</h2>
+
+<h3>6.1 今天这条链体现的思维方式</h3>
+
+<p><strong>第一个：当一个数字被写进决策规则，"这个数字怎么造出来的"就变成了决策本身的一部分。</strong></p>
+
+<p>美联储的目标不是"通胀 2%"，而是"<em>按 PCE 衡量的</em>通胀 2%"。这个定语在制度文本里，不在新闻标题里。今天我们看到的全部后果——三张要求加息的反对票、4.79% 的十年期收益率、你的成长股估值——都从这个定语里长出来。</p>
+
+<p><strong>跨领域例子一：公司里的 KPI。</strong>销售奖金挂"签约金额"还是"实际回款"？同一个季度的同一批业务，两种口径能差出三成，而销售员的行为会立刻跟着奖金的口径变——猛签回不来款的单子，或者宁可不签。你以为你在设定目标，其实你在设定一把尺子，而人是对着尺子行动的。</p>
+
+<p><strong>跨领域例子二：医学诊断阈值。</strong>把高血压的定义从 140/90 下调到 130/80，一夜之间多出几千万"病人"，而没有任何一个人的血压变了一个数字。9 月 30 日 BEA 改口径，和这是同一件事：现实没动，尺子动了。<strong>但基于这把尺子的决定，会真的改变现实。</strong></p>
+
+<p><strong>第二个，而且是今天最该带走的：把流行的解释变成算术，先检查符号。</strong></p>
+
+<p>"住房在两个指数里权重差一倍多，所以两个指数不一样。"这句话听起来完全成立，我在写这一课之前也是这么以为的。可是把它变成算术之后（环 2.6），符号是<strong>反的</strong>——住房权重的差异让 PCE 应该<em>更低</em>，而不是更高。</p>
+
+<p>如果我没有做那一步算术，我会写出一篇读起来非常顺、每一句都合理、但结论方向完全错误的分析。而<strong>你根本没有办法发现</strong>，因为它长得和正确的分析一模一样。</p>
+
+<p>这就是为什么这门课有那条唯一的规则。<strong>合理的说法和正确的说法，在页面上是同一种字体。</strong>区分它们的唯一办法，是把说法变成一个能算出符号和量级的东西，然后真的去算。</p>
+
+<h3>6.2 这条链在整个系统里的位置</h3>
+
+<p>把经济—金融系统想成四个咬合的板块：<strong>增长、通胀、利率、汇率与信用</strong>。今天这条链处在一个特殊的位置——它在<strong>所有板块的上游</strong>。</p>
+
+<figure>
+<svg viewBox="0 0 400 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="测量层位于系统上游的示意图">
+<style>
+.b2{fill:var(--card);stroke:var(--accent2);stroke-width:1.7;rx:7}
+.b3{fill:var(--spec-bg);stroke:var(--spec-border);stroke-width:2;rx:7}
+.tt{font-family:-apple-system,"Noto Sans SC","PingFang SC",sans-serif;font-size:12px;fill:var(--fg)}
+.tt7{font-family:-apple-system,"Noto Sans SC","PingFang SC",sans-serif;font-size:12px;font-weight:700;fill:var(--fg)}
+.tm{font-family:-apple-system,sans-serif;font-size:10.5px;fill:var(--muted)}
+.l2{stroke:var(--muted);stroke-width:1.5;marker-end:url(#ar2)}
+</style>
+<defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto"><path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--muted)"/></marker></defs>
+
+<rect class="b3" x="90" y="8" width="220" height="44"/>
+<text class="tt7" x="200" y="28" text-anchor="middle">测量层：怎么定义、怎么算</text>
+<text class="tm" x="200" y="44" text-anchor="middle">CPI / PCE 的口径、权重、公式</text>
+<line class="l2" x1="200" y1="52" x2="200" y2="76"/>
+
+<rect class="b2" x="105" y="78" width="190" height="40"/>
+<text class="tt" x="200" y="95" text-anchor="middle">政策反应函数</text>
+<text class="tm" x="200" y="111" text-anchor="middle">离 2% 还差多远 → 加息还是不动</text>
+<line class="l2" x1="200" y1="118" x2="200" y2="142"/>
+
+<rect class="b2" x="105" y="144" width="190" height="40"/>
+<text class="tt" x="200" y="161" text-anchor="middle">无风险利率曲线</text>
+<text class="tm" x="200" y="177" text-anchor="middle">3M 3.92 · 2Y 4.39 · 10Y 4.79</text>
+
+<line class="l2" x1="200" y1="184" x2="80" y2="222"/>
+<line class="l2" x1="200" y1="184" x2="200" y2="222"/>
+<line class="l2" x1="200" y1="184" x2="320" y2="222"/>
+
+<rect class="b2" x="16" y="224" width="118" height="52"/>
+<text class="tt" x="75" y="243" text-anchor="middle">股票估值</text>
+<text class="tm" x="75" y="259" text-anchor="middle">折现率 ↑</text>
+<text class="tm" x="75" y="272" text-anchor="middle">长久期先跌</text>
+
+<rect class="b2" x="141" y="224" width="118" height="52"/>
+<text class="tt" x="200" y="243" text-anchor="middle">信用条件</text>
+<text class="tm" x="200" y="259" text-anchor="middle">借钱贵</text>
+<text class="tm" x="200" y="272" text-anchor="middle">违约率 ↑</text>
+
+<rect class="b2" x="266" y="224" width="118" height="52"/>
+<text class="tt" x="325" y="243" text-anchor="middle">汇率</text>
+<text class="tm" x="325" y="259" text-anchor="middle">美元利差 ↑</text>
+<text class="tm" x="325" y="272" text-anchor="middle">USD/SGD ↑</text>
+
+<line class="l2" x1="75" y1="276" x2="75" y2="296"/>
+<line class="l2" x1="200" y1="276" x2="200" y2="296"/>
+<line class="l2" x1="325" y1="276" x2="325" y2="296"/>
+<rect class="b2" x="16" y="298" width="368" height="28"/>
+<text class="tt" x="200" y="317" text-anchor="middle">增长与就业 → 又反过来影响通胀 → 回到最上面</text>
+</svg>
+<figcaption>测量层（图顶的橙色框）平时是隐形的，因为口径不常变。它一旦变动——像 9 月 30 日这样——就会绕过所有经济基本面，直接改变整条链的起点。这也是为什么统计机构的方法论文件值得读：它们是这个系统里少数"可以提前知道"的东西。</figcaption>
+</figure>
+
+<p>最后一件事：注意图最下面那条回路。增长和就业会反过来影响通胀，通胀又回到最上面的测量层。<strong>这个系统是有反馈的，不是一条直线。</strong>而有反馈的系统，"A 导致 B"这种说法必须格外小心——今天环 5 里那个"股市涨 → 测得的通胀涨 → 利率维持高位 → 压制股市"的回路，就是一个活生生的例子。</p>
+
+<h2>7｜今日新术语卡片</h2>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>术语（中文 / 英文）</th><th>大白话</th><th>出现在</th></tr>
+<tr><td>一篮子 / basket</td><td>用来衡量物价的那一组商品和服务</td><td>环 1</td></tr>
+<tr><td>权重 / weight</td><td>某样东西在你总开销里占的比例</td><td>环 1</td></tr>
+<tr><td>同比 / year-over-year (YoY)</td><td>和去年同一个月比</td><td>环 1</td></tr>
+<tr><td>环比 / month-over-month (MoM)</td><td>和上个月比</td><td>环 1</td></tr>
+<tr><td>年化 / annualized</td><td>把短期涨幅折算成"照这个速度涨一年会涨多少"</td><td>环 1</td></tr>
+<tr><td>基点 / basis point (bp)</td><td>0.01 个百分点。100 个基点 = 1 个百分点</td><td>环 1</td></tr>
+<tr><td>消费者物价指数 / CPI</td><td>问几千个家庭钱花在哪，只算他们<strong>自己掏</strong>的部分</td><td>环 2</td></tr>
+<tr><td>个人消费支出物价指数 / PCE</td><td>问企业卖了多少，包括保险和政府<strong>替你付</strong>的部分</td><td>环 2</td></tr>
+<tr><td>核心 / core</td><td>把食品和能源剔掉之后的版本</td><td>环 2</td></tr>
+<tr><td>替代效应 / substitution effect</td><td>某样东西涨价了，你就少买它、多买别的</td><td>环 2</td></tr>
+<tr><td>拉氏公式 / Laspeyres formula</td><td>权重固定不动的算法，会高估通胀</td><td>环 2</td></tr>
+<tr><td>费雪理想公式 / Fisher-Ideal formula</td><td>权重跟着替代走的算法，算出的通胀偏低</td><td>环 2</td></tr>
+<tr><td>范围效应 / scope effect</td><td>两个篮子装的东西根本不完全是同一批</td><td>环 2</td></tr>
+<tr><td>推算价格 / imputed price</td><td>没有真实交易发生，由统计机构估算出来的价格</td><td>环 5</td></tr>
+<tr><td>非市场服务 / nonmarket services</td><td>没有明码标价的那类服务（自住房租金、免费银行服务等）</td><td>环 5</td></tr>
+<tr><td>折算（平减）/ deflate</td><td>用价格指数把"花了多少钱"换算成"买了多少东西"</td><td>环 6</td></tr>
+<tr><td>准备金余额利率 / IORB</td><td>银行把钱放在央行能拿的利息，是隔夜利率的锚</td><td>环 8</td></tr>
+<tr><td>期限溢价 / term premium</td><td>把钱锁定更久，投资者要求的那一点额外补偿</td><td>环 8</td></tr>
+<tr><td>折现 / discounting</td><td>把未来的钱换算成今天值多少钱</td><td>4.2</td></tr>
+<tr><td>折现率 / discount rate</td><td>做上述换算时用的那个利率</td><td>4.2</td></tr>
+<tr><td>久期 / duration</td><td>一项资产的价值有多"靠后"。越靠后，对利率越敏感</td><td>4.2</td></tr>
+</table>
+</div>
+
+<h2>8｜自测与延伸</h2>
+
+<h3>三道思考题</h3>
+
+<p><strong>第 1 题。</strong>假设 9 月 30 日修订后，核心 PCE 同比从 3.3% 变成 3.0%。美联储离目标的距离缩小了百分之多少？这算不算"通胀下降了"？</p>
+
+<details>
+<summary>参考答案</summary>
+<div class="num">
+<div class="line">修订前的距离：3.3% − 2% = 1.3 个百分点</div>
+<div class="line">修订后的距离：3.0% − 2% = 1.0 个百分点</div>
+<div class="line">缩小比例：(1.3 − 1.0) ÷ 1.3 = 0.3 ÷ 1.3 = <b>约 23%</b></div>
+</div>
+<p>注意这个放大：读数只降了 0.3 个百分点（不到 10% 的相对变化），但<strong>"离目标的距离"缩小了 23%</strong>。因为距离是一个差值，分母比读数本身小得多，所以对读数变化的敏感度被放大了。这是理解"为什么最后一公里的通胀这么难"的一把钥匙：越接近目标，同样的读数变化对政策的含义越大。</p>
+<p><strong>算不算通胀下降了？不算。</strong>没有任何一件商品或服务的价格因此改变。改变的只是"我们怎么把它记下来"。</p>
+<p>但这里有一个真正微妙的地方，值得你想清楚：<strong>如果新方法比旧方法更准确</strong>，那么"真实的通胀"一直就是 3.0%，只是我们以前测错了。在这种情况下，政策以前是基于错误的信息在做决定，现在纠正了。所以答案取决于"新方法是不是真的更好"——BEA 说是（它给的理由是新方法能更好反映所消费服务的时点与数量），但这是发布机构的自我评价，不是独立验证。</p>
+</details>
+
+<p><strong>第 2 题。</strong>用第 1 节表里的真实权重算：如果 8 月能源同比从 14.7% 降到 5.0%，食品和核心都不变，整体 CPI 同比会变成多少？</p>
+
+<details>
+<summary>参考答案</summary>
+<div class="num">
+<div class="line">食品：0.13522 × 3.0 = 0.41</div>
+<div class="line">能源：0.07432 × 5.0 = <b>0.37</b>（原来是 1.09）</div>
+<div class="line">核心：0.79047 × 2.5 = 1.98</div>
+<div class="line">合计 = 0.41 + 0.37 + 1.98 = <b>2.76%</b></div>
+<div class="line">原来算出的是 3.48%，下降 <b>0.72 个百分点</b></div>
+</div>
+<p>验证一下这个降幅：能源涨幅降了 14.7 − 5.0 = 9.7 个百分点，乘以权重 0.07432 = <strong>0.72</strong>。对上了。</p>
+<p><strong>这题要你带走的是：</strong>整体 CPI 从 3.4% 掉到 2.8% 左右，可能<em>完全</em>不需要任何"通胀压力缓解"，只需要去年的油价高基数滚出窗口。这个现象叫<strong>基数效应</strong>（英文 base effect）。下次你看到"通胀大幅回落"的标题，第一件事是问：是分子变了，还是去年的分母滚掉了？</p>
+</details>
+
+<p><strong>第 3 题。</strong>3 个月国债现在 3.92%，隔夜利率 3.65%。如果明天 3 个月国债跌到 3.60%，市场的观点变成了什么？大约是多少概率？</p>
+
+<details>
+<summary>参考答案</summary>
+<p>第一步看方向：3.60% <strong>低于</strong> 3.65%。这说明市场预期未来三个月的隔夜利率平均值低于现在——也就是<strong>从"赌加息"翻成了"赌降息"</strong>。这是一次巨大的观点反转。</p>
+<p>第二步算幅度，用和环 8 完全一样的方法（9 月 17 日生效，占 91 天窗口的 83.5%）：</p>
+<div class="num">
+<div class="line">若"9 月必降一次 25 基点"：3.65 − 0.25 × 0.835 = <b>3.44%</b></div>
+<div class="line">若"完全不动"：<b>3.65%</b></div>
+<div class="line">实际 3.60% 落在两者之间</div>
+<div class="line">隐含概率 = (3.65 − 3.60) ÷ (3.65 − 3.44) = 0.05 ÷ 0.21 = <b>约 24%</b></div>
+</div>
+<p>所以答案是：市场从"接近确定要加息"转向"约四分之一的概率在 9 月降息"。<strong>要让 3 个月国债从 3.92% 掉到 3.60%（32 个基点），需要发生一件很大的事</strong>——比如今晚的就业报告非常糟糕，或者 9 月 11 日的 CPI 大幅低于预期。</p>
+<p>别忘了环 8.4 的三个漏洞：这个 24% 是近似值，不是精确概率。</p>
+</details>
+
+<h3>今天就能做的一个小动作（十分钟）</h3>
+
+<div class="card">
+<p>打开美国财政部的每日收益率曲线页面（链接在下面），把今天的 <strong>3 个月</strong>和 <strong>1 年期</strong>收益率抄下来，各减去 3.65%（当前 IORB）。</p>
+<p>然后建一个只有四列的表格：<strong>日期 ｜ 3M ｜ 1Y ｜ 3M 减 3.65</strong>。每周记一次。</p>
+<p>三个月之后你会拥有一样很多专业投资者都没有的东西：<strong>一份你自己记录的、市场对美联储预期变化的时间序列</strong>，而且每一格你都知道它是怎么算出来的。这比读一百篇市场评论有用。</p>
+<p><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve">美国财政部 · 每日国债收益率曲线</a></p>
+</div>
+
+<h3>延伸阅读</h3>
+
+<ol>
+<li><p><a href="https://www.bls.gov/opub/btn/archive/differences-between-the-consumer-price-index-and-the-personal-consumption-expenditures-price-index.pdf">BLS《Differences between the Consumer Price Index and the PCE price index》</a>（PDF，英文）<br>
+<strong>难度：低。</strong>今天环 2 的整个骨架就来自这一篇。政府统计机构写给公众看的东西，语言比学术论文平实得多。<strong>为什么值得读：</strong>这是你第一次读"一手方法论文件"的绝佳起点——你会发现你已经懂了里面 80% 的内容。</p></li>
+
+<li><p><a href="https://www.federalreserve.gov/newsevents/speech/waller20260903a.htm">Waller《The Economic Outlook and Some Comments on My Policy Communication》</a>（英文，约 15 分钟）<br>
+<strong>难度：中。</strong><strong>为什么值得读：</strong>读央行官员讲话原文是这门课的必修基本功。请特别注意他怎么<em>组织论证</em>：先承认 12 个月读数、再说明为什么它不是最好的指引、再给替代指标（3 个月年化）、再指出一个即将到来的技术性因素、最后才给政策立场。这是一个非常干净的论证结构，值得模仿。同时注意他没做的事——他没有说"通胀已经解决了"。</p></li>
+
+<li><p><a href="https://apps.bea.gov/scb/issues/2026/06-june/0626-nea-preview.htm">BEA《Preview of the 2026 Annual Update of the National Economic Accounts》</a>（英文）<br>
+<strong>难度：中高，可以跳读。</strong><strong>为什么值得读：</strong>这是那种"没有人读、但读了就有信息优势"的文件。9 月 30 日会发生的事，6 月就已经白纸黑字公布了。你不需要读懂全部，只要找到关于 portfolio management 的那几段，体会一下"重大市场事件其实提前三个月就摆在官网上"是什么感觉。</p></li>
+</ol>
+
+<h2>9｜今天查实了什么 / 没查实什么</h2>
+
+<p class="q">这不是免责声明，是给你的<strong>可信度地图</strong>。你应该按不同的力度相信这篇文章的不同部分，下面告诉你哪部分该用多大力度。</p>
+
+<h3>9.1 数据出处与口径清单</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>数据</th><th>数值</th><th>口径</th><th>来源性质</th></tr>
+<tr><td>CPI 整体同比</td><td>3.4%</td><td>BLS，2026年7月，未季调，同比</td><td><strong>一手</strong>（发布机构原文）</td></tr>
+<tr><td>核心 CPI 同比</td><td>2.5%</td><td>BLS，2026年7月，未季调，同比</td><td><strong>一手</strong></td></tr>
+<tr><td>CPI 能源 / 食品 / 住房同比</td><td>14.7% / 3.0% / 3.2%</td><td>BLS，2026年7月，未季调，同比</td><td><strong>一手</strong></td></tr>
+<tr><td>CPI 分项权重（相对重要性）</td><td>食品13.522%、能源7.432%、核心79.047%、住房35.304%、医疗保健服务6.840%</td><td>BLS，基期 2026年6月</td><td><strong>一手</strong>（CPI 表1）</td></tr>
+<tr><td>PCE 整体 / 核心同比</td><td>3.7% / 3.3%</td><td>BEA，2026年7月，同比；2026-08-26 发布</td><td><strong>一手</strong></td></tr>
+<tr><td>核心 PCE 环比</td><td>+0.2%</td><td>BEA，2026年7月，季调，环比未年化</td><td><strong>一手</strong></td></tr>
+<tr><td>3个月核心 PCE 年化</td><td>3.05%（2月为4.76%）</td><td>Waller 引用，截至2026年7月的三个月，年化</td><td><strong>一手</strong>（美联储讲话原文）</td></tr>
+<tr><td>联邦基金目标区间 / IORB</td><td>3.50–3.75% / 3.65%</td><td>美联储，2026-07-29 会议维持，7月30日生效</td><td><strong>一手</strong></td></tr>
+<tr><td>7月 FOMC 投票</td><td>9 比 3，三票主张加息25bp</td><td>2026-07-28/29 会议纪要</td><td><strong>一手</strong></td></tr>
+<tr><td>美联储2%目标的定义</td><td>"as measured by...the price index for personal consumption expenditures"</td><td>《长期目标与货币政策策略声明》，2026-01-27重申</td><td><strong>一手</strong></td></tr>
+<tr><td>国债收益率 3M/1Y/2Y/10Y/30Y</td><td>3.92 / 4.16 / 4.39 / 4.79 / 5.27%</td><td>美国财政部每日par收益率曲线，<strong>2026-09-02</strong>（非9月3日）</td><td><strong>一手</strong></td></tr>
+<tr><td>7月非农 / 失业率 / 时薪</td><td>−23,000 / 4.1% / +3.2%</td><td>BLS，2026年7月，季调（时薪为同比名义）</td><td><strong>一手</strong></td></tr>
+<tr><td>BEA 三项方法变更</td><td>组合管理、法律服务、计算机软件</td><td>BEA，2026年6月《年度修订预览》，2026-09-30生效</td><td><strong>一手</strong></td></tr>
+<tr><td>BLS 组合管理 PPI 方法（FEE = BP×FV）</td><td>原文三段</td><td>BLS PPI 方法说明（NAICS 523940）</td><td><strong>一手</strong></td></tr>
+<tr><td>四种效应 2002–2007 数值</td><td>+0.66 / +0.17 / −0.53 / +0.04，合计 +0.34</td><td>BLS，2002–2007 年平均，符号为"CPI 高于 PCE"</td><td><strong>一手</strong>（但是 2007 年之前的历史数据）</td></tr>
+<tr><td>住房在 PCE 中占约 16%</td><td>16%</td><td>PIMCO，2026-05-06</td><td><strong>二手</strong>（卖方研究，未经我用官方数据核对）</td></tr>
+<tr><td>组合管理贡献约 27bp；修订将削减 20–25bp</td><td>27bp / 20–25bp</td><td>Employ America，2026年8月，核心PCE同比</td><td><strong>二手</strong>（研究机构，非发布机构）</td></tr>
+<tr><td>软件0.1pp + 组合管理0.2pp ≈ 0.3pp</td><td>0.3pp</td><td>Confluence Investment Management，2026-08-05</td><td><strong>二手</strong></td></tr>
+<tr><td>标普/纳指/VIX/DXY/USDSGD/布伦特/黄金</td><td>见第1.3节</td><td>2026-09-03 读数</td><td><strong>二手</strong>（行情商，非交易所或发行方原始数据）</td></tr>
+<tr><td>发布日程（CPI 9/11、FOMC 9/15-16、BEA 9/30、就业 9/4）</td><td>——</td><td>各机构官方日程表</td><td><strong>一手</strong></td></tr>
+</table>
+</div>
+
+<h3>9.2 每一环的依据评级</h3>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>环</th><th>内容</th><th>依据</th></tr>
+<tr><td>1</td><td>物价指数的构造、权重、同比/环比/年化/基点</td><td><strong>纯算术</strong>，可完全自行验证</td></tr>
+<tr><td>2</td><td>CPI 与 PCE 的四种差异；历史上 CPI 高约0.34pp；现在反转为 −0.8pp</td><td><strong>一手出处</strong>（BLS 方法文章 + 两家发布机构数据）</td></tr>
+<tr><td>2.2</td><td>用权重复算 CPI 得 3.48% vs 公布 3.4%</td><td><strong>算术</strong>；那 8 个基点的解释是<strong>我的推测</strong>（已标框）</td></tr>
+<tr><td>2.6</td><td>住房权重的解释方向是反的，缺口实为约 1.2pp</td><td><strong>算术</strong>，但用了二手的 16% 权重，且假设"非住房部分涨幅相同"（已标注）</td></tr>
+<tr><td>3</td><td>美联储2%目标按 PCE 定义</td><td><strong>一手出处</strong>（制度文本原文）</td></tr>
+<tr><td>4</td><td>0.5pp vs 1.3pp；7月 9比3 投票</td><td><strong>算术 + 一手出处</strong>；"若目标是CPI就不会有反对票"是我的反事实推断</td></tr>
+<tr><td>5</td><td>推算价格；FEE = BP × FV；股市涨则该指数涨</td><td><strong>一手原文 + 算术</strong>；"所以股市涨则指数涨"这一步是<strong>我从原文推出的</strong>，非 BLS 原话（有两处独立佐证）</td></tr>
+<tr><td>5.3</td><td>量级 27bp / 0.3pp</td><td><strong>二手出处</strong>；我的示意计算只是合理性检验，非独立验证</td></tr>
+<tr><td>6</td><td>9月30日三项方法变更的内容</td><td><strong>一手出处</strong>（BEA 预览文件）</td></tr>
+<tr><td>6</td><td>下调幅度 0.2–0.3pp</td><td><strong>估计值，无官方来源</strong>（已标框）</td></tr>
+<tr><td>7</td><td>9月3日市场收盘价</td><td><strong>二手</strong>（行情商）；"因为 Waller 所以涨"是<strong>我标注过的推测</strong></td></tr>
+<tr><td>8</td><td>3.92% > 3.65% → 市场定价加息</td><td><strong>算术 + 一手数据</strong>，方向确凿</td></tr>
+<tr><td>8.3</td><td>"约两次加息"</td><td><strong>算术</strong>，但受期限溢价与报价惯例影响，是<strong>近似值</strong>（三个漏洞已列明）</td></tr>
+<tr><td>9</td><td>9月决议在 CPI 之后、PCE 之前</td><td><strong>一手出处</strong>（三份官方日程）；"美联储用CPI推算PCE"是<strong>我的推断</strong></td></tr>
+<tr><td>4.4</td><td>MAS 的汇率型货币政策</td><td><strong>完全未查证</strong>，已标框，请勿采信</td></tr>
+</table>
+</div>
+
+<h3>9.3 接不上的地方（三处）</h3>
+
+<ol>
+<li><p><strong>我没能把当前这 0.8 个百分点的缺口，按四种效应拆成具体数字。</strong>BLS 的四效应框架我有，2002–2007 的历史拆解我有，但 2026 年 7 月的当期拆解我没有找到任何机构公布。我只能证明"住房权重不是原因，而且方向相反"，并从二手来源知道嫌疑对象是组合管理费、科技设备、机票和医疗——但我无法给出各自的贡献。<strong>这里我接不上。</strong>要接上需要 BEA/BLS 的当期逐项对账，或 BEA 公布的 PCE 明细权重。</p></li>
+
+<li><p><strong>我没能确认 9 月 30 日修订的净影响方向。</strong>三家非官方机构估计组合管理这一项会带来 0.2–0.3pp 的下修，但同一次修订还包含新数据源和全部季节因子的重算，回溯到 2021 年一季度。这些的净效果我完全不知道，BEA 也没有公布。<strong>这里我接不上</strong>，而且这是第 5 节里我认为最脆弱的那个假设的根源。26 天后会有答案。</p></li>
+
+<li><p><strong>我没能验证 9 月 3 日股市上涨与 Waller 讲话之间的因果比重。</strong>价格是事实，归因是叙事。我把它明确标成了推测。</p></li>
+</ol>
+
+<h3>9.4 两点小误差，我不遮掩</h3>
+
+<ul>
+<li>第 1.3 节的国债收益率是财政部官网 <strong>9 月 2 日</strong>的值——我查证时 9 月 3 日的官方数据尚未更新。而股票、汇率、商品是 9 月 3 日的。<strong>这两组数据不在同一天。</strong>环 8 的所有算术用的都是 9 月 2 日那组，内部是一致的，但你不应该把它和 9 月 3 日的股价放在一起讲"当天联动"。</li>
+<li>第 4.1 节里一年前的 USD/SGD（1.2887）是我从"12 个月涨跌幅 1.56%"倒推出来的，不是直接观察到的历史报价。</li>
+</ul>
+
+<hr>
+
+<p class="q" style="margin-top:2.5em">Day 18｜领域 B：通胀、增长与宏观数据｜锚点原理 B3：PCE 与 CPI 的差别及其政策含义<br>
+下一课（Day 19）轮到领域 C：地缘政治、能源与大宗商品。</p>
+
+</div>
